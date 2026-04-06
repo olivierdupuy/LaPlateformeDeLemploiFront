@@ -1,0 +1,140 @@
+<div class="container-main py-4">
+  <nav aria-label="breadcrumb" class="mb-3 fade-up">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/">Accueil</a></li>
+      <li class="breadcrumb-item"><a routerLink="/offres">Offres</a></li>
+      <li class="breadcrumb-item active">{{ isEdit ? 'Modifier' : 'Nouvelle offre' }}</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8 fade-up stagger-1">
+      <div class="card-static p-4" style="border-radius:var(--r-xl);">
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3" style="border-bottom:1px solid var(--sand-100);">
+          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--forest-600),var(--forest-700));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;">
+            <i class="bi" [ngClass]="isEdit ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+          </div>
+          <div>
+            <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:.1rem;letter-spacing:-.02em;">{{ isEdit ? "Modifier l'offre" : 'Publier une offre' }}</h2>
+            <p style="font-size:.85rem;color:var(--sand-400);margin-bottom:0;">{{ isEdit ? 'Mettez a jour les informations' : 'Remplissez les informations ci-dessous' }}</p>
+          </div>
+        </div>
+
+        <!-- Templates -->
+        @if (!isEdit && templates.length > 0) {
+          <div class="mb-4 p-3" style="background:var(--sand-50);border-radius:var(--r-md);border:1px solid var(--border);">
+            <div class="d-flex align-items-center gap-2 mb-2" style="font-size:.85rem;font-weight:700;color:var(--sand-600);">
+              <i class="bi bi-bookmark" style="color:var(--forest-600);"></i>Modeles sauvegardes
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              @for (t of templates; track t.id) {
+                <div class="d-flex align-items-center gap-1">
+                  <button type="button" class="btn-ghost" style="padding:.25rem .6rem;font-size:.78rem;" (click)="loadTemplate(t)">{{ t.name }}</button>
+                  <button type="button" style="background:none;border:none;color:var(--sand-400);font-size:.7rem;cursor:pointer;" (click)="deleteTemplate(t)" title="Supprimer"><i class="bi bi-x"></i></button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Sauvegarder comme modele -->
+        @if (!isEdit) {
+          <div class="mb-4 d-flex gap-2 align-items-center">
+            <input type="text" class="form-control" style="font-size:.82rem;padding:.35rem .6rem;max-width:220px;" placeholder="Nom du modele..." [(ngModel)]="templateName" [ngModelOptions]="{standalone: true}">
+            <button type="button" class="btn-ghost" style="padding:.35rem .6rem;font-size:.78rem;white-space:nowrap;" (click)="saveAsTemplate()" [disabled]="savingTemplate">
+              <i class="bi bi-bookmark-plus me-1"></i>Sauvegarder comme modele
+            </button>
+          </div>
+        }
+
+        <!-- Bandeau IA -->
+        @if (!isEdit) {
+          <div class="ai-banner mb-4">
+            @if (generating) {
+              <div class="d-flex align-items-center gap-3">
+                <div class="spinner-border spinner-border-sm"></div>
+                <div><div class="fw-bold" style="font-size:.88rem;">Generation en cours...</div><div style="font-size:.78rem;color:var(--sand-400);">L'IA redige votre offre</div></div>
+              </div>
+            } @else {
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="ai-banner-icon"><i class="bi bi-stars"></i></div>
+                <div class="flex-grow-1">
+                  <div class="fw-bold" style="font-size:.88rem;">Redigez votre offre avec l'IA</div>
+                  <div style="font-size:.78rem;color:var(--sand-400);">Tapez un titre, puis laissez l'IA generer une description professionnelle</div>
+                </div>
+                <button type="button" class="btn-accent" (click)="generateWithAI()"><i class="bi bi-magic me-1"></i>Generer avec l'IA</button>
+              </div>
+            }
+          </div>
+        }
+
+        <form (ngSubmit)="onSubmit()" class="form-custom">
+          <div class="mb-3">
+            <label class="form-label">Titre du poste <span style="color:var(--rose-500);">*</span></label>
+            <input type="text" class="form-control form-control-lg" placeholder="Ex: Developpeur Full Stack" [(ngModel)]="form.title" name="title" required>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Entreprise <span style="color:var(--rose-500);">*</span></label>
+              <select class="form-select" [(ngModel)]="form.companyId" name="companyId" required>
+                <option [value]="0" disabled>Choisir</option>
+                @for (c of companies; track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Categorie <span style="color:var(--rose-500);">*</span></label>
+              <select class="form-select" [(ngModel)]="form.categoryId" name="categoryId" required>
+                <option [value]="0" disabled>Choisir</option>
+                @for (c of categories; track c.id) { <option [value]="c.id">{{ c.name }}</option> }
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description <span style="color:var(--rose-500);">*</span></label>
+            <textarea class="form-control" rows="6" placeholder="Missions, competences..." [(ngModel)]="form.description" name="description" required></textarea>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Localisation <span style="color:var(--rose-500);">*</span></label>
+              <input type="text" class="form-control" placeholder="Paris" [(ngModel)]="form.location" name="location" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Contrat</label>
+              <select class="form-select" [(ngModel)]="form.contractType" name="contractType">
+                @for (t of contractTypes; track t) { <option [value]="t">{{ t }}</option> }
+              </select>
+            </div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label"><i class="bi bi-currency-euro me-1" style="color:var(--forest-500);"></i>Salaire min (EUR/an)</label>
+              <input type="number" class="form-control" placeholder="45000" [(ngModel)]="form.salaryMin" name="salaryMin">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"><i class="bi bi-currency-euro me-1" style="color:var(--forest-500);"></i>Salaire max (EUR/an)</label>
+              <input type="number" class="form-control" placeholder="60000" [(ngModel)]="form.salaryMax" name="salaryMax">
+            </div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Date d'expiration</label>
+              <input type="date" class="form-control" [(ngModel)]="form.expiresAt" name="expiresAt">
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="form-check" style="padding:.7rem 1rem;background:var(--cyan-50);border-radius:8px;border:1px solid var(--cyan-400);width:100%;">
+                <input class="form-check-input" type="checkbox" id="isRemote" [(ngModel)]="form.isRemote" name="isRemote">
+                <label class="form-check-label" for="isRemote" style="font-weight:600;font-size:.88rem;color:var(--cyan-600);"><i class="bi bi-house-door me-1"></i>Teletravail possible</label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-3 pt-3" style="border-top:1px solid var(--sand-100);">
+            <button type="submit" class="btn btn-primary btn-lg flex-grow-1" style="font-weight:600;">
+              <i class="bi me-1" [ngClass]="isEdit ? 'bi-check-lg' : 'bi-send'"></i>{{ isEdit ? 'Enregistrer' : "Publier l'offre" }}
+            </button>
+            <a routerLink="/offres" class="btn-ghost d-flex align-items-center" style="padding:.6rem 1.4rem;font-weight:600;">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

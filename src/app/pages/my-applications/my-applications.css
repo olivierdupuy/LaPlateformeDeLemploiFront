@@ -1,0 +1,4 @@
+.badge-pending { background: var(--copper-50); color: var(--copper-600); }
+.badge-reviewed { background: var(--night-50); color: var(--night-600); }
+.badge-accepted { background: var(--forest-50); color: var(--forest-600); }
+.badge-rejected { background: var(--rose-50); color: var(--rose-600); }

@@ -1,0 +1,75 @@
+<div class="container-main py-4">
+  <nav aria-label="breadcrumb" class="mb-3 fade-up"><ol class="breadcrumb"><li class="breadcrumb-item"><a routerLink="/">Accueil</a></li><li class="breadcrumb-item"><a routerLink="/tableau-de-bord">Dashboard</a></li><li class="breadcrumb-item active">Mes offres</li></ol></nav>
+  <div class="d-flex justify-content-between align-items-center mb-4 fade-up">
+    <div>
+      <h1 class="fw-bold mb-0" style="font-size:1.5rem;letter-spacing:-.02em;"><i class="bi bi-briefcase me-2" style="color:var(--forest-600);"></i>Mes offres</h1>
+      <p style="color:var(--sand-400);font-size:.88rem;margin-bottom:0;">{{ offers.length }} offre{{ offers.length > 1 ? 's' : '' }} publiee{{ offers.length > 1 ? 's' : '' }}</p>
+    </div>
+    <a routerLink="/offres/nouvelle/creer" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouvelle offre</a>
+  </div>
+
+  @if (loading) {
+    <div class="d-flex flex-column gap-3">
+      @for (i of [1,2,3]; track i) {
+        <div class="card-static p-3" style="border-radius:var(--r-lg);"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text" style="width:50%;"></div><div class="d-flex gap-2 mt-2"><div class="skeleton skeleton-badge"></div><div class="skeleton skeleton-badge" style="width:70px;"></div></div></div>
+      }
+    </div>
+  } @else if (offers.length === 0) {
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="bi bi-briefcase"></i></div>
+      <h4 class="empty-state-title">Aucune offre publiee</h4>
+      <p class="empty-state-text">Commencez par publier votre premiere offre</p>
+      <a routerLink="/offres/nouvelle/creer" class="btn btn-primary">Publier une offre</a>
+    </div>
+  } @else {
+    <div class="d-flex flex-column gap-3">
+      @for (o of offers; track o.job.id; let i = $index) {
+        <div class="card-static p-3 fade-up" [ngClass]="'stagger-' + ((i % 8) + 1)" style="border-radius:var(--r-lg);">
+          <div class="d-flex align-items-start gap-3">
+            <div class="flex-grow-1 min-w-0">
+              <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                <a [routerLink]="['/offres', o.job.id]" class="fw-bold text-decoration-none" style="color:var(--sand-800);font-size:.95rem;">{{ o.job.title }}</a>
+                <span class="badge" [ngClass]="getContractBadgeClass(o.job.contractType)">{{ o.job.contractType }}</span>
+                @if (o.job.isActive) {
+                  <span class="badge" style="background:var(--forest-50);color:var(--forest-600);">Active</span>
+                } @else {
+                  <span class="badge" style="background:var(--sand-100);color:var(--sand-500);">Inactive</span>
+                }
+              </div>
+              <div style="font-size:.82rem;color:var(--sand-400);">{{ o.job.location }} &middot; {{ o.job.categoryName }}</div>
+
+              <!-- Stats candidatures -->
+              <div class="d-flex gap-3 mt-2">
+                <div class="offer-stat">
+                  <i class="bi bi-eye" style="color:var(--sand-400);"></i>
+                  <span><strong>{{ o.job.viewCount || 0 }}</strong> vue{{ (o.job.viewCount || 0) > 1 ? 's' : '' }}</span>
+                </div>
+                <div class="offer-stat">
+                  <i class="bi bi-people" style="color:var(--night-500);"></i>
+                  <span><strong>{{ o.applicationsCount }}</strong> candidature{{ o.applicationsCount > 1 ? 's' : '' }}</span>
+                </div>
+                @if (o.pendingCount > 0) {
+                  <div class="offer-stat">
+                    <i class="bi bi-clock" style="color:var(--copper-500);"></i>
+                    <span><strong>{{ o.pendingCount }}</strong> en attente</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-1 flex-shrink-0">
+              <button class="btn-ghost" style="padding:.35rem .6rem;font-size:.82rem;" (click)="toggleActive(o)"
+                      [title]="o.job.isActive ? 'Desactiver' : 'Activer'">
+                <i class="bi" [ngClass]="o.job.isActive ? 'bi-pause-circle' : 'bi-play-circle'"></i>
+              </button>
+              <a [routerLink]="['/offres', o.job.id, 'modifier']" class="btn-ghost" style="padding:.35rem .6rem;font-size:.82rem;" title="Modifier"><i class="bi bi-pencil"></i></a>
+              <button class="btn-ghost" style="padding:.35rem .6rem;font-size:.82rem;" (click)="duplicateOffer(o)" title="Dupliquer"><i class="bi bi-copy"></i></button>
+              <button class="btn-danger-soft" style="font-size:.82rem;" (click)="deleteOffer(o)" title="Supprimer"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

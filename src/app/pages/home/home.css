@@ -1,0 +1,64 @@
+/* Hero badge */
+.hero-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  padding: .4rem 1rem; border-radius: var(--r-full);
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.8); font-size: .8rem; font-weight: 600;
+  margin-bottom: 1.2rem; backdrop-filter: blur(8px);
+}
+
+/* Hero quick tags */
+.hero-quick-links {
+  display: flex; align-items: center; justify-content: center;
+  gap: .5rem; margin-top: 1.5rem; flex-wrap: wrap;
+}
+.hero-quick-tag {
+  padding: .3rem .7rem; border-radius: var(--r-full);
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.65); font-size: .78rem; font-weight: 500;
+  text-decoration: none; transition: all .15s;
+}
+.hero-quick-tag:hover {
+  background: rgba(255,255,255,.18); color: #fff;
+}
+
+/* How it works */
+.how-card {
+  padding: 2rem 1.5rem; border-radius: var(--r-xl); text-align: center;
+  position: relative; overflow: hidden;
+}
+.how-step {
+  position: absolute; top: .8rem; right: 1rem;
+  font-size: 3rem; font-weight: 900; color: var(--sand-100);
+  line-height: 1;
+}
+.how-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: var(--forest-50); color: var(--forest-500);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin-bottom: 1rem;
+}
+.how-title { font-weight: 700; font-size: .95rem; margin-bottom: .4rem; }
+.how-text { font-size: .85rem; color: var(--sand-500); line-height: 1.6; margin-bottom: 0; }
+
+/* CTA Section */
+.cta-card {
+  padding: 2.5rem 2rem; border-radius: var(--r-xl);
+  position: relative; overflow: hidden;
+}
+.cta-seeker {
+  background: linear-gradient(135deg, var(--forest-50) 0%, #fff 100%);
+  border: 1px solid var(--forest-200);
+}
+.cta-company {
+  background: linear-gradient(135deg, var(--copper-50) 0%, #fff 100%);
+  border: 1px solid var(--copper-200);
+}
+.cta-card-icon {
+  width: 48px; height: 48px; border-radius: 14px;
+  background: var(--forest-50); color: var(--forest-500);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; margin-bottom: 1rem;
+}
+.cta-card-title { font-size: 1.15rem; font-weight: 800; margin-bottom: .5rem; letter-spacing: -.02em; }
+.cta-card-text { font-size: .88rem; color: var(--sand-500); line-height: 1.6; margin-bottom: 1.2rem; }

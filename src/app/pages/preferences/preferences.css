@@ -1,0 +1,31 @@
+.pref-header-icon {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: linear-gradient(135deg, var(--forest-500), var(--forest-700));
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.6rem;
+  box-shadow: 0 4px 16px rgba(6,95,70,.2);
+}
+
+.pref-section-head {
+  display: flex; align-items: center; gap: .6rem; margin-bottom: 1rem;
+}
+.pref-section-head h6 { font-weight: 700; margin-bottom: 0; font-size: .95rem; }
+.pref-section-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--forest-50); color: var(--forest-500);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+
+.pref-chip {
+  display: inline-flex; align-items: center; gap: .2rem;
+  padding: .5rem 1rem; border-radius: var(--r-full);
+  border: 1.5px solid var(--sand-200); background: var(--surface);
+  color: var(--sand-600); font-weight: 600; font-size: .82rem;
+  cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.pref-chip:hover { border-color: var(--forest-300); color: var(--forest-600); }
+.pref-chip--active {
+  background: var(--forest-600); border-color: var(--forest-600); color: #fff;
+  box-shadow: 0 2px 8px rgba(6,95,70,.2);
+}

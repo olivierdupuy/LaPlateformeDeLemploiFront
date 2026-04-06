@@ -1,0 +1,169 @@
+<div class="container-main py-4">
+  <nav aria-label="breadcrumb" class="mb-3 fade-up"><ol class="breadcrumb"><li class="breadcrumb-item"><a routerLink="/">Accueil</a></li><li class="breadcrumb-item"><a routerLink="/tableau-de-bord">Dashboard</a></li><li class="breadcrumb-item active">Entretiens</li></ol></nav>
+  <div class="d-flex justify-content-between align-items-center mb-4 fade-up">
+    <div>
+      <h1 class="fw-bold mb-0" style="font-size:1.5rem;letter-spacing:-.02em;">
+        <i class="bi bi-calendar-event me-2" style="color:var(--forest-600);"></i>Entretiens
+      </h1>
+      <p style="color:var(--sand-400);font-size:.88rem;margin-bottom:0;">
+        {{ upcomingInterviews.length }} entretien{{ upcomingInterviews.length > 1 ? 's' : '' }} a venir
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      @if (auth.isCompany) {
+        <button class="btn-accent" (click)="showForm = !showForm">
+          <i class="bi bi-plus-circle me-1"></i>Planifier
+        </button>
+      }
+      <a routerLink="/tableau-de-bord" class="btn-ghost"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-5"><span class="spinner-border text-success"></span></div>
+  } @else {
+
+    <!-- Form -->
+    @if (showForm && auth.isCompany) {
+      <div class="card-static p-4 mb-4 fade-up" style="border-radius:var(--r-xl);">
+        <h3 style="font-size:.95rem;font-weight:800;margin-bottom:1rem;">
+          <i class="bi bi-calendar-plus me-2"></i>Planifier un entretien
+        </h3>
+        <form (ngSubmit)="scheduleInterview()" class="form-custom">
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label">N° de candidature</label>
+              <input type="number" class="form-control" [(ngModel)]="formApplicationId" name="appId" required placeholder="ID candidature">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-control" [(ngModel)]="formDate" name="date" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Heure</label>
+              <input type="time" class="form-control" [(ngModel)]="formTime" name="time" required>
+            </div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-md-3">
+              <label class="form-label">Duree (min)</label>
+              <select class="form-control" [(ngModel)]="formDuration" name="duration">
+                <option [value]="15">15 min</option>
+                <option [value]="30">30 min</option>
+                <option [value]="45">45 min</option>
+                <option [value]="60">1h</option>
+                <option [value]="90">1h30</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Type</label>
+              <select class="form-control" [(ngModel)]="formType" name="type">
+                <option>Visio</option>
+                <option>Presentiel</option>
+                <option>Telephone</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Lieu / Lien</label>
+              <input type="text" class="form-control" [(ngModel)]="formLocation" name="location" placeholder="https://meet.google.com/... ou adresse">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Notes (optionnel)</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="formNotes" name="notes" placeholder="Informations supplementaires..."></textarea>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="saving || !formDate || !formTime || !formApplicationId" style="font-weight:700;">
+              @if (saving) { <span class="spinner-border spinner-border-sm me-2"></span> }
+              <i class="bi bi-calendar-check me-1"></i>Planifier
+            </button>
+            <button type="button" class="btn-ghost" (click)="showForm = false">Annuler</button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- Upcoming -->
+    @if (upcomingInterviews.length > 0) {
+      <h3 class="section-label fade-up">A venir</h3>
+      <div class="d-flex flex-column gap-3 mb-4">
+        @for (itw of upcomingInterviews; track itw.id; let i = $index) {
+          <div class="card-static p-3 fade-up interview-card" [ngClass]="'stagger-' + ((i % 8) + 1)" style="border-radius:var(--r-lg);">
+            <div class="d-flex gap-3">
+              <div class="itw-date-badge">
+                <div class="itw-date-day">{{ formatDate(itw.scheduledAt).split(' ')[1] }}</div>
+                <div class="itw-date-month">{{ formatDate(itw.scheduledAt).split(' ')[2]?.substring(0,3) }}</div>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="fw-bold" style="font-size:.95rem;">{{ itw.jobOfferTitle }}</span>
+                  <span class="itw-status-badge" [style.background]="getStatusColor(itw.status)">{{ getStatusLabel(itw.status) }}</span>
+                </div>
+                <div style="font-size:.85rem;color:var(--sand-500);">
+                  <i class="bi" [ngClass]="getTypeIcon(itw.type)" style="margin-right:.3rem;"></i>{{ itw.type }}
+                  &middot; {{ formatTime(itw.scheduledAt) }}
+                  &middot; {{ itw.durationMinutes }} min
+                  @if (itw.location) { &middot; <i class="bi bi-geo-alt me-1"></i>{{ itw.location }} }
+                </div>
+                <div style="font-size:.82rem;color:var(--sand-400);margin-top:.25rem;">
+                  {{ auth.isCompany ? 'Candidat : ' + itw.candidateName : 'Avec : ' + itw.companyUserName }}
+                </div>
+                @if (itw.notes) {
+                  <div style="font-size:.82rem;color:var(--sand-500);margin-top:.25rem;font-style:italic;">{{ itw.notes }}</div>
+                }
+              </div>
+              <div class="d-flex flex-column gap-1 align-items-end">
+                @if (auth.isJobSeeker && itw.status === 'Planned') {
+                  <button class="btn-ghost" style="padding:.2rem .6rem;font-size:.75rem;" (click)="confirmInterview(itw)">
+                    <i class="bi bi-check me-1"></i>Confirmer
+                  </button>
+                }
+                @if (auth.isCompany) {
+                  @if (itw.status !== 'Completed') {
+                    <button class="btn-ghost" style="padding:.2rem .6rem;font-size:.75rem;" (click)="markCompleted(itw)">
+                      <i class="bi bi-check-circle me-1"></i>Termine
+                    </button>
+                  }
+                  <button class="btn-danger-soft" style="padding:.2rem .6rem;font-size:.75rem;" (click)="cancelInterview(itw)">
+                    <i class="bi bi-x me-1"></i>Annuler
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Past -->
+    @if (pastInterviews.length > 0) {
+      <h3 class="section-label fade-up" style="color:var(--sand-400);">Passes</h3>
+      <div class="d-flex flex-column gap-3">
+        @for (itw of pastInterviews; track itw.id) {
+          <div class="card-static p-3" style="border-radius:var(--r-lg);opacity:.6;">
+            <div class="d-flex gap-3 align-items-center">
+              <div class="itw-date-badge" style="background:var(--sand-100);color:var(--sand-500);">
+                <div class="itw-date-day">{{ formatDate(itw.scheduledAt).split(' ')[1] }}</div>
+                <div class="itw-date-month">{{ formatDate(itw.scheduledAt).split(' ')[2]?.substring(0,3) }}</div>
+              </div>
+              <div class="flex-grow-1">
+                <span class="fw-bold" style="font-size:.9rem;">{{ itw.jobOfferTitle }}</span>
+                <span class="itw-status-badge ms-2" [style.background]="getStatusColor(itw.status)">{{ getStatusLabel(itw.status) }}</span>
+                <div style="font-size:.82rem;color:var(--sand-400);">
+                  {{ auth.isCompany ? itw.candidateName : itw.companyUserName }} &middot; {{ itw.type }}
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @if (interviews.length === 0) {
+      <div class="card-static p-5 text-center fade-up" style="border-radius:var(--r-xl);">
+        <i class="bi bi-calendar-event" style="font-size:3rem;color:var(--sand-300);"></i>
+        <p style="color:var(--sand-400);margin-top:1rem;">Aucun entretien planifie</p>
+      </div>
+    }
+  }
+</div>

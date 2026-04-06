@@ -1,0 +1,327 @@
+<div class="container-main py-4">
+  <nav aria-label="breadcrumb" class="mb-3 fade-up"><ol class="breadcrumb"><li class="breadcrumb-item"><a routerLink="/">Accueil</a></li><li class="breadcrumb-item"><a routerLink="/tableau-de-bord">Dashboard</a></li><li class="breadcrumb-item active">Mon compte</li></ol></nav>
+  <div class="d-flex justify-content-between align-items-center mb-4 fade-up">
+    <div>
+      <h1 class="fw-bold mb-0" style="font-size:1.5rem;letter-spacing:-.02em;">
+        <i class="bi bi-shield-lock me-2" style="color:var(--forest-600);"></i>Gestion du compte
+      </h1>
+      <p style="color:var(--sand-400);font-size:.88rem;margin-bottom:0;">Securite, mot de passe et parametres du compte</p>
+    </div>
+    <a routerLink="/tableau-de-bord" class="btn-ghost"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
+  </div>
+
+  <div class="row g-4">
+    <!-- Sidebar tabs -->
+    <div class="col-lg-3 fade-up stagger-1">
+      <div class="card-static p-3" style="border-radius:var(--r-xl);">
+        <div class="account-avatar text-center mb-3">
+          <div class="profile-avatar mx-auto">
+            {{ auth.currentUser?.firstName?.charAt(0) }}{{ auth.currentUser?.lastName?.charAt(0) }}
+          </div>
+          <div class="fw-bold mt-2" style="font-size:.95rem;">{{ auth.currentUser?.firstName }} {{ auth.currentUser?.lastName }}</div>
+          <span class="badge mt-1" [ngClass]="auth.isCompany ? 'badge-cdi' : 'badge-alternance'" style="font-size:.72rem;">
+            {{ auth.isCompany ? 'Entreprise' : 'Chercheur d\'emploi' }}
+          </span>
+        </div>
+        <hr style="border-color:var(--border);">
+        <nav class="settings-nav">
+          <button class="settings-nav-item" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'">
+            <i class="bi bi-shield-check"></i>Securite
+          </button>
+          <button class="settings-nav-item" [class.active]="activeTab === 'password'" (click)="activeTab = 'password'">
+            <i class="bi bi-key"></i>Mot de passe
+          </button>
+          <button class="settings-nav-item" [class.active]="activeTab === 'email'" (click)="activeTab = 'email'">
+            <i class="bi bi-envelope"></i>Adresse email
+          </button>
+          <button class="settings-nav-item danger" [class.active]="activeTab === 'danger'" (click)="activeTab = 'danger'">
+            <i class="bi bi-exclamation-triangle"></i>Zone dangereuse
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="col-lg-9 fade-up stagger-2">
+
+      <!-- ============ SECURITY TAB ============ -->
+      @if (activeTab === 'security') {
+        <div class="card-static p-4" style="border-radius:var(--r-xl);">
+          <div class="section-header mb-4">
+            <div class="section-icon" style="background:var(--forest-50);color:var(--forest-600);">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div>
+              <h2 class="section-title">Apercu de la securite</h2>
+              <p class="section-desc">Vue d'ensemble de la securite de votre compte</p>
+            </div>
+          </div>
+
+          @if (loadingSecurity) {
+            <div class="text-center py-5">
+              <span class="spinner-border text-success"></span>
+            </div>
+          } @else if (security) {
+            <div class="security-grid">
+              <!-- Email -->
+              <div class="security-card">
+                <div class="security-card-icon" style="background:var(--night-50);color:var(--night-500);">
+                  <i class="bi bi-envelope-fill"></i>
+                </div>
+                <div class="security-card-content">
+                  <div class="security-card-label">Adresse email</div>
+                  <div class="security-card-value">{{ security.email }}</div>
+                </div>
+                <button class="btn-ghost btn-sm" (click)="activeTab = 'email'">
+                  <i class="bi bi-pencil me-1"></i>Modifier
+                </button>
+              </div>
+
+              <!-- Password -->
+              <div class="security-card">
+                <div class="security-card-icon" style="background:var(--forest-50);color:var(--forest-600);">
+                  <i class="bi bi-key-fill"></i>
+                </div>
+                <div class="security-card-content">
+                  <div class="security-card-label">Mot de passe</div>
+                  <div class="security-card-value">
+                    @if (security.lastPasswordChange) {
+                      Modifie le {{ formatDate(security.lastPasswordChange) }}
+                      @if (daysSince(security.lastPasswordChange)! > 90) {
+                        <span class="badge-warning-inline ms-2">
+                          <i class="bi bi-exclamation-circle me-1"></i>Ancien
+                        </span>
+                      }
+                    } @else {
+                      Jamais modifie depuis la creation du compte
+                      <span class="badge-warning-inline ms-2">
+                        <i class="bi bi-exclamation-circle me-1"></i>A changer
+                      </span>
+                    }
+                  </div>
+                </div>
+                <button class="btn-ghost btn-sm" (click)="activeTab = 'password'">
+                  <i class="bi bi-pencil me-1"></i>Modifier
+                </button>
+              </div>
+
+              <!-- Account creation -->
+              <div class="security-card">
+                <div class="security-card-icon" style="background:var(--plum-50);color:var(--plum-500);">
+                  <i class="bi bi-calendar-event-fill"></i>
+                </div>
+                <div class="security-card-content">
+                  <div class="security-card-label">Compte cree le</div>
+                  <div class="security-card-value">{{ formatDate(security.createdAt) }}</div>
+                </div>
+              </div>
+
+              <!-- Role -->
+              <div class="security-card">
+                <div class="security-card-icon" style="background:var(--copper-50);color:var(--copper-600);">
+                  <i class="bi bi-person-badge-fill"></i>
+                </div>
+                <div class="security-card-content">
+                  <div class="security-card-label">Type de compte</div>
+                  <div class="security-card-value">
+                    {{ auth.isCompany ? 'Entreprise' : 'Chercheur d\'emploi' }}
+                    @if (auth.currentUser?.companyName) {
+                      <span style="color:var(--sand-400);"> — {{ auth.currentUser?.companyName }}</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security tips -->
+            <div class="security-tips mt-4">
+              <h3 class="security-tips-title"><i class="bi bi-lightbulb me-2"></i>Conseils de securite</h3>
+              <ul class="security-tips-list">
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Utilisez un mot de passe unique pour ce site</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Changez votre mot de passe regulierement (tous les 3 mois)</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Ne partagez jamais vos identifiants avec un tiers</li>
+                <li><i class="bi bi-check-circle-fill text-success me-2"></i>Deconnectez-vous des appareils partages apres utilisation</li>
+              </ul>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ============ PASSWORD TAB ============ -->
+      @if (activeTab === 'password') {
+        <div class="card-static p-4" style="border-radius:var(--r-xl);">
+          <div class="section-header mb-4">
+            <div class="section-icon" style="background:var(--forest-50);color:var(--forest-600);">
+              <i class="bi bi-key"></i>
+            </div>
+            <div>
+              <h2 class="section-title">Changer le mot de passe</h2>
+              <p class="section-desc">Choisissez un mot de passe fort et unique</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="changePassword()" class="form-custom" style="max-width:500px;">
+            <!-- Current password -->
+            <div class="mb-3">
+              <label class="form-label">Mot de passe actuel</label>
+              <div class="input-group-password">
+                <input [type]="showCurrentPassword ? 'text' : 'password'" class="form-control"
+                       placeholder="Votre mot de passe actuel"
+                       [(ngModel)]="currentPassword" name="currentPassword" required>
+                <button type="button" class="password-toggle" (click)="showCurrentPassword = !showCurrentPassword">
+                  <i class="bi" [ngClass]="showCurrentPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- New password -->
+            <div class="mb-3">
+              <label class="form-label">Nouveau mot de passe</label>
+              <div class="input-group-password">
+                <input [type]="showNewPassword ? 'text' : 'password'" class="form-control"
+                       placeholder="Au moins 6 caracteres"
+                       [(ngModel)]="newPassword" name="newPassword" required minlength="6">
+                <button type="button" class="password-toggle" (click)="showNewPassword = !showNewPassword">
+                  <i class="bi" [ngClass]="showNewPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+              </div>
+              <!-- Strength bar -->
+              @if (newPassword) {
+                <div class="strength-bar mt-2">
+                  <div class="strength-track">
+                    @for (i of [1,2,3,4]; track i) {
+                      <div class="strength-segment" [style.background]="i <= passwordStrength.level ? passwordStrength.color : 'var(--sand-200)'"></div>
+                    }
+                  </div>
+                  <span class="strength-label" [style.color]="passwordStrength.color">{{ passwordStrength.label }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Confirm password -->
+            <div class="mb-4">
+              <label class="form-label">Confirmer le nouveau mot de passe</label>
+              <div class="input-group-password">
+                <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control"
+                       placeholder="Retapez le nouveau mot de passe"
+                       [(ngModel)]="confirmPassword" name="confirmPassword" required>
+                <button type="button" class="password-toggle" (click)="showConfirmPassword = !showConfirmPassword">
+                  <i class="bi" [ngClass]="showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+              </div>
+              @if (confirmPassword && newPassword !== confirmPassword) {
+                <div class="form-hint text-danger mt-1">
+                  <i class="bi bi-x-circle me-1"></i>Les mots de passe ne correspondent pas
+                </div>
+              }
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2" [disabled]="!passwordValid || savingPassword" style="font-weight:700;">
+              @if (savingPassword) { <span class="spinner-border spinner-border-sm me-2"></span>Modification... }
+              @else { <i class="bi bi-check-lg me-2"></i>Modifier le mot de passe }
+            </button>
+          </form>
+        </div>
+      }
+
+      <!-- ============ EMAIL TAB ============ -->
+      @if (activeTab === 'email') {
+        <div class="card-static p-4" style="border-radius:var(--r-xl);">
+          <div class="section-header mb-4">
+            <div class="section-icon" style="background:var(--night-50);color:var(--night-500);">
+              <i class="bi bi-envelope"></i>
+            </div>
+            <div>
+              <h2 class="section-title">Changer l'adresse email</h2>
+              <p class="section-desc">Votre email actuel : <strong>{{ security?.email }}</strong></p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="changeEmail()" class="form-custom" style="max-width:500px;">
+            <div class="mb-3">
+              <label class="form-label">Nouvelle adresse email</label>
+              <input type="email" class="form-control" placeholder="nouveau@email.com"
+                     [(ngModel)]="newEmail" name="newEmail" required>
+              @if (newEmail && newEmail === security?.email) {
+                <div class="form-hint text-warning mt-1">
+                  <i class="bi bi-exclamation-circle me-1"></i>Identique a l'email actuel
+                </div>
+              }
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">Mot de passe (confirmation)</label>
+              <input type="password" class="form-control" placeholder="Votre mot de passe actuel"
+                     [(ngModel)]="emailPassword" name="emailPassword" required>
+              <div class="form-hint mt-1">
+                <i class="bi bi-info-circle me-1"></i>Requis pour confirmer le changement d'email
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2" [disabled]="!emailValid || savingEmail" style="font-weight:700;">
+              @if (savingEmail) { <span class="spinner-border spinner-border-sm me-2"></span>Modification... }
+              @else { <i class="bi bi-check-lg me-2"></i>Modifier l'email }
+            </button>
+          </form>
+        </div>
+      }
+
+      <!-- ============ DANGER TAB ============ -->
+      @if (activeTab === 'danger') {
+        <div class="card-static p-4 danger-zone" style="border-radius:var(--r-xl);">
+          <div class="section-header mb-4">
+            <div class="section-icon" style="background:var(--rose-50);color:var(--rose-500);">
+              <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div>
+              <h2 class="section-title" style="color:var(--rose-600);">Zone dangereuse</h2>
+              <p class="section-desc">Actions irreversibles sur votre compte</p>
+            </div>
+          </div>
+
+          <div class="danger-warning mb-4">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <div>
+              <strong>Attention !</strong> La suppression de votre compte est permanente et irreversible.
+              Toutes vos donnees seront supprimees :
+              <ul class="mt-2 mb-0">
+                @if (auth.isJobSeeker) {
+                  <li>Vos candidatures et leur historique</li>
+                  <li>Vos favoris et preferences</li>
+                  <li>Votre CV et informations personnelles</li>
+                } @else {
+                  <li>Votre entreprise et son profil</li>
+                  <li>Toutes vos offres d'emploi publiees</li>
+                  <li>Les candidatures recues sur vos offres</li>
+                }
+                <li>Votre compte de connexion</li>
+              </ul>
+            </div>
+          </div>
+
+          <form (ngSubmit)="deleteAccount()" class="form-custom" style="max-width:500px;">
+            <div class="mb-3">
+              <label class="form-label">Mot de passe</label>
+              <input type="password" class="form-control" placeholder="Votre mot de passe actuel"
+                     [(ngModel)]="deletePassword" name="deletePassword" required>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">Tapez <strong>SUPPRIMER</strong> pour confirmer</label>
+              <input type="text" class="form-control" placeholder="SUPPRIMER"
+                     [(ngModel)]="deleteConfirm" name="deleteConfirm" required>
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100 py-2"
+                    [disabled]="deletePassword.length === 0 || deleteConfirm !== 'SUPPRIMER' || deleting"
+                    style="font-weight:700;">
+              @if (deleting) { <span class="spinner-border spinner-border-sm me-2"></span>Suppression... }
+              @else { <i class="bi bi-trash3 me-2"></i>Supprimer definitivement mon compte }
+            </button>
+          </form>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

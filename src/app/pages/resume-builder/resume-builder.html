@@ -1,0 +1,329 @@
+@if (loading) {
+  <div class="container-main py-5 text-center"><div class="spinner-border" role="status"></div></div>
+} @else {
+<div class="container-main py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 fade-up">
+    <div>
+      <h1 class="fw-bold mb-0" style="font-size:1.5rem;letter-spacing:-.02em;">
+        <i class="bi bi-file-earmark-person me-2" style="color:var(--forest-600);"></i>Mon CV
+      </h1>
+      <p style="color:var(--sand-400);font-size:.88rem;margin-bottom:0;">
+        {{ resume ? 'Derniere modification : ' + formatDate(resume.updatedAt) : 'Creez votre CV en quelques minutes' }}
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <!-- Tabs Edit / Preview -->
+      <div class="cv-tabs">
+        <button class="cv-tab" [class.cv-tab--active]="activeTab === 'edit'" (click)="activeTab = 'edit'"><i class="bi bi-pencil me-1"></i>Editer</button>
+        <button class="cv-tab" [class.cv-tab--active]="activeTab === 'preview'" (click)="activeTab = 'preview'"><i class="bi bi-eye me-1"></i>Apercu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bandeau Import -->
+  @if (activeTab === 'edit') {
+    <div class="cv-import-banner card-static fade-up stagger-1">
+      @if (parsing) {
+        <div class="d-flex align-items-center gap-3">
+          <div class="spinner-border spinner-border-sm" role="status"></div>
+          <div>
+            <div class="fw-bold" style="font-size:.9rem;">Analyse en cours...</div>
+            <div style="font-size:.82rem;color:var(--sand-400);">Notre IA lit votre CV et extrait les informations</div>
+          </div>
+        </div>
+      } @else {
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <div class="cv-import-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+          <div class="flex-grow-1">
+            <div class="fw-bold" style="font-size:.9rem;">Importez votre CV existant</div>
+            <div style="font-size:.82rem;color:var(--sand-400);">Notre IA analysera votre PDF, Word ou TXT et remplira automatiquement le formulaire</div>
+          </div>
+          <label class="btn-accent" style="cursor:pointer;margin:0;">
+            <i class="bi bi-magic me-1"></i>Importer un fichier
+            <input type="file" accept=".pdf,.docx,.doc,.txt" (change)="onFileSelected($event)" style="display:none;">
+          </label>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ====== MODE EDITION ====== -->
+  @if (activeTab === 'edit') {
+  <div class="row g-4">
+    <div class="col-lg-8">
+
+      <!-- Titre + Resume -->
+      <div class="cv-section card-static p-4 mb-3 fade-up stagger-1">
+        <div class="cv-section-head"><div class="cv-section-icon"><i class="bi bi-person-vcard"></i></div><h6>Informations generales</h6></div>
+        <div class="form-custom">
+          <div class="mb-3">
+            <label class="form-label">Titre du CV</label>
+            <input type="text" class="form-control" placeholder="Ex: Developpeur Full Stack Angular / .NET" [(ngModel)]="title">
+          </div>
+          <div>
+            <label class="form-label">Resume professionnel</label>
+            <textarea class="form-control" rows="3" placeholder="Decrivez-vous en quelques lignes : votre profil, vos annees d'experience, vos specialites..." [(ngModel)]="summary"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Experiences -->
+      <div class="cv-section card-static p-4 mb-3 fade-up stagger-2">
+        <div class="cv-section-head">
+          <div class="cv-section-icon" style="background:var(--copper-50);color:var(--copper-500);"><i class="bi bi-briefcase"></i></div>
+          <h6>Experiences professionnelles</h6>
+          <button class="cv-add-btn ms-auto" (click)="addExperience()"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        @if (experiences.length === 0) {
+          <p class="cv-empty">Aucune experience ajoutee. <button class="cv-empty-link" (click)="addExperience()">Ajouter une experience</button></p>
+        }
+        @for (exp of experiences; track exp; let i = $index) {
+          <div class="cv-entry" [class.mt-3]="i > 0">
+            <div class="cv-entry-header">
+              <span class="cv-entry-num">{{ i + 1 }}</span>
+              <button class="cv-remove-btn" (click)="removeExperience(i)"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="form-custom">
+              <div class="row g-2 mb-2">
+                <div class="col-md-6"><input class="form-control form-control-sm" placeholder="Poste *" [(ngModel)]="exp.jobTitle"></div>
+                <div class="col-md-6"><input class="form-control form-control-sm" placeholder="Entreprise *" [(ngModel)]="exp.company"></div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-md-4"><input class="form-control form-control-sm" placeholder="Ville" [(ngModel)]="exp.location"></div>
+                <div class="col-md-3"><input type="date" class="form-control form-control-sm" [(ngModel)]="exp.startDate"></div>
+                <div class="col-md-3">
+                  @if (!exp.isCurrent) { <input type="date" class="form-control form-control-sm" [(ngModel)]="exp.endDate"> }
+                  @else { <input class="form-control form-control-sm" disabled value="Aujourd'hui"> }
+                </div>
+                <div class="col-md-2 d-flex align-items-center">
+                  <div class="form-check"><input class="form-check-input" type="checkbox" [(ngModel)]="exp.isCurrent" [id]="'cur-exp-'+i"><label class="form-check-label" [for]="'cur-exp-'+i" style="font-size:.78rem;">Actuel</label></div>
+                </div>
+              </div>
+              <textarea class="form-control form-control-sm" rows="2" placeholder="Description des missions..." [(ngModel)]="exp.description"></textarea>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Formation -->
+      <div class="cv-section card-static p-4 mb-3 fade-up stagger-3">
+        <div class="cv-section-head">
+          <div class="cv-section-icon" style="background:var(--night-50);color:var(--night-500);"><i class="bi bi-mortarboard"></i></div>
+          <h6>Formation</h6>
+          <button class="cv-add-btn ms-auto" (click)="addEducation()"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        @if (educations.length === 0) {
+          <p class="cv-empty">Aucune formation ajoutee. <button class="cv-empty-link" (click)="addEducation()">Ajouter une formation</button></p>
+        }
+        @for (edu of educations; track edu; let i = $index) {
+          <div class="cv-entry" [class.mt-3]="i > 0">
+            <div class="cv-entry-header">
+              <span class="cv-entry-num">{{ i + 1 }}</span>
+              <button class="cv-remove-btn" (click)="removeEducation(i)"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="form-custom">
+              <div class="row g-2 mb-2">
+                <div class="col-md-6"><input class="form-control form-control-sm" placeholder="Diplome *" [(ngModel)]="edu.degree"></div>
+                <div class="col-md-6"><input class="form-control form-control-sm" placeholder="Etablissement *" [(ngModel)]="edu.school"></div>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-md-4"><input class="form-control form-control-sm" placeholder="Ville" [(ngModel)]="edu.location"></div>
+                <div class="col-md-3"><input type="date" class="form-control form-control-sm" [(ngModel)]="edu.startDate"></div>
+                <div class="col-md-3">
+                  @if (!edu.isCurrent) { <input type="date" class="form-control form-control-sm" [(ngModel)]="edu.endDate"> }
+                  @else { <input class="form-control form-control-sm" disabled value="Aujourd'hui"> }
+                </div>
+                <div class="col-md-2 d-flex align-items-center">
+                  <div class="form-check"><input class="form-check-input" type="checkbox" [(ngModel)]="edu.isCurrent" [id]="'cur-edu-'+i"><label class="form-check-label" [for]="'cur-edu-'+i" style="font-size:.78rem;">Actuel</label></div>
+                </div>
+              </div>
+              <textarea class="form-control form-control-sm" rows="2" placeholder="Description..." [(ngModel)]="edu.description"></textarea>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Competences -->
+      <div class="cv-section card-static p-4 mb-3 fade-up stagger-4">
+        <div class="cv-section-head">
+          <div class="cv-section-icon" style="background:var(--plum-50);color:var(--plum-500);"><i class="bi bi-tools"></i></div>
+          <h6>Competences</h6>
+          <button class="cv-add-btn ms-auto" (click)="addSkill()"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        @if (skills.length === 0) {
+          <p class="cv-empty">Aucune competence. <button class="cv-empty-link" (click)="addSkill()">Ajouter</button></p>
+        }
+        <div class="row g-2">
+          @for (skill of skills; track skill; let i = $index) {
+            <div class="col-md-6">
+              <div class="cv-skill-row">
+                <input class="form-control form-control-sm flex-grow-1" placeholder="Competence" [(ngModel)]="skill.name" style="min-width:0;">
+                <select class="form-select form-select-sm" [(ngModel)]="skill.level" style="width:130px;">
+                  @for (sl of skillLevels; track sl.value) { <option [value]="sl.value">{{ sl.label }}</option> }
+                </select>
+                <button class="cv-remove-btn-sm" (click)="removeSkill(i)"><i class="bi bi-x"></i></button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Langues -->
+      <div class="cv-section card-static p-4 mb-3 fade-up stagger-5">
+        <div class="cv-section-head">
+          <div class="cv-section-icon" style="background:var(--cyan-50);color:var(--cyan-500);"><i class="bi bi-translate"></i></div>
+          <h6>Langues</h6>
+          <button class="cv-add-btn ms-auto" (click)="addLanguage()"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        @if (languages.length === 0) {
+          <p class="cv-empty">Aucune langue. <button class="cv-empty-link" (click)="addLanguage()">Ajouter</button></p>
+        }
+        <div class="row g-2">
+          @for (lang of languages; track lang; let i = $index) {
+            <div class="col-md-6">
+              <div class="cv-skill-row">
+                <input class="form-control form-control-sm flex-grow-1" placeholder="Langue" [(ngModel)]="lang.name" style="min-width:0;">
+                <select class="form-select form-select-sm" [(ngModel)]="lang.level" style="width:140px;">
+                  @for (ll of langLevels; track ll) { <option [value]="ll">{{ ll }}</option> }
+                </select>
+                <button class="cv-remove-btn-sm" (click)="removeLanguage(i)"><i class="bi bi-x"></i></button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <div class="cv-sidebar-sticky">
+        <div class="card-static p-4 mb-3 fade-up stagger-2" style="border-radius:var(--r-xl);">
+          <h6 class="fw-bold mb-3"><i class="bi bi-save me-2" style="color:var(--forest-600);"></i>Sauvegarder</h6>
+          <button class="btn btn-primary w-100 mb-2" (click)="save()" [disabled]="saving" style="font-weight:700;">
+            @if (saving) { <span class="spinner-border spinner-border-sm me-2"></span>Enregistrement... }
+            @else { <i class="bi bi-check-lg me-2"></i>Enregistrer mon CV }
+          </button>
+          <button class="btn-ghost w-100 justify-content-center" (click)="activeTab = 'preview'"><i class="bi bi-eye me-1"></i>Voir l'apercu</button>
+          <button class="btn-accent w-100 justify-content-center mt-2" style="font-size:.82rem;" (click)="exportPdf()"><i class="bi bi-file-earmark-pdf me-1"></i>Exporter en PDF</button>
+          @if (resume) {
+            <button class="btn-danger-soft w-100 justify-content-center mt-2" style="font-size:.82rem;" (click)="deleteResume()"><i class="bi bi-trash me-1"></i>Supprimer le CV</button>
+          }
+        </div>
+
+        <div class="card-static p-4 fade-up stagger-3" style="border-radius:var(--r-xl);">
+          <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2" style="color:var(--night-500);"></i>Contenu du CV</h6>
+          <div class="cv-checklist">
+            <div class="cv-check-item" [class.cv-check-done]="!!title"><i class="bi" [ngClass]="title ? 'bi-check-circle-fill' : 'bi-circle'"></i> Titre</div>
+            <div class="cv-check-item" [class.cv-check-done]="!!summary"><i class="bi" [ngClass]="summary ? 'bi-check-circle-fill' : 'bi-circle'"></i> Resume</div>
+            <div class="cv-check-item" [class.cv-check-done]="experiences.length > 0"><i class="bi" [ngClass]="experiences.length > 0 ? 'bi-check-circle-fill' : 'bi-circle'"></i> Experiences ({{ experiences.length }})</div>
+            <div class="cv-check-item" [class.cv-check-done]="educations.length > 0"><i class="bi" [ngClass]="educations.length > 0 ? 'bi-check-circle-fill' : 'bi-circle'"></i> Formation ({{ educations.length }})</div>
+            <div class="cv-check-item" [class.cv-check-done]="skills.length > 0"><i class="bi" [ngClass]="skills.length > 0 ? 'bi-check-circle-fill' : 'bi-circle'"></i> Competences ({{ skills.length }})</div>
+            <div class="cv-check-item" [class.cv-check-done]="languages.length > 0"><i class="bi" [ngClass]="languages.length > 0 ? 'bi-check-circle-fill' : 'bi-circle'"></i> Langues ({{ languages.length }})</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ====== MODE PREVIEW ====== -->
+  @if (activeTab === 'preview') {
+  <div class="d-flex justify-content-end mb-3 fade-up">
+    <button class="btn-accent" (click)="exportPdf()"><i class="bi bi-file-earmark-pdf me-1"></i>Telecharger en PDF</button>
+  </div>
+  <div class="row justify-content-center fade-up">
+    <div class="col-lg-9">
+      <div class="cv-preview card-static" style="border-radius:var(--r-xl);">
+
+        <!-- En-tete -->
+        <div class="cv-preview-header">
+          <div class="cv-preview-avatar">{{ auth.currentUser?.firstName?.charAt(0) }}{{ auth.currentUser?.lastName?.charAt(0) }}</div>
+          <div>
+            <h2 class="cv-preview-name">{{ auth.currentUser?.firstName }} {{ auth.currentUser?.lastName }}</h2>
+            <p class="cv-preview-title">{{ title }}</p>
+            <div class="cv-preview-contact">
+              <span><i class="bi bi-envelope me-1"></i>{{ auth.currentUser?.email }}</span>
+              @if (auth.currentUser?.phone) { <span><i class="bi bi-telephone me-1"></i>{{ auth.currentUser?.phone }}</span> }
+            </div>
+          </div>
+        </div>
+
+        @if (summary) {
+          <div class="cv-preview-section">
+            <h5 class="cv-preview-section-title"><i class="bi bi-person-lines-fill me-2"></i>Profil</h5>
+            <p style="color:var(--sand-600);line-height:1.7;">{{ summary }}</p>
+          </div>
+        }
+
+        @if (experiences.length > 0) {
+          <div class="cv-preview-section">
+            <h5 class="cv-preview-section-title"><i class="bi bi-briefcase me-2"></i>Experiences</h5>
+            @for (exp of experiences; track exp) {
+              <div class="cv-preview-entry">
+                <div class="cv-preview-entry-dot"></div>
+                <div>
+                  <div class="cv-preview-entry-title">{{ exp.jobTitle }}</div>
+                  <div class="cv-preview-entry-sub">{{ exp.company }}{{ exp.location ? ' — ' + exp.location : '' }}</div>
+                  <div class="cv-preview-entry-date">{{ formatDate(exp.startDate) }} — {{ exp.isCurrent ? 'Aujourd\'hui' : (exp.endDate ? formatDate(exp.endDate) : '') }}</div>
+                  @if (exp.description) { <p class="cv-preview-entry-desc">{{ exp.description }}</p> }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (educations.length > 0) {
+          <div class="cv-preview-section">
+            <h5 class="cv-preview-section-title"><i class="bi bi-mortarboard me-2"></i>Formation</h5>
+            @for (edu of educations; track edu) {
+              <div class="cv-preview-entry">
+                <div class="cv-preview-entry-dot" style="background:var(--night-400);"></div>
+                <div>
+                  <div class="cv-preview-entry-title">{{ edu.degree }}</div>
+                  <div class="cv-preview-entry-sub">{{ edu.school }}{{ edu.location ? ' — ' + edu.location : '' }}</div>
+                  <div class="cv-preview-entry-date">{{ formatDate(edu.startDate) }} — {{ edu.isCurrent ? 'Aujourd\'hui' : (edu.endDate ? formatDate(edu.endDate) : '') }}</div>
+                  @if (edu.description) { <p class="cv-preview-entry-desc">{{ edu.description }}</p> }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (skills.length > 0) {
+          <div class="cv-preview-section">
+            <h5 class="cv-preview-section-title"><i class="bi bi-tools me-2"></i>Competences</h5>
+            <div class="cv-preview-skills">
+              @for (s of skills; track s) {
+                <div class="cv-preview-skill">
+                  <div class="d-flex justify-content-between mb-1">
+                    <span class="fw-semibold" style="font-size:.85rem;">{{ s.name }}</span>
+                    <span style="font-size:.75rem;color:var(--sand-400);">{{ getSkillLabel(s.level) }}</span>
+                  </div>
+                  <div class="cv-preview-skill-bar"><div class="cv-preview-skill-fill" [style.width.%]="s.level * 20"></div></div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (languages.length > 0) {
+          <div class="cv-preview-section">
+            <h5 class="cv-preview-section-title"><i class="bi bi-translate me-2"></i>Langues</h5>
+            <div class="d-flex flex-wrap gap-2">
+              @for (l of languages; track l) {
+                <div class="cv-preview-lang">
+                  <span class="fw-bold">{{ l.name }}</span>
+                  <span style="color:var(--sand-400);">{{ l.level }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+  }
+</div>
+}

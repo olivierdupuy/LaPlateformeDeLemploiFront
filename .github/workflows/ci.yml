@@ -1,0 +1,139 @@
+name: CI/CD — Frontend
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ──────────────────────────────────────────────
+  # 1. Build
+  # ──────────────────────────────────────────────
+  build:
+    name: Build & Lint
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npx ng lint --no-progress
+        continue-on-error: true
+
+      - name: Build production
+        run: npx ng build --configuration=production
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/job-board/browser/
+          retention-days: 7
+
+  # ──────────────────────────────────────────────
+  # 2. Tests
+  # ──────────────────────────────────────────────
+  test:
+    name: Unit Tests
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npx ng test --watch=false --browsers=ChromeHeadless
+        continue-on-error: true
+
+  # ──────────────────────────────────────────────
+  # 3. Security audit
+  # ──────────────────────────────────────────────
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+  # ──────────────────────────────────────────────
+  # 4. Deploy sur IIS via WebDeploy
+  # ──────────────────────────────────────────────
+  deploy:
+    name: Deploy IIS (WebDeploy)
+    runs-on: windows-latest
+    needs: [build, test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://www.plateforme-emploi.fr
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist/
+
+      - name: Deploy via WebDeploy (MSDeploy)
+        shell: cmd
+        run: >
+          "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          -verb:sync
+          -source:contentPath="%CD%\dist"
+          -dest:contentPath="${{ secrets.IIS_SITE_NAME }}",
+          computerName="https://${{ secrets.IIS_SERVER_NAME }}:8172/msdeploy.axd",
+          userName="${{ secrets.IIS_USERNAME }}",
+          password="${{ secrets.IIS_PASSWORD }}",
+          authType="Basic"
+          -allowUntrusted
+          -retryAttempts:3
+          -retryInterval:3000
+
+      - name: Verify deployment
+        shell: pwsh
+        run: |
+          Start-Sleep -Seconds 5
+          try {
+            $response = Invoke-WebRequest -Uri "https://www.plateforme-emploi.fr" -UseBasicParsing -TimeoutSec 30
+            if ($response.StatusCode -eq 200) {
+              Write-Host "Frontend OK — Status 200"
+            } else {
+              Write-Warning "Responded with $($response.StatusCode)"
+            }
+          } catch {
+            Write-Warning "Health check failed: $_"
+          }

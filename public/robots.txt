@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+Disallow: /tableau-de-bord
+Disallow: /profil
+Disallow: /mon-compte
+Disallow: /messagerie
+Disallow: /statistiques
+Disallow: /entretiens
+Disallow: /mes-preferences
+Disallow: /recommandations
+Disallow: /mon-cv
+Disallow: /mes-candidatures
+Disallow: /favoris
+Disallow: /candidatures-spontanees
+Disallow: /mes-offres
+Disallow: /candidatures-recues
+Disallow: /candidatures-spontanees-recues
+Disallow: /offres/nouvelle/creer
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /mot-de-passe-oublie
+Disallow: /reinitialiser-mot-de-passe
+
+Sitemap: https://www.plateforme-emploi.fr/sitemap.xml
