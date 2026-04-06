@@ -100,7 +100,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.IIS_DEPLOY_ENABLED == 'true'
     environment:
       name: production
-      url: https://www.plateforme-emploi.fr
+      url: https://www.laplateformedelemploi.com
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
