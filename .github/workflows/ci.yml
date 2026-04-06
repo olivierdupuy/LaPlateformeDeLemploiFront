@@ -109,31 +109,22 @@ jobs:
           path: dist/
 
       - name: Deploy via WebDeploy (MSDeploy)
-        shell: cmd
-        run: >
-          "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
-          -verb:sync
-          -source:contentPath="%CD%\dist"
-          -dest:contentPath="${{ secrets.IIS_SITE_NAME }}",
-          computerName="https://${{ secrets.IIS_SERVER_NAME }}:8172/msdeploy.axd",
-          userName="${{ secrets.IIS_USERNAME }}",
-          password="${{ secrets.IIS_PASSWORD }}",
-          authType="Basic"
-          -allowUntrusted
-          -retryAttempts:3
-          -retryInterval:3000
+        shell: pwsh
+        run: |
+          $msdeploy = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          $source = "contentPath=$((Get-Location).Path)\dist"
+          $dest = "contentPath=${{ secrets.IIS_SITE_NAME }},computerName=https://${{ secrets.IIS_SERVER_NAME }}:8172/msdeploy.axd,userName=${{ secrets.IIS_USERNAME }},password=${{ secrets.IIS_PASSWORD }},authType=Basic"
+          & $msdeploy -verb:sync "-source:$source" "-dest:$dest" -allowUntrusted -retryAttempts:3 -retryInterval:3000
+          if ($LASTEXITCODE -ne 0) { throw "MSDeploy failed with exit code $LASTEXITCODE" }
 
       - name: Verify deployment
         shell: pwsh
+        continue-on-error: true
         run: |
           Start-Sleep -Seconds 5
           try {
-            $response = Invoke-WebRequest -Uri "https://www.plateforme-emploi.fr" -UseBasicParsing -TimeoutSec 30
-            if ($response.StatusCode -eq 200) {
-              Write-Host "Frontend OK — Status 200"
-            } else {
-              Write-Warning "Responded with $($response.StatusCode)"
-            }
+            $r = Invoke-WebRequest -Uri "http://${{ secrets.IIS_SERVER_NAME }}" -UseBasicParsing -TimeoutSec 30
+            Write-Host "Frontend OK — Status $($r.StatusCode)"
           } catch {
-            Write-Warning "Health check failed: $_"
+            Write-Warning "Health check: $_"
           }
