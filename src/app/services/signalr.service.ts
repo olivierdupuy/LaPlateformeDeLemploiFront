@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
+import { environment } from '../../environments/environment';
 
 export interface RealTimeMessage {
   conversationId: number;
@@ -20,8 +21,9 @@ export class SignalRService implements OnDestroy {
   start(token: string): void {
     if (this.connection) return;
 
+    const hubUrl = environment.apiUrl ? `${environment.apiUrl}/hubs/chat` : '/hubs/chat';
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl('/hubs/chat', { accessTokenFactory: () => token })
+      .withUrl(hubUrl, { accessTokenFactory: () => token })
       .withAutomaticReconnect()
       .build();
 
