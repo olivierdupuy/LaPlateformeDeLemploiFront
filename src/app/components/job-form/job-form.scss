@@ -1,0 +1,174 @@
+// ═══════════════════════════════════
+//  FORMULAIRE OFFRE — Premium Stepper
+// ═══════════════════════════════════
+
+// ── Hero ──
+.jf-hero {
+  background: var(--navy-900);
+  padding: 7rem 0 1.5rem;
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: ''; position: absolute; top: -30%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.jfh-inner { position: relative; z-index: 1; }
+
+.jfh-left {
+  max-width: 600px;
+  h1 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 900; color: #fff; letter-spacing: -0.03em; margin: 0.5rem 0 0.2rem; }
+  p { font-size: 0.88rem; color: var(--slate-400); }
+}
+
+.jfh-back {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.8rem; font-weight: 500; color: var(--slate-400);
+  text-decoration: none; margin-bottom: 0.75rem; transition: color var(--t);
+  &:hover { color: var(--teal-400); }
+}
+
+// ── Stepper ──
+.jf-stepper {
+  background: #fff; border-bottom: 1px solid var(--border);
+  padding: 1.25rem 0;
+}
+
+.stepper {
+  display: flex; align-items: center; justify-content: center; gap: 0;
+  max-width: 500px; margin: 0 auto;
+}
+
+.step {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: none; border: none; cursor: pointer; padding: 0.35rem 0.5rem;
+  border-radius: var(--r-sm); transition: all var(--t);
+
+  &:hover { background: var(--slate-50); }
+}
+
+.step-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 700;
+  background: var(--slate-100); color: var(--text-muted);
+  border: 2px solid var(--slate-200);
+  transition: all var(--t);
+
+  .step.active & { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .step.done & { background: var(--green); color: #fff; border-color: var(--green); }
+}
+
+.step-label {
+  font-size: 0.82rem; font-weight: 600; color: var(--text-muted);
+  .step.active & { color: var(--teal); }
+  .step.done & { color: var(--green); }
+}
+
+.step-line {
+  width: 40px; height: 2px; background: var(--slate-200); flex-shrink: 0;
+  transition: background var(--t);
+  &.done { background: var(--green); }
+}
+
+// ── Content ──
+.jf-content { padding: 2rem 0 4rem; }
+
+.jf-form { max-width: 780px; margin: 0 auto; }
+
+// Card section
+.jf-card {
+  background: #fff; border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden;
+}
+
+.jfc-head {
+  padding: 1rem 1.75rem; background: var(--slate-50); border-bottom: 1px solid var(--slate-100);
+  h2 { font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+}
+
+.jfc-body { padding: 1.75rem; display: flex; flex-direction: column; gap: 1rem; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+.span-2 { grid-column: span 2; }
+
+.jfc-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.75rem; border-top: 1px solid var(--slate-100); background: var(--slate-50);
+}
+
+// ── Options (Step 3) ──
+.options-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem;
+}
+
+.opt-card {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem; border: 1px solid var(--border); border-radius: var(--r-md);
+  cursor: pointer; transition: all var(--t);
+
+  input { display: none; }
+
+  &:hover { border-color: var(--slate-400); }
+
+  &.active {
+    border-color: var(--teal); background: var(--teal-glow);
+    .opt-icon { background: var(--teal); color: #fff; }
+  }
+}
+
+.opt-icon {
+  width: 40px; height: 40px; border-radius: var(--r-sm);
+  background: var(--slate-100); color: var(--slate-400);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0; transition: all var(--t);
+}
+
+.opt-urgent { .opt-card.active & { background: var(--amber); } }
+.opt-active { .opt-card.active & { background: var(--green); } }
+
+.opt-text {
+  strong { display: block; font-size: 0.88rem; font-weight: 650; }
+  span { display: block; font-size: 0.75rem; color: var(--text-muted); }
+}
+
+// Resume
+.jf-resume {
+  margin-top: 0.5rem; padding: 1.25rem; background: var(--slate-50); border-radius: var(--r-sm); border: 1px solid var(--slate-200);
+  h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.85rem; }
+}
+
+.res-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem;
+}
+
+.res-item { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0; }
+.res-label { font-size: 0.78rem; color: var(--text-muted); }
+.res-val { font-size: 0.82rem; font-weight: 600; }
+.res-teal { color: var(--teal); }
+
+.btn-publish {
+  padding: 0.75rem 1.75rem !important;
+  font-size: 0.9rem !important;
+}
+
+// ── Utilities ──
+.sp { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+// ── Responsive ──
+@media (max-width: 768px) {
+  .jf-hero { padding: 6.5rem 0 1.5rem; }
+  .form-row { grid-template-columns: 1fr; }
+  .span-2 { grid-column: span 1; }
+  .stepper { gap: 0; }
+  .step-label { display: none; }
+  .step-line { width: 24px; }
+  .options-grid { grid-template-columns: 1fr; }
+  .res-grid { grid-template-columns: 1fr; }
+  .jfc-body { padding: 1.25rem; }
+  .jfc-actions { padding: 0.85rem 1.25rem; }
+}

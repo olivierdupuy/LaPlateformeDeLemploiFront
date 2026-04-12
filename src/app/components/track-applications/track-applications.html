@@ -1,0 +1,119 @@
+<!-- ═══ HERO ═══ -->
+<section class="trk-hero">
+  <div class="container th-inner">
+    <div class="th-left animate-in">
+      <span class="ed-pill"><i class="bi bi-clipboard-check"></i></span>
+      <h1>Mes candidatures</h1>
+      @if (auth.currentUser(); as u) {
+        <p>Suivez l'evolution de vos candidatures en temps reel, {{ u.firstName }}</p>
+      }
+    </div>
+    <a routerLink="/offres" class="th-cta animate-in" style="animation-delay:.1s">
+      <i class="bi bi-search"></i> Nouvelles offres
+    </a>
+  </div>
+
+  <!-- Status counters strip -->
+  @if (!loading() && counts().total > 0) {
+    <div class="container">
+      <div class="th-counters animate-in" style="animation-delay:.15s">
+        <div class="thc">
+          <span class="thc-val">{{ counts().total }}</span>
+          <span class="thc-lbl">Total</span>
+        </div>
+        <div class="thc-div"></div>
+        <div class="thc">
+          <span class="thc-val thc-amber">{{ counts().pending }}</span>
+          <span class="thc-lbl">En attente</span>
+        </div>
+        <div class="thc-div"></div>
+        <div class="thc">
+          <span class="thc-val thc-blue">{{ counts().reviewed }}</span>
+          <span class="thc-lbl">Examinees</span>
+        </div>
+        <div class="thc-div"></div>
+        <div class="thc">
+          <span class="thc-val thc-green">{{ counts().accepted }}</span>
+          <span class="thc-lbl">Acceptees</span>
+        </div>
+        <div class="thc-div"></div>
+        <div class="thc">
+          <span class="thc-val thc-red">{{ counts().rejected }}</span>
+          <span class="thc-lbl">Refusees</span>
+        </div>
+      </div>
+    </div>
+  }
+</section>
+
+<!-- ═══ CONTENT ═══ -->
+<section class="trk-content">
+  <div class="container">
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (applications().length === 0) {
+      <div class="trk-empty animate-in">
+        <div class="te-circle"><i class="bi bi-clipboard-check"></i></div>
+        <h3>Aucune candidature</h3>
+        <p>Vous n'avez pas encore postule a une offre. Explorez les offres disponibles et postulez !</p>
+        <a routerLink="/offres" class="btn-primary"><i class="bi bi-search-heart"></i> Explorer les offres</a>
+      </div>
+    } @else {
+      <!-- Progress bar -->
+      <div class="trk-progress animate-in" style="animation-delay:.2s">
+        @if (counts().pending > 0) { <div class="tp-seg tp-amber" [style.width]="(counts().pending / counts().total * 100) + '%'"></div> }
+        @if (counts().reviewed > 0) { <div class="tp-seg tp-blue" [style.width]="(counts().reviewed / counts().total * 100) + '%'"></div> }
+        @if (counts().accepted > 0) { <div class="tp-seg tp-green" [style.width]="(counts().accepted / counts().total * 100) + '%'"></div> }
+        @if (counts().rejected > 0) { <div class="tp-seg tp-red" [style.width]="(counts().rejected / counts().total * 100) + '%'"></div> }
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline">
+        @for (app of applications(); track app.id; let i = $index) {
+          <div class="tl-item animate-in" [style.animation-delay]="(i * 0.05 + 0.25) + 's'">
+            <!-- Marker -->
+            <div class="tl-marker" [class]="getStatusClass(app.status)">
+              <i class="bi" [class]="getStatusIcon(app.status)"></i>
+            </div>
+
+            <!-- Card -->
+            <div class="tl-card">
+              <!-- Stripe -->
+              @if (app.jobOffer) {
+                <div class="tl-stripe" [style.background]="{'CDI':'var(--teal)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--green)'}[app.jobOffer.contractType] || 'var(--teal)'"></div>
+              }
+
+              <div class="tl-body">
+                <div class="tl-top">
+                  <div class="tl-left">
+                    @if (app.jobOffer) {
+                      <div class="tl-avatar" [style.background]="companyColor(app.jobOffer.company).bg">
+                        <span [style.color]="companyColor(app.jobOffer.company).fg">{{ app.jobOffer.company.charAt(0) }}</span>
+                      </div>
+                      <div class="tl-info">
+                        <a [routerLink]="['/offres', app.jobOfferId]" class="tl-title">{{ app.jobOffer.title }}</a>
+                        <span class="tl-company">{{ app.jobOffer.company }} &bull; {{ app.jobOffer.location }}</span>
+                      </div>
+                    } @else {
+                      <div class="tl-info">
+                        <span class="tl-title">Offre #{{ app.jobOfferId }}</span>
+                      </div>
+                    }
+                  </div>
+                  <span class="tl-badge" [class]="getStatusClass(app.status)">{{ getStatusLabel(app.status) }}</span>
+                </div>
+
+                <div class="tl-bottom">
+                  <span class="tl-date"><i class="bi bi-calendar3"></i> Postule le {{ app.appliedAt | date:'dd MMM yyyy' }}</span>
+                  @if (app.coverLetter) { <span class="tl-meta"><i class="bi bi-file-text"></i> Lettre jointe</span> }
+                  @if (app.jobOffer) { <span class="tl-meta"><i class="bi bi-briefcase"></i> {{ app.jobOffer.contractType }}</span> }
+                  @if (app.jobOffer && app.jobOffer.salary) { <span class="tl-meta tl-salary"><i class="bi bi-cash-stack"></i> {{ app.jobOffer.salary }}</span> }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

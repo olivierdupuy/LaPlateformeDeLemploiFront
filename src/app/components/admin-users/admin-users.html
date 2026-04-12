@@ -1,0 +1,49 @@
+<section class="users-page">
+  <div class="container">
+    <div class="page-top animate-in">
+      <h1 class="section-title">Gestion des utilisateurs</h1>
+      <span class="count">{{ users().length }} utilisateur{{ users().length > 1 ? 's' : '' }}</span>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else {
+      <div class="tbl-wrap card animate-in" style="animation-delay:.06s">
+        <table>
+          <thead>
+            <tr><th>Utilisateur</th><th>Role</th><th>Entreprise</th><th>Inscription</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            @for (u of users(); track u.id) {
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-av" [style.background]="companyColor(u.firstName).bg">
+                      <span [style.color]="companyColor(u.firstName).fg">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+                    </div>
+                    <div class="user-info">
+                      <strong>{{ u.firstName }} {{ u.lastName }}</strong>
+                      <span>{{ u.email }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge" [class]="getRoleBadge(u.role)">{{ {Admin:'Administrateur',Recruiter:'Recruteur',Candidate:'Candidat'}[u.role] || u.role }}</span></td>
+                <td><span class="sub">{{ u.company || '—' }}</span></td>
+                <td><span class="dt">{{ u.createdAt | date:'dd/MM/yyyy' }}</span></td>
+                <td>
+                  <div class="act">
+                    <select [value]="u.role" (change)="changeRole(u, $any($event.target).value)" class="sel">
+                      <option value="Candidate">Candidat</option>
+                      <option value="Recruiter">Recruteur</option>
+                      <option value="Admin">Administrateur</option>
+                    </select>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

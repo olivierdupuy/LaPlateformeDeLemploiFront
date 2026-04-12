@@ -1,0 +1,174 @@
+@if (loading()) {
+  <section class="detail"><div class="container"><div class="empty-box"><div class="spinner"></div><p>Chargement...</p></div></div></section>
+} @else if (job(); as j) {
+  <section class="detail">
+    <!-- Top bar -->
+    <div class="detail-top">
+      <div class="container">
+        <a routerLink="/offres" class="back-link animate-in"><i class="bi bi-arrow-left"></i> Retour aux offres</a>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="detail-header">
+      <div class="dh-diamond"></div>
+      <div class="container dh-inner animate-in" style="animation-delay:.06s">
+        <div class="company-block-lg" [style.background]="'hsl(' + (j.company.charCodeAt(0)*7%360) + ',45%,92%)'">
+          <span [style.color]="'hsl(' + (j.company.charCodeAt(0)*7%360) + ',55%,35%)'">{{ j.company.charAt(0) }}</span>
+        </div>
+        <div class="dh-info">
+          <div class="dh-badges">
+            <span class="badge badge-indigo">{{ j.contractType }}</span>
+            @if (j.isRemote) { <span class="remote-pill-lg"><i class="bi bi-wifi"></i> Teletravail</span> }
+            @if (j.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
+          </div>
+          <h1>{{ j.title }}</h1>
+          <div class="dh-meta">
+            <span><i class="bi bi-building"></i> {{ j.company }}</span>
+            <span class="dot"></span>
+            <span><i class="bi bi-geo-alt-fill"></i> {{ j.location }}</span>
+            @if (j.salary) { <span class="dot"></span> <span class="salary-hl"><i class="bi bi-cash-stack"></i> {{ j.salary }}</span> }
+            <span class="dot"></span>
+            <span class="time-muted">{{ getTimeAgo(j.createdAt) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="container detail-body">
+      <div class="detail-main">
+        <div class="section-block animate-in" style="animation-delay:.12s">
+          <h2 class="section-title"><span class="ed-pill">01</span> Description du poste</h2>
+          <p class="desc">{{ j.description }}</p>
+          @if (j.companyDescription) {
+            <div class="company-desc">
+              <h4><i class="bi bi-building"></i> A propos de {{ j.company }}</h4>
+              <p>{{ j.companyDescription }}</p>
+            </div>
+          }
+        </div>
+
+        @if (j.tags) {
+          <div class="section-block animate-in" style="animation-delay:.18s">
+            <h2 class="section-title"><span class="ed-pill">02</span> Competences requises</h2>
+            <div class="skill-tags">
+              @for (tag of getTags(j.tags); track tag) {
+                <span class="skill-pill">{{ tag }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        @if (j.benefits) {
+          <div class="section-block animate-in" style="animation-delay:.24s">
+            <h2 class="section-title"><span class="ed-pill">03</span> Avantages</h2>
+            <div class="skill-tags">
+              @for (b of j.benefits.split(','); track b) {
+                <span class="tag benefit-tag"><i class="bi bi-check-circle"></i> {{ b.trim() }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        @if (j.applications && j.applications.length > 0) {
+          <div class="section-block animate-in" style="animation-delay:.24s">
+            <h2 class="section-title">Candidatures recues ({{ j.applications.length }})</h2>
+            <div class="app-list">
+              @for (app of j.applications.slice(0,5); track app.id) {
+                <div class="app-item">
+                  <div class="app-av" [style.background]="'hsl(' + (app.fullName.charCodeAt(0)*11%360) + ',40%,90%)'">
+                    <span [style.color]="'hsl(' + (app.fullName.charCodeAt(0)*11%360) + ',50%,35%)'">{{ app.fullName.charAt(0) }}</span>
+                  </div>
+                  <div class="app-details"><strong>{{ app.fullName }}</strong><span>{{ app.email }}</span></div>
+                  <span class="badge" [class.badge-yellow]="app.status==='Pending'" [class.badge-indigo]="app.status==='Reviewed'" [class.badge-green]="app.status==='Accepted'" [class.badge-red]="app.status==='Rejected'">{{ {Pending:'En attente',Reviewed:'Examinee',Accepted:'Acceptee',Rejected:'Refusee'}[app.status] || app.status }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <aside class="detail-side animate-in" style="animation-delay:.15s">
+        <div class="side-apply">
+          @if (auth.currentUser(); as u) {
+            @if (u.role === 'Candidate') {
+              <h3>Interesse par ce poste ?</h3>
+              <p>Envoyez votre candidature en quelques clics.</p>
+              <button class="btn-primary full-w" (click)="openApply()"><i class="bi bi-send-fill"></i> Postuler maintenant</button>
+            } @else {
+              <h3>Espace recruteur</h3>
+              <p>Vous consultez cette offre en tant que recruteur.</p>
+            }
+          } @else {
+            <h3>Vous souhaitez postuler ?</h3>
+            <p>Connectez-vous ou creez un compte candidat pour envoyer votre candidature.</p>
+            <a routerLink="/login" class="btn-primary full-w"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a>
+            <a routerLink="/register" class="btn-secondary full-w" style="margin-top:0.5rem"><i class="bi bi-person-plus"></i> Creer un compte</a>
+          }
+          <div class="side-actions-row">
+            @if (auth.isLoggedIn()) {
+              <button class="action-btn" (click)="bookmarkService.toggle(j.id)" [class.active]="bookmarkService.isBookmarked(j.id)">
+                <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(j.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(j.id)"></i>
+                {{ bookmarkService.isBookmarked(j.id) ? 'Sauvegardee' : 'Sauvegarder' }}
+              </button>
+            }
+            <button class="action-btn" (click)="shareJob()">
+              <i class="bi bi-share"></i> Partager
+            </button>
+          </div>
+        </div>
+
+        <div class="side-info card">
+          <h3>Recapitulatif</h3>
+          <dl class="info-dl">
+            <div><dt>Contrat</dt><dd>{{ j.contractType }}</dd></div>
+            <div><dt>Localisation</dt><dd>{{ j.location }}</dd></div>
+            @if (j.salary) { <div><dt>Remuneration</dt><dd class="salary-dd">{{ j.salary }}</dd></div> }
+            <div><dt>Categorie</dt><dd>{{ j.category }}</dd></div>
+            <div><dt>Teletravail</dt><dd>{{ j.isRemote ? 'Oui' : 'Non' }}</dd></div>
+            @if (j.experienceRequired) { <div><dt>Niveau d'experience</dt><dd>{{ j.experienceRequired }}</dd></div> }
+            @if (j.educationLevel) { <div><dt>Formation requise</dt><dd>{{ j.educationLevel }}</dd></div> }
+            @if (j.viewCount) { <div><dt>Vues</dt><dd>{{ j.viewCount }}</dd></div> }
+          </dl>
+        </div>
+
+        @if (canManage()) {
+          <div class="side-admin">
+            <a [routerLink]="['/admin/modifier-offre', j.id]" class="btn-secondary full-w"><i class="bi bi-pencil"></i> Modifier l'offre</a>
+            <button class="btn-ghost full-w danger" (click)="deleteJob()"><i class="bi bi-trash3"></i> Supprimer</button>
+          </div>
+        }
+      </aside>
+    </div>
+  </section>
+
+    @if (similarJobs().length > 0) {
+      <div class="container similar-section animate-in" style="animation-delay:.3s">
+        <h2 class="section-title">Offres similaires</h2>
+        <div class="similar-grid">
+          @for (sj of similarJobs(); track sj.id) {
+            <a [routerLink]="['/offres', sj.id]" class="similar-card card">
+              <div class="sc-top">
+                <div class="sc-avatar" [style.background]="companyColor(sj.company).bg">
+                  <span [style.color]="companyColor(sj.company).fg">{{ sj.company.charAt(0) }}</span>
+                </div>
+                <div class="sc-meta">
+                  <strong>{{ sj.title }}</strong>
+                  <span>{{ sj.company }} &bull; {{ sj.location }}</span>
+                </div>
+              </div>
+              <div class="sc-bottom">
+                <span class="badge" [class]="getContractBadgeClass(sj.contractType)">{{ sj.contractType }}</span>
+                @if (sj.salary) { <span class="sc-salary">{{ sj.salary }}</span> }
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+  @if (showApplyModal()) {
+    <app-apply-modal [jobId]="j.id" [jobTitle]="j.title" (close)="closeApply()" (applied)="onApplicationSent()" />
+  }
+}

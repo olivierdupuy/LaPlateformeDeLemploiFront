@@ -1,0 +1,59 @@
+<section class="cp-page">
+  <div class="container">
+    <a routerLink="/candidats" class="back-link animate-in">
+      <i class="bi bi-arrow-left"></i> Retour au vivier
+    </a>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div><p>Chargement...</p></div>
+    } @else if (candidate(); as c) {
+      <div class="cp-hero animate-in" style="animation-delay:.06s">
+        <div class="cp-avatar" [style.background]="avatarColor().bg" [style.color]="avatarColor().fg">
+          {{ getInitials() }}
+        </div>
+        <div class="cp-info">
+          <h1 class="cp-name">{{ c.firstName }} {{ c.lastName }}</h1>
+          @if (c.title) { <p class="cp-title">{{ c.title }}</p> }
+          <div class="cp-meta">
+            @if (c.city) { <span><i class="bi bi-geo-alt"></i> {{ c.city }}</span> }
+            <span><i class="bi bi-calendar3"></i> Membre depuis le {{ c.createdAt | date:'dd MMMM yyyy' }}</span>
+            <span><i class="bi bi-send-check"></i> {{ c.applicationCount }} candidature{{ c.applicationCount > 1 ? 's' : '' }}</span>
+            @if (c.experienceYears) { <span><i class="bi bi-briefcase"></i> {{ c.experienceYears }} an{{ c.experienceYears > 1 ? 's' : '' }} d'experience</span> }
+          </div>
+        </div>
+      </div>
+
+      @if (c.bio) {
+        <div class="cp-section card animate-in" style="animation-delay:.12s">
+          <h2 class="cp-section-title">A propos</h2>
+          <p class="cp-bio">{{ c.bio }}</p>
+        </div>
+      }
+
+      @if (c.skills) {
+        <div class="cp-section card animate-in" style="animation-delay:.18s">
+          <h2 class="cp-section-title">Competences</h2>
+          <div class="cp-skills">
+            @for (skill of c.skills.split(','); track skill) {
+              <span class="cp-skill-tag">{{ skill.trim() }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (c.education) {
+        <div class="cp-section card animate-in" style="animation-delay:.24s">
+          <h2 class="cp-section-title">Formation</h2>
+          <p class="cp-bio">{{ c.education }}</p>
+        </div>
+      }
+    } @else {
+      <div class="empty-box animate-in">
+        <i class="bi bi-person-x" style="font-size:2.5rem;color:var(--slate-300)"></i>
+        <h3>Candidat introuvable</h3>
+        <p>Ce profil n'existe pas ou a ete supprime</p>
+        <a routerLink="/candidats" class="btn-primary">Retour au vivier</a>
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,22 @@
+.users-page { padding: 6.5rem 0 4rem; }
+.page-top { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.5rem; }
+.count { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); }
+
+.tbl-wrap { overflow-x: auto; padding: 0; &:hover { transform: none; box-shadow: var(--shadow-sm); } }
+table { width: 100%; border-collapse: collapse; }
+thead th { padding: 0.75rem 1.15rem; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); text-align: left; white-space: nowrap; background: var(--slate-50); border-bottom: 1px solid var(--border); }
+tbody { tr { transition: background 0.2s; &:hover { background: var(--teal-glow); } &:not(:last-child) td { border-bottom: 1px solid var(--slate-100); } } td { padding: 0.85rem 1.15rem; vertical-align: middle; } }
+
+.user-cell { display: flex; align-items: center; gap: 0.65rem; }
+.user-av { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; span { font-weight: 700; font-size: 0.72rem; } }
+.user-info { display: flex; flex-direction: column; strong { font-size: 0.85rem; } span { font-size: 0.75rem; color: var(--text-muted); } }
+.sub { font-size: 0.82rem; color: var(--text-secondary); }
+.dt { font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; }
+.act { display: flex; align-items: center; gap: 0.4rem; }
+.sel { padding: 0.35rem 0.55rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.78rem; font-weight: 500; background: #fff; cursor: pointer; outline: none; &:focus { border-color: var(--teal); } }
+
+.empty-box { display: flex; align-items: center; justify-content: center; padding: 5rem 0; }
+.spinner { width: 28px; height: 28px; border: 2.5px solid var(--slate-200); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) { thead { display: none; } tbody tr { display: flex; flex-direction: column; padding: 0.85rem; gap: 0.35rem; border-bottom: 1px solid var(--slate-100) !important; } tbody td { padding: 0.15rem 0; border: none !important; } }

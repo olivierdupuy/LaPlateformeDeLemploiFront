@@ -1,60 +1,64 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, interval, switchMap, tap } from 'rxjs';
-
-export interface AppNotification {
-  id: number;
-  title: string;
-  message: string;
-  type: string;
-  link: string | null;
-  isRead: boolean;
-  createdAt: string;
-}
+import { Observable, tap } from 'rxjs';
+import { AppNotification } from '../models/auth.model';
+import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private unreadCountSubject = new BehaviorSubject<number>(0);
-  unreadCount$ = this.unreadCountSubject.asObservable();
+  private http = inject(HttpClient);
+  private auth = inject(AuthService);
+  private apiUrl = `${environment.apiUrl}/notifications`;
 
-  constructor(private http: HttpClient) {}
+  notifications = signal<AppNotification[]>([]);
+  unreadCount = signal(0);
 
-  getAll(): Observable<AppNotification[]> {
-    return this.http.get<AppNotification[]>('/api/notifications');
+  private polling: any;
+
+  startPolling() {
+    this.loadUnreadCount();
+    this.polling = setInterval(() => {
+      if (this.auth.isLoggedIn()) this.loadUnreadCount();
+    }, 30000);
   }
 
-  refreshUnreadCount(): void {
-    this.http.get<{ count: number }>('/api/notifications/unread-count').subscribe({
-      next: r => this.unreadCountSubject.next(r.count),
-      error: () => this.unreadCountSubject.next(0)
+  stopPolling() {
+    if (this.polling) clearInterval(this.polling);
+  }
+
+  loadAll() {
+    this.http.get<{ notifications: AppNotification[]; unreadCount: number }>(this.apiUrl).subscribe({
+      next: (res) => {
+        this.notifications.set(res.notifications);
+        this.unreadCount.set(res.unreadCount);
+      },
     });
   }
 
-  markAsRead(id: number): Observable<any> {
-    return this.http.put(`/api/notifications/${id}/read`, {}).pipe(
+  loadUnreadCount() {
+    this.http.get<{ count: number }>(`${this.apiUrl}/unread-count`).subscribe({
+      next: (res) => this.unreadCount.set(res.count),
+    });
+  }
+
+  markAsRead(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/read`, {}).pipe(
       tap(() => {
-        const current = this.unreadCountSubject.value;
-        if (current > 0) this.unreadCountSubject.next(current - 1);
+        this.notifications.update((list) =>
+          list.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+        );
+        this.unreadCount.update((c) => Math.max(0, c - 1));
       })
     );
   }
 
-  markAllAsRead(): Observable<any> {
-    return this.http.put('/api/notifications/read-all', {}).pipe(
-      tap(() => this.unreadCountSubject.next(0))
+  markAllAsRead(): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/read-all`, {}).pipe(
+      tap(() => {
+        this.notifications.update((list) => list.map((n) => ({ ...n, isRead: true })));
+        this.unreadCount.set(0);
+      })
     );
-  }
-
-  delete(id: number): Observable<any> {
-    return this.http.delete(`/api/notifications/${id}`);
-  }
-
-  startPolling(): void {
-    interval(30000).pipe(
-      switchMap(() => this.http.get<{ count: number }>('/api/notifications/unread-count'))
-    ).subscribe({
-      next: r => this.unreadCountSubject.next(r.count),
-      error: () => {}
-    });
   }
 }

@@ -1,0 +1,165 @@
+<!-- ═══ HERO ═══ -->
+<section class="jf-hero">
+  <div class="container jfh-inner">
+    <div class="jfh-left animate-in">
+      <a routerLink="/admin/mes-offres" class="jfh-back"><i class="bi bi-arrow-left"></i> Retour</a>
+      <span class="ed-pill"><i class="bi bi-plus-circle-fill"></i></span>
+      <h1>{{ isEdit() ? 'Modifier l\'offre' : 'Publier une offre' }}</h1>
+      <p>{{ isEdit() ? 'Mettez a jour les informations de cette offre' : 'Decrivez le poste pour attirer les meilleurs profils' }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══��� STEPPER ═══ -->
+<section class="jf-stepper">
+  <div class="container">
+    <div class="stepper animate-in" style="animation-delay:.06s">
+      <button class="step" [class.active]="currentStep() === 1" [class.done]="currentStep() > 1" (click)="goStep(1)">
+        <span class="step-num">1</span><span class="step-label">Informations</span>
+      </button>
+      <div class="step-line" [class.done]="currentStep() > 1"></div>
+      <button class="step" [class.active]="currentStep() === 2" [class.done]="currentStep() > 2" (click)="goStep(2)">
+        <span class="step-num">2</span><span class="step-label">Details</span>
+      </button>
+      <div class="step-line" [class.done]="currentStep() > 2"></div>
+      <button class="step" [class.active]="currentStep() === 3" (click)="goStep(3)">
+        <span class="step-num">3</span><span class="step-label">Publication</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FORM ═══ -->
+<section class="jf-content">
+  <div class="container">
+    <form (ngSubmit)="submit()" class="jf-form animate-in" style="animation-delay:.1s">
+
+      <!-- STEP 1: Informations principales -->
+      @if (currentStep() === 1) {
+        <div class="jf-card">
+          <div class="jfc-head"><h2><span class="ed-pill">01</span> Informations principales</h2></div>
+          <div class="jfc-body">
+            <div class="form-group span-2">
+              <label>Intitule du poste *</label>
+              <input type="text" placeholder="ex: Developpeur Full Stack Angular / .NET" [(ngModel)]="form.title" name="title" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Entreprise *</label><input type="text" placeholder="ex: TechCorp" [(ngModel)]="form.company" name="company" required /></div>
+              <div class="form-group"><label>Localisation *</label><input type="text" placeholder="ex: Paris" [(ngModel)]="form.location" name="location" required /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Type de contrat</label>
+                <select [(ngModel)]="form.contractType" name="contractType">@for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }</select>
+              </div>
+              <div class="form-group"><label>Categorie</label>
+                <select [(ngModel)]="form.category" name="category">@for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }</select>
+              </div>
+            </div>
+            <div class="form-group span-2">
+              <label>Description du poste *</label>
+              <textarea placeholder="Decrivez les missions, le profil recherche, l'environnement de travail..." [(ngModel)]="form.description" name="description" rows="7" required></textarea>
+            </div>
+          </div>
+          <div class="jfc-actions">
+            <div></div>
+            <button type="button" class="btn-primary" (click)="nextStep()">Suivant <i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+      }
+
+      <!-- STEP 2: Details et avantages -->
+      @if (currentStep() === 2) {
+        <div class="jf-card">
+          <div class="jfc-head"><h2><span class="ed-pill">02</span> Details et avantages</h2></div>
+          <div class="jfc-body">
+            <div class="form-row">
+              <div class="form-group"><label>Remuneration (texte)</label><input type="text" placeholder="ex: 45K - 55K EUR" [(ngModel)]="form.salary" name="salary" /></div>
+              <div class="form-group"><label>Competences (virgules)</label><input type="text" placeholder="Angular, .NET, TypeScript" [(ngModel)]="form.tags" name="tags" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Salaire minimum (EUR/an)</label><input type="number" placeholder="35000" [(ngModel)]="form.minSalary" name="minSalary" /></div>
+              <div class="form-group"><label>Salaire maximum (EUR/an)</label><input type="number" placeholder="50000" [(ngModel)]="form.maxSalary" name="maxSalary" /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Niveau d'experience</label>
+                <select [(ngModel)]="form.experienceRequired" name="experienceRequired">
+                  <option value="">Non specifie</option>
+                  @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
+                </select>
+              </div>
+              <div class="form-group"><label>Formation requise</label>
+                <select [(ngModel)]="form.educationLevel" name="educationLevel">
+                  <option value="">Non specifie</option>
+                  @for (l of educationLevels; track l) { <option [value]="l">{{ l }}</option> }
+                </select>
+              </div>
+            </div>
+            <div class="form-group span-2">
+              <label>Avantages (separes par virgules)</label>
+              <input type="text" placeholder="Teletravail, Tickets restaurant, RTT, Mutuelle..." [(ngModel)]="form.benefits" name="benefits" />
+            </div>
+            <div class="form-group span-2">
+              <label>A propos de l'entreprise</label>
+              <textarea placeholder="Decrivez votre entreprise, sa culture, ses valeurs..." [(ngModel)]="form.companyDescription" name="companyDescription" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="jfc-actions">
+            <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Precedent</button>
+            <button type="button" class="btn-primary" (click)="nextStep()">Suivant <i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+      }
+
+      <!-- STEP 3: Options et publication -->
+      @if (currentStep() === 3) {
+        <div class="jf-card">
+          <div class="jfc-head"><h2><span class="ed-pill">03</span> Options et publication</h2></div>
+          <div class="jfc-body">
+            <div class="options-grid">
+              <label class="opt-card" [class.active]="form.isRemote">
+                <input type="checkbox" [(ngModel)]="form.isRemote" name="isRemote" />
+                <div class="opt-icon"><i class="bi bi-wifi"></i></div>
+                <div class="opt-text"><strong>Teletravail</strong><span>Le poste est ouvert au teletravail</span></div>
+              </label>
+              <label class="opt-card" [class.active]="form.isUrgent">
+                <input type="checkbox" [(ngModel)]="form.isUrgent" name="isUrgent" />
+                <div class="opt-icon opt-urgent"><i class="bi bi-lightning-fill"></i></div>
+                <div class="opt-text"><strong>Urgent</strong><span>Recrutement prioritaire</span></div>
+              </label>
+              @if (isEdit()) {
+                <label class="opt-card" [class.active]="form.isActive">
+                  <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" />
+                  <div class="opt-icon opt-active"><i class="bi bi-check-circle-fill"></i></div>
+                  <div class="opt-text"><strong>Offre active</strong><span>Visible par les candidats</span></div>
+                </label>
+              }
+            </div>
+
+            <!-- Resume -->
+            <div class="jf-resume">
+              <h3>Recapitulatif</h3>
+              <div class="res-grid">
+                <div class="res-item"><span class="res-label">Poste</span><span class="res-val">{{ form.title || '—' }}</span></div>
+                <div class="res-item"><span class="res-label">Entreprise</span><span class="res-val">{{ form.company || '—' }}</span></div>
+                <div class="res-item"><span class="res-label">Lieu</span><span class="res-val">{{ form.location || '—' }}</span></div>
+                <div class="res-item"><span class="res-label">Contrat</span><span class="res-val">{{ form.contractType }}</span></div>
+                <div class="res-item"><span class="res-label">Categorie</span><span class="res-val">{{ form.category }}</span></div>
+                @if (form.salary) { <div class="res-item"><span class="res-label">Salaire</span><span class="res-val res-teal">{{ form.salary }}</span></div> }
+                @if (form.experienceRequired) { <div class="res-item"><span class="res-label">Experience</span><span class="res-val">{{ form.experienceRequired }}</span></div> }
+                @if (form.educationLevel) { <div class="res-item"><span class="res-label">Formation</span><span class="res-val">{{ form.educationLevel }}</span></div> }
+              </div>
+            </div>
+          </div>
+          <div class="jfc-actions">
+            <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Precedent</button>
+            <button type="submit" class="btn-primary btn-publish" [disabled]="submitting">
+              @if (submitting) { <span class="sp"></span> } @else { <i class="bi bi-check-lg"></i> }
+              {{ isEdit() ? 'Enregistrer les modifications' : 'Publier l\'offre' }}
+            </button>
+          </div>
+        </div>
+      }
+
+    </form>
+  </div>
+</section>

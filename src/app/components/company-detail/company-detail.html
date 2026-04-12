@@ -1,0 +1,39 @@
+<section class="cd-page">
+  <div class="container">
+    <a routerLink="/entreprises" class="back-link animate-in"><i class="bi bi-arrow-left"></i> Entreprises</a>
+
+    <div class="cd-header animate-in" style="animation-delay:.06s">
+      <div class="cd-avatar" [style.background]="companyColor(companyName).bg">
+        <span [style.color]="companyColor(companyName).fg">{{ companyName.charAt(0) }}</span>
+      </div>
+      <div>
+        <h1>{{ companyName }}</h1>
+        <p>{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }} active{{ jobs().length > 1 ? 's' : '' }}</p>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else {
+      <div class="cd-grid">
+        @for (job of jobs(); track job.id; let i = $index) {
+          <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="(i*0.05+0.1)+'s'">
+            <div class="jc-top">
+              <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+              @if (job.isRemote) { <span class="remote-pill">Teletravail</span> }
+              <button class="bk-btn" (click)="$event.preventDefault(); bookmarkService.toggle(job.id)" [class.active]="bookmarkService.isBookmarked(job.id)">
+                <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
+              </button>
+            </div>
+            <h3>{{ job.title }}</h3>
+            <p class="jc-desc">{{ job.description }}</p>
+            <div class="jc-bottom">
+              <span class="jc-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
+              @if (job.salary) { <span class="jc-salary">{{ job.salary }}</span> }
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,72 @@
+.cp-page { padding: 6.5rem 0 4rem; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.85rem; font-weight: 500; color: var(--text-muted);
+  text-decoration: none; margin-bottom: 1.5rem; transition: color var(--t);
+  &:hover { color: var(--teal); }
+}
+
+.cp-hero {
+  display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;
+}
+
+.cp-avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.75rem; font-weight: 700; flex-shrink: 0;
+}
+
+.cp-info { flex: 1; }
+
+.cp-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.35rem; }
+
+.cp-meta {
+  display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;
+  span {
+    font-size: 0.82rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem;
+    i { font-size: 0.85rem; }
+  }
+}
+
+.cp-section { padding: 1.5rem; margin-bottom: 1rem; &:hover { transform: none; } }
+
+.cp-section-title { font-size: 1rem; font-weight: 650; margin-bottom: 0.75rem; }
+
+.cp-bio { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.65; white-space: pre-line; }
+
+.empty-box {
+  display: flex; flex-direction: column; align-items: center; padding: 5rem 0; gap: 0.6rem; text-align: center;
+  h3 { font-size: 1.15rem; font-weight: 700; } p { color: var(--text-muted); margin-bottom: 0.5rem; }
+}
+
+.spinner {
+  width: 28px; height: 28px; border: 2.5px solid var(--slate-200); border-top-color: var(--teal);
+  border-radius: 50%; animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.cp-title { font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 0.35rem; }
+
+.cp-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.cp-skill-tag {
+  padding: 0.3rem 0.75rem; font-size: 0.8rem; font-weight: 500;
+  border-radius: var(--r-full); background: var(--teal-50); color: var(--teal-600);
+  border: 1px solid rgba(13,148,136,0.15);
+}
+
+.cp-links {
+  display: flex; gap: 0.75rem; flex-wrap: wrap;
+  a {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.85rem; font-weight: 500; color: var(--teal); text-decoration: none;
+    &:hover { text-decoration: underline; }
+    i { font-size: 0.9rem; }
+  }
+}
+
+@media (max-width: 768px) {
+  .cp-hero { flex-direction: column; text-align: center; }
+  .cp-meta { justify-content: center; }
+}

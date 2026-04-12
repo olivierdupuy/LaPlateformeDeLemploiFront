@@ -1,0 +1,93 @@
+<!-- ═══ HERO ═══ -->
+<section class="cv-hero">
+  <div class="container cvh-inner">
+    <div class="cvh-left animate-in">
+      <span class="ed-pill"><i class="bi bi-person-lines-fill"></i></span>
+      <h1>Vivier de candidats</h1>
+      <p>Explorez les profils des candidats inscrits sur la plateforme</p>
+
+      <div class="cvh-search">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Rechercher par nom, competence, bio..." [value]="searchTerm()" (input)="onSearch($event)" />
+      </div>
+    </div>
+
+    @if (!loading()) {
+      <div class="cvh-stat animate-in" style="animation-delay:.1s">
+        <span class="cvhs-val">{{ candidates().length }}</span>
+        <span class="cvhs-lbl">candidat{{ candidates().length > 1 ? 's' : '' }}</span>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ═══ CONTENT ═══ -->
+<section class="cv-content">
+  <div class="container">
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (candidates().length === 0) {
+      <div class="cv-empty animate-in">
+        <div class="cve-circle"><i class="bi bi-person-lines-fill"></i></div>
+        <h3>Aucun candidat trouve</h3>
+        <p>Modifiez vos criteres de recherche ou attendez de nouvelles inscriptions</p>
+      </div>
+    } @else {
+      <div class="cv-grid">
+        @for (c of candidates(); track c.id; let i = $index) {
+          <a [routerLink]="['/candidats', c.id]" class="cc animate-in" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
+            <!-- Top band -->
+            <div class="cc-band" [style.background]="avatarColor(c.firstName).bg"></div>
+
+            <div class="cc-body">
+              <!-- Avatar + identity -->
+              <div class="cc-identity">
+                <div class="cc-av" [style.background]="avatarColor(c.firstName).bg">
+                  <span [style.color]="avatarColor(c.firstName).fg">{{ getInitials(c) }}</span>
+                </div>
+                <h3>{{ c.firstName }} {{ c.lastName }}</h3>
+                @if (c.title) { <span class="cc-title">{{ c.title }}</span> }
+                @if (c.city) { <span class="cc-city"><i class="bi bi-geo-alt-fill"></i> {{ c.city }}</span> }
+              </div>
+
+              <!-- Skills -->
+              @if (c.skills) {
+                <div class="cc-skills">
+                  @for (skill of c.skills.split(',').slice(0, 4); track skill) {
+                    <span class="cc-skill">{{ skill.trim() }}</span>
+                  }
+                  @if (c.skills.split(',').length > 4) {
+                    <span class="cc-skill cc-skill-more">+{{ c.skills.split(',').length - 4 }}</span>
+                  }
+                </div>
+              }
+
+              <!-- Bio -->
+              @if (c.bio) {
+                <p class="cc-bio">{{ c.bio }}</p>
+              }
+
+              <!-- Footer: stats -->
+              <div class="cc-footer">
+                <div class="cc-stats">
+                  @if (c.experienceYears != null) {
+                    <span class="cc-stat"><i class="bi bi-bar-chart-fill"></i> {{ c.experienceYears }} an{{ c.experienceYears > 1 ? 's' : '' }}</span>
+                  }
+                  @if (c.education) {
+                    <span class="cc-stat"><i class="bi bi-mortarboard-fill"></i> {{ c.education.length > 25 ? c.education.substring(0, 25) + '...' : c.education }}</span>
+                  }
+                </div>
+                <div class="cc-apps">
+                  <span><i class="bi bi-send-check-fill"></i> {{ c.applicationCount }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hover CTA -->
+            <div class="cc-cta"><span>Voir le profil</span> <i class="bi bi-arrow-right"></i></div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</section>

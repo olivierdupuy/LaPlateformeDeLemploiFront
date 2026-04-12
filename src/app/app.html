@@ -1,16 +1,5 @@
-<!-- Skip to content (a11y) -->
-<a class="skip-to-content" href="#main-content">Aller au contenu principal</a>
-
-<!-- Scroll progress bar -->
-<div class="scroll-progress" [style.width.%]="scrollProgress" role="progressbar" [attr.aria-valuenow]="scrollProgress" aria-valuemin="0" aria-valuemax="100" aria-label="Progression de lecture"></div>
-
-<app-navbar></app-navbar>
-<main id="main-content" role="main">
-  <router-outlet></router-outlet>
+<app-navbar />
+<main>
+  <router-outlet />
 </main>
-<app-footer></app-footer>
-
-<!-- Scroll to top -->
-<button class="scroll-top-btn" [class.visible]="showScrollTop" (click)="scrollToTop()" aria-label="Retour en haut de page">
-  <i class="bi bi-chevron-up" aria-hidden="true"></i>
-</button>
+<app-footer />

@@ -1,8 +1,0 @@
-.chart-title { font-size:.92rem; font-weight:800; margin:0 0 1rem; letter-spacing:-.01em; color:var(--sand-700); }
-.top-offers-list { display:flex; flex-direction:column; gap:.6rem; }
-.top-offer-item { display:flex; align-items:center; gap:.75rem; }
-.top-offer-rank { width:24px; height:24px; border-radius:50%; background:var(--forest-50); color:var(--forest-700); font-size:.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-.top-offer-title { font-size:.88rem; font-weight:600; min-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.top-offer-bar-track { flex:1; height:8px; background:var(--sand-100); border-radius:99px; overflow:hidden; }
-.top-offer-bar { height:100%; background:linear-gradient(90deg,var(--forest-500),var(--forest-300)); border-radius:99px; transition:width .5s ease; }
-.top-offer-count { font-size:.82rem; font-weight:700; color:var(--forest-600); min-width:30px; text-align:right; }

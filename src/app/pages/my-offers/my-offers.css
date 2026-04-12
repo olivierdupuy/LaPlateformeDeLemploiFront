@@ -1,5 +1,0 @@
-.offer-stat {
-  display: flex; align-items: center; gap: .35rem;
-  font-size: .8rem; color: var(--sand-500);
-}
-.offer-stat strong { color: var(--sand-700); }

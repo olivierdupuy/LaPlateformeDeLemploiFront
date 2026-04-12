@@ -1,0 +1,200 @@
+@if (auth.currentUser(); as u) {
+<!-- ═══ HEADER ═══ -->
+<section class="prof-hero">
+  <div class="container ph-inner">
+    <div class="ph-avatar" [style.background]="companyColor(u.firstName).bg">
+      <span [style.color]="companyColor(u.firstName).fg">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+    </div>
+    <div class="ph-info">
+      <h1>{{ u.firstName }} {{ u.lastName }}</h1>
+      <div class="ph-meta">
+        <span><i class="bi bi-envelope"></i> {{ u.email }}</span>
+        @if (u.title) { <span><i class="bi bi-briefcase"></i> {{ u.title }}</span> }
+        @if (u.city) { <span><i class="bi bi-geo-alt"></i> {{ u.city }}</span> }
+      </div>
+      <span class="ph-role" [class.role-candidate]="u.role==='Candidate'" [class.role-recruiter]="u.role==='Recruiter'" [class.role-admin]="u.role==='Admin'">
+        {{ {Admin:'Administrateur',Recruiter:'Recruteur',Candidate:'Candidat'}[u.role] || u.role }}
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTENT ═══ -->
+<section class="prof-content">
+  <div class="container prof-layout">
+
+    <!-- LEFT: Sidebar preview -->
+    <aside class="prof-sidebar animate-in">
+      <!-- Quick info card -->
+      <div class="ps-card">
+        <div class="ps-avatar-lg" [style.background]="companyColor(u.firstName).bg">
+          <span [style.color]="companyColor(u.firstName).fg">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+        </div>
+        <h3>{{ u.firstName }} {{ u.lastName }}</h3>
+        @if (u.title) { <p class="ps-title">{{ u.title }}</p> }
+        @if (u.city) { <p class="ps-city"><i class="bi bi-geo-alt-fill"></i> {{ u.city }}</p> }
+
+        @if (u.bio) {
+          <p class="ps-bio">{{ u.bio }}</p>
+        }
+
+        <!-- Stats -->
+        <div class="ps-stats">
+          @if (u.experienceYears) {
+            <div class="ps-stat">
+              <span class="ps-stat-val">{{ u.experienceYears }}</span>
+              <span class="ps-stat-lbl">ans d'exp.</span>
+            </div>
+          }
+          @if (u.education) {
+            <div class="ps-stat">
+              <i class="bi bi-mortarboard-fill"></i>
+              <span class="ps-stat-lbl">{{ u.education }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Skills -->
+        @if (u.skills) {
+          <div class="ps-skills">
+            @for (skill of u.skills.split(','); track skill) {
+              <span class="ps-skill">{{ skill.trim() }}</span>
+            }
+          </div>
+        }
+
+        <!-- Links -->
+        <div class="ps-links">
+          @if (u.linkedInUrl) {
+            <a [href]="u.linkedInUrl" target="_blank" class="ps-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
+          }
+          @if (u.portfolioUrl) {
+            <a [href]="u.portfolioUrl" target="_blank" class="ps-link"><i class="bi bi-globe2"></i> Portfolio</a>
+          }
+          @if (u.resumeUrl) {
+            <a [href]="apiBaseUrl + u.resumeUrl" target="_blank" class="ps-link"><i class="bi bi-file-earmark-pdf-fill"></i> Mon CV</a>
+          }
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="ps-actions">
+        @if (u.role === 'Candidate') {
+          <a routerLink="/mon-cv" class="ps-action"><i class="bi bi-file-earmark-person"></i> Mon CV en ligne</a>
+          <a routerLink="/suivi" class="ps-action"><i class="bi bi-clipboard-check"></i> Mes candidatures</a>
+          <a routerLink="/favoris" class="ps-action"><i class="bi bi-bookmark-heart"></i> Mes favoris</a>
+        }
+        @if (u.role === 'Recruiter') {
+          <a routerLink="/admin/mes-offres" class="ps-action"><i class="bi bi-collection"></i> Mes offres</a>
+          <a routerLink="/admin/candidatures" class="ps-action"><i class="bi bi-people"></i> Candidatures</a>
+        }
+      </div>
+    </aside>
+
+    <!-- RIGHT: Edit forms -->
+    <main class="prof-main">
+      <!-- Informations personnelles -->
+      <div class="pm-section animate-in" style="animation-delay:.06s">
+        <div class="pm-head">
+          <h2><span class="ed-pill">01</span> Informations personnelles</h2>
+        </div>
+        <form (ngSubmit)="saveProfile()" class="pm-form">
+          <div class="form-row">
+            <div class="form-group"><label>Prenom</label><input type="text" [(ngModel)]="profileForm.firstName" name="firstName" /></div>
+            <div class="form-group"><label>Nom</label><input type="text" [(ngModel)]="profileForm.lastName" name="lastName" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Poste actuel</label><input type="text" placeholder="ex: Developpeur Full Stack" [(ngModel)]="profileForm.title" name="title" /></div>
+            <div class="form-group"><label>Ville</label><input type="text" placeholder="ex: Paris" [(ngModel)]="profileForm.city" name="city" /></div>
+          </div>
+          <div class="form-group"><label>Entreprise</label><input type="text" placeholder="Votre entreprise" [(ngModel)]="profileForm.company" name="company" /></div>
+          <div class="form-group"><label>Bio</label><textarea placeholder="Decrivez-vous en quelques lignes..." [(ngModel)]="profileForm.bio" name="bio" rows="3"></textarea></div>
+
+          <div class="form-group"><label>Competences (separees par virgules)</label><input type="text" placeholder="Angular, TypeScript, .NET..." [(ngModel)]="profileForm.skills" name="skills" /></div>
+
+          <div class="form-row">
+            <div class="form-group"><label>Annees d'experience</label><input type="number" placeholder="0" [(ngModel)]="profileForm.experienceYears" name="experienceYears" /></div>
+            <div class="form-group"><label>Formation / Diplome</label><input type="text" placeholder="ex: Master Informatique" [(ngModel)]="profileForm.education" name="education" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>LinkedIn</label><input type="url" placeholder="https://linkedin.com/in/..." [(ngModel)]="profileForm.linkedInUrl" name="linkedInUrl" /></div>
+            <div class="form-group"><label>Portfolio</label><input type="url" placeholder="https://..." [(ngModel)]="profileForm.portfolioUrl" name="portfolioUrl" /></div>
+          </div>
+
+          <div class="pm-actions">
+            <button type="submit" class="btn-primary" [disabled]="savingProfile">
+              @if (savingProfile) { <span class="sp"></span> } @else { <i class="bi bi-check-lg"></i> }
+              Enregistrer les modifications
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- CV Upload -->
+      @if (u.role === 'Candidate') {
+        <div class="pm-section animate-in" style="animation-delay:.12s">
+          <div class="pm-head">
+            <h2><span class="ed-pill">02</span> Curriculum Vitae</h2>
+          </div>
+          @if (u.resumeUrl) {
+            <div class="cv-current">
+              <div class="cv-file-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+              <div class="cv-file-info">
+                <strong>CV televerse</strong>
+                <a [href]="apiBaseUrl + u.resumeUrl" target="_blank" class="cv-link">Ouvrir le fichier <i class="bi bi-box-arrow-up-right"></i></a>
+              </div>
+              <label class="btn-secondary cv-replace-btn">
+                <i class="bi bi-arrow-repeat"></i> Remplacer
+                <input type="file" accept=".pdf" (change)="onCvFileSelected($event)" hidden />
+              </label>
+            </div>
+          } @else {
+            <div class="cv-empty">
+              <div class="cv-empty-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+              <h4>Aucun CV televerse</h4>
+              <p>Televersez votre CV au format PDF (max 5 Mo). Il sera automatiquement joint a vos candidatures.</p>
+              <label class="btn-primary cv-upload-btn" [class.loading]="uploadingCv">
+                @if (uploadingCv) { <span class="sp"></span> Telechargement... } @else { <i class="bi bi-upload"></i> Telecharger mon CV }
+                <input type="file" accept=".pdf" (change)="onCvFileSelected($event)" hidden />
+              </label>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Securite -->
+      <div class="pm-section animate-in" style="animation-delay:.18s">
+        <div class="pm-head">
+          <h2><span class="ed-pill">{{ u.role === 'Candidate' ? '03' : '02' }}</span> Securite</h2>
+        </div>
+        <form (ngSubmit)="changePassword()" class="pm-form">
+          <div class="form-row">
+            <div class="form-group"><label>Mot de passe actuel</label><input type="password" placeholder="********" [(ngModel)]="pwForm.currentPassword" name="currentPassword" /></div>
+            <div class="form-group"><label>Nouveau mot de passe</label><input type="password" placeholder="6 caracteres minimum" [(ngModel)]="pwForm.newPassword" name="newPassword" /></div>
+          </div>
+          <div class="pm-actions">
+            <button type="submit" class="btn-secondary" [disabled]="savingPw">
+              @if (savingPw) { <span class="sp"></span> } @else { <i class="bi bi-key"></i> }
+              Modifier le mot de passe
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="pm-section pm-danger animate-in" style="animation-delay:.24s">
+        <div class="pm-head">
+          <h2><i class="bi bi-exclamation-triangle"></i> Zone de danger</h2>
+        </div>
+        <div class="danger-bar">
+          <div>
+            <strong>Se deconnecter</strong>
+            <p>Vous serez redirige vers la page d'accueil</p>
+          </div>
+          <button class="btn-danger" (click)="deleteAccount()"><i class="bi bi-box-arrow-right"></i> Deconnexion</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</section>
+}

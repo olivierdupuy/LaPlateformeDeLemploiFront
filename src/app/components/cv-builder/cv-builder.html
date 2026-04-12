@@ -1,0 +1,194 @@
+<!-- ═══ HEADER ═══ -->
+<section class="cv-hero">
+  <div class="container cvh-inner">
+    <div class="cvh-left animate-in">
+      <span class="ed-pill"><i class="bi bi-file-earmark-person"></i></span>
+      <h1>Mon CV en ligne</h1>
+      <p>Construisez votre CV section par section, ou importez-le depuis un fichier</p>
+    </div>
+    <div class="cvh-actions animate-in" style="animation-delay:.1s">
+      <button class="cvh-btn cvh-preview" (click)="previewOpen.set(!previewOpen())">
+        <i class="bi" [class.bi-eye]="!previewOpen()" [class.bi-eye-slash]="previewOpen()"></i>
+        {{ previewOpen() ? 'Masquer' : 'Apercu' }}
+      </button>
+      <label class="cvh-btn cvh-import" [class.loading]="parsingFile()">
+        @if (parsingFile()) {
+          <span class="sp"></span> Analyse...
+        } @else {
+          <i class="bi bi-file-earmark-arrow-up"></i> Importer un CV
+        }
+        <input type="file" accept=".pdf,.docx,.doc" (change)="onFileSelected($event)" hidden [disabled]="parsingFile()" />
+      </label>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MAIN ═══ -->
+<section class="cv-main">
+  <div class="container cv-layout" [class.with-preview]="previewOpen()">
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else {
+
+      <!-- EDITOR -->
+      <div class="cv-editor">
+        @for (type of TYPES; track type; let ti = $index) {
+          <div class="sec-group animate-in" [style.animation-delay]="(ti * 0.04) + 's'">
+            <div class="sg-head">
+              <div class="sg-icon" [style.background]="sectionColor(type)"><i class="bi" [class]="sectionIcon(type)"></i></div>
+              <div class="sg-title">
+                <h2>{{ sectionLabel(type) }}</h2>
+                <span class="sg-count">{{ grouped()[type].length }}</span>
+              </div>
+              <button class="sg-add" (click)="openAdd(type)"><i class="bi bi-plus-lg"></i></button>
+            </div>
+
+            @for (s of grouped()[type]; track s.id) {
+              <div class="sec-item">
+                <div class="si-stripe" [style.background]="sectionColor(type)"></div>
+                <div class="si-body">
+                  <div class="si-top">
+                    <div class="si-info">
+                      <strong>{{ s.title }}</strong>
+                      @if (s.organization) { <span class="si-org">{{ s.organization }}</span> }
+                    </div>
+                    @if (s.level) { <span class="si-level">{{ s.level }}</span> }
+                    <div class="si-actions">
+                      <button (click)="openEdit(s)"><i class="bi bi-pencil"></i></button>
+                      <button (click)="deleteSection(s.id)"><i class="bi bi-trash3"></i></button>
+                    </div>
+                  </div>
+                  @if (s.startDate || s.location) {
+                    <div class="si-meta">
+                      @if (s.startDate) { <span><i class="bi bi-calendar3"></i> {{ s.startDate | date:'MMM yyyy' }}{{ s.endDate ? ' — ' + (s.endDate | date:'MMM yyyy') : ' — Aujourd\'hui' }}</span> }
+                      @if (s.location) { <span><i class="bi bi-geo-alt"></i> {{ s.location }}</span> }
+                    </div>
+                  }
+                  @if (s.description) { <p class="si-desc">{{ s.description }}</p> }
+                </div>
+              </div>
+            } @empty {
+              <button class="sec-empty" (click)="openAdd(type)">
+                <i class="bi bi-plus-circle"></i> Ajouter un element
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- PREVIEW -->
+      @if (previewOpen()) {
+        <aside class="cv-preview animate-in">
+          <div class="paper">
+            @if (auth.currentUser(); as u) {
+              <div class="p-head">
+                <div class="p-name">{{ u.firstName }} {{ u.lastName }}</div>
+                @if (u.title) { <div class="p-jobtitle">{{ u.title }}</div> }
+                <div class="p-contact">
+                  @if (u.email) { <span>{{ u.email }}</span> }
+                  @if (u.city) { <span>{{ u.city }}</span> }
+                </div>
+                @if (u.bio) { <p class="p-bio">{{ u.bio }}</p> }
+              </div>
+
+              @for (type of TYPES; track type) {
+                @if (grouped()[type].length > 0) {
+                  <div class="p-sec">
+                    <h3><span class="p-dot" [style.background]="sectionColor(type)"></span> {{ sectionLabel(type) }}</h3>
+                    @for (s of grouped()[type]; track s.id) {
+                      <div class="p-entry">
+                        <div class="p-entry-head">
+                          <strong>{{ s.title }}</strong>
+                          @if (s.level) { <em>{{ s.level }}</em> }
+                        </div>
+                        @if (s.organization || s.startDate) {
+                          <div class="p-entry-sub">
+                            @if (s.organization) { <span>{{ s.organization }}</span> }
+                            @if (s.startDate) { <span>{{ s.startDate | date:'MMM yyyy' }}{{ s.endDate ? ' - ' + (s.endDate | date:'MMM yyyy') : ' - Present' }}</span> }
+                          </div>
+                        }
+                        @if (s.description) { <p>{{ s.description }}</p> }
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            }
+          </div>
+        </aside>
+      }
+    }
+  </div>
+</section>
+
+<!-- ═══ EDIT MODAL ═══ -->
+@if (editOpen()) {
+  <div class="modal-overlay" (click)="editOpen.set(false)">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="em-head">
+        <div class="em-icon" [style.background]="sectionColor(editForm.sectionType)"><i class="bi" [class]="sectionIcon(editForm.sectionType)"></i></div>
+        <div><h2>{{ isNew ? 'Ajouter' : 'Modifier' }}</h2><span class="em-sub">{{ sectionLabel(editForm.sectionType) }}</span></div>
+        <button class="em-close" (click)="editOpen.set(false)"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <form (ngSubmit)="saveSection()" class="em-form">
+        <div class="form-group"><label>Titre *</label><input type="text" [(ngModel)]="editForm.title" name="title" placeholder="ex: Developpeur Full Stack" required /></div>
+        @if (needsOrg(editForm.sectionType)) {
+          <div class="form-row">
+            <div class="form-group"><label>{{ editForm.sectionType === 'Formation' ? 'Etablissement' : 'Entreprise' }}</label><input type="text" [(ngModel)]="editForm.organization" name="org" /></div>
+            <div class="form-group"><label>Lieu</label><input type="text" [(ngModel)]="editForm.location" name="loc" /></div>
+          </div>
+        }
+        @if (needsDates(editForm.sectionType)) {
+          <div class="form-row">
+            <div class="form-group"><label>Debut</label><input type="date" [(ngModel)]="editForm.startDate" name="start" /></div>
+            <div class="form-group"><label>Fin (vide = en cours)</label><input type="date" [(ngModel)]="editForm.endDate" name="end" /></div>
+          </div>
+        }
+        @if (needsLevel(editForm.sectionType)) {
+          <div class="form-group"><label>Niveau</label>
+            <select [(ngModel)]="editForm.level" name="level">
+              @if (editForm.sectionType === 'Langue') {
+                <option value="">Selectionner</option><option>Natif</option><option>Courant</option><option>Avance (C1)</option><option>Intermediaire (B2)</option><option>Debutant (A1-A2)</option>
+              } @else {
+                <option value="">Selectionner</option><option>Expert</option><option>Avance</option><option>Intermediaire</option><option>Debutant</option>
+              }
+            </select>
+          </div>
+        }
+        <div class="form-group"><label>Description</label><textarea [(ngModel)]="editForm.description" name="desc" rows="4" placeholder="Missions, realisations..."></textarea></div>
+        <div class="em-actions"><button type="button" class="btn-secondary" (click)="editOpen.set(false)">Annuler</button><button type="submit" class="btn-primary"><i class="bi bi-check-lg"></i> {{ isNew ? 'Ajouter' : 'Enregistrer' }}</button></div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- ═══ AI REVIEW MODAL ═══ -->
+@if (aiOpen()) {
+  <div class="modal-overlay">
+    <div class="modal-content ai-modal" (click)="$event.stopPropagation()">
+      <div class="em-head">
+        <div class="em-icon ai-gradient"><i class="bi bi-stars"></i></div>
+        <div><h2>{{ aiModalTitle() }}</h2><span class="em-sub">Selectionnez les sections a integrer</span></div>
+        <button class="em-close" (click)="aiOpen.set(false)"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="ai-list">
+        @for (s of aiSections(); track $index; let i = $index) {
+          <label class="ai-card" [class.selected]="aiSelected()[i]">
+            <input type="checkbox" [checked]="aiSelected()[i]" (change)="toggleAi(i)" />
+            <div class="ai-card-body">
+              <div class="ai-card-top">
+                <span class="ai-badge" [style.color]="sectionColor(s.sectionType)"><i class="bi" [class]="sectionIcon(s.sectionType)"></i> {{ sectionLabel(s.sectionType) }}</span>
+                @if (s.level) { <span class="ai-level">{{ s.level }}</span> }
+              </div>
+              <strong>{{ s.title }}</strong>
+              @if (s.organization) { <span class="ai-org">{{ s.organization }}</span> }
+              @if (s.description) { <p>{{ s.description }}</p> }
+            </div>
+          </label>
+        }
+      </div>
+      <div class="em-actions"><button class="btn-secondary" (click)="aiOpen.set(false)">Annuler</button><button class="btn-primary" (click)="acceptAi()"><i class="bi bi-check-lg"></i> Integrer les sections</button></div>
+    </div>
+  </div>
+}

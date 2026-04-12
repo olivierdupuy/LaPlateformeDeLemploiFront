@@ -1,42 +1,103 @@
-<footer class="footer">
-  <div class="container-main">
-    <div class="row g-4">
-      <div class="col-lg-3">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <span style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--forest-500),var(--forest-700));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;">
-            <i class="bi bi-briefcase-fill"></i>
-          </span>
-          <h6 class="mb-0 text-white fw-bold">La Plateforme de l'Emploi</h6>
+<!-- ═══ CTA BAND ═══ -->
+<div class="footer-cta">
+  <div class="container cta-inner">
+    <div class="cta-text">
+      <h3>Vous recrutez ?</h3>
+      <p>Publiez votre offre gratuitement et trouvez le candidat ideal en quelques clics.</p>
+    </div>
+    <a routerLink="/admin/nouvelle-offre" class="cta-btn">
+      <i class="bi bi-plus-lg"></i> Publier une offre
+    </a>
+  </div>
+</div>
+
+<!-- ═══ MAIN FOOTER ═══ -->
+<footer>
+  <div class="container">
+
+    <!-- Top section: brand + columns -->
+    <div class="ft-grid">
+      <!-- Brand + newsletter -->
+      <div class="ft-brand">
+        <div class="ft-logo">
+          <div class="ft-mark"><i class="bi bi-briefcase-fill"></i></div>
+          <div class="ft-logo-text">
+            <span class="ft-name">La Plateforme</span>
+            <span class="ft-sub">de l'Emploi</span>
+          </div>
         </div>
-        <p style="line-height:1.7;font-size:.88rem;">La plateforme qui connecte talents et entreprises en France.</p>
+        <p class="ft-tagline">
+          La plateforme de confiance pour connecter les talents avec les entreprises qui comptent.
+        </p>
+
+        <!-- Newsletter -->
+        <div class="ft-newsletter">
+          <span class="nl-label">Recevez les dernieres offres</span>
+          <div class="nl-form">
+            <input #emailInput type="email" placeholder="Votre adresse email" />
+            <button (click)="subscribeNewsletter(emailInput)">
+              <i class="bi bi-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Social -->
+        <div class="ft-social">
+          <a href="#" class="social-icon" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="social-icon" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" class="social-icon" title="GitHub"><i class="bi bi-github"></i></a>
+          <a href="#" class="social-icon" title="Email"><i class="bi bi-envelope-fill"></i></a>
+        </div>
       </div>
-      <div class="col-lg-3">
-        <h6 class="text-white fw-bold mb-3" style="font-size:.9rem;">Navigation</h6>
-        <ul class="list-unstyled" style="font-size:.88rem;">
-          <li class="mb-2"><a routerLink="/"><i class="bi bi-chevron-right me-1"></i>Accueil</a></li>
-          <li class="mb-2"><a routerLink="/offres"><i class="bi bi-chevron-right me-1"></i>Offres d'emploi</a></li>
-          <li class="mb-2"><a routerLink="/entreprises"><i class="bi bi-chevron-right me-1"></i>Entreprises</a></li>
-          <li class="mb-2"><a routerLink="/contact"><i class="bi bi-chevron-right me-1"></i>Contact</a></li>
-        </ul>
+
+      <!-- Link columns -->
+      <div class="ft-col">
+        <h4>Plateforme</h4>
+        <a routerLink="/">Accueil</a>
+        <a routerLink="/offres">Toutes les offres</a>
+        <a routerLink="/offres" [queryParams]="{contractType: 'CDI'}">Offres CDI</a>
+        <a routerLink="/offres" [queryParams]="{contractType: 'Stage'}">Stages</a>
+        <a routerLink="/offres" [queryParams]="{isRemote: true}">Offres en teletravail</a>
       </div>
-      <div class="col-lg-3">
-        <h6 class="text-white fw-bold mb-3" style="font-size:.9rem;">Contact</h6>
-        <ul class="list-unstyled" style="font-size:.88rem;">
-          <li class="mb-2"><i class="bi bi-envelope me-2" style="color:var(--forest-400);"></i>contact&#64;plateforme-emploi.fr</li>
-          <li class="mb-2"><i class="bi bi-telephone me-2" style="color:var(--forest-400);"></i>01 23 45 67 89</li>
-          <li><i class="bi bi-geo-alt me-2" style="color:var(--forest-400);"></i>Paris, France</li>
-        </ul>
+
+      <div class="ft-col">
+        <h4>Candidats</h4>
+        <a routerLink="/offres">Rechercher un emploi</a>
+        <a routerLink="/offres" [queryParams]="{category: 'Tech'}">Emplois Tech</a>
+        <a routerLink="/offres" [queryParams]="{category: 'Design'}">Emplois Design</a>
+        <a routerLink="/offres" [queryParams]="{category: 'Marketing'}">Emplois Marketing</a>
+        <a routerLink="/offres" [queryParams]="{category: 'Finance'}">Emplois Finance</a>
       </div>
-      <div class="col-lg-3">
-        <h6 class="text-white fw-bold mb-3" style="font-size:.9rem;">Legal</h6>
-        <ul class="list-unstyled" style="font-size:.88rem;">
-          <li class="mb-2"><a routerLink="/mentions-legales"><i class="bi bi-chevron-right me-1"></i>Mentions legales</a></li>
-          <li class="mb-2"><a routerLink="/cgu"><i class="bi bi-chevron-right me-1"></i>CGU</a></li>
-          <li class="mb-2"><a routerLink="/confidentialite"><i class="bi bi-chevron-right me-1"></i>Confidentialite</a></li>
-        </ul>
+
+      <div class="ft-col">
+        <h4>Recruteurs</h4>
+        <a routerLink="/admin/nouvelle-offre">Deposer une annonce</a>
+        <a routerLink="/admin/candidatures">Gerer les candidatures</a>
+        <a routerLink="/admin/nouvelle-offre">Offre premium</a>
+      </div>
+
+      <div class="ft-col">
+        <h4>Ressources</h4>
+        <a href="#">Blog carriere</a>
+        <a href="#">Guide du CV</a>
+        <a href="#">Conseils entretien</a>
+        <a href="#">FAQ</a>
+        <a href="#">Contact</a>
       </div>
     </div>
-    <hr class="footer-divider mt-3 mb-2">
-    <p class="text-center mb-0 small" style="opacity:.4;">&copy; 2026 La Plateforme de l'Emploi</p>
+
+    <!-- Divider -->
+    <div class="ft-divider"></div>
+
+    <!-- Bottom bar -->
+    <div class="ft-bottom">
+      <span class="ft-copy">&copy; {{ year }} La Plateforme de l'Emploi. Tous droits reserves.</span>
+      <div class="ft-legal">
+        <a href="#">Mentions legales</a>
+        <a href="#">Politique de confidentialite</a>
+        <a href="#">CGU</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
   </div>
 </footer>

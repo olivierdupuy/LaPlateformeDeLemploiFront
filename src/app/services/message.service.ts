@@ -1,48 +1,38 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-export interface ConversationDto {
-  id: number;
-  otherUserId: number;
-  otherUserName: string;
-  otherUserRole: string;
-  companyName: string | null;
-  companyLogoUrl: string | null;
-  lastMessage: string | null;
-  lastMessageAt: string | null;
-  unreadCount: number;
-}
-
-export interface MessageDto {
-  id: number;
-  senderId: number;
-  senderName: string;
-  content: string;
-  sentAt: string;
-  isRead: boolean;
-  isMine: boolean;
-}
+import { Observable, tap } from 'rxjs';
+import { Conversation, ChatMessage } from '../models/auth.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
-  private readonly api = '/api/messages';
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/messages`;
 
-  constructor(private http: HttpClient) {}
+  conversations = signal<Conversation[]>([]);
+  unreadCount = signal(0);
 
-  getConversations(): Observable<ConversationDto[]> {
-    return this.http.get<ConversationDto[]>(this.api + '/conversations');
+  loadConversations() {
+    this.http.get<Conversation[]>(`${this.apiUrl}/conversations`).subscribe({
+      next: (c) => this.conversations.set(c),
+    });
   }
 
-  getMessages(conversationId: number): Observable<MessageDto[]> {
-    return this.http.get<MessageDto[]>(`${this.api}/conversations/${conversationId}`);
+  getMessages(applicationId: number): Observable<ChatMessage[]> {
+    return this.http.get<ChatMessage[]>(`${this.apiUrl}/conversation/${applicationId}`);
   }
 
-  sendMessage(recipientId: number, content: string): Observable<MessageDto> {
-    return this.http.post<MessageDto>(this.api, { recipientId, content });
+  send(applicationId: number, content: string): Observable<any> {
+    return this.http.post(this.apiUrl, { applicationId, content });
   }
 
-  getUnreadCount(): Observable<number> {
-    return this.http.get<number>(this.api + '/unread-count');
+  markAsRead(applicationId: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/conversation/${applicationId}/read`, {});
+  }
+
+  loadUnreadCount() {
+    this.http.get<{ count: number }>(`${this.apiUrl}/unread-count`).subscribe({
+      next: (r) => this.unreadCount.set(r.count),
+    });
   }
 }

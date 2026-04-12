@@ -1,233 +1,211 @@
-<header class="nav-wrapper" role="navigation" aria-label="Navigation principale">
-  <nav class="nav-inner container-main">
+<nav [class.scrolled]="scrolled()">
+  <div class="nav-inner container">
     <!-- Logo -->
-    <a class="nav-brand" routerLink="/">
-      <span class="nav-brand-icon">
-        <i class="bi bi-briefcase-fill" aria-hidden="true"></i>
-      </span>
-      <span class="nav-brand-name">
-        <span class="nav-brand-top">La Plateforme</span>
-        <span class="nav-brand-bottom">de l'Emploi</span>
-      </span>
+    <a routerLink="/" class="logo">
+      <div class="logo-mark"><i class="bi bi-briefcase-fill"></i></div>
+      <div class="logo-text">
+        <span class="logo-name">La Plateforme</span>
+        <span class="logo-sub">de l'Emploi</span>
+      </div>
     </a>
 
-    <!-- Desktop links -->
-    <ul class="nav-links d-none d-lg-flex">
-      <li>
-        <a class="nav-item" routerLink="/" routerLinkActive="nav-item--active" [routerLinkActiveOptions]="{ exact: true }">
-          <i class="bi bi-house" aria-hidden="true"></i><span>Accueil</span>
-        </a>
-      </li>
-      <li>
-        <a class="nav-item" routerLink="/offres" routerLinkActive="nav-item--active">
-          <i class="bi bi-search" aria-hidden="true"></i><span>Offres d'emploi</span>
-        </a>
-      </li>
-      <li>
-        <a class="nav-item" routerLink="/entreprises" routerLinkActive="nav-item--active">
-          <i class="bi bi-building" aria-hidden="true"></i><span>Entreprises</span>
-        </a>
-      </li>
-    </ul>
+    <!-- Main links (toujours visibles) -->
+    <div class="nav-center" [class.open]="mobileOpen()">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <i class="bi bi-house-door"></i> Accueil
+      </a>
+      <a routerLink="/offres" routerLinkActive="active">
+        <i class="bi bi-search-heart"></i> Offres
+      </a>
+      <a routerLink="/entreprises" routerLinkActive="active">
+        <i class="bi bi-buildings"></i> Entreprises
+      </a>
 
-    <!-- Actions Desktop -->
-    <div class="nav-actions d-none d-lg-flex">
-      <!-- Quick Search -->
-      <div class="nav-search-wrapper">
-        @if (showSearch) {
-          <div class="nav-search-box">
-            <input type="text" class="nav-search-input" placeholder="Rechercher une offre..."
-                   [(ngModel)]="searchQuery" (keydown)="onSearchKeydown($event)" (input)="onSearchInput()" (focus)="loadSearchHistory()" autofocus autocomplete="off">
-            <button class="nav-search-close" (click)="showSearch = false; searchQuery = ''">
-              <i class="bi bi-x" aria-hidden="true"></i>
-            </button>
-          </div>
-          @if (showSuggestions && suggestions.length > 0) {
-            <div class="nav-suggestions" style="position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:0 0 var(--r-md) var(--r-md);box-shadow:var(--sh-lg);z-index:1000;max-height:300px;overflow-y:auto;">
-              @for (s of suggestions; track s.id) {
-                <button class="nav-suggestion-item" (click)="selectSuggestion(s)" style="display:flex;align-items:center;gap:.6rem;width:100%;padding:.6rem .8rem;border:none;background:transparent;cursor:pointer;font-family:inherit;text-align:left;transition:background .1s;">
-                  <i class="bi bi-briefcase" aria-hidden="true" style="color:var(--forest-500);font-size:.85rem;"></i>
-                  <div style="min-width:0;flex:1;">
-                    <div style="font-size:.85rem;font-weight:600;color:var(--sand-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ s.title }}</div>
-                    <div style="font-size:.75rem;color:var(--sand-400);">{{ s.companyName }}</div>
-                  </div>
-                </button>
-              }
+      <!-- CTA recruteur dans les liens principaux -->
+      @if (auth.isRecruiter()) {
+        <a routerLink="/admin/nouvelle-offre" routerLinkActive="active" class="nav-publish">
+          <i class="bi bi-plus-lg"></i> Publier
+        </a>
+      }
+    </div>
+
+    <!-- Right side -->
+    <div class="nav-right">
+      @if (auth.isLoggedIn()) {
+        <!-- Notifications -->
+        <div class="notif-wrap">
+          <button class="icon-btn" (click)="toggleNotif($event)">
+            <i class="bi bi-bell"></i>
+            @if (notifService.unreadCount() > 0) {
+              <span class="count-badge red">{{ notifService.unreadCount() }}</span>
+            }
+          </button>
+          @if (notifOpen()) {
+            <div class="dropdown notif-dropdown">
+              <div class="dd-header">
+                <strong>Notifications</strong>
+                @if (notifService.unreadCount() > 0) {
+                  <button class="dd-action" (click)="markAllRead()">Tout marquer lu</button>
+                }
+              </div>
+              <div class="dd-scroll">
+                @for (n of notifService.notifications(); track n.id) {
+                  <button class="notif-item" [class.unread]="!n.isRead" (click)="onNotifClick(n)">
+                    <div class="notif-icon"><i class="bi" [class]="getNotifIcon(n.type)"></i></div>
+                    <div class="notif-content">
+                      <span class="notif-msg">{{ n.message }}</span>
+                      <span class="notif-time">{{ n.createdAt | date:'dd/MM HH:mm' }}</span>
+                    </div>
+                  </button>
+                } @empty {
+                  <div class="dd-empty">Aucune notification</div>
+                }
+              </div>
             </div>
-          } @else if (showSearch && searchQuery.length === 0 && searchHistory.length > 0) {
-            <div class="nav-suggestions" style="position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:0 0 var(--r-md) var(--r-md);box-shadow:var(--sh-lg);z-index:1000;">
-              <div style="padding:.4rem .8rem;font-size:.72rem;color:var(--sand-400);font-weight:600;">Recherches recentes</div>
-              @for (h of searchHistory; track h) {
-                <button class="nav-suggestion-item" (click)="searchQuery = h; onSearchInput()" style="display:flex;align-items:center;gap:.6rem;width:100%;padding:.5rem .8rem;border:none;background:transparent;cursor:pointer;font-family:inherit;text-align:left;transition:background .1s;">
-                  <i class="bi bi-clock-history" aria-hidden="true" style="color:var(--sand-400);font-size:.8rem;"></i>
-                  <span style="font-size:.85rem;color:var(--sand-600);">{{ h }}</span>
+          }
+        </div>
+
+        <!-- Messagerie -->
+        <a routerLink="/messagerie" class="icon-btn" routerLinkActive="icon-active" title="Messagerie">
+          <i class="bi bi-chat-dots"></i>
+          @if (messageService.unreadCount() > 0) {
+            <span class="count-badge teal">{{ messageService.unreadCount() }}</span>
+          }
+        </a>
+
+        <!-- Favoris -->
+        <a routerLink="/favoris" class="icon-btn" routerLinkActive="icon-active" title="Favoris">
+          <i class="bi bi-bookmark-heart"></i>
+          @if (bookmarkService.count() > 0) {
+            <span class="count-badge teal">{{ bookmarkService.count() }}</span>
+          }
+        </a>
+
+        <!-- User menu dropdown -->
+        <div class="user-menu-wrap">
+          <button class="user-trigger" (click)="toggleUserMenu($event)">
+            @if (auth.currentUser(); as u) {
+              <span class="trigger-avatar">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+              <span class="trigger-name">{{ u.firstName }}</span>
+              <i class="bi bi-chevron-down trigger-chevron" [class.rotated]="userMenuOpen()"></i>
+            }
+          </button>
+
+          @if (userMenuOpen()) {
+            <div class="dropdown user-dropdown">
+              @if (auth.currentUser(); as u) {
+                <!-- Header profil -->
+                <div class="dd-profile">
+                  <div class="dd-avatar">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</div>
+                  <div class="dd-user-info">
+                    <strong>{{ u.firstName }} {{ u.lastName }}</strong>
+                    <span class="dd-email">{{ u.email }}</span>
+                    <span class="dd-role" [class.role-candidate]="u.role==='Candidate'" [class.role-recruiter]="u.role==='Recruiter'" [class.role-admin]="u.role==='Admin'">
+                      {{ getRoleLabel() }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="dd-divider"></div>
+
+                <!-- Liens communs -->
+                <button class="dd-link" (click)="navigateAndClose('/profil')">
+                  <i class="bi bi-person"></i> Mon profil
+                </button>
+                <button class="dd-link" (click)="navigateAndClose('/favoris')">
+                  <i class="bi bi-bookmark-heart"></i> Mes favoris
+                </button>
+
+                <!-- ═══ Menu CANDIDAT ═══ -->
+                @if (u.role === 'Candidate') {
+                  <div class="dd-divider"></div>
+                  <div class="dd-section-label">Espace candidat</div>
+                  <button class="dd-link" (click)="navigateAndClose('/mon-espace')">
+                    <i class="bi bi-speedometer2"></i> Mon tableau de bord
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/mon-cv')">
+                    <i class="bi bi-file-earmark-person"></i> Mon CV
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/suivi')">
+                    <i class="bi bi-clipboard-check"></i> Mes candidatures
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/offres')">
+                    <i class="bi bi-search"></i> Rechercher un emploi
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/recherches-sauvegardees')">
+                    <i class="bi bi-bookmark-star"></i> Recherches sauvegardees
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/entretiens')">
+                    <i class="bi bi-calendar-event"></i> Mes entretiens
+                  </button>
+                }
+
+                <!-- ═══ Menu RECRUTEUR ═══ -->
+                @if (u.role === 'Recruiter') {
+                  <div class="dd-divider"></div>
+                  <div class="dd-section-label">Espace recruteur</div>
+                  <button class="dd-link" (click)="navigateAndClose('/espace-recruteur')">
+                    <i class="bi bi-speedometer2"></i> Tableau de bord
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/mes-offres')">
+                    <i class="bi bi-collection"></i> Mes offres
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/candidatures')">
+                    <i class="bi bi-people"></i> Candidatures recues
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/nouvelle-offre')">
+                    <i class="bi bi-plus-circle"></i> Publier une offre
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/candidats')">
+                    <i class="bi bi-person-lines-fill"></i> Vivier de candidats
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/entretiens')">
+                    <i class="bi bi-calendar-event"></i> Entretiens
+                  </button>
+                }
+
+                <!-- ═══ Menu ADMIN ═══ -->
+                @if (u.role === 'Admin') {
+                  <div class="dd-divider"></div>
+                  <div class="dd-section-label">Administration</div>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/mes-offres')">
+                    <i class="bi bi-collection"></i> Toutes les offres
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/candidatures')">
+                    <i class="bi bi-people"></i> Toutes les candidatures
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/nouvelle-offre')">
+                    <i class="bi bi-plus-circle"></i> Publier une offre
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/dashboard')">
+                    <i class="bi bi-graph-up"></i> Tableau de bord
+                  </button>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/utilisateurs')">
+                    <i class="bi bi-shield-lock"></i> Gestion utilisateurs
+                  </button>
+                }
+
+                <div class="dd-divider"></div>
+                <button class="dd-link dd-logout" (click)="logout()">
+                  <i class="bi bi-box-arrow-right"></i> Se deconnecter
                 </button>
               }
             </div>
           }
-        } @else {
-          <button class="nav-icon-btn" (click)="showSearch = true" title="Rechercher">
-            <i class="bi bi-search" aria-hidden="true"></i>
-          </button>
-        }
-      </div>
+        </div>
+      } @else {
+        <!-- Non connecte -->
+        <a routerLink="/login" class="btn-login">
+          <i class="bi bi-box-arrow-in-right"></i> Connexion
+        </a>
+        <a routerLink="/register" class="btn-register">
+          Inscription
+        </a>
+      }
 
-      <!-- Dark mode toggle -->
-      <button class="nav-icon-btn" (click)="toggleTheme()" [title]="darkMode ? 'Mode clair' : 'Mode sombre'">
-        <i class="bi" [ngClass]="darkMode ? 'bi-sun-fill' : 'bi-moon-fill'" aria-hidden="true"></i>
+      <button class="mobile-toggle" (click)="toggleMobile()">
+        <i class="bi" [class.bi-list]="!mobileOpen()" [class.bi-x-lg]="mobileOpen()"></i>
       </button>
-
-      @if (authService.isLoggedIn) {
-        <!-- Logged in -->
-        @if (authService.isCompany) {
-          <a class="nav-cta" routerLink="/offres/nouvelle/creer">
-            <i class="bi bi-plus-circle-fill" aria-hidden="true"></i><span>Publier une offre</span>
-          </a>
-        }
-        <!-- Notification bell -->
-        <div class="nav-notif-wrapper">
-          <button class="nav-notif-btn" data-bs-toggle="dropdown" (click)="loadNotifications()" aria-label="Notifications">
-            <i class="bi bi-bell" aria-hidden="true"></i>
-            @if (unreadCount > 0) {
-              <span class="nav-notif-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
-            }
-          </button>
-          <div class="dropdown-menu dropdown-menu-end nav-notif-dropdown">
-            <div class="d-flex justify-content-between align-items-center px-3 py-2">
-              <span class="fw-bold" style="font-size:.9rem;">Notifications</span>
-              @if (unreadCount > 0) {
-                <button class="btn-ghost" style="padding:.15rem .5rem;font-size:.72rem;" (click)="markAllAsRead()">Tout lire</button>
-              }
-            </div>
-            <hr class="dropdown-divider m-0">
-            <div class="nav-notif-list">
-              @if (notifications.length === 0) {
-                <p style="text-align:center;color:var(--sand-400);font-size:.85rem;padding:1.5rem;">Aucune notification</p>
-              }
-              @for (n of notifications; track n.id) {
-                <button class="nav-notif-item" [class.nav-notif-unread]="!n.isRead" (click)="markAsRead(n)">
-                  <div class="nav-notif-icon-wrap" [ngClass]="'notif-' + n.type">
-                    <i class="bi" [ngClass]="{'bi-send-fill': n.type==='application', 'bi-check-circle-fill': n.type==='success', 'bi-exclamation-triangle-fill': n.type==='warning', 'bi-info-circle-fill': n.type==='info'}" aria-hidden="true"></i>
-                  </div>
-                  <div class="flex-grow-1 min-w-0 text-start">
-                    <div class="nav-notif-title">{{ n.title }}</div>
-                    <div class="nav-notif-msg">{{ n.message }}</div>
-                    <div class="nav-notif-time">{{ timeAgo(n.createdAt) }}</div>
-                  </div>
-                  @if (!n.isRead) { <span class="nav-notif-dot"></span> }
-                </button>
-              }
-            </div>
-          </div>
-        </div>
-
-        <div class="nav-user-menu">
-          <button class="nav-user-btn" data-bs-toggle="dropdown" aria-label="Menu utilisateur">
-            <span class="nav-user-avatar">
-              {{ authService.currentUser?.firstName?.charAt(0) }}{{ authService.currentUser?.lastName?.charAt(0) }}
-            </span>
-            <span class="nav-user-name">{{ authService.currentUser?.firstName }}</span>
-            <i class="bi bi-chevron-down" style="font-size: 0.7rem; opacity: 0.6;" aria-hidden="true"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end nav-dropdown">
-            <li class="dropdown-header">
-              <div class="fw-bold">{{ authService.currentUser?.firstName }} {{ authService.currentUser?.lastName }}</div>
-              <div class="small" style="color: var(--sand-400);">{{ authService.currentUser?.email }}</div>
-              <span class="badge mt-1" [ngClass]="authService.isCompany ? 'badge-cdi' : 'badge-alternance'">
-                {{ authService.isCompany ? 'Entreprise' : 'Chercheur' }}
-              </span>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" routerLink="/tableau-de-bord"><i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Dashboard</a></li>
-            <li><a class="dropdown-item" routerLink="/profil"><i class="bi bi-person-gear me-2" aria-hidden="true"></i>Mon profil</a></li>
-            <li><a class="dropdown-item" routerLink="/mon-compte"><i class="bi bi-shield-lock me-2" aria-hidden="true"></i>Mon compte</a></li>
-            <li><a class="dropdown-item" routerLink="/messagerie"><i class="bi bi-chat-dots me-2" aria-hidden="true"></i>Messagerie</a></li>
-            <li><a class="dropdown-item" routerLink="/statistiques"><i class="bi bi-graph-up me-2" aria-hidden="true"></i>Statistiques</a></li>
-            <li><a class="dropdown-item" routerLink="/entretiens"><i class="bi bi-calendar-event me-2" aria-hidden="true"></i>Entretiens</a></li>
-            @if (authService.isJobSeeker) {
-              <li><a class="dropdown-item" routerLink="/recommandations"><i class="bi bi-stars me-2" aria-hidden="true"></i>Recommandations</a></li>
-              <li><a class="dropdown-item" routerLink="/mes-preferences"><i class="bi bi-sliders2 me-2" aria-hidden="true"></i>Mes preferences</a></li>
-              <li><a class="dropdown-item" routerLink="/mon-cv"><i class="bi bi-file-earmark-person me-2" aria-hidden="true"></i>Mon CV</a></li>
-              <li><a class="dropdown-item" routerLink="/mes-candidatures"><i class="bi bi-send me-2" aria-hidden="true"></i>Mes candidatures</a></li>
-              <li><a class="dropdown-item" routerLink="/candidatures-spontanees"><i class="bi bi-lightning me-2" aria-hidden="true"></i>Candidatures spontanees</a></li>
-              <li><a class="dropdown-item" routerLink="/favoris"><i class="bi bi-heart me-2" aria-hidden="true"></i>Mes favoris</a></li>
-            } @else {
-              <li><a class="dropdown-item" routerLink="/mes-offres"><i class="bi bi-briefcase me-2" aria-hidden="true"></i>Mes offres</a></li>
-              <li><a class="dropdown-item" routerLink="/candidatures-recues"><i class="bi bi-people me-2" aria-hidden="true"></i>Candidatures recues</a></li>
-              <li><a class="dropdown-item" routerLink="/candidatures-spontanees-recues"><i class="bi bi-lightning me-2" aria-hidden="true"></i>Candidatures spontanees</a></li>
-            }
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <button class="dropdown-item text-danger" (click)="logout()">
-                <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i>Se deconnecter
-              </button>
-            </li>
-          </ul>
-        </div>
-      } @else {
-        <!-- Not logged in -->
-        <a class="nav-login" routerLink="/connexion">
-          <i class="bi bi-person" aria-hidden="true"></i><span>Connexion</span>
-        </a>
-        <a class="nav-cta" routerLink="/inscription">
-          <i class="bi bi-person-plus-fill" aria-hidden="true"></i><span>S'inscrire</span>
-        </a>
-      }
-    </div>
-
-    <!-- Mobile toggle -->
-    <button class="nav-toggle d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu" aria-label="Menu mobile">
-      <span class="nav-toggle-bar"></span>
-      <span class="nav-toggle-bar"></span>
-      <span class="nav-toggle-bar"></span>
-    </button>
-  </nav>
-
-  <!-- Mobile menu -->
-  <div class="collapse" id="mobileMenu">
-    <div class="nav-mobile container-main">
-      <a class="nav-mobile-link" routerLink="/" routerLinkActive="nav-mobile-link--active" [routerLinkActiveOptions]="{ exact: true }" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
-        <i class="bi bi-house" aria-hidden="true"></i>Accueil
-      </a>
-      <a class="nav-mobile-link" routerLink="/offres" routerLinkActive="nav-mobile-link--active" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
-        <i class="bi bi-search" aria-hidden="true"></i>Offres d'emploi
-      </a>
-      <a class="nav-mobile-link" routerLink="/entreprises" routerLinkActive="nav-mobile-link--active" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
-        <i class="bi bi-building" aria-hidden="true"></i>Entreprises
-      </a>
-      <!-- Mobile: search + dark mode -->
-      <div class="d-flex gap-2 mb-2">
-        <button class="nav-mobile-link" style="flex:1;" (click)="toggleTheme()" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
-          <i class="bi" [ngClass]="darkMode ? 'bi-sun-fill' : 'bi-moon-fill'" aria-hidden="true"></i>{{ darkMode ? 'Mode clair' : 'Mode sombre' }}
-        </button>
-      </div>
-
-      @if (authService.isLoggedIn) {
-        <hr style="border-color: rgba(255,255,255,0.08); margin: 0.5rem 0;">
-        <div class="nav-mobile-user">
-          <i class="bi bi-person-circle" aria-hidden="true"></i>
-          {{ authService.currentUser?.firstName }} {{ authService.currentUser?.lastName }}
-          <span class="badge ms-1" [ngClass]="authService.isCompany ? 'badge-cdi' : 'badge-alternance'" style="font-size: 0.7rem;">
-            {{ authService.isCompany ? 'Entreprise' : 'Chercheur' }}
-          </span>
-        </div>
-        @if (authService.isCompany) {
-          <a class="nav-mobile-cta" routerLink="/offres/nouvelle/creer" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
-            <i class="bi bi-plus-circle-fill" aria-hidden="true"></i>Publier une offre
-          </a>
-        }
-        <button class="nav-mobile-link" style="color: var(--rose-400); border: none; background: none; width: 100; text-align: left;" (click)="logout()" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
-          <i class="bi bi-box-arrow-left" aria-hidden="true"></i>Se deconnecter
-        </button>
-      } @else {
-        <hr style="border-color: rgba(255,255,255,0.08); margin: 0.5rem 0;">
-        <a class="nav-mobile-link" routerLink="/connexion" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
-          <i class="bi bi-person" aria-hidden="true"></i>Connexion
-        </a>
-        <a class="nav-mobile-cta" routerLink="/inscription" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
-          <i class="bi bi-person-plus-fill" aria-hidden="true"></i>S'inscrire
-        </a>
-      }
     </div>
   </div>
-</header>
+</nav>

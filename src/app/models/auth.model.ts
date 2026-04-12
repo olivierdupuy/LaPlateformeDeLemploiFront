@@ -1,52 +1,107 @@
+export interface UserDto {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  company?: string;
+  avatarUrl?: string;
+  bio?: string;
+  resumeUrl?: string;
+  title?: string;
+  skills?: string;
+  experienceYears?: number;
+  education?: string;
+  city?: string;
+  linkedInUrl?: string;
+  portfolioUrl?: string;
+  createdAt: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  expiration: string;
+  user: UserDto;
+}
+
+export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: string;
+  company?: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-export interface RegisterJobSeekerRequest {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
+export interface UpdateProfileRequest {
+  firstName?: string;
+  lastName?: string;
+  avatarUrl?: string;
+  company?: string;
   bio?: string;
+  title?: string;
   skills?: string;
+  experienceYears?: number | null;
+  education?: string;
+  city?: string;
+  linkedInUrl?: string;
+  portfolioUrl?: string;
 }
 
-export interface RegisterCompanyRequest {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  companyName: string;
-  companyDescription?: string;
-  companyWebsite?: string;
-  companyLocation?: string;
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
-export interface AuthResponse {
-  token: string;
-  user: UserProfile;
-}
-
-export interface UserProfile {
+export interface AppNotification {
   id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'JobSeeker' | 'Company';
-  phone?: string;
-  companyId?: number;
-  companyName?: string;
-  bio?: string;
-  skills?: string;
+  userId: string;
+  title: string;
+  message: string;
+  link?: string;
+  type: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
-export interface PagedResult<T> {
-  items: T[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
+export interface Conversation {
+  applicationId: number;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+  jobTitle: string;
+  company: string;
+  otherUserName: string;
+  otherUserId: string;
+}
+
+export interface ChatMessage {
+  id: number;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  isRead: boolean;
+  createdAt: string;
+  senderName: string;
+  isMine: boolean;
+}
+
+export interface CandidatePublicProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string;
+  bio?: string;
+  title?: string;
+  skills?: string;
+  experienceYears?: number;
+  education?: string;
+  city?: string;
+  createdAt: string;
+  applicationCount: number;
 }

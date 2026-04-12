@@ -1,0 +1,122 @@
+<!-- ═══ HERO ═══ -->
+<section class="mo-hero">
+  <div class="container moh-inner">
+    <div class="moh-left animate-in">
+      <span class="ed-pill"><i class="bi bi-collection-fill"></i></span>
+      <h1>Mes offres d'emploi</h1>
+      <p>Gerez, renouvelez et suivez les performances de vos offres</p>
+    </div>
+    <div class="moh-actions animate-in" style="animation-delay:.1s">
+      <a routerLink="/admin/nouvelle-offre" class="moh-cta"><i class="bi bi-plus-lg"></i> Publier une offre</a>
+    </div>
+  </div>
+
+  <!-- Stats + filters -->
+  @if (!loading() && counts().total > 0) {
+    <div class="container">
+      <div class="moh-stats animate-in" style="animation-delay:.15s">
+        <button class="mohs" [class.active]="filter() === 'all'" (click)="filter.set('all')">
+          <span class="mohs-val">{{ counts().total }}</span><span class="mohs-lbl">Total</span>
+        </button>
+        <div class="mohs-div"></div>
+        <button class="mohs" [class.active]="filter() === 'active'" (click)="filter.set(filter() === 'active' ? 'all' : 'active')">
+          <span class="mohs-val mohs-green">{{ counts().active }}</span><span class="mohs-lbl">Actives</span>
+        </button>
+        <div class="mohs-div"></div>
+        <button class="mohs" [class.active]="filter() === 'expired'" (click)="filter.set(filter() === 'expired' ? 'all' : 'expired')">
+          <span class="mohs-val mohs-red">{{ counts().expired }}</span><span class="mohs-lbl">Expirees</span>
+        </button>
+        <div class="mohs-div"></div>
+        <div class="mohs mohs-noclk">
+          <span class="mohs-val mohs-teal">{{ counts().totalApps }}</span><span class="mohs-lbl">Candidatures</span>
+        </div>
+      </div>
+    </div>
+  }
+</section>
+
+<!-- ═══ CONTENT ═══ -->
+<section class="mo-content">
+  <div class="container">
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (offers().length === 0) {
+      <div class="mo-empty animate-in">
+        <div class="moe-circle"><i class="bi bi-briefcase"></i></div>
+        <h3>Aucune offre publiee</h3>
+        <p>Publiez votre premiere offre pour commencer a recevoir des candidatures</p>
+        <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
+      </div>
+    } @else {
+      <div class="mo-info animate-in" style="animation-delay:.06s">
+        <span>{{ filtered().length }} offre{{ filtered().length > 1 ? 's' : '' }}</span>
+      </div>
+
+      <div class="mo-grid">
+        @for (o of filtered(); track o.id; let i = $index) {
+          <a [routerLink]="['/offres', o.id]" class="oc animate-in" [class.oc-expired]="!o.isActive" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
+            <div class="oc-stripe" [style.background]="stripeColor(o.contractType)"></div>
+
+            <div class="oc-body">
+              <!-- Header -->
+              <div class="oc-top">
+                <div class="oc-title-col">
+                  <h3>{{ o.title }}</h3>
+                  <div class="oc-loc"><i class="bi bi-geo-alt"></i> {{ o.location }}</div>
+                </div>
+                <div class="oc-status-col">
+                  @if (o.isActive) {
+                    <span class="oc-active"><i class="bi bi-check-circle-fill"></i> Active</span>
+                  } @else {
+                    <span class="oc-inactive"><i class="bi bi-x-circle-fill"></i> Expiree</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Stats row -->
+              <div class="oc-stats">
+                <div class="oc-stat">
+                  <i class="bi bi-people-fill"></i>
+                  <span class="oc-stat-val">{{ o.applications?.length || 0 }}</span>
+                  <span>candidature{{ (o.applications?.length || 0) > 1 ? 's' : '' }}</span>
+                </div>
+                <div class="oc-stat">
+                  <i class="bi bi-eye-fill"></i>
+                  <span class="oc-stat-val">{{ o.viewCount || 0 }}</span>
+                  <span>vue{{ (o.viewCount || 0) > 1 ? 's' : '' }}</span>
+                </div>
+                <div class="oc-stat">
+                  <span class="badge" [class]="getContractBadgeClass(o.contractType)">{{ o.contractType }}</span>
+                </div>
+                @if (o.isRemote) {
+                  <div class="oc-stat"><span class="remote-pill">Teletravail</span></div>
+                }
+                @if (o.isUrgent) {
+                  <div class="oc-stat"><span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span></div>
+                }
+              </div>
+
+              <!-- Footer: dates + actions -->
+              <div class="oc-footer">
+                <div class="oc-dates">
+                  <span><i class="bi bi-calendar3"></i> Publiee le {{ o.createdAt | date:'dd/MM/yyyy' }}</span>
+                  @if (getDaysLeft(o.expiresAt); as d) {
+                    @if (d > 7) { <span class="oc-exp oc-exp-ok"><i class="bi bi-clock"></i> Expire dans {{ d }} jours</span> }
+                    @else if (d > 0) { <span class="oc-exp oc-exp-warn"><i class="bi bi-clock"></i> Expire dans {{ d }} jours</span> }
+                    @else { <span class="oc-exp oc-exp-red"><i class="bi bi-clock"></i> Expiree</span> }
+                  }
+                </div>
+                <div class="oc-actions" (click)="$event.stopPropagation(); $event.preventDefault()">
+                  <a [routerLink]="['/admin/modifier-offre', o.id]" class="oc-btn" (click)="$event.stopPropagation()"><i class="bi bi-pencil"></i> Modifier</a>
+                  @if (!o.isActive) {
+                    <button class="oc-btn oc-btn-renew" (click)="renew(o, $event)"><i class="bi bi-arrow-repeat"></i> Renouveler</button>
+                  }
+                </div>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</section>

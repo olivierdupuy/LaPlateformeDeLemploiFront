@@ -1,0 +1,82 @@
+<!-- ═══ HEADER ═══ -->
+<section class="fav-hero">
+  <div class="container fh-inner">
+    <div class="fh-left animate-in">
+      <span class="ed-pill"><i class="bi bi-bookmark-heart-fill"></i></span>
+      <h1>Mes favoris</h1>
+      <p>{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }} sauvegardee{{ jobs().length > 1 ? 's' : '' }}</p>
+    </div>
+    <a routerLink="/offres" class="fh-link animate-in" style="animation-delay:.1s">
+      <i class="bi bi-search"></i> Explorer les offres
+    </a>
+  </div>
+</section>
+
+<!-- ═══ CONTENT ═══ -->
+<section class="fav-content">
+  <div class="container">
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (jobs().length === 0) {
+      <div class="fav-empty animate-in">
+        <div class="fe-illustration">
+          <div class="fe-circle"><i class="bi bi-bookmark-heart"></i></div>
+        </div>
+        <h3>Aucune offre sauvegardee</h3>
+        <p>Explorez les offres d'emploi et cliquez sur l'icone <i class="bi bi-bookmark"></i> pour sauvegarder celles qui vous interessent</p>
+        <a routerLink="/offres" class="btn-primary"><i class="bi bi-search-heart"></i> Decouvrir les offres</a>
+      </div>
+    } @else {
+      <div class="fav-grid">
+        @for (job of jobs(); track job.id; let i = $index) {
+          <div class="fav-card card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
+            <!-- Stripe -->
+            <div class="card-stripe" [style.background]="{'CDI':'var(--teal)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--green)'}[job.contractType] || 'var(--teal)'"></div>
+
+            <div class="fc-body">
+              <!-- Top: company + remove btn -->
+              <div class="fc-top">
+                <a [routerLink]="['/offres', job.id]" class="fc-company">
+                  <div class="fc-avatar" [style.background]="companyColor(job.company).bg">
+                    <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
+                  </div>
+                  <div>
+                    <span class="fc-cname">{{ job.company }}</span>
+                    <span class="fc-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
+                  </div>
+                </a>
+                <button class="fc-remove" (click)="removeBookmark(job.id)" title="Retirer des favoris">
+                  <i class="bi bi-bookmark-x-fill"></i>
+                </button>
+              </div>
+
+              <!-- Title (link) -->
+              <a [routerLink]="['/offres', job.id]" class="fc-title">{{ job.title }}</a>
+
+              <!-- Description -->
+              <p class="fc-desc">{{ job.description }}</p>
+
+              <!-- Tags -->
+              <div class="fc-tags">
+                @for (tag of getTags(job.tags); track tag) { <span class="tag">{{ tag }}</span> }
+              </div>
+
+              <!-- Footer -->
+              <div class="fc-footer">
+                <div class="fc-badges">
+                  <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+                  @if (job.isRemote) { <span class="remote-pill">Teletravail</span> }
+                  @if (job.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
+                </div>
+                <div class="fc-info">
+                  @if (job.salary) { <span class="fc-salary"><i class="bi bi-cash-stack"></i> {{ job.salary }}</span> }
+                  <span class="fc-time">{{ getTimeAgo(job.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,114 @@
+<!-- ═══ HERO ═══ -->
+<section class="msg-hero">
+  <div class="container mh-inner">
+    <div class="mh-left animate-in">
+      <span class="ed-pill"><i class="bi bi-chat-dots-fill"></i></span>
+      <h1>Messagerie</h1>
+      <p>Echangez directement avec les recruteurs et les candidats</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CHAT LAYOUT ═══ -->
+<section class="msg-content">
+  <div class="container">
+    <div class="msg-layout animate-in" style="animation-delay:.06s">
+
+      <!-- SIDEBAR -->
+      <aside class="msg-sidebar">
+        <div class="ms-head">
+          <h2><i class="bi bi-chat-left-text"></i> Conversations</h2>
+          <span class="ms-count">{{ conversations().length }}</span>
+        </div>
+
+        <div class="ms-list">
+          @for (c of conversations(); track c.applicationId) {
+            <button class="ms-item" [class.active]="selectedAppId() === c.applicationId" (click)="selectConversation(c.applicationId)">
+              <div class="ms-avatar">{{ c.otherUserName.charAt(0) }}</div>
+              <div class="ms-info">
+                <div class="ms-row">
+                  <span class="ms-name">{{ c.otherUserName }}</span>
+                  <span class="ms-time">{{ c.lastMessageAt | date:'dd/MM HH:mm' }}</span>
+                </div>
+                <span class="ms-job"><i class="bi bi-briefcase"></i> {{ c.jobTitle }}</span>
+                <span class="ms-preview">{{ c.lastMessage }}</span>
+              </div>
+              @if (c.unreadCount > 0) {
+                <span class="ms-badge">{{ c.unreadCount }}</span>
+              }
+            </button>
+          } @empty {
+            <div class="ms-empty">
+              <div class="mse-circle"><i class="bi bi-chat-dots"></i></div>
+              <p>Aucune conversation</p>
+              <span>Vos conversations apparaitront ici</span>
+            </div>
+          }
+        </div>
+      </aside>
+
+      <!-- CHAT PANEL -->
+      <main class="msg-chat">
+        @if (selectedAppId(); as appId) {
+          <!-- Chat header -->
+          @if (getSelectedConversation(); as conv) {
+            <div class="mc-head">
+              <div class="mc-avatar">{{ conv.otherUserName.charAt(0) }}</div>
+              <div class="mc-user">
+                <strong>{{ conv.otherUserName }}</strong>
+                <span><i class="bi bi-briefcase"></i> {{ conv.jobTitle }} &bull; {{ conv.company }}</span>
+              </div>
+            </div>
+          }
+
+          <!-- Messages body -->
+          <div class="mc-body" #chatBody>
+            @if (loadingMessages()) {
+              <div class="mc-loading"><div class="spinner"></div></div>
+            } @else {
+              @for (msg of messages(); track msg.id) {
+                <div class="bubble" [class.mine]="msg.isMine" [class.theirs]="!msg.isMine">
+                  @if (!msg.isMine) {
+                    <div class="bubble-av">{{ msg.senderName.charAt(0) }}</div>
+                  }
+                  <div class="bubble-box">
+                    @if (!msg.isMine) { <span class="bubble-sender">{{ msg.senderName }}</span> }
+                    <p>{{ msg.content }}</p>
+                    <span class="bubble-time">{{ msg.createdAt | date:'dd/MM HH:mm' }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="mc-no-msg">
+                  <i class="bi bi-send"></i>
+                  <p>Demarrez la conversation en envoyant un premier message</p>
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Input -->
+          <div class="mc-input">
+            <textarea
+              placeholder="Ecrivez votre message..."
+              [ngModel]="newMessage()"
+              (ngModelChange)="newMessage.set($event)"
+              (keydown)="onKeyDown($event)"
+              rows="1"
+            ></textarea>
+            <button class="mc-send" (click)="sendMessage()" [disabled]="!newMessage().trim()">
+              <i class="bi bi-send-fill"></i>
+            </button>
+          </div>
+
+        } @else {
+          <!-- No conversation selected -->
+          <div class="mc-placeholder">
+            <div class="mcp-circle"><i class="bi bi-chat-square-text"></i></div>
+            <h3>Selectionnez une conversation</h3>
+            <p>Choisissez une conversation dans la liste pour echanger avec un recruteur ou un candidat</p>
+          </div>
+        }
+      </main>
+    </div>
+  </div>
+</section>

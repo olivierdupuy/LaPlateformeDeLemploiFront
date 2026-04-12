@@ -1,0 +1,86 @@
+<!-- ═══ HERO ═══ -->
+<section class="rs-hero">
+  <div class="container rsh-inner">
+    <div class="rsh-left animate-in">
+      <span class="ed-pill"><i class="bi bi-bookmark-star-fill"></i></span>
+      <h1>Recherches sauvegardees</h1>
+      <p>Retrouvez vos criteres de recherche et consultez les nouvelles offres correspondantes</p>
+    </div>
+    <a routerLink="/offres" class="rsh-cta animate-in" style="animation-delay:.1s">
+      <i class="bi bi-search"></i> Nouvelle recherche
+    </a>
+  </div>
+</section>
+
+<!-- ═══ CONTENT ═══ -->
+<section class="rs-content">
+  <div class="container">
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (searches().length === 0) {
+      <div class="rs-empty animate-in">
+        <div class="rse-circle"><i class="bi bi-bookmark-star"></i></div>
+        <h3>Aucune recherche sauvegardee</h3>
+        <p>Lorsque vous effectuez une recherche d'offres, sauvegardez vos criteres pour les retrouver ici et etre notifie des nouvelles offres correspondantes.</p>
+        <a routerLink="/offres" class="btn-primary"><i class="bi bi-search-heart"></i> Explorer les offres</a>
+      </div>
+    } @else {
+      <div class="rs-info animate-in" style="animation-delay:.06s">
+        <span>{{ searches().length }} recherche{{ searches().length > 1 ? 's' : '' }} sauvegardee{{ searches().length > 1 ? 's' : '' }}</span>
+      </div>
+
+      <div class="rs-grid">
+        @for (s of searches(); track s.id; let i = $index) {
+          <div class="rs-card animate-in" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
+            <!-- Top band gradient -->
+            <div class="rsc-band"></div>
+
+            <div class="rsc-body">
+              <!-- Header: label + result count -->
+              <div class="rsc-top">
+                <div class="rsc-icon"><i class="bi bi-bookmark-star-fill"></i></div>
+                <div class="rsc-title">
+                  <h3>{{ s.label || 'Recherche sauvegardee' }}</h3>
+                  <span class="rsc-date"><i class="bi bi-calendar3"></i> {{ s.createdAt | date:'dd MMM yyyy' }}</span>
+                </div>
+                <button class="rsc-delete" (click)="deleteSearch(s.id)" title="Supprimer">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+
+              <!-- Filter chips -->
+              <div class="rsc-chips">
+                @if (s.query) {
+                  <span class="rsc-chip"><i class="bi bi-search"></i> « {{ s.query }} »</span>
+                }
+                @if (s.category) {
+                  <span class="rsc-chip"><i class="bi bi-tag-fill"></i> {{ s.category }}</span>
+                }
+                @if (s.contractType) {
+                  <span class="rsc-chip"><i class="bi bi-file-earmark-text-fill"></i> {{ s.contractType }}</span>
+                }
+                @if (s.isRemote) {
+                  <span class="rsc-chip rsc-chip-remote"><i class="bi bi-wifi"></i> Teletravail</span>
+                }
+                @if (s.location) {
+                  <span class="rsc-chip"><i class="bi bi-geo-alt-fill"></i> {{ s.location }}</span>
+                }
+              </div>
+
+              <!-- Footer: result count + CTA -->
+              <div class="rsc-footer">
+                <div class="rsc-count">
+                  <span class="rsc-count-val">{{ s.resultCount }}</span>
+                  <span class="rsc-count-lbl">offre{{ s.resultCount > 1 ? 's' : '' }} correspondante{{ s.resultCount > 1 ? 's' : '' }}</span>
+                </div>
+                <button class="rsc-cta" (click)="runSearch(s)">
+                  Voir les resultats <i class="bi bi-arrow-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

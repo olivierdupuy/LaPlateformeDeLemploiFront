@@ -1,0 +1,137 @@
+<!-- ═══ HERO ═══ -->
+<section class="iv-hero">
+  <div class="container ivh-inner">
+    <div class="ivh-left animate-in">
+      <span class="ed-pill"><i class="bi bi-calendar-event-fill"></i></span>
+      <h1>Mes entretiens</h1>
+      <p>Gerez vos entretiens d'embauche et suivez leur avancement</p>
+    </div>
+    @if (!loading() && counts().total > 0) {
+      <div class="ivh-counters animate-in" style="animation-delay:.1s">
+        <div class="ivhc"><span class="ivhc-val">{{ counts().proposed }}</span><span class="ivhc-lbl">En attente</span></div>
+        <div class="ivhc-div"></div>
+        <div class="ivhc"><span class="ivhc-val ivhc-green">{{ counts().accepted }}</span><span class="ivhc-lbl">Confirmes</span></div>
+        <div class="ivhc-div"></div>
+        <div class="ivhc"><span class="ivhc-val ivhc-purple">{{ counts().completed }}</span><span class="ivhc-lbl">Termines</span></div>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ═══ CONTENT ═══ -->
+<section class="iv-content">
+  <div class="container">
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (interviews().length === 0) {
+      <div class="iv-empty animate-in">
+        <div class="ive-circle"><i class="bi bi-calendar-event"></i></div>
+        <h3>Aucun entretien planifie</h3>
+        <p>{{ isCandidate() ? 'Vos entretiens apparaitront ici lorsqu\'un recruteur en planifiera un pour vous.' : 'Planifiez un entretien depuis la page candidatures pour une candidature acceptee.' }}</p>
+        @if (isRecruiter()) {
+          <a routerLink="/admin/candidatures" class="btn-primary"><i class="bi bi-people"></i> Voir les candidatures</a>
+        }
+      </div>
+    } @else {
+
+      <!-- UPCOMING -->
+      @if (upcoming().length > 0) {
+        <div class="iv-section animate-in" style="animation-delay:.1s">
+          <h2 class="iv-sec-title"><span class="ed-pill">01</span> A venir <span class="iv-sec-count">{{ upcoming().length }}</span></h2>
+
+          <div class="iv-grid">
+            @for (iv of upcoming(); track iv.id; let i = $index) {
+              <div class="iv-card animate-in" [style.animation-delay]="(i * 0.04 + 0.15) + 's'">
+                <!-- Status stripe -->
+                <div class="ivc-stripe" [class]="getStatusClass(iv.status)"></div>
+
+                <div class="ivc-body">
+                  <!-- Top: date badge + status -->
+                  <div class="ivc-top">
+                    <div class="ivc-date-badge">
+                      <span class="ivc-day">{{ iv.proposedAt | date:'dd' }}</span>
+                      <span class="ivc-month">{{ iv.proposedAt | date:'MMM' }}</span>
+                    </div>
+                    <div class="ivc-info">
+                      <h3>{{ iv.jobTitle }}</h3>
+                      <span class="ivc-company">{{ iv.company }}</span>
+                    </div>
+                    <span class="ivc-status" [class]="getStatusClass(iv.status)">
+                      <i class="bi" [class]="getStatusIcon(iv.status)"></i> {{ getStatusLabel(iv.status) }}
+                    </span>
+                  </div>
+
+                  <!-- Details row -->
+                  <div class="ivc-details">
+                    <span class="ivc-detail"><i class="bi bi-person-fill"></i> {{ iv.candidateName }}</span>
+                    <span class="ivc-detail"><i class="bi bi-clock-fill"></i> {{ iv.proposedAt | date:'HH:mm' }}</span>
+                    @if (iv.duration) { <span class="ivc-detail"><i class="bi bi-hourglass-split"></i> {{ iv.duration }} min</span> }
+                    @if (iv.type) { <span class="ivc-detail ivc-type"><i class="bi" [class]="getTypeIcon(iv.type)"></i> {{ iv.type }}</span> }
+                    @if (iv.location) { <span class="ivc-detail"><i class="bi bi-geo-alt-fill"></i> {{ iv.location }}</span> }
+                    @if (iv.interviewerName) { <span class="ivc-detail"><i class="bi bi-person-badge-fill"></i> {{ iv.interviewerName }}</span> }
+                  </div>
+
+                  @if (iv.notes) {
+                    <div class="ivc-notes"><i class="bi bi-sticky-fill"></i> {{ iv.notes }}</div>
+                  }
+
+                  <!-- Actions -->
+                  @if (iv.status === 'Proposed') {
+                    <div class="ivc-actions">
+                      @if (isCandidate()) {
+                        <button class="iva-accept" (click)="updateStatus(iv.id, 'Accepted')"><i class="bi bi-check-lg"></i> Accepter</button>
+                        <button class="iva-decline" (click)="updateStatus(iv.id, 'Declined')"><i class="bi bi-x-lg"></i> Decliner</button>
+                      }
+                      @if (isRecruiter()) {
+                        <button class="iva-decline" (click)="updateStatus(iv.id, 'Cancelled')"><i class="bi bi-x-lg"></i> Annuler</button>
+                      }
+                    </div>
+                  }
+                  @if (iv.status === 'Accepted') {
+                    <div class="ivc-actions">
+                      @if (isRecruiter()) {
+                        <button class="iva-complete" (click)="updateStatus(iv.id, 'Completed')"><i class="bi bi-trophy"></i> Marquer termine</button>
+                        <button class="iva-decline" (click)="updateStatus(iv.id, 'Cancelled')"><i class="bi bi-x-lg"></i> Annuler</button>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- PAST -->
+      @if (past().length > 0) {
+        <div class="iv-section animate-in" style="animation-delay:.2s">
+          <h2 class="iv-sec-title"><span class="ed-pill">02</span> Passes <span class="iv-sec-count">{{ past().length }}</span></h2>
+
+          <div class="iv-grid iv-grid-past">
+            @for (iv of past(); track iv.id; let i = $index) {
+              <div class="iv-card iv-card-past animate-in" [style.animation-delay]="(i * 0.04 + 0.25) + 's'">
+                <div class="ivc-stripe" [class]="getStatusClass(iv.status)"></div>
+                <div class="ivc-body">
+                  <div class="ivc-top">
+                    <div class="ivc-date-badge ivc-date-muted">
+                      <span class="ivc-day">{{ iv.proposedAt | date:'dd' }}</span>
+                      <span class="ivc-month">{{ iv.proposedAt | date:'MMM' }}</span>
+                    </div>
+                    <div class="ivc-info">
+                      <h3>{{ iv.jobTitle }}</h3>
+                      <span class="ivc-company">{{ iv.company }} &bull; {{ iv.candidateName }}</span>
+                    </div>
+                    <span class="ivc-status" [class]="getStatusClass(iv.status)">
+                      <i class="bi" [class]="getStatusIcon(iv.status)"></i> {{ getStatusLabel(iv.status) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    }
+  </div>
+</section>

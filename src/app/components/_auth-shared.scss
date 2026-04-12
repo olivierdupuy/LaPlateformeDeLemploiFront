@@ -1,0 +1,253 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.5rem 3rem;
+  background: var(--slate-50);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-md);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.25rem; }
+  p { font-size: 0.88rem; color: var(--text-muted); }
+}
+
+.auth-icon {
+  width: 56px; height: 56px; margin: 0 auto 1rem;
+  border-radius: var(--r-md);
+  background: var(--teal-50);
+  color: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.input-icon {
+  position: relative;
+
+  > i:first-child {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--slate-400);
+    font-size: 0.95rem;
+  }
+
+  input {
+    width: 100%;
+    padding-left: 2.5rem !important;
+  }
+}
+
+.toggle-pw {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--slate-400);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  transition: color 0.2s;
+
+  &:hover { color: var(--text); }
+}
+
+.full-w { width: 100%; justify-content: center; }
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--slate-100);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+
+  a {
+    color: var(--teal);
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 0.35rem;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.role-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.role-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fff;
+
+  i { font-size: 1rem; }
+
+  &:hover { border-color: var(--slate-400); }
+
+  &.selected {
+    border-color: var(--teal);
+    background: var(--teal-glow);
+    color: var(--teal);
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.sp {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// CV Section
+.cv-current {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem; background: var(--teal-50, #f0fdfa); border: 1px solid rgba(13,148,136,0.12);
+  border-radius: var(--r-sm, 6px);
+}
+
+.cv-icon { font-size: 1.8rem; color: #dc2626; flex-shrink: 0; }
+.cv-info { flex: 1; strong { display: block; font-size: 0.9rem; } }
+.cv-link { font-size: 0.82rem; color: var(--teal, #0d9488); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem; &:hover { text-decoration: underline; } }
+.cv-replace { cursor: pointer; }
+
+.cv-upload {
+  display: flex; flex-direction: column; align-items: center; gap: 0.65rem;
+  padding: 2rem; border: 2px dashed var(--border, #e2e8f0); border-radius: var(--r-sm, 6px);
+  text-align: center;
+  p { font-size: 0.85rem; color: var(--text-muted, #94a3b8); }
+}
+
+.cv-upload-btn { cursor: pointer; &.loading { opacity: 0.7; } }
+
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+// Profile page specific
+.profile-page { padding: 6.5rem 0 4rem; }
+
+.profile-card {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.profile-banner {
+  background: var(--navy-900);
+  padding: 2rem 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  color: #fff;
+}
+
+.profile-avatar {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 800;
+  flex-shrink: 0;
+}
+
+.profile-banner-info {
+  h2 { font-size: 1.25rem; font-weight: 700; }
+  p { font-size: 0.82rem; color: var(--slate-400); }
+  .profile-role {
+    display: inline-block; margin-top: 0.35rem;
+    font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.5rem;
+    border-radius: var(--r-full);
+    background: rgba(13,148,136,0.15); color: var(--teal-400);
+  }
+  .profile-title { font-size: 0.85rem; color: var(--slate-300); margin-top: 0.15rem; }
+  .profile-city { font-size: 0.8rem; color: var(--slate-400); display: flex; align-items: center; gap: 0.2rem; i { font-size: 0.8rem; } }
+}
+
+.profile-body { padding: 2rem 2.5rem; }
+
+.profile-section {
+  margin-bottom: 2rem;
+
+  &:last-child { margin-bottom: 0; }
+
+  h3 {
+    font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem;
+    padding-bottom: 0.65rem; border-bottom: 1px solid var(--slate-100);
+    display: flex; align-items: center; gap: 0.5rem;
+    i { color: var(--teal); }
+  }
+}
+
+.profile-form { display: flex; flex-direction: column; gap: 0.9rem; }
+
+.profile-actions {
+  display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem;
+}
+
+.danger-zone {
+  padding: 1.25rem; border: 1px solid var(--red-bg); border-radius: var(--r-sm);
+  background: var(--red-bg);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+
+  p { font-size: 0.82rem; color: var(--red); font-weight: 500; }
+}
+
+.btn-danger {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.5rem 1rem; background: var(--red); color: #fff;
+  font-weight: 600; font-size: 0.82rem; border-radius: var(--r-sm);
+  border: none; cursor: pointer; transition: all 0.2s;
+  &:hover { opacity: 0.9; }
+}
+
+@media (max-width: 640px) {
+  .form-row { grid-template-columns: 1fr; }
+  .auth-card { padding: 1.75rem; }
+  .profile-banner { flex-direction: column; text-align: center; padding: 1.5rem; }
+  .profile-body { padding: 1.5rem; }
+}

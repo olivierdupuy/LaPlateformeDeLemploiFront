@@ -1,0 +1,165 @@
+<!-- ═══ SEARCH HEADER ═══ -->
+<section class="search-hero">
+  <div class="container">
+    <div class="sh-content animate-in">
+      <h1>Explorer les offres</h1>
+      <p>{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }} disponible{{ jobs().length > 1 ? 's' : '' }}</p>
+      <form class="sh-search" (ngSubmit)="loadJobs()">
+        <div class="sh-field">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Poste, entreprise, competence..." [(ngModel)]="search" name="search" />
+        </div>
+        <button type="submit" class="btn-primary sh-btn">Rechercher</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<section class="offers-page">
+  <div class="container offers-layout">
+    <!-- Sidebar filters -->
+    <aside class="filters-panel animate-in" style="animation-delay:.06s">
+      <div class="fp-header">
+        <h2><i class="bi bi-funnel"></i> Filtres</h2>
+        @if (category || contractType || isRemote !== undefined) {
+          <button class="fp-clear" (click)="clearFilters()"><i class="bi bi-x-circle"></i> Tout effacer</button>
+        }
+      </div>
+
+      <!-- Categorie -->
+      <div class="fp-group">
+        <h3>Categorie</h3>
+        <div class="fp-pills">
+          <button class="fp-pill" [class.active]="!category" (click)="category = ''; loadJobs()">Toutes</button>
+          @for (cat of categories(); track cat) {
+            <button class="fp-pill" [class.active]="category === cat" (click)="category = cat; loadJobs()">{{ cat }}</button>
+          }
+        </div>
+      </div>
+
+      <!-- Type de contrat -->
+      <div class="fp-group">
+        <h3>Type de contrat</h3>
+        <div class="fp-pills">
+          <button class="fp-pill" [class.active]="!contractType" (click)="contractType = ''; loadJobs()">Tous</button>
+          @for (ct of contractTypes; track ct) {
+            <button class="fp-pill" [class.active]="contractType === ct" (click)="contractType = ct; loadJobs()">{{ ct }}</button>
+          }
+        </div>
+      </div>
+
+      <!-- Teletravail -->
+      <div class="fp-group">
+        <h3>Mode de travail</h3>
+        <div class="fp-pills">
+          <button class="fp-pill" [class.active]="isRemote === undefined" (click)="isRemote = undefined; loadJobs()">Tous</button>
+          <button class="fp-pill" [class.active]="isRemote === true" (click)="isRemote = true; loadJobs()">
+            <i class="bi bi-wifi"></i> Teletravail
+          </button>
+          <button class="fp-pill" [class.active]="isRemote === false" (click)="isRemote = false; loadJobs()">
+            <i class="bi bi-building"></i> Sur site
+          </button>
+        </div>
+      </div>
+
+      <!-- Recherches recentes -->
+      @if (searchHistory.recent().length > 0) {
+        <div class="fp-group">
+          <div class="fp-group-head">
+            <h3>Recherches recentes</h3>
+            <button class="fp-clear-sm" (click)="searchHistory.clear()"><i class="bi bi-x"></i></button>
+          </div>
+          <div class="fp-recent">
+            @for (q of searchHistory.recent(); track q) {
+              <button class="fp-recent-item" (click)="useRecentSearch(q)">
+                <i class="bi bi-clock-history"></i> {{ q }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </aside>
+
+    <!-- Job results -->
+    <main class="results">
+      @if (loading()) {
+        <div class="empty-box"><div class="spinner"></div><p>Chargement des offres...</p></div>
+      } @else if (jobs().length === 0) {
+        <div class="empty-box animate-in">
+          <div class="empty-icon"><i class="bi bi-search"></i></div>
+          <h3>Aucune offre trouvee</h3>
+          <p>Modifiez vos filtres ou elargissez votre recherche</p>
+          <button class="btn-primary" (click)="clearFilters()"><i class="bi bi-arrow-counterclockwise"></i> Reinitialiser</button>
+        </div>
+      } @else {
+        <!-- Results header -->
+        <div class="results-header animate-in" style="animation-delay:.08s">
+          <span class="rh-count">{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }}</span>
+          <div class="rh-active-filters">
+            @if (category) {
+              <span class="active-filter">{{ category }} <button (click)="category = ''; loadJobs()"><i class="bi bi-x"></i></button></span>
+            }
+            @if (contractType) {
+              <span class="active-filter">{{ contractType }} <button (click)="contractType = ''; loadJobs()"><i class="bi bi-x"></i></button></span>
+            }
+            @if (isRemote === true) {
+              <span class="active-filter">Teletravail <button (click)="isRemote = undefined; loadJobs()"><i class="bi bi-x"></i></button></span>
+            }
+          </div>
+        </div>
+
+        <!-- Job cards grid -->
+        <div class="jobs-grid">
+          @for (job of jobs(); track job.id; let i = $index) {
+            <a [routerLink]="['/offres', job.id]" class="jcard card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
+              <div class="card-stripe" [style.background]="{'CDI':'var(--teal)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--green)'}[job.contractType] || 'var(--teal)'"></div>
+
+              <div class="jcard-body">
+                <!-- Top row: company + badges -->
+                <div class="jcard-top">
+                  <div class="jcard-company">
+                    <div class="jcard-avatar" [style.background]="companyColor(job.company).bg">
+                      <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
+                    </div>
+                    <div>
+                      <span class="jcard-cname">{{ job.company }}</span>
+                      <span class="jcard-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
+                    </div>
+                  </div>
+                  <button class="jcard-bk" (click)="$event.preventDefault(); bookmarkService.toggle(job.id)" [class.active]="bookmarkService.isBookmarked(job.id)">
+                    <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
+                  </button>
+                </div>
+
+                <!-- Title -->
+                <h3 class="jcard-title">{{ job.title }}</h3>
+
+                <!-- Description -->
+                <p class="jcard-desc">{{ job.description }}</p>
+
+                <!-- Tags -->
+                <div class="jcard-tags">
+                  @for (tag of getTags(job.tags); track tag) { <span class="tag">{{ tag }}</span> }
+                </div>
+
+                <!-- Footer: badges + salary + time -->
+                <div class="jcard-footer">
+                  <div class="jcard-badges">
+                    <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+                    @if (job.isRemote) { <span class="remote-pill">Teletravail</span> }
+                    @if (job.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
+                  </div>
+                  <div class="jcard-info">
+                    @if (job.salary) { <span class="jcard-salary"><i class="bi bi-cash-stack"></i> {{ job.salary }}</span> }
+                    <span class="jcard-time">{{ getTimeAgo(job.createdAt) }}</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </main>
+  </div>
+</section>

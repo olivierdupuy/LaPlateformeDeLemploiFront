@@ -1,0 +1,339 @@
+// ═══════════════════════════════════
+//  FOOTER — Premium Job Board
+// ═══════════════════════════════════
+
+// ── CTA Band ──
+.footer-cta {
+  background: var(--teal-50);
+  border-top: 1px solid rgba(13, 148, 136, 0.1);
+  border-bottom: 1px solid rgba(13, 148, 136, 0.1);
+  margin-top: 4rem;
+}
+
+.cta-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.cta-text {
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--navy-900);
+    margin-bottom: 0.2rem;
+  }
+
+  p {
+    font-size: 0.88rem;
+    color: var(--slate-600);
+    max-width: 400px;
+  }
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--teal);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  transition: all var(--t) var(--ease);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  i { font-size: 1rem; }
+
+  &:hover {
+    background: var(--teal-600);
+    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
+// ── Main Footer ──
+footer {
+  background: var(--navy-900);
+  color: #fff;
+  border-top: 4px solid var(--teal);
+}
+
+// ── Grid ──
+.ft-grid {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: 2.5rem;
+  padding: 3.5rem 0 2.5rem;
+}
+
+// ── Brand area ──
+.ft-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-right: 1.5rem;
+}
+
+.ft-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ft-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-sm);
+  background: rgba(13, 148, 136, 0.12);
+  color: var(--teal-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.ft-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.ft-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.ft-sub {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--teal-400);
+}
+
+.ft-tagline {
+  font-size: 0.85rem;
+  color: var(--slate-400);
+  line-height: 1.65;
+  max-width: 300px;
+}
+
+// ── Newsletter ──
+.ft-newsletter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nl-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-500);
+}
+
+.nl-form {
+  display: flex;
+  border: 1px solid var(--navy-700);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  transition: border-color var(--t);
+  max-width: 300px;
+
+  &:focus-within {
+    border-color: var(--teal);
+  }
+
+  input {
+    flex: 1;
+    padding: 0.6rem 0.85rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 0.84rem;
+
+    &::placeholder {
+      color: var(--slate-500);
+    }
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background var(--t);
+
+    &:hover {
+      background: var(--teal-600);
+    }
+  }
+}
+
+// ── Social icons ──
+.ft-social {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.social-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--navy-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slate-400);
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: all var(--t);
+
+  &:hover {
+    color: var(--teal-400);
+    border-color: var(--teal-400);
+    background: rgba(13, 148, 136, 0.08);
+    transform: translateY(-2px);
+  }
+}
+
+// ── Link columns ──
+.ft-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  h4 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--slate-300);
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--navy-800);
+  }
+
+  a {
+    font-size: 0.84rem;
+    color: var(--slate-400);
+    text-decoration: none;
+    padding: 0.15rem 0;
+    transition: all var(--t);
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      color: var(--teal-400);
+      padding-left: 0.25rem;
+    }
+  }
+}
+
+// ── Divider ──
+.ft-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--navy-700) 15%,
+    var(--navy-700) 85%,
+    transparent
+  );
+}
+
+// ── Bottom bar ──
+.ft-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.35rem 0;
+  gap: 1.5rem;
+}
+
+.ft-copy {
+  font-size: 0.75rem;
+  color: var(--slate-600);
+}
+
+.ft-legal {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+
+  a {
+    font-size: 0.75rem;
+    color: var(--slate-500);
+    text-decoration: none;
+    transition: color var(--t);
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--teal-400);
+    }
+  }
+}
+
+// ── Responsive ──
+@media (max-width: 1100px) {
+  .ft-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .ft-brand {
+    grid-column: span 2;
+    padding-right: 0;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cta-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.25rem;
+  }
+
+  .cta-text p {
+    max-width: none;
+  }
+
+  .ft-grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .ft-brand {
+    grid-column: span 1;
+  }
+
+  .nl-form {
+    max-width: 100%;
+  }
+
+  .ft-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .ft-legal {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+}

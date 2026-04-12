@@ -1,150 +1,88 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { Component, signal, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { DatePipe } from '@angular/common';
+import { BookmarkService } from '../../services/bookmark.service';
 import { AuthService } from '../../services/auth.service';
-import { NotificationService, AppNotification } from '../../services/notification.service';
-import { ToastrService } from 'ngx-toastr';
+import { NotificationService } from '../../services/notification.service';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, DatePipe],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css'
+  styleUrl: './navbar.scss',
 })
-export class Navbar implements OnInit {
-  notifications: AppNotification[] = [];
-  unreadCount = 0;
-  darkMode = false;
-  searchQuery = '';
-  showSearch = false;
-  suggestions: { title: string; id: number; companyName: string }[] = [];
-  showSuggestions = false;
-  searchHistory: string[] = [];
+export class Navbar implements OnInit, OnDestroy {
+  bookmarkService = inject(BookmarkService);
+  auth = inject(AuthService);
+  notifService = inject(NotificationService);
+  messageService = inject(MessageService);
+  private router = inject(Router);
 
-  constructor(
-    public authService: AuthService,
-    public notifService: NotificationService,
-    private router: Router,
-    private toastr: ToastrService,
-    private cdr: ChangeDetectorRef,
-    private http: HttpClient
-  ) {}
+  scrolled = signal(false);
+  mobileOpen = signal(false);
+  notifOpen = signal(false);
+  userMenuOpen = signal(false);
 
-  ngOnInit(): void {
-    this.darkMode = localStorage.getItem('theme') === 'dark';
-    this.applyTheme();
+  @HostListener('window:scroll')
+  onScroll() { this.scrolled.set(window.scrollY > 20); }
 
-    this.authService.currentUser$.subscribe(user => {
-      if (user) {
-        this.loadNotifications();
-        this.notifService.startPolling();
-      }
-    });
-
-    this.notifService.unreadCount$.subscribe(c => {
-      this.unreadCount = c;
-      this.cdr.detectChanges();
-    });
+  @HostListener('document:click', ['$event'])
+  onDocClick(e: Event) {
+    const t = e.target as HTMLElement;
+    if (!t.closest('.notif-wrap')) this.notifOpen.set(false);
+    if (!t.closest('.user-menu-wrap')) this.userMenuOpen.set(false);
   }
 
-  loadNotifications(): void {
-    this.notifService.getAll().subscribe(n => {
-      this.notifications = n.slice(0, 10);
-      this.notifService.refreshUnreadCount();
-      this.cdr.detectChanges();
-    });
-  }
-
-  markAsRead(notif: AppNotification): void {
-    if (!notif.isRead) {
-      this.notifService.markAsRead(notif.id).subscribe();
-      notif.isRead = true;
+  ngOnInit() {
+    if (this.auth.isLoggedIn()) {
+      this.notifService.startPolling();
+      this.messageService.loadUnreadCount();
     }
+  }
+
+  ngOnDestroy() { this.notifService.stopPolling(); }
+
+  toggleMobile() { this.mobileOpen.update((v) => !v); }
+
+  toggleNotif(e: Event) {
+    e.stopPropagation();
+    this.userMenuOpen.set(false);
+    this.notifOpen.update((v) => !v);
+    if (this.notifOpen()) this.notifService.loadAll();
+  }
+
+  toggleUserMenu(e: Event) {
+    e.stopPropagation();
+    this.notifOpen.set(false);
+    this.userMenuOpen.update((v) => !v);
+  }
+
+  onNotifClick(notif: any) {
+    if (!notif.isRead) this.notifService.markAsRead(notif.id).subscribe();
+    this.notifOpen.set(false);
     if (notif.link) this.router.navigate([notif.link]);
   }
 
-  markAllAsRead(): void {
-    this.notifService.markAllAsRead().subscribe(() => {
-      this.notifications.forEach(n => n.isRead = true);
-      this.cdr.detectChanges();
-    });
+  markAllRead() { this.notifService.markAllAsRead().subscribe(); }
+
+  getNotifIcon(type: string): string {
+    return { NouveauCandidat: 'bi-person-plus-fill', StatutModifie: 'bi-arrow-repeat', OffreExpiree: 'bi-clock-history' }[type] || 'bi-bell';
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.toastr.success('Deconnexion reussie');
-    this.router.navigate(['/']);
+  getRoleLabel(): string {
+    return { Admin: 'Administrateur', Recruiter: 'Recruteur', Candidate: 'Candidat' }[this.auth.currentUser()?.role || ''] || '';
   }
 
-  toggleTheme(): void {
-    this.darkMode = !this.darkMode;
-    localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
-    this.applyTheme();
+  navigateAndClose(path: string) {
+    this.userMenuOpen.set(false);
+    this.mobileOpen.set(false);
+    this.router.navigate([path]);
   }
 
-  private applyTheme(): void {
-    document.documentElement.setAttribute('data-theme', this.darkMode ? 'dark' : 'light');
-  }
-
-  quickSearch(): void {
-    if (this.searchQuery.trim()) {
-      this.saveSearchHistory(this.searchQuery.trim());
-      this.router.navigate(['/offres'], { queryParams: { search: this.searchQuery.trim() } });
-      this.searchQuery = '';
-      this.showSearch = false;
-      this.showSuggestions = false;
-    }
-  }
-
-  onSearchInput(): void {
-    if (this.searchQuery.trim().length < 2) {
-      this.suggestions = [];
-      this.showSuggestions = false;
-      return;
-    }
-    this.http.get<any>('/api/joboffers', { params: { search: this.searchQuery.trim(), pageSize: '5' } }).subscribe({
-      next: (result) => {
-        this.suggestions = (result.items || []).map((j: any) => ({ title: j.title, id: j.id, companyName: j.companyName }));
-        this.showSuggestions = this.suggestions.length > 0;
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
-  selectSuggestion(s: { title: string; id: number }): void {
-    this.saveSearchHistory(s.title);
-    this.router.navigate(['/offres', s.id]);
-    this.searchQuery = '';
-    this.showSearch = false;
-    this.showSuggestions = false;
-  }
-
-  private saveSearchHistory(term: string): void {
-    const history = JSON.parse(localStorage.getItem('searchHistory') || '[]') as string[];
-    const filtered = history.filter(h => h !== term);
-    filtered.unshift(term);
-    localStorage.setItem('searchHistory', JSON.stringify(filtered.slice(0, 5)));
-    this.searchHistory = filtered.slice(0, 5);
-  }
-
-  loadSearchHistory(): void {
-    this.searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
-  }
-
-  onSearchKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') this.quickSearch();
-    if (event.key === 'Escape') { this.showSearch = false; this.searchQuery = ''; }
-  }
-
-  timeAgo(date: string): string {
-    const diff = Date.now() - new Date(date).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "A l'instant";
-    if (mins < 60) return `Il y a ${mins}min`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `Il y a ${hrs}h`;
-    return `Il y a ${Math.floor(hrs / 24)}j`;
+  logout() {
+    this.userMenuOpen.set(false);
+    this.mobileOpen.set(false);
+    this.auth.logout();
   }
 }
