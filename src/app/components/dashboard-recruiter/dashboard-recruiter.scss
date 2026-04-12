@@ -109,25 +109,10 @@
   p { font-size: 0.85rem; color: var(--text-muted); }
 }
 
-// Bar chart
-.bar-chart { display: flex; flex-direction: column; gap: 0.55rem; }
-
-.br { display: flex; align-items: center; gap: 0.6rem; }
-.br-label { font-size: 0.78rem; font-weight: 500; color: var(--text-secondary); min-width: 130px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.br-track { flex: 1; height: 24px; background: var(--slate-100); border-radius: var(--r-sm); overflow: hidden; }
-.br-fill { height: 100%; background: var(--teal); border-radius: var(--r-sm); transition: width 0.8s var(--ease-out); min-width: 4px; }
-.br-val { font-size: 0.82rem; font-weight: 700; min-width: 24px; }
-
-// Status row
-.status-row { display: flex; gap: 1.5rem; margin-bottom: 1.25rem; }
-
-.sr-item { display: flex; align-items: center; gap: 0.5rem; }
-.sr-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.sr-val { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; display: block; }
-.sr-lbl { font-size: 0.72rem; color: var(--text-muted); display: block; }
-
-.progress-bar { display: flex; height: 10px; border-radius: var(--r-full); overflow: hidden; background: var(--slate-100); }
-.pb-seg { transition: width 0.8s var(--ease-out); min-width: 3px; }
+// Chart containers
+.chart-container { position: relative; width: 100%; }
+.chart-bar { height: 250px; }
+.chart-doughnut { height: 240px; }
 
 // ── Sidebar ──
 .dr-side { position: sticky; top: 5rem; }

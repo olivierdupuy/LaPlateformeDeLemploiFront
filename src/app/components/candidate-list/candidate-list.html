@@ -8,7 +8,32 @@
 
       <div class="cvh-search">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Rechercher par nom, competence, bio..." [value]="searchTerm()" (input)="onSearch($event)" />
+        <input type="text" placeholder="Rechercher par nom, competence, bio..." [(ngModel)]="search" (keyup.enter)="loadCandidates()" />
+        <button class="cvh-search-btn" (click)="loadCandidates()"><i class="bi bi-arrow-right"></i></button>
+      </div>
+
+      <div class="cvh-filters">
+        <button class="cvh-filter-toggle" (click)="showFilters = !showFilters">
+          <i class="bi bi-funnel"></i> Filtres avances
+        </button>
+        @if (showFilters) {
+          <div class="cvh-filter-grid">
+            <input type="text" placeholder="Competences (ex: Angular, Python)" [(ngModel)]="skills" (keyup.enter)="loadCandidates()" />
+            <input type="text" placeholder="Ville" [(ngModel)]="city" (keyup.enter)="loadCandidates()" />
+            <input type="number" placeholder="Exp. min (ans)" [(ngModel)]="minExperience" />
+            <input type="number" placeholder="Exp. max (ans)" [(ngModel)]="maxExperience" />
+            <select [(ngModel)]="sort">
+              <option value="">Tri par defaut</option>
+              <option value="experience_desc">Experience decroissante</option>
+              <option value="experience_asc">Experience croissante</option>
+              <option value="name">Nom A-Z</option>
+            </select>
+            <div class="cvh-filter-actions">
+              <button class="cvh-btn-apply" (click)="loadCandidates()">Appliquer</button>
+              <button class="cvh-btn-reset" (click)="clearFilters()">Reset</button>
+            </div>
+          </div>
+        }
       </div>
     </div>
 
@@ -37,13 +62,13 @@
         @for (c of candidates(); track c.id; let i = $index) {
           <a [routerLink]="['/candidats', c.id]" class="cc animate-in" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
             <!-- Top band -->
-            <div class="cc-band" [style.background]="avatarColor(c.firstName).bg"></div>
+            <div class="cc-band" [style.background]="companyColor(c.firstName).bg"></div>
 
             <div class="cc-body">
               <!-- Avatar + identity -->
               <div class="cc-identity">
-                <div class="cc-av" [style.background]="avatarColor(c.firstName).bg">
-                  <span [style.color]="avatarColor(c.firstName).fg">{{ getInitials(c) }}</span>
+                <div class="cc-av" [style.background]="companyColor(c.firstName).bg">
+                  <span [style.color]="companyColor(c.firstName).fg">{{ getInitials(c) }}</span>
                 </div>
                 <h3>{{ c.firstName }} {{ c.lastName }}</h3>
                 @if (c.title) { <span class="cc-title">{{ c.title }}</span> }

@@ -81,15 +81,7 @@
         </div>
         <div class="drc-body">
           @if (d.candidaturesParOffre.length > 0) {
-            <div class="bar-chart">
-              @for (item of d.candidaturesParOffre; track item.label; let i = $index) {
-                <div class="br animate-in" [style.animation-delay]="(i * 0.05 + 0.3) + 's'">
-                  <span class="br-label">{{ item.label }}</span>
-                  <div class="br-track"><div class="br-fill" [style.width]="barWidth(item.value)"></div></div>
-                  <span class="br-val">{{ item.value }}</span>
-                </div>
-              }
-            </div>
+            <div class="chart-container chart-bar"><canvas #offersChart></canvas></div>
           } @else {
             <div class="drc-empty"><i class="bi bi-bar-chart"></i><p>Aucune candidature pour le moment</p></div>
           }
@@ -102,25 +94,10 @@
           <h2><span class="ed-pill">02</span> Repartition par statut</h2>
         </div>
         <div class="drc-body">
-          <div class="status-row">
-            @for (item of d.candidaturesParStatut; track item.label) {
-              <div class="sr-item">
-                <div class="sr-dot" [style.background]="statusColor(item.label)"></div>
-                <div class="sr-info">
-                  <span class="sr-val">{{ item.value }}</span>
-                  <span class="sr-lbl">{{ item.label }}</span>
-                </div>
-              </div>
-            }
-          </div>
           @if (d.totalCandidatures > 0) {
-            <div class="progress-bar">
-              @for (item of d.candidaturesParStatut; track item.label) {
-                @if (item.value > 0) {
-                  <div class="pb-seg" [style.width]="(item.value / d.totalCandidatures * 100) + '%'" [style.background]="statusColor(item.label)"></div>
-                }
-              }
-            </div>
+            <div class="chart-container chart-doughnut"><canvas #statusChart></canvas></div>
+          } @else {
+            <div class="drc-empty"><i class="bi bi-pie-chart"></i><p>Aucune donnee</p></div>
           }
         </div>
       </div>

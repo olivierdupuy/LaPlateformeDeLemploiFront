@@ -141,7 +141,8 @@
                 </div>
                 <div class="oc-actions" (click)="$event.stopPropagation(); $event.preventDefault()">
                   <a [routerLink]="['/admin/modifier-offre', o.id]" class="oc-btn" (click)="$event.stopPropagation()"><i class="bi bi-pencil"></i> Modifier</a>
-                  @if (!o.isActive) {
+                  <button class="oc-btn" (click)="duplicate(o, $event)"><i class="bi bi-copy"></i> Dupliquer</button>
+                  @if (!o.isActive && o.moderationStatus !== 'Pending') {
                     <button class="oc-btn oc-btn-renew" (click)="renew(o, $event)"><i class="bi bi-arrow-repeat"></i> Renouveler</button>
                   }
                 </div>

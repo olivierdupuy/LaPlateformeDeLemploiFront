@@ -13,7 +13,7 @@ export class InterviewService {
     return this.http.get<InterviewItem[]>(this.apiUrl);
   }
 
-  create(data: { applicationId: number; proposedAt: string; location?: string; notes?: string }): Observable<any> {
+  create(data: { applicationId: number; proposedAt: string; location?: string; notes?: string; duration?: number; type?: string; interviewerName?: string }): Observable<any> {
     return this.http.post(this.apiUrl, data);
   }
 

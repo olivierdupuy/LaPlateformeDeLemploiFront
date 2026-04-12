@@ -40,6 +40,23 @@
   }
 }
 
+.cvh-search-btn { background: none; border: none; color: var(--teal-400); font-size: 1rem; cursor: pointer; &:hover { color: #fff; } }
+
+.cvh-filters { margin-top: 0.75rem; }
+.cvh-filter-toggle {
+  font-size: 0.78rem; font-weight: 600; color: var(--teal-400); background: none; border: none; cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; gap: 0.35rem;
+  &:hover { color: #fff; }
+}
+.cvh-filter-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-top: 0.55rem; max-width: 500px;
+  input, select { padding: 0.4rem 0.6rem; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--r-sm); font-size: 0.78rem; font-family: inherit; background: rgba(255,255,255,0.06); color: #fff; outline: none; &::placeholder { color: var(--slate-500); } &:focus { border-color: var(--teal-400); } }
+  select { color: var(--slate-300); option { color: #000; } }
+}
+.cvh-filter-actions { grid-column: 1 / -1; display: flex; gap: 0.4rem; }
+.cvh-btn-apply { padding: 0.35rem 0.75rem; border: none; border-radius: var(--r-sm); font-size: 0.75rem; font-weight: 600; background: var(--teal); color: #fff; cursor: pointer; font-family: inherit; &:hover { background: var(--teal-600); } }
+.cvh-btn-reset { padding: 0.35rem 0.75rem; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--r-sm); font-size: 0.75rem; font-weight: 600; background: none; color: var(--slate-400); cursor: pointer; font-family: inherit; &:hover { color: #fff; border-color: rgba(255,255,255,0.3); } }
+
 .cvh-stat {
   text-align: center; flex-shrink: 0;
   background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);

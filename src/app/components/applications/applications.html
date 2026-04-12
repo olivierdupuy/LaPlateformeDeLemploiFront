@@ -35,82 +35,155 @@
         <a routerLink="/admin/mes-offres" class="btn-primary"><i class="bi bi-collection"></i> Voir mes offres</a>
       </div>
     } @else {
-      <div class="app-info animate-in" style="animation-delay:.06s">
-        <span>{{ filtered().length }} candidature{{ filtered().length > 1 ? 's' : '' }}{{ filterStatus ? ' — ' + getStatusLabel(filterStatus) : '' }}</span>
+      <!-- Toolbar: view toggle + bulk actions -->
+      <div class="app-toolbar animate-in" style="animation-delay:.06s">
+        <div class="toolbar-left">
+          <span>{{ filtered().length }} candidature{{ filtered().length > 1 ? 's' : '' }}{{ filterStatus ? ' — ' + getStatusLabel(filterStatus) : '' }}</span>
+        </div>
+        <div class="toolbar-right">
+          @if (selectedIds().size > 0) {
+            <div class="bulk-bar">
+              <span class="bulk-count">{{ selectedIds().size }} selectionnee{{ selectedIds().size > 1 ? 's' : '' }}</span>
+              <button class="bulk-btn bulk-reviewed" (click)="bulkAction('Reviewed')">Examiner</button>
+              <button class="bulk-btn bulk-accepted" (click)="bulkAction('Accepted')">Accepter</button>
+              <button class="bulk-btn bulk-rejected" (click)="bulkAction('Rejected')">Rejeter</button>
+              <button class="bulk-btn bulk-clear" (click)="deselectAll()"><i class="bi bi-x"></i></button>
+            </div>
+          }
+          <div class="view-toggle">
+            <button [class.active]="viewMode() === 'list'" (click)="viewMode.set('list')" title="Vue liste"><i class="bi bi-list-ul"></i></button>
+            <button [class.active]="viewMode() === 'kanban'" (click)="viewMode.set('kanban')" title="Vue kanban"><i class="bi bi-kanban"></i></button>
+          </div>
+        </div>
       </div>
 
-      <div class="app-grid">
-        @for (app of filtered(); track app.id; let i = $index) {
-          <div class="ac animate-in" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
-            <!-- Status stripe -->
-            <div class="ac-stripe" [class]="getStatusBadgeClass(app.status)"></div>
-
-            <div class="ac-body">
-              <!-- Top: candidate + status -->
-              <div class="ac-top">
-                <div class="ac-candidate">
-                  <div class="ac-av" [style.background]="companyColor(app.fullName).bg">
-                    <span [style.color]="companyColor(app.fullName).fg">{{ app.fullName.charAt(0) }}</span>
-                  </div>
-                  <div class="ac-cinfo">
-                    <strong>{{ app.fullName }}</strong>
-                    <span class="ac-email">{{ app.email }}</span>
-                    @if (app.phone) { <span class="ac-phone"><i class="bi bi-telephone"></i> {{ app.phone }}</span> }
-                  </div>
-                </div>
-                <div class="ac-status-col">
-                  <span class="ac-status" [class]="getStatusBadgeClass(app.status)">
-                    <i class="bi" [class]="getStatusIcon(app.status)"></i> {{ getStatusLabel(app.status) }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Job info -->
-              @if (app.jobOffer) {
-                <div class="ac-job">
-                  <a [routerLink]="['/offres', app.jobOfferId]" class="ac-job-title"><i class="bi bi-briefcase"></i> {{ app.jobOffer.title }}</a>
-                  <span class="ac-job-company">{{ app.jobOffer.company }}</span>
-                </div>
-              }
-
-              <!-- Date + cover letter -->
-              <div class="ac-meta">
-                <span><i class="bi bi-calendar3"></i> {{ app.appliedAt | date:'dd MMM yyyy' }}</span>
-                @if (app.coverLetter) { <span><i class="bi bi-file-text"></i> Lettre de motivation</span> }
-                @if (app.recruiterNotes) { <span class="ac-has-notes"><i class="bi bi-sticky-fill"></i> Notes</span> }
-              </div>
-
-              <!-- Actions -->
-              <div class="ac-actions">
-                <select [value]="app.status" (change)="updateStatus(app, $any($event.target).value)" class="ac-select">
-                  <option value="Pending">En attente</option>
-                  <option value="Reviewed">Examinee</option>
-                  <option value="Accepted">Acceptee</option>
-                  <option value="Rejected">Refusee</option>
-                </select>
-                <button class="ac-btn" [class.has-notes]="app.recruiterNotes" (click)="openNotes(app)" title="Notes">
-                  <i class="bi" [class.bi-sticky]="!app.recruiterNotes" [class.bi-sticky-fill]="app.recruiterNotes"></i>
-                </button>
-                <button class="ac-btn ac-btn-danger" (click)="deleteApplication(app)" title="Supprimer">
-                  <i class="bi bi-trash3"></i>
-                </button>
-              </div>
-
-              <!-- Notes editor -->
-              @if (editingNotesId() === app.id) {
-                <div class="ac-notes-editor">
-                  <label><i class="bi bi-sticky-fill"></i> Notes privees sur {{ app.fullName }}</label>
-                  <textarea [(ngModel)]="notesText" rows="3" placeholder="Ajoutez vos observations..."></textarea>
-                  <div class="ac-notes-actions">
-                    <button class="btn-ghost" (click)="cancelNotes()">Annuler</button>
-                    <button class="btn-primary" (click)="saveNotes(app)"><i class="bi bi-check-lg"></i> Sauvegarder</button>
-                  </div>
-                </div>
-              }
-            </div>
+      <!-- ═══ LIST VIEW ═══ -->
+      @if (viewMode() === 'list') {
+        @if (filtered().length > 5) {
+          <div class="bulk-select-bar animate-in">
+            <button (click)="selectAll()">Tout selectionner</button>
           </div>
         }
-      </div>
+
+        <div class="app-grid">
+          @for (app of filtered(); track app.id; let i = $index) {
+            <div class="ac animate-in" [class.ac-selected]="isSelected(app.id)" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
+              <div class="ac-stripe" [class]="getStatusBadgeClass(app.status)"></div>
+              <div class="ac-body">
+                <div class="ac-top">
+                  <div class="ac-candidate">
+                    <label class="ac-checkbox" (click)="$event.stopPropagation()">
+                      <input type="checkbox" [checked]="isSelected(app.id)" (change)="toggleSelect(app.id)" />
+                    </label>
+                    <div class="ac-av" [style.background]="companyColor(app.fullName).bg">
+                      <span [style.color]="companyColor(app.fullName).fg">{{ app.fullName.charAt(0) }}</span>
+                    </div>
+                    <div class="ac-cinfo">
+                      <strong>{{ app.fullName }}</strong>
+                      <span class="ac-email">{{ app.email }}</span>
+                      @if (app.phone) { <span class="ac-phone"><i class="bi bi-telephone"></i> {{ app.phone }}</span> }
+                    </div>
+                  </div>
+                  <div class="ac-status-col">
+                    <span class="ac-status" [class]="getStatusBadgeClass(app.status)">
+                      <i class="bi" [class]="getStatusIcon(app.status)"></i> {{ getStatusLabel(app.status) }}
+                    </span>
+                  </div>
+                </div>
+                @if (app.jobOffer) {
+                  <div class="ac-job">
+                    <a [routerLink]="['/offres', app.jobOfferId]" class="ac-job-title"><i class="bi bi-briefcase"></i> {{ app.jobOffer.title }}</a>
+                    <span class="ac-job-company">{{ app.jobOffer.company }}</span>
+                  </div>
+                }
+                <div class="ac-meta">
+                  <span><i class="bi bi-calendar3"></i> {{ app.appliedAt | date:'dd MMM yyyy' }}</span>
+                  @if (app.coverLetter) { <span><i class="bi bi-file-text"></i> Lettre</span> }
+                  @if (app.recruiterNotes) { <span class="ac-has-notes"><i class="bi bi-sticky-fill"></i> Notes</span> }
+                </div>
+                <div class="ac-actions">
+                  <select [value]="app.status" (change)="updateStatus(app, $any($event.target).value)" class="ac-select">
+                    <option value="Pending">En attente</option><option value="Reviewed">Examinee</option>
+                    <option value="Accepted">Acceptee</option><option value="Rejected">Refusee</option>
+                  </select>
+                  <button class="ac-btn ac-btn-interview" (click)="openSchedule(app.id)" title="Planifier un entretien">
+                    <i class="bi bi-calendar-plus"></i>
+                  </button>
+                  <button class="ac-btn" [class.has-notes]="app.recruiterNotes" (click)="openNotes(app)" title="Notes">
+                    <i class="bi" [class.bi-sticky]="!app.recruiterNotes" [class.bi-sticky-fill]="app.recruiterNotes"></i>
+                  </button>
+                  <button class="ac-btn ac-btn-danger" (click)="deleteApplication(app)" title="Supprimer">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </div>
+
+                <!-- Interview scheduler -->
+                @if (schedulingId() === app.id) {
+                  <div class="schedule-form">
+                    <h4><i class="bi bi-calendar-event"></i> Planifier un entretien avec {{ app.fullName }}</h4>
+                    <div class="sf-grid">
+                      <div class="sf-field"><label>Date et heure *</label><input type="datetime-local" [(ngModel)]="interviewForm.proposedAt" /></div>
+                      <div class="sf-field"><label>Type</label>
+                        <select [(ngModel)]="interviewForm.type"><option value="Visio">Visio</option><option value="Telephonique">Telephonique</option><option value="Presentiel">Presentiel</option></select>
+                      </div>
+                      <div class="sf-field"><label>Duree (min)</label><input type="number" [(ngModel)]="interviewForm.duration" /></div>
+                      <div class="sf-field"><label>Intervieweur</label><input type="text" [(ngModel)]="interviewForm.interviewerName" placeholder="Nom" /></div>
+                      <div class="sf-field sf-full"><label>Lieu / lien</label><input type="text" [(ngModel)]="interviewForm.location" placeholder="Lien Zoom, adresse..." /></div>
+                      <div class="sf-field sf-full"><label>Notes</label><textarea [(ngModel)]="interviewForm.notes" rows="2" placeholder="Instructions pour le candidat..."></textarea></div>
+                    </div>
+                    <div class="sf-actions">
+                      <button class="btn-primary" (click)="submitInterview(app.id)"><i class="bi bi-check-lg"></i> Planifier</button>
+                      <button class="btn-ghost" (click)="cancelSchedule()">Annuler</button>
+                    </div>
+                  </div>
+                }
+
+                <!-- Notes editor -->
+                @if (editingNotesId() === app.id) {
+                  <div class="ac-notes-editor">
+                    <label><i class="bi bi-sticky-fill"></i> Notes privees sur {{ app.fullName }}</label>
+                    <textarea [(ngModel)]="notesText" rows="3" placeholder="Ajoutez vos observations..."></textarea>
+                    <div class="ac-notes-actions">
+                      <button class="btn-ghost" (click)="cancelNotes()">Annuler</button>
+                      <button class="btn-primary" (click)="saveNotes(app)"><i class="bi bi-check-lg"></i> Sauvegarder</button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ KANBAN VIEW ═══ -->
+      @if (viewMode() === 'kanban') {
+        <div class="kanban animate-in" style="animation-delay:.1s">
+          @for (col of [{status:'Pending',label:'En attente',items:kanbanPending(),cls:'kb-amber'},{status:'Reviewed',label:'Examinees',items:kanbanReviewed(),cls:'kb-blue'},{status:'Accepted',label:'Acceptees',items:kanbanAccepted(),cls:'kb-green'},{status:'Rejected',label:'Refusees',items:kanbanRejected(),cls:'kb-red'}]; track col.status) {
+            <div class="kb-col" [class]="col.cls" (dragover)="onDragOver($event)" (drop)="onDrop($event, col.status)">
+              <div class="kb-header">
+                <span class="kb-title">{{ col.label }}</span>
+                <span class="kb-count">{{ col.items.length }}</span>
+              </div>
+              <div class="kb-cards">
+                @for (app of col.items; track app.id) {
+                  <div class="kb-card" draggable="true" (dragstart)="onDragStart(app)">
+                    <div class="kb-av" [style.background]="companyColor(app.fullName).bg">
+                      <span [style.color]="companyColor(app.fullName).fg">{{ app.fullName.charAt(0) }}</span>
+                    </div>
+                    <div class="kb-info">
+                      <strong>{{ app.fullName }}</strong>
+                      <span>{{ app.jobOffer?.title }}</span>
+                    </div>
+                  </div>
+                }
+                @if (col.items.length === 0) {
+                  <div class="kb-empty">Deposez ici</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
     }
   </div>
 </section>

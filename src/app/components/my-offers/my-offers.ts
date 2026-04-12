@@ -1,7 +1,9 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { JobOfferService } from '../../services/job-offer';
+import { RecruiterFeaturesService } from '../../services/recruiter-features.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { companyColor, getContractBadgeClass } from '../../utils/job.utils';
 import { ToastrService } from 'ngx-toastr';
@@ -14,6 +16,8 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class MyOffers implements OnInit {
   private jobService = inject(JobOfferService);
+  private recruiterService = inject(RecruiterFeaturesService);
+  private router = inject(Router);
   private toastr = inject(ToastrService);
   companyColor = companyColor;
   getContractBadgeClass = getContractBadgeClass;
@@ -64,5 +68,17 @@ export class MyOffers implements OnInit {
 
   moderationLabel(status?: string): string {
     return { Pending: 'En attente de validation', Approved: 'Approuvee', Rejected: 'Rejetee' }[status || ''] || '';
+  }
+
+  duplicate(offer: JobOffer, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.recruiterService.duplicateOffer(offer.id).subscribe({
+      next: (dup) => {
+        this.toastr.success('Offre dupliquee');
+        this.router.navigate(['/admin/modifier-offre', dup.id]);
+      },
+      error: () => this.toastr.error('Erreur'),
+    });
   }
 }
