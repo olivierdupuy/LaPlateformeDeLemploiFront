@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { UploadService } from '../../services/upload.service';
+import { CvService } from '../../services/cv.service';
 import { ToastrService } from 'ngx-toastr';
 import { companyColor } from '../../utils/job.utils';
 import { environment } from '../../../environments/environment';
@@ -19,6 +20,7 @@ export class Profile implements OnInit {
   private router = inject(Router);
   private toastr = inject(ToastrService);
   private uploadService = inject(UploadService);
+  private cvService = inject(CvService);
   companyColor = companyColor;
   apiBaseUrl = environment.apiUrl.replace('/api', '');
 
@@ -63,9 +65,55 @@ export class Profile implements OnInit {
     if (file.size > 5 * 1024 * 1024) { this.toastr.warning('Le fichier ne doit pas depasser 5 Mo'); return; }
     this.uploadingCv = true;
     this.uploadService.uploadResume(file).subscribe({
-      next: () => { this.auth.getMe().subscribe(); this.uploadingCv = false; this.toastr.success('CV televerse avec succes'); },
+      next: () => {
+        this.auth.getMe().subscribe();
+        this.uploadingCv = false;
+        this.toastr.success('CV televerse avec succes');
+        this.proposeAiParsing(file);
+      },
       error: (err) => { this.uploadingCv = false; this.toastr.error(err.error?.message || 'Erreur lors du telechargement'); },
     });
+  }
+
+  private async proposeAiParsing(file: File) {
+    const res = await Swal.fire({
+      title: 'Analyser le CV avec l\'IA ?',
+      text: 'Voulez-vous analyser ce PDF pour remplir automatiquement les sections de votre CV en ligne ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#0d9488',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Analyser',
+      cancelButtonText: 'Non merci',
+    });
+    if (res.isConfirmed) {
+      Swal.fire({
+        title: 'Analyse IA en cours...',
+        html: 'Extraction des sections de votre CV.<br>Cela peut prendre quelques secondes.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading(),
+      });
+      this.cvService.parseFile(file).subscribe({
+        next: (sections) => {
+          if (sections.length === 0) { Swal.close(); this.toastr.warning('Aucune section extraite'); return; }
+          this.cvService.deleteAll().subscribe({
+            next: () => {
+              this.cvService.createBatch(sections).subscribe({
+                next: () => {
+                  Swal.close();
+                  this.toastr.success(`${sections.length} section(s) importee(s) dans votre CV en ligne`);
+                },
+                error: () => { Swal.close(); this.toastr.error('Erreur lors de l\'import des sections'); },
+              });
+            },
+            error: () => { Swal.close(); this.toastr.error('Erreur lors de la mise a jour du CV'); },
+          });
+        },
+        error: () => { Swal.close(); this.toastr.error('Erreur lors de l\'analyse IA'); },
+      });
+    }
   }
 
   async deleteAccount() {

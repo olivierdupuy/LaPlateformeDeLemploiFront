@@ -5,6 +5,9 @@ import { BookmarkService } from '../../services/bookmark.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { MessageService } from '../../services/message.service';
+import { SignalRService } from '../../services/signalr.service';
+import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +20,10 @@ export class Navbar implements OnInit, OnDestroy {
   auth = inject(AuthService);
   notifService = inject(NotificationService);
   messageService = inject(MessageService);
+  private signalR = inject(SignalRService);
+  private toastr = inject(ToastrService);
   private router = inject(Router);
+  private subs: Subscription[] = [];
 
   scrolled = signal(false);
   mobileOpen = signal(false);
@@ -38,10 +44,31 @@ export class Navbar implements OnInit, OnDestroy {
     if (this.auth.isLoggedIn()) {
       this.notifService.startPolling();
       this.messageService.loadUnreadCount();
+
+      // Start SignalR
+      const token = localStorage.getItem('lpde_token');
+      if (token) this.signalR.start(token);
+
+      // Real-time updates
+      this.subs.push(
+        this.signalR.unreadCountUpdate$.subscribe(() => this.messageService.loadUnreadCount()),
+        this.signalR.newNotification$.subscribe(() => { this.notifService.loadAll(); this.messageService.loadUnreadCount(); }),
+        this.signalR.newApplication$.subscribe((data) => {
+          this.toastr.info(`${data.candidateName} a postule a "${data.jobTitle}"`, 'Nouvelle candidature');
+        }),
+        this.signalR.applicationStatusChanged$.subscribe((data) => {
+          const labels: Record<string, string> = { Pending: 'en attente', Reviewed: 'examinee', Accepted: 'acceptee', Rejected: 'refusee' };
+          this.toastr.info(`Votre candidature pour "${data.jobTitle}" est ${labels[data.status] || data.status}`, 'Statut modifie');
+        })
+      );
     }
   }
 
-  ngOnDestroy() { this.notifService.stopPolling(); }
+  ngOnDestroy() {
+    this.notifService.stopPolling();
+    this.signalR.stop();
+    this.subs.forEach(s => s.unsubscribe());
+  }
 
   toggleMobile() { this.mobileOpen.update((v) => !v); }
 

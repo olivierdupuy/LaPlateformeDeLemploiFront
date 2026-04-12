@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CvService } from '../../services/cv.service';
+import { UploadService } from '../../services/upload.service';
 import { AuthService } from '../../services/auth.service';
 import { CvSection, CvSectionCreate, SectionType, SECTION_TYPES, SECTION_CONFIG } from '../../models/cv.model';
 import { ToastrService } from 'ngx-toastr';
@@ -16,6 +17,7 @@ import Swal from 'sweetalert2';
 })
 export class CvBuilder implements OnInit {
   private cvService = inject(CvService);
+  private uploadService = inject(UploadService);
   auth = inject(AuthService);
   private toastr = inject(ToastrService);
 
@@ -95,6 +97,14 @@ export class CvBuilder implements OnInit {
     if (file.size > 10 * 1024 * 1024) {
       this.toastr.warning('Le fichier ne doit pas depasser 10 Mo');
       return;
+    }
+
+    // Upload le fichier comme resume en parallele (si PDF)
+    if (ext === 'pdf') {
+      this.uploadService.uploadResume(file).subscribe({
+        next: () => this.auth.getMe().subscribe(),
+        error: () => {}
+      });
     }
 
     this.parsingFile.set(true);

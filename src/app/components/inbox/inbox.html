@@ -18,7 +18,9 @@
       <aside class="msg-sidebar">
         <div class="ms-head">
           <h2><i class="bi bi-chat-left-text"></i> Conversations</h2>
-          <span class="ms-count">{{ conversations().length }}</span>
+          <button class="ms-new-btn" (click)="openNewConversation()" title="Nouvelle conversation">
+            <i class="bi bi-plus-lg"></i>
+          </button>
         </div>
 
         <div class="ms-list">
@@ -41,7 +43,31 @@
             <div class="ms-empty">
               <div class="mse-circle"><i class="bi bi-chat-dots"></i></div>
               <p>Aucune conversation</p>
-              <span>Vos conversations apparaitront ici</span>
+              <span>Demarrez une conversation pour echanger</span>
+              <button class="ms-empty-btn" (click)="openNewConversation()">
+                <i class="bi bi-plus-lg"></i> Nouvelle conversation
+              </button>
+            </div>
+          }
+
+          <!-- New conversation picker -->
+          @if (showNewConv()) {
+            <div class="ms-picker">
+              <div class="ms-picker-head">
+                <strong>Choisir une candidature</strong>
+                <button (click)="showNewConv.set(false)"><i class="bi bi-x-lg"></i></button>
+              </div>
+              @for (app of availableApps(); track app.id) {
+                <button class="ms-picker-item" (click)="pickApp(app)">
+                  <i class="bi bi-briefcase"></i>
+                  <div>
+                    <strong>{{ app.jobOffer?.title || 'Offre' }}</strong>
+                    <span>{{ app.fullName || app.jobOffer?.company }}</span>
+                  </div>
+                </button>
+              } @empty {
+                <div class="ms-picker-empty">Aucune candidature disponible</div>
+              }
             </div>
           }
         </div>
@@ -86,6 +112,14 @@
             }
           </div>
 
+          <!-- Typing indicator -->
+          @if (isTyping()) {
+            <div class="mc-typing">
+              <div class="typing-dots"><span></span><span></span><span></span></div>
+              <span>est en train d'ecrire...</span>
+            </div>
+          }
+
           <!-- Input -->
           <div class="mc-input">
             <textarea
@@ -93,6 +127,7 @@
               [ngModel]="newMessage()"
               (ngModelChange)="newMessage.set($event)"
               (keydown)="onKeyDown($event)"
+              (input)="onInput()"
               rows="1"
             ></textarea>
             <button class="mc-send" (click)="sendMessage()" [disabled]="!newMessage().trim()">
