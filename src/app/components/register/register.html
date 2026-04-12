@@ -6,6 +6,16 @@
       <p>Rejoignez La Plateforme de l'Emploi</p>
     </div>
 
+    @if (!platform.allowRegistration) {
+      <div class="reg-closed-notice">
+        <i class="bi bi-lock-fill"></i>
+        <div>
+          <strong>Inscriptions fermees</strong>
+          <p>Les nouvelles inscriptions sont temporairement desactivees par l'administrateur.</p>
+        </div>
+      </div>
+    }
+
     <form (ngSubmit)="submit()" class="auth-form">
       <div class="form-group">
         <label>Vous etes</label>
@@ -59,7 +69,7 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-primary full-w" [disabled]="loading">
+      <button type="submit" class="btn-primary full-w" [disabled]="loading || !platform.allowRegistration">
         @if (loading) { <span class="sp"></span> Creation... } @else { <i class="bi bi-check-lg"></i> Creer mon compte }
       </button>
     </form>

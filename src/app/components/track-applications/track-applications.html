@@ -108,6 +108,9 @@
                   @if (app.coverLetter) { <span class="tl-meta"><i class="bi bi-file-text"></i> Lettre jointe</span> }
                   @if (app.jobOffer) { <span class="tl-meta"><i class="bi bi-briefcase"></i> {{ app.jobOffer.contractType }}</span> }
                   @if (app.jobOffer && app.jobOffer.salary) { <span class="tl-meta tl-salary"><i class="bi bi-cash-stack"></i> {{ app.jobOffer.salary }}</span> }
+                  @if (app.status !== 'Accepted') {
+                    <button class="tl-withdraw" (click)="withdraw(app)"><i class="bi bi-x-circle"></i> Retirer</button>
+                  }
                 </div>
               </div>
             </div>

@@ -207,6 +207,21 @@
   }
 }
 
+.fp-toggle {
+  display: flex; align-items: center; gap: 0.4rem; width: 100%;
+  padding: 0.45rem 0; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  &:hover { color: var(--teal); }
+  i { font-size: 0.7rem; }
+}
+.fp-badge { font-size: 0.6rem; font-weight: 700; padding: 0.1rem 0.35rem; border-radius: 8px; background: var(--teal); color: #fff; margin-left: auto; }
+
+.fp-advanced { display: flex; flex-direction: column; gap: 0.65rem; padding-top: 0.35rem; }
+.fp-field {
+  label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.2rem; }
+  input, select { width: 100%; padding: 0.4rem 0.55rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.8rem; font-family: inherit; outline: none; background: #fff; &:focus { border-color: var(--teal); } }
+}
+
 .fp-recent {
   display: flex;
   flex-direction: column;

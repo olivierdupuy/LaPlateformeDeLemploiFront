@@ -2,7 +2,9 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ApplicationService } from '../../services/application';
+import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 import { Application } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
 
@@ -14,6 +16,8 @@ import { companyColor } from '../../utils/job.utils';
 })
 export class TrackApplications implements OnInit {
   private appService = inject(ApplicationService);
+  private candidateService = inject(CandidateFeaturesService);
+  private toastr = inject(ToastrService);
   auth = inject(AuthService);
   companyColor = companyColor;
 
@@ -48,5 +52,13 @@ export class TrackApplications implements OnInit {
 
   getStatusIcon(status: string): string {
     return { Pending: 'bi-clock', Reviewed: 'bi-eye-fill', Accepted: 'bi-check-circle-fill', Rejected: 'bi-x-circle-fill' }[status] || 'bi-circle';
+  }
+
+  withdraw(app: Application) {
+    if (!confirm(`Retirer votre candidature pour "${app.jobOffer?.title}" ? Cette action est irreversible.`)) return;
+    this.candidateService.withdrawApplication(app.id).subscribe({
+      next: () => { this.toastr.success('Candidature retiree'); this.ngOnInit(); },
+      error: (err) => this.toastr.error(err.error?.message || err.error || 'Erreur'),
+    });
   }
 }

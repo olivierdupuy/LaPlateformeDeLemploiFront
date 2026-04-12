@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { JobOfferService } from '../../services/job-offer';
+import { PlatformService } from '../../services/platform.service';
 import { JobOffer, JobStats } from '../../models/job-offer.model';
 
 @Component({
@@ -13,6 +14,7 @@ import { JobOffer, JobStats } from '../../models/job-offer.model';
 export class Home implements OnInit, OnDestroy {
   private jobService = inject(JobOfferService);
   private router = inject(Router);
+  platform = inject(PlatformService);
 
   stats = signal<JobStats>({ totalOffers: 0, totalApplications: 0, totalCompanies: 0, remoteOffers: 0 });
   latestJobs = signal<JobOffer[]>([]);

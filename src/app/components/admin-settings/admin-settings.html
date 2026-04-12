@@ -1,0 +1,41 @@
+<section class="set-page">
+  <div class="container">
+    <div class="page-top animate-in">
+      <h1 class="section-title">Parametres de la plateforme</h1>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else {
+      <div class="settings-card card animate-in" style="animation-delay:.05s">
+        @for (s of settings(); track s.id) {
+          <div class="set-row">
+            <div class="set-icon"><i class="bi" [class]="settingIcon(s.key)"></i></div>
+            <div class="set-info">
+              <label class="set-label">{{ settingLabel(s.key) }}</label>
+              <span class="set-desc">{{ s.description }}</span>
+            </div>
+            <div class="set-input">
+              @if (s.type === 'bool') {
+                <label class="toggle">
+                  <input type="checkbox" [checked]="s.value === 'true'" (change)="s.value = $any($event.target).checked ? 'true' : 'false'" />
+                  <span class="toggle-slider"></span>
+                </label>
+              } @else if (s.type === 'int') {
+                <input type="number" [(ngModel)]="s.value" class="input input-num" />
+              } @else {
+                <input type="text" [(ngModel)]="s.value" class="input" />
+              }
+            </div>
+          </div>
+        }
+
+        <div class="set-actions">
+          <button (click)="save()" class="btn btn-teal" [disabled]="saving()">
+            <i class="bi bi-check-lg"></i> {{ saving() ? 'Sauvegarde...' : 'Sauvegarder' }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</section>

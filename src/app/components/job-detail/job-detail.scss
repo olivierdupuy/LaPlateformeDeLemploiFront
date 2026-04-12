@@ -170,6 +170,27 @@
 .sc-bottom { display: flex; align-items: center; gap: 0.5rem; }
 .sc-salary { font-size: 0.78rem; font-weight: 600; color: var(--teal-600); }
 
+.note-card { padding: 0; margin-bottom: 0.75rem; &:hover { transform: none; box-shadow: var(--shadow-sm); } }
+.note-toggle {
+  display: flex; align-items: center; gap: 0.4rem; width: 100%;
+  padding: 0.85rem 1.25rem; font-size: 0.82rem; font-weight: 600; color: var(--navy-800);
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  &:hover { color: var(--teal); }
+}
+.note-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); margin-left: auto; }
+.note-body { padding: 0 1.25rem 1rem; }
+.note-input {
+  width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border); border-radius: var(--r-sm);
+  font-size: 0.82rem; font-family: inherit; resize: vertical; outline: none;
+  &:focus { border-color: var(--teal); }
+}
+.note-save {
+  margin-top: 0.5rem; padding: 0.35rem 0.75rem; border: none; border-radius: var(--r-sm);
+  font-size: 0.78rem; font-weight: 600; background: var(--teal); color: #fff;
+  cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 0.25rem;
+  &:hover { background: var(--teal-600); } &:disabled { opacity: 0.5; }
+}
+
 .side-info {
   padding: 1.5rem;
   &:hover { transform: none; box-shadow: var(--shadow-sm); }

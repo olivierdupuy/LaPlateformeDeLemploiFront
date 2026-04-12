@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { CvService } from '../../services/cv.service';
 import { UploadService } from '../../services/upload.service';
 import { AuthService } from '../../services/auth.service';
@@ -11,7 +10,7 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cv-builder',
-  imports: [FormsModule, DatePipe, RouterLink],
+  imports: [FormsModule, DatePipe],
   templateUrl: './cv-builder.html',
   styleUrl: './cv-builder.scss',
 })
@@ -157,4 +156,12 @@ export class CvBuilder implements OnInit {
   needsDates(type: string): boolean { return ['Experience', 'Formation', 'Projet'].includes(type); }
   needsLevel(type: string): boolean { return ['Langue', 'Competence'].includes(type); }
   needsOrg(type: string): boolean { return ['Experience', 'Formation', 'Projet'].includes(type); }
+
+  exportPdf() {
+    // Ensure preview is open
+    if (!this.previewOpen()) this.previewOpen.set(true);
+    setTimeout(() => {
+      window.print();
+    }, 300);
+  }
 }

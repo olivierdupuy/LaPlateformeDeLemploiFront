@@ -7,8 +7,13 @@ table { width: 100%; border-collapse: collapse; }
 thead th { padding: 0.75rem 1.15rem; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); text-align: left; white-space: nowrap; background: var(--slate-50); border-bottom: 1px solid var(--border); }
 tbody { tr { transition: background 0.2s; &:hover { background: var(--teal-glow); } &:not(:last-child) td { border-bottom: 1px solid var(--slate-100); } } td { padding: 0.85rem 1.15rem; vertical-align: middle; } }
 
+.online-count { display: inline-flex; align-items: center; gap: 0.35rem; }
+.online-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; }
+
 .user-cell { display: flex; align-items: center; gap: 0.65rem; }
+.user-av-wrap { position: relative; flex-shrink: 0; }
 .user-av { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; span { font-weight: 700; font-size: 0.72rem; } }
+.presence-dot { position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; border-radius: 50%; background: var(--slate-300, #cbd5e1); border: 2px solid #fff; transition: background 0.3s; &.is-online { background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.25); } }
 .user-info { display: flex; flex-direction: column; strong { font-size: 0.85rem; } span { font-size: 0.75rem; color: var(--text-muted); } }
 .sub { font-size: 0.82rem; color: var(--text-secondary); }
 .dt { font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; }

@@ -1,0 +1,208 @@
+<section class="stats-page">
+  <div class="container">
+    <div class="page-top animate-in">
+      <h1 class="section-title">Statistiques de la plateforme</h1>
+      <span class="page-sub">Analyse complete de l'activite, des utilisateurs, des offres et des candidatures</span>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (data(); as d) {
+
+      <!-- ═══ KPI CARDS ═══ -->
+      <div class="kpi-grid animate-in" style="animation-delay:.05s">
+        <div class="kpi card kpi-teal">
+          <i class="bi bi-people-fill"></i>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ d.totalUsers | number }}</span>
+            <span class="kpi-lbl">Utilisateurs</span>
+            <span class="kpi-sub">+{{ d.usersLast7d }} cette semaine</span>
+          </div>
+        </div>
+        <div class="kpi card kpi-blue">
+          <i class="bi bi-person-check-fill"></i>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ d.totalCandidates | number }}</span>
+            <span class="kpi-lbl">Candidats</span>
+          </div>
+        </div>
+        <div class="kpi card kpi-navy">
+          <i class="bi bi-building-fill"></i>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ d.totalRecruiters | number }}</span>
+            <span class="kpi-lbl">Recruteurs</span>
+          </div>
+        </div>
+        <div class="kpi card kpi-green">
+          <i class="bi bi-circle-fill kpi-online-dot"></i>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ d.onlineNow }}</span>
+            <span class="kpi-lbl">En ligne</span>
+          </div>
+        </div>
+        <div class="kpi card kpi-teal">
+          <i class="bi bi-briefcase-fill"></i>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ d.activeOffers | number }}</span>
+            <span class="kpi-lbl">Offres actives</span>
+            <span class="kpi-sub">+{{ d.offersLast30d }} ce mois</span>
+          </div>
+        </div>
+        <div class="kpi card kpi-blue">
+          <i class="bi bi-send-fill"></i>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ d.totalApplications | number }}</span>
+            <span class="kpi-lbl">Candidatures</span>
+            <span class="kpi-sub">+{{ d.appsLast7d }} cette semaine</span>
+          </div>
+        </div>
+        <div class="kpi card kpi-amber">
+          <i class="bi bi-eye-fill"></i>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ d.totalViews | number }}</span>
+            <span class="kpi-lbl">Vues totales</span>
+          </div>
+        </div>
+        <div class="kpi card kpi-navy">
+          <i class="bi bi-chat-dots-fill"></i>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ d.totalMessages | number }}</span>
+            <span class="kpi-lbl">Messages</span>
+            <span class="kpi-sub">+{{ d.messagesLast30d }} ce mois</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION : ACTIVITE GLOBALE ═══ -->
+      <div class="section-header animate-in" style="animation-delay:.1s">
+        <i class="bi bi-activity"></i> Activite globale (30 derniers jours)
+      </div>
+      <div class="chart-row">
+        <div class="chart-card card chart-full animate-in" style="animation-delay:.12s">
+          <h3>Tendances : offres, candidatures, inscriptions</h3>
+          <div class="chart-box chart-lg"><canvas #activityChart></canvas></div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION : UTILISATEURS ═══ -->
+      <div class="section-header animate-in" style="animation-delay:.15s">
+        <i class="bi bi-people"></i> Utilisateurs
+      </div>
+      <div class="chart-row">
+        <div class="chart-card card animate-in" style="animation-delay:.17s">
+          <h3>Inscriptions par jour</h3>
+          <div class="chart-box chart-md"><canvas #registrationsChart></canvas></div>
+        </div>
+      </div>
+
+      <!-- Carte de France (pleine largeur, hors grille) -->
+      <div class="map-card card animate-in" style="animation-delay:.19s">
+        <div class="map-header">
+          <h3><i class="bi bi-geo-alt-fill"></i> Carte de France — Origine geographique</h3>
+          <div class="map-tabs">
+            <button class="map-tab" [class.active]="activeMapLayer() === 'candidates'" (click)="switchMapLayer('candidates')">
+              <span class="map-tab-dot" style="background:#0d9488"></span> Candidats
+            </button>
+            <button class="map-tab" [class.active]="activeMapLayer() === 'recruiters'" (click)="switchMapLayer('recruiters')">
+              <span class="map-tab-dot" style="background:#2563eb"></span> Recruteurs
+            </button>
+            <button class="map-tab" [class.active]="activeMapLayer() === 'offers'" (click)="switchMapLayer('offers')">
+              <span class="map-tab-dot" style="background:#f97316"></span> Offres
+            </button>
+          </div>
+        </div>
+        <div class="map-wrap" #mapContainer></div>
+      </div>
+
+      <!-- ═══ SECTION : OFFRES D'EMPLOI ═══ -->
+      <div class="section-header animate-in" style="animation-delay:.22s">
+        <i class="bi bi-briefcase"></i> Offres d'emploi
+      </div>
+      <div class="chart-row">
+        <div class="chart-card card animate-in" style="animation-delay:.24s">
+          <h3>Publications par jour</h3>
+          <div class="chart-box chart-md"><canvas #offersDayChart></canvas></div>
+        </div>
+        <div class="chart-card card animate-in" style="animation-delay:.26s">
+          <h3>Repartition par categorie</h3>
+          <div class="chart-box chart-md"><canvas #categoryChart></canvas></div>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-card card animate-in" style="animation-delay:.28s">
+          <h3>Types de contrat</h3>
+          <div class="chart-box chart-md"><canvas #contractChart></canvas></div>
+        </div>
+        <div class="chart-card card animate-in" style="animation-delay:.3s">
+          <h3>Niveau d'experience requis</h3>
+          <div class="chart-box chart-md"><canvas #experienceChart></canvas></div>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-card card animate-in" style="animation-delay:.32s">
+          <h3><i class="bi bi-geo-alt-fill"></i> Geographie des offres par ville</h3>
+          <div class="chart-box chart-tall"><canvas #locationsChart></canvas></div>
+        </div>
+        <div class="chart-card card animate-in" style="animation-delay:.34s">
+          <h3><i class="bi bi-currency-euro"></i> Salaires moyens par categorie (EUR/an)</h3>
+          <div class="chart-box chart-tall"><canvas #salaryChart></canvas></div>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-card card animate-in" style="animation-delay:.36s">
+          <h3>Top entreprises qui recrutent</h3>
+          <div class="chart-box chart-md"><canvas #topCompaniesChart></canvas></div>
+        </div>
+        <div class="chart-card card animate-in" style="animation-delay:.38s">
+          <h3><i class="bi bi-fire"></i> Top offres les plus consultees</h3>
+          <div class="chart-box chart-tall"><canvas #topViewedChart></canvas></div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION : CANDIDATURES ═══ -->
+      <div class="section-header animate-in" style="animation-delay:.4s">
+        <i class="bi bi-send"></i> Candidatures
+      </div>
+      <div class="chart-row">
+        <div class="chart-card card animate-in" style="animation-delay:.42s">
+          <h3>Repartition par statut</h3>
+          <div class="chart-box chart-md"><canvas #statusChart></canvas></div>
+        </div>
+        <div class="chart-card card animate-in" style="animation-delay:.44s">
+          <h3>Candidatures par jour</h3>
+          <div class="chart-box chart-md"><canvas #appsDayChart></canvas></div>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-card card animate-in" style="animation-delay:.46s">
+          <h3>Source des candidatures</h3>
+          <div class="chart-box chart-md"><canvas #sourceChart></canvas></div>
+        </div>
+        <div class="chart-card card animate-in" style="animation-delay:.48s">
+          <h3><i class="bi bi-funnel-fill"></i> Taux de conversion par entreprise</h3>
+          <div class="chart-box chart-md"><canvas #conversionChart></canvas></div>
+        </div>
+      </div>
+
+      <!-- ═══ SECTION : ENTRETIENS & MESSAGERIE ═══ -->
+      <div class="section-header animate-in" style="animation-delay:.5s">
+        <i class="bi bi-calendar-event"></i> Entretiens &amp; Messagerie
+      </div>
+      <div class="chart-row chart-row-3">
+        <div class="chart-card card animate-in" style="animation-delay:.52s">
+          <h3>Entretiens par type</h3>
+          <div class="chart-box chart-sm"><canvas #interviewTypeChart></canvas></div>
+        </div>
+        <div class="chart-card card animate-in" style="animation-delay:.54s">
+          <h3>Entretiens par statut</h3>
+          <div class="chart-box chart-sm"><canvas #interviewStatusChart></canvas></div>
+        </div>
+        <div class="chart-card card animate-in" style="animation-delay:.56s">
+          <h3>Messages par jour</h3>
+          <div class="chart-box chart-sm"><canvas #messagesDayChart></canvas></div>
+        </div>
+      </div>
+
+    }
+  </div>
+</section>

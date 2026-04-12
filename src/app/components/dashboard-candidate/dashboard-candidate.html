@@ -66,12 +66,82 @@
   </div>
 </section>
 
+<!-- ═══ ALERTS ═══ -->
+@if (alerts().length > 0) {
+  <section class="dc-alerts">
+    <div class="container">
+      <div class="alerts-bar animate-in" style="animation-delay:.22s">
+        <i class="bi bi-bell-fill"></i>
+        <div class="alerts-text">
+          @for (a of alerts(); track a.searchId) {
+            <span><strong>{{ a.newCount }}</strong> nouvelle{{ a.newCount > 1 ? 's' : '' }} offre{{ a.newCount > 1 ? 's' : '' }} pour "{{ a.searchLabel }}"</span>
+          }
+        </div>
+        <a routerLink="/recherches-sauvegardees" class="alerts-link">Voir <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+}
+
+<!-- ═══ RECOMMANDATIONS ═══ -->
+@if (recommendations().length > 0) {
+  <section class="dc-reco">
+    <div class="container">
+      <div class="dc-card animate-in" style="animation-delay:.25s">
+        <div class="dc-card-head">
+          <h2><i class="bi bi-stars"></i> Offres recommandees pour vous</h2>
+          <a routerLink="/offres" class="link-teal">Toutes les offres <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="dc-card-body">
+          <div class="reco-grid">
+            @for (r of recommendations(); track r.id; let i = $index) {
+              <a [routerLink]="['/offres', r.id]" class="reco-item">
+                <div class="reco-score" [class.reco-high]="r.score >= 60" [class.reco-mid]="r.score >= 30 && r.score < 60">{{ r.score }}%</div>
+                <div class="reco-info">
+                  <strong>{{ r.title }}</strong>
+                  <span>{{ r.company }} — {{ r.location }}</span>
+                </div>
+                <div class="reco-tags">
+                  <span class="reco-contract">{{ r.contractType }}</span>
+                  @if (r.isRemote) { <span class="reco-remote">Remote</span> }
+                </div>
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
 <!-- ═══ MAIN CONTENT ═══ -->
 <section class="dc-content">
   <div class="container dc-layout">
 
     <!-- LEFT: Charts -->
     <div class="dc-main">
+      <!-- Analytics -->
+      @if (analytics(); as a) {
+        <div class="dc-analytics animate-in" style="animation-delay:.23s">
+          <div class="ana-kpi">
+            <div class="ak"><span class="ak-val">{{ a.responseRate }}%</span><span class="ak-lbl">Taux de reponse</span></div>
+            <div class="ak"><span class="ak-val">{{ a.conversionRate }}%</span><span class="ak-lbl">Taux d'acceptation</span></div>
+            <div class="ak"><span class="ak-val">{{ a.interviewCount }}</span><span class="ak-lbl">Entretiens</span></div>
+            <div class="ak"><span class="ak-val">{{ a.total }}</span><span class="ak-lbl">Candidatures</span></div>
+          </div>
+          <div class="ana-charts">
+            <div class="ana-chart-box">
+              <h4>Repartition par statut</h4>
+              <div class="ana-chart-wrap"><canvas #statusChart></canvas></div>
+            </div>
+            <div class="ana-chart-box">
+              <h4>Candidatures par mois</h4>
+              <div class="ana-chart-wrap"><canvas #monthChart></canvas></div>
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- Repartition -->
       <div class="dc-card animate-in" style="animation-delay:.25s">
         <div class="dc-card-head">

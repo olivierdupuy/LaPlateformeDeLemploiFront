@@ -3,6 +3,7 @@
     <div class="page-top animate-in">
       <h1 class="section-title">Gestion des utilisateurs</h1>
       <span class="count">{{ users().length }} utilisateur{{ users().length > 1 ? 's' : '' }}</span>
+      <span class="count online-count"><span class="online-dot"></span> {{ onlineCount() }} en ligne</span>
     </div>
 
     @if (loading()) {
@@ -18,8 +19,11 @@
               <tr>
                 <td>
                   <div class="user-cell">
-                    <div class="user-av" [style.background]="companyColor(u.firstName).bg">
-                      <span [style.color]="companyColor(u.firstName).fg">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+                    <div class="user-av-wrap">
+                      <div class="user-av" [style.background]="companyColor(u.firstName).bg">
+                        <span [style.color]="companyColor(u.firstName).fg">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+                      </div>
+                      <span class="presence-dot" [class.is-online]="u.isOnline"></span>
                     </div>
                     <div class="user-info">
                       <strong>{{ u.firstName }} {{ u.lastName }}</strong>

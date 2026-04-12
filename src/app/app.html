@@ -1,5 +1,17 @@
-<app-navbar />
-<main>
-  <router-outlet />
-</main>
-<app-footer />
+@if (platform.maintenanceMode && !isAdmin) {
+  <div class="maintenance-page">
+    <div class="maintenance-card">
+      <div class="maintenance-icon"><i class="bi bi-tools"></i></div>
+      <h1>Maintenance en cours</h1>
+      <p>La plateforme est temporairement indisponible pour maintenance.<br/>Veuillez reessayer dans quelques instants.</p>
+      <span class="maintenance-sub">Nous nous excusons pour la gene occasionnee.</span>
+    </div>
+  </div>
+} @else {
+  <app-site-banner />
+  <app-navbar />
+  <main>
+    <router-outlet />
+  </main>
+  <app-footer />
+}

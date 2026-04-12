@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { PlatformService } from '../../services/platform.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -14,6 +15,7 @@ export class Register {
   private auth = inject(AuthService);
   private router = inject(Router);
   private toastr = inject(ToastrService);
+  platform = inject(PlatformService);
 
   form = { firstName: '', lastName: '', email: '', password: '', role: 'Candidate', company: '' };
   loading = false;
@@ -22,10 +24,14 @@ export class Register {
   setRole(role: string) { this.form.role = role; }
 
   submit() {
+    if (!this.platform.allowRegistration) {
+      this.toastr.error('Les inscriptions sont actuellement fermees');
+      return;
+    }
     if (!this.form.firstName || !this.form.lastName || !this.form.email || !this.form.password) {
       this.toastr.warning('Remplissez tous les champs obligatoires'); return;
     }
-    if (this.form.password.length < 6) { this.toastr.warning('Mot de passe : 6 caracteres minimum'); return; }
+    if (this.form.password.length < 6) { this.toastr.warning('Mot de passe : 6 caracteres minimum'); return;  }
     this.loading = true;
     this.auth.register(this.form).subscribe({
       next: () => { this.toastr.success('Compte cree avec succes'); this.router.navigate(['/']); },

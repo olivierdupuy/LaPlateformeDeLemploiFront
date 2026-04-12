@@ -20,19 +20,23 @@ export class MyOffers implements OnInit {
 
   offers = signal<JobOffer[]>([]);
   loading = signal(true);
-  filter = signal<'all' | 'active' | 'expired'>('all');
+  filter = signal<'all' | 'active' | 'expired' | 'pending' | 'rejected'>('all');
 
   filtered = computed(() => {
     const f = this.filter();
-    if (f === 'active') return this.offers().filter(o => o.isActive);
-    if (f === 'expired') return this.offers().filter(o => !o.isActive);
+    if (f === 'active') return this.offers().filter(o => o.isActive && o.moderationStatus === 'Approved');
+    if (f === 'expired') return this.offers().filter(o => !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected');
+    if (f === 'pending') return this.offers().filter(o => o.moderationStatus === 'Pending');
+    if (f === 'rejected') return this.offers().filter(o => o.moderationStatus === 'Rejected');
     return this.offers();
   });
 
   counts = computed(() => ({
     total: this.offers().length,
-    active: this.offers().filter(o => o.isActive).length,
-    expired: this.offers().filter(o => !o.isActive).length,
+    active: this.offers().filter(o => o.isActive && o.moderationStatus === 'Approved').length,
+    expired: this.offers().filter(o => !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected').length,
+    pending: this.offers().filter(o => o.moderationStatus === 'Pending').length,
+    rejected: this.offers().filter(o => o.moderationStatus === 'Rejected').length,
     totalApps: this.offers().reduce((s, o) => s + (o.applications?.length || 0), 0),
   }));
 
@@ -56,5 +60,9 @@ export class MyOffers implements OnInit {
 
   stripeColor(type: string): string {
     return { CDI: 'var(--teal)', CDD: 'var(--amber)', Stage: 'var(--blue)', Freelance: 'var(--red)', Alternance: 'var(--green)' }[type] || 'var(--teal)';
+  }
+
+  moderationLabel(status?: string): string {
+    return { Pending: 'En attente de validation', Approved: 'Approuvee', Rejected: 'Rejetee' }[status || ''] || '';
   }
 }

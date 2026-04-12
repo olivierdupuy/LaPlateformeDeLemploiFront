@@ -119,6 +119,24 @@
           </div>
         </div>
 
+        @if (auth.isLoggedIn() && auth.currentUser()?.role === 'Candidate') {
+          <div class="note-card card">
+            <button class="note-toggle" (click)="toggleNote()">
+              <i class="bi" [class.bi-journal-text]="!showNote()" [class.bi-chevron-up]="showNote()"></i>
+              Mes notes personnelles
+              @if (noteContent) { <span class="note-dot"></span> }
+            </button>
+            @if (showNote()) {
+              <div class="note-body">
+                <textarea [(ngModel)]="noteContent" placeholder="Notez vos impressions, questions pour l'entretien, informations utiles..." rows="4" class="note-input"></textarea>
+                <button class="note-save" (click)="saveNote()" [disabled]="noteSaving">
+                  <i class="bi bi-check-lg"></i> {{ noteSaving ? 'Sauvegarde...' : 'Sauvegarder' }}
+                </button>
+              </div>
+            }
+          </div>
+        }
+
         <div class="side-info card">
           <h3>Recapitulatif</h3>
           <dl class="info-dl">

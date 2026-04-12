@@ -1,0 +1,25 @@
+.act-page { padding: 6.5rem 0 4rem; }
+.page-top { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.5rem; }
+.count { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); }
+
+.filters { display: flex; align-items: center; gap: 0.65rem; padding: 1rem 1.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; &:hover { transform: none; } }
+.sel { padding: 0.4rem 0.65rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.8rem; font-weight: 500; background: #fff; cursor: pointer; outline: none; font-family: inherit; &:focus { border-color: var(--teal); } }
+.btn-reset { padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.78rem; font-weight: 500; background: #fff; cursor: pointer; font-family: inherit; color: var(--text-secondary); transition: all 0.2s; &:hover { border-color: var(--red); color: var(--red); } }
+
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 0.85rem; padding: 1rem 0; border-bottom: 1px solid var(--slate-100); &:last-child { border: none; } }
+.tl-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem; }
+.tl-body { flex: 1; min-width: 0; }
+.tl-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; strong { font-size: 0.85rem; } }
+.tl-action-badge { font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: var(--r-full); background: var(--slate-100); color: var(--navy-800); }
+.tl-time { font-size: 0.72rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+.tl-detail { font-size: 0.82rem; color: var(--text-secondary); margin: 0.25rem 0 0; }
+.tl-ip { font-size: 0.7rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.25rem; }
+
+.pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
+.pg-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: var(--navy-800); transition: all 0.2s; &:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); } &:disabled { opacity: 0.4; cursor: default; } }
+.pg-info { font-size: 0.82rem; color: var(--text-secondary); font-weight: 500; }
+
+.empty-box { display: flex; align-items: center; justify-content: center; padding: 5rem 0; }
+.spinner { width: 28px; height: 28px; border: 2.5px solid var(--slate-200); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -115,6 +115,17 @@
         <div class="jf-card">
           <div class="jfc-head"><h2><span class="ed-pill">03</span> Options et publication</h2></div>
           <div class="jfc-body">
+
+            @if (showModerationNotice) {
+              <div class="moderation-notice">
+                <i class="bi bi-shield-check"></i>
+                <div>
+                  <strong>Moderation active</strong>
+                  <p>Votre offre sera soumise a validation par un administrateur avant d'etre visible par les candidats. Vous serez notifie une fois l'offre approuvee.</p>
+                </div>
+              </div>
+            }
+
             <div class="options-grid">
               <label class="opt-card" [class.active]="form.isRemote">
                 <input type="checkbox" [(ngModel)]="form.isRemote" name="isRemote" />
@@ -126,7 +137,7 @@
                 <div class="opt-icon opt-urgent"><i class="bi bi-lightning-fill"></i></div>
                 <div class="opt-text"><strong>Urgent</strong><span>Recrutement prioritaire</span></div>
               </label>
-              @if (isEdit()) {
+              @if (isEdit() && !showModerationNotice) {
                 <label class="opt-card" [class.active]="form.isActive">
                   <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" />
                   <div class="opt-icon opt-active"><i class="bi bi-check-circle-fill"></i></div>
@@ -153,8 +164,11 @@
           <div class="jfc-actions">
             <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Precedent</button>
             <button type="submit" class="btn-primary btn-publish" [disabled]="submitting">
-              @if (submitting) { <span class="sp"></span> } @else { <i class="bi bi-check-lg"></i> }
-              {{ isEdit() ? 'Enregistrer les modifications' : 'Publier l\'offre' }}
+              @if (submitting) { <span class="sp"></span> } @else { <i class="bi" [class.bi-send]="showModerationNotice" [class.bi-check-lg]="!showModerationNotice"></i> }
+              {{ isEdit()
+                ? (showModerationNotice ? 'Soumettre les modifications' : 'Enregistrer les modifications')
+                : (showModerationNotice ? 'Soumettre a validation' : 'Publier l\'offre')
+              }}
             </button>
           </div>
         </div>

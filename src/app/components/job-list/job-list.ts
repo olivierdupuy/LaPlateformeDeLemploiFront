@@ -27,7 +27,15 @@ export class JobList implements OnInit {
   category = '';
   contractType = '';
   isRemote: boolean | undefined;
+  salaryMin: number | undefined;
+  salaryMax: number | undefined;
+  experience = '';
+  education = '';
+  sort = '';
+  showAdvanced = false;
   contractTypes = ['CDI', 'CDD', 'Stage', 'Alternance', 'Freelance'];
+  experienceLevels = ['Junior', 'Intermediaire', 'Senior', 'Expert'];
+  educationLevels = ['Bac', 'Bac+2', 'Bac+3', 'Bac+5', 'Doctorat'];
 
   getTimeAgo = getTimeAgo;
   getTags = getTags;
@@ -53,6 +61,11 @@ export class JobList implements OnInit {
     if (this.category) filters.category = this.category;
     if (this.contractType) filters.contractType = this.contractType;
     if (this.isRemote !== undefined) filters.isRemote = this.isRemote;
+    if (this.salaryMin) filters.salaryMin = this.salaryMin;
+    if (this.salaryMax) filters.salaryMax = this.salaryMax;
+    if (this.experience) filters.experience = this.experience;
+    if (this.education) filters.education = this.education;
+    if (this.sort) filters.sort = this.sort;
 
     this.jobService.getAll(filters).subscribe((jobs) => {
       this.jobs.set(jobs);
@@ -65,7 +78,16 @@ export class JobList implements OnInit {
     this.category = '';
     this.contractType = '';
     this.isRemote = undefined;
+    this.salaryMin = undefined;
+    this.salaryMax = undefined;
+    this.experience = '';
+    this.education = '';
+    this.sort = '';
     this.loadJobs();
+  }
+
+  get hasAdvancedFilters(): boolean {
+    return !!(this.salaryMin || this.salaryMax || this.experience || this.education || this.sort);
   }
 
   useRecentSearch(q: string) {

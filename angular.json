@@ -46,6 +46,10 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "sweetalert2",
+              "leaflet"
+            ],
             "assets": [
               {
                 "glob": "**/*",
@@ -55,6 +59,7 @@
             "styles": [
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "node_modules/ngx-toastr/toastr.css",
+              "node_modules/leaflet/dist/leaflet.css",
               "src/styles.scss"
             ]
           },
@@ -69,8 +74,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1MB",
-                  "maximumError": "2MB"
+                  "maximumWarning": "2MB",
+                  "maximumError": "3MB"
                 },
                 {
                   "type": "anyComponentStyle",

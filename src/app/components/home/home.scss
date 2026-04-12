@@ -97,6 +97,13 @@
   }
 }
 
+.hero-welcome {
+  display: inline-block;
+  font-size: 0.88rem; font-weight: 600; color: var(--teal-400);
+  background: rgba(13, 148, 136, 0.12); padding: 0.4rem 0.85rem; border-radius: 20px;
+  margin-bottom: 0.5rem;
+}
+
 .hero-caption {
   font-size: 1.1rem;
   color: var(--slate-300);

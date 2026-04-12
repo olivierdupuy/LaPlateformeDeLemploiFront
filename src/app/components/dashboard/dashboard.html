@@ -32,76 +32,33 @@
 
         <!-- Offres par categorie -->
         <div class="chart-card card animate-in" style="animation-delay:.25s">
-          <h3>Offres par categorie</h3>
-          <div class="bar-chart">
-            @for (item of d.offersByCategory; track item.label) {
-              <div class="bar-row">
-                <span class="bar-label">{{ item.label }}</span>
-                <div class="bar-track"><div class="bar-fill bg-teal" [style.width]="barWidth(item.value, maxCategoryValue())"></div></div>
-                <span class="bar-val">{{ item.value }}</span>
-              </div>
-            }
+          <h3><i class="bi bi-bar-chart"></i> Offres par categorie</h3>
+          <div class="chart-container chart-h-bar">
+            <canvas #categoryChart></canvas>
           </div>
         </div>
 
         <!-- Candidatures par statut -->
         <div class="chart-card card animate-in" style="animation-delay:.3s">
-          <h3>Candidatures par statut</h3>
-          <div class="donut-chart">
-            <div class="donut-visual">
-              <svg viewBox="0 0 36 36" class="donut-svg">
-                @for (item of d.appsByStatus; track item.label; let i = $index) {
-                  <circle class="donut-segment"
-                    [attr.stroke]="statusColor(item.label)"
-                    [attr.stroke-dasharray]="donutDash(item.value)"
-                    [attr.stroke-dashoffset]="donutOffset(i)"
-                  />
-                }
-              </svg>
-              <div class="donut-center">
-                <span class="donut-total">{{ totalApps() }}</span>
-                <span class="donut-lbl">Total</span>
-              </div>
-            </div>
-            <div class="donut-legend">
-              @for (item of d.appsByStatus; track item.label) {
-                <div class="legend-item">
-                  <span class="legend-dot" [style.background]="statusColor(item.label)"></span>
-                  <span class="legend-text">{{ statusLabel(item.label) }}</span>
-                  <span class="legend-val">{{ item.value }}</span>
-                </div>
-              }
-            </div>
+          <h3><i class="bi bi-pie-chart"></i> Candidatures par statut</h3>
+          <div class="chart-container chart-doughnut">
+            <canvas #statusChart></canvas>
           </div>
         </div>
 
         <!-- Top entreprises -->
         <div class="chart-card card animate-in" style="animation-delay:.35s">
-          <h3>Top entreprises</h3>
-          <div class="bar-chart">
-            @for (item of d.topCompanies; track item.label) {
-              <div class="bar-row">
-                <span class="bar-label">{{ item.label }}</span>
-                <div class="bar-track"><div class="bar-fill bg-navy" [style.width]="barWidth(item.value, maxCompanyValue())"></div></div>
-                <span class="bar-val">{{ item.value }}</span>
-              </div>
-            }
+          <h3><i class="bi bi-building"></i> Top entreprises</h3>
+          <div class="chart-container chart-h-bar">
+            <canvas #companyChart></canvas>
           </div>
         </div>
 
         <!-- Par type de contrat -->
         <div class="chart-card card animate-in" style="animation-delay:.4s">
-          <h3>Types de contrat</h3>
-          <div class="contract-list">
-            @for (item of d.offersByContract; track item.label) {
-              <div class="ct-row">
-                <span class="ct-label">{{ item.label }}</span>
-                <div class="ct-bar-wrap">
-                  <div class="ct-bar" [style.width]="barWidth(item.value, d.offersByContract[0].value)"></div>
-                </div>
-                <span class="ct-val">{{ item.value }}</span>
-              </div>
-            }
+          <h3><i class="bi bi-diagram-3"></i> Types de contrat</h3>
+          <div class="chart-container chart-polar">
+            <canvas #contractChart></canvas>
           </div>
         </div>
       </div>

@@ -1,0 +1,99 @@
+<section class="ann-page">
+  <div class="container">
+    <div class="page-top animate-in">
+      <h1 class="section-title">Annonces &amp; Exports</h1>
+    </div>
+
+    <!-- Export section -->
+    <div class="export-bar card animate-in" style="animation-delay:.05s">
+      <h3><i class="bi bi-download"></i> Exporter les donnees (CSV)</h3>
+      <div class="export-btns">
+        <button (click)="exportUsers()" class="btn btn-export"><i class="bi bi-people"></i> Utilisateurs</button>
+        <button (click)="exportOffers()" class="btn btn-export"><i class="bi bi-briefcase"></i> Offres</button>
+        <button (click)="exportApps()" class="btn btn-export"><i class="bi bi-send"></i> Candidatures</button>
+      </div>
+    </div>
+
+    <!-- Announcements -->
+    <div class="section-head animate-in" style="animation-delay:.1s">
+      <h2><i class="bi bi-megaphone"></i> Annonces</h2>
+      <button class="btn btn-teal" (click)="showForm.set(!showForm())">
+        <i class="bi" [class.bi-plus-lg]="!showForm()" [class.bi-x-lg]="showForm()"></i>
+        {{ showForm() ? 'Annuler' : 'Nouvelle annonce' }}
+      </button>
+    </div>
+
+    @if (showForm()) {
+      <div class="form-card card animate-in">
+        <div class="form-row">
+          <input [(ngModel)]="form.title" placeholder="Titre de l'annonce" class="input" />
+        </div>
+        <div class="form-row">
+          <textarea [(ngModel)]="form.message" placeholder="Message..." rows="3" class="input textarea"></textarea>
+        </div>
+        <div class="form-row form-inline">
+          <select [(ngModel)]="form.type" class="sel">
+            <option value="info">Info</option>
+            <option value="warning">Avertissement</option>
+            <option value="success">Succes</option>
+            <option value="danger">Alerte</option>
+          </select>
+          <select [(ngModel)]="form.targetRole" class="sel">
+            <option value="">Tous les utilisateurs</option>
+            <option value="Candidate">Candidats uniquement</option>
+            <option value="Recruiter">Recruteurs uniquement</option>
+          </select>
+          <label class="check-label">
+            <input type="checkbox" [(ngModel)]="form.isBanner" />
+            Afficher en banniere
+          </label>
+        </div>
+        @if (form.isBanner) {
+          <div class="form-row form-inline">
+            <label class="date-label">Debut <input type="datetime-local" [(ngModel)]="form.startsAt" class="input input-sm" /></label>
+            <label class="date-label">Fin <input type="datetime-local" [(ngModel)]="form.endsAt" class="input input-sm" /></label>
+          </div>
+        }
+        <button (click)="create()" class="btn btn-teal" [disabled]="!form.title || !form.message">
+          <i class="bi bi-send"></i> Publier l'annonce
+        </button>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else {
+      <div class="ann-list">
+        @for (a of announcements(); track a.id; let i = $index) {
+          <div class="ann-item card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
+            <div class="ann-left">
+              <i class="bi" [class]="typeIcon(a.type)" [style.color]="typeColor(a.type)"></i>
+            </div>
+            <div class="ann-body">
+              <div class="ann-head">
+                <strong>{{ a.title }}</strong>
+                <div class="ann-badges">
+                  @if (a.isBanner) { <span class="badge badge-purple">Banniere</span> }
+                  @if (a.targetRole) { <span class="badge badge-blue">{{ a.targetRole }}</span> }
+                  <span class="badge" [class.badge-green]="a.isActive" [class.badge-gray]="!a.isActive">
+                    {{ a.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+              </div>
+              <p class="ann-msg">{{ a.message }}</p>
+              <span class="ann-date">{{ a.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="ann-actions">
+              <button (click)="toggle(a.id)" class="btn-icon" [title]="a.isActive ? 'Desactiver' : 'Activer'">
+                <i class="bi" [class.bi-toggle-on]="a.isActive" [class.bi-toggle-off]="!a.isActive"></i>
+              </button>
+              <button (click)="remove(a.id)" class="btn-icon btn-icon-red" title="Supprimer">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -233,9 +233,17 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
   .cv-preview { position: static; }
 }
 
+.cvh-pdf { background: #dc2626 !important; &:hover { background: #b91c1c !important; } }
+
 @media (max-width: 768px) {
   .cv-hero { padding: 6.5rem 0 1.5rem; }
   .cvh-inner { flex-direction: column; align-items: flex-start; }
   .cvh-actions { width: 100%; .cvh-btn { flex: 1; justify-content: center; } }
   .form-row { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .cv-hero, .cv-editor, app-navbar, app-footer, app-site-banner { display: none !important; }
+  .cv-layout { display: block !important; }
+  .cv-preview { position: static !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
 }

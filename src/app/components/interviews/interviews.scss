@@ -151,6 +151,21 @@
   background: #ede9fe; color: #7c3aed;
   &:hover { background: #7c3aed; color: #fff; }
 }
+.iva-propose {
+  background: var(--amber-bg); color: var(--amber); font-family: inherit;
+  &:hover { background: var(--amber); color: #fff; }
+}
+
+.propose-form { margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem; }
+.propose-label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin: 0; }
+.propose-input { padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.8rem; font-family: inherit; outline: none; &:focus { border-color: var(--teal); } }
+.propose-textarea { resize: vertical; }
+
+.negotiate-info {
+  display: flex; align-items: center; gap: 0.4rem; padding: 0.55rem 0.75rem;
+  background: var(--amber-bg); border-radius: var(--r-sm);
+  font-size: 0.78rem; color: var(--amber); font-weight: 500; margin-bottom: 0.5rem;
+}
 
 // ── Empty state ──
 .iv-empty {

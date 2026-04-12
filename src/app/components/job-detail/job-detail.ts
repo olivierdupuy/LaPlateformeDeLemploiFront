@@ -1,7 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { JobOfferService } from '../../services/job-offer';
 import { BookmarkService } from '../../services/bookmark.service';
+import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { ApplyModal } from '../apply-modal/apply-modal';
@@ -11,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-job-detail',
-  imports: [RouterLink, ApplyModal],
+  imports: [RouterLink, FormsModule, ApplyModal],
   templateUrl: './job-detail.html',
   styleUrl: './job-detail.scss',
 })
@@ -21,12 +23,16 @@ export class JobDetail implements OnInit {
   private jobService = inject(JobOfferService);
   private toastr = inject(ToastrService);
   bookmarkService = inject(BookmarkService);
+  private candidateService = inject(CandidateFeaturesService);
   auth = inject(AuthService);
 
   job = signal<JobOffer | null>(null);
   similarJobs = signal<JobOffer[]>([]);
   showApplyModal = signal(false);
   loading = signal(true);
+  noteContent = '';
+  noteSaving = false;
+  showNote = signal(false);
 
   getTimeAgo = getTimeAgo;
   getTags = getTags;
@@ -40,6 +46,9 @@ export class JobDetail implements OnInit {
         this.job.set(job);
         this.loading.set(false);
         this.loadSimilarJobs(job);
+        if (this.auth.isLoggedIn() && this.auth.currentUser()?.role === 'Candidate') {
+          this.candidateService.getNote(job.id).subscribe(n => { if (n.content) { this.noteContent = n.content; this.showNote.set(true); } });
+        }
       },
       error: () => {
         this.toastr.error("Offre introuvable");
@@ -73,6 +82,18 @@ export class JobDetail implements OnInit {
       text: 'Votre candidature a ete transmise avec succes.',
       confirmButtonColor: '#0d9488',
       confirmButtonText: 'Parfait',
+    });
+  }
+
+  toggleNote() { this.showNote.update(v => !v); }
+
+  saveNote() {
+    const j = this.job();
+    if (!j) return;
+    this.noteSaving = true;
+    this.candidateService.saveNote(j.id, this.noteContent).subscribe({
+      next: () => { this.noteSaving = false; this.toastr.success('Note sauvegardee'); },
+      error: () => { this.noteSaving = false; this.toastr.error('Erreur'); },
     });
   }
 

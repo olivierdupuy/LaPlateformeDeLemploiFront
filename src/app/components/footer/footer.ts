@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { PlatformService } from '../../services/platform.service';
 
 @Component({
   selector: 'app-footer',
@@ -9,8 +10,8 @@ import { ToastrService } from 'ngx-toastr';
   styleUrl: './footer.scss',
 })
 export class Footer {
+  platform = inject(PlatformService);
   year = new Date().getFullYear();
-  newsletterEmail = '';
 
   constructor(private toastr: ToastrService) {}
 

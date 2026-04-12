@@ -26,6 +26,18 @@
         <button class="mohs" [class.active]="filter() === 'expired'" (click)="filter.set(filter() === 'expired' ? 'all' : 'expired')">
           <span class="mohs-val mohs-red">{{ counts().expired }}</span><span class="mohs-lbl">Expirees</span>
         </button>
+        @if (counts().pending > 0) {
+          <div class="mohs-div"></div>
+          <button class="mohs" [class.active]="filter() === 'pending'" (click)="filter.set(filter() === 'pending' ? 'all' : 'pending')">
+            <span class="mohs-val mohs-amber">{{ counts().pending }}</span><span class="mohs-lbl">En attente</span>
+          </button>
+        }
+        @if (counts().rejected > 0) {
+          <div class="mohs-div"></div>
+          <button class="mohs" [class.active]="filter() === 'rejected'" (click)="filter.set(filter() === 'rejected' ? 'all' : 'rejected')">
+            <span class="mohs-val mohs-red">{{ counts().rejected }}</span><span class="mohs-lbl">Rejetees</span>
+          </button>
+        }
         <div class="mohs-div"></div>
         <div class="mohs mohs-noclk">
           <span class="mohs-val mohs-teal">{{ counts().totalApps }}</span><span class="mohs-lbl">Candidatures</span>
@@ -54,7 +66,7 @@
 
       <div class="mo-grid">
         @for (o of filtered(); track o.id; let i = $index) {
-          <a [routerLink]="['/offres', o.id]" class="oc animate-in" [class.oc-expired]="!o.isActive" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
+          <a [routerLink]="o.moderationStatus === 'Approved' ? ['/offres', o.id] : null" class="oc animate-in" [class.oc-expired]="!o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected'" [class.oc-moderation]="o.moderationStatus === 'Pending' || o.moderationStatus === 'Rejected'" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
             <div class="oc-stripe" [style.background]="stripeColor(o.contractType)"></div>
 
             <div class="oc-body">
@@ -65,10 +77,17 @@
                   <div class="oc-loc"><i class="bi bi-geo-alt"></i> {{ o.location }}</div>
                 </div>
                 <div class="oc-status-col">
-                  @if (o.isActive) {
+                  @if (o.moderationStatus === 'Pending') {
+                    <span class="oc-pending"><i class="bi bi-hourglass-split"></i> En attente de validation</span>
+                  } @else if (o.moderationStatus === 'Rejected') {
+                    <span class="oc-rejected"><i class="bi bi-x-octagon-fill"></i> Rejetee</span>
+                  } @else if (o.isActive) {
                     <span class="oc-active"><i class="bi bi-check-circle-fill"></i> Active</span>
                   } @else {
                     <span class="oc-inactive"><i class="bi bi-x-circle-fill"></i> Expiree</span>
+                  }
+                  @if (o.isFeatured) {
+                    <span class="oc-featured"><i class="bi bi-star-fill"></i></span>
                   }
                 </div>
               </div>
@@ -95,6 +114,20 @@
                   <div class="oc-stat"><span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span></div>
                 }
               </div>
+
+              @if (o.moderationStatus === 'Rejected' && o.moderationNote) {
+                <div class="oc-rejection-note">
+                  <i class="bi bi-chat-left-text-fill"></i>
+                  <div><strong>Motif du rejet :</strong> {{ o.moderationNote }}</div>
+                </div>
+              }
+
+              @if (o.moderationStatus === 'Pending') {
+                <div class="oc-pending-note">
+                  <i class="bi bi-info-circle-fill"></i>
+                  Cette offre est en cours de verification par un administrateur.
+                </div>
+              }
 
               <!-- Footer: dates + actions -->
               <div class="oc-footer">

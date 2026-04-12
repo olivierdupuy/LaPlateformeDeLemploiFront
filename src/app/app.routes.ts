@@ -15,6 +15,11 @@ import { Login } from './components/login/login';
 import { Register } from './components/register/register';
 import { Profile } from './components/profile/profile';
 import { AdminUsers } from './components/admin-users/admin-users';
+import { AdminStats } from './components/admin-stats/admin-stats';
+import { AdminActivity } from './components/admin-activity/admin-activity';
+import { AdminModeration } from './components/admin-moderation/admin-moderation';
+import { AdminAnnouncements } from './components/admin-announcements/admin-announcements';
+import { AdminSettings } from './components/admin-settings/admin-settings';
 import { MyOffers } from './components/my-offers/my-offers';
 import { SavedSearches } from './components/saved-searches/saved-searches';
 import { CandidateList } from './components/candidate-list/candidate-list';
@@ -58,6 +63,11 @@ export const routes: Routes = [
 
   // Admin only
   { path: 'admin/utilisateurs', component: AdminUsers, canActivate: [adminGuard] },
+  { path: 'admin/statistiques', component: AdminStats, canActivate: [adminGuard] },
+  { path: 'admin/activite', component: AdminActivity, canActivate: [adminGuard] },
+  { path: 'admin/moderation', component: AdminModeration, canActivate: [adminGuard] },
+  { path: 'admin/annonces', component: AdminAnnouncements, canActivate: [adminGuard] },
+  { path: 'admin/parametres', component: AdminSettings, canActivate: [adminGuard] },
 
   { path: '**', redirectTo: '' },
 ];

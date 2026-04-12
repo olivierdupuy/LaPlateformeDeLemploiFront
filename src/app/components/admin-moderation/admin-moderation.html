@@ -1,0 +1,78 @@
+<section class="mod-page">
+  <div class="container">
+    <div class="page-top animate-in">
+      <h1 class="section-title">Moderation des offres</h1>
+      <span class="count">{{ offers().length }} offre{{ offers().length > 1 ? 's' : '' }}</span>
+    </div>
+
+    <div class="tabs animate-in" style="animation-delay:.05s">
+      <button class="tab" [class.active]="activeTab() === 'Pending'" (click)="switchTab('Pending')">
+        <i class="bi bi-hourglass-split"></i> En attente
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'Approved'" (click)="switchTab('Approved')">
+        <i class="bi bi-check-circle"></i> Approuvees
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'Rejected'" (click)="switchTab('Rejected')">
+        <i class="bi bi-x-circle"></i> Rejetees
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (offers().length === 0) {
+      <div class="empty-box animate-in"><div class="empty-icon"><i class="bi bi-inbox"></i></div><h3>Aucune offre</h3></div>
+    } @else {
+      <div class="offer-list">
+        @for (o of offers(); track o.id; let i = $index) {
+          <div class="offer-card card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
+            <div class="oc-top">
+              <div class="oc-info">
+                <h3>{{ o.title }}</h3>
+                <span class="oc-meta">{{ o.company }} — {{ o.location }} — {{ o.contractType }}</span>
+              </div>
+              <div class="oc-badges">
+                @if (o.isFeatured) { <span class="badge badge-star"><i class="bi bi-star-fill"></i> Mise en avant</span> }
+                @if (o.isUrgent) { <span class="badge badge-urgent">Urgent</span> }
+                <span class="badge" [class.badge-green]="o.moderationStatus === 'Approved'" [class.badge-red]="o.moderationStatus === 'Rejected'" [class.badge-amber]="o.moderationStatus === 'Pending'">
+                  {{ moderationLabel(o.moderationStatus) }}
+                </span>
+              </div>
+            </div>
+            <p class="oc-desc">{{ o.description | slice:0:200 }}{{ o.description.length > 200 ? '...' : '' }}</p>
+            <div class="oc-foot">
+              <span class="oc-date"><i class="bi bi-calendar3"></i> {{ o.createdAt | date:'dd/MM/yyyy' }}</span>
+              <span class="oc-views"><i class="bi bi-eye"></i> {{ o.viewCount }} vues</span>
+            </div>
+
+            @if (o.moderationNote) {
+              <div class="oc-note"><i class="bi bi-chat-left-text"></i> {{ o.moderationNote }}</div>
+            }
+
+            @if (rejectingId() === o.id) {
+              <div class="reject-form">
+                <textarea [(ngModel)]="rejectNote" placeholder="Raison du rejet (optionnel)..." rows="2" class="rej-input"></textarea>
+                <div class="rej-actions">
+                  <button (click)="confirmReject(o.id)" class="btn btn-red"><i class="bi bi-x-circle"></i> Confirmer le rejet</button>
+                  <button (click)="cancelReject()" class="btn btn-ghost">Annuler</button>
+                </div>
+              </div>
+            } @else {
+              <div class="oc-actions">
+                @if (o.moderationStatus === 'Pending' || o.moderationStatus === 'Rejected') {
+                  <button (click)="approve(o.id)" class="btn btn-green"><i class="bi bi-check-lg"></i> Approuver</button>
+                }
+                @if (o.moderationStatus === 'Pending' || o.moderationStatus === 'Approved') {
+                  <button (click)="startReject(o.id)" class="btn btn-red-outline"><i class="bi bi-x-lg"></i> Rejeter</button>
+                }
+                <button (click)="toggleFeature(o.id)" class="btn btn-ghost">
+                  <i class="bi" [class.bi-star-fill]="o.isFeatured" [class.bi-star]="!o.isFeatured"></i>
+                  {{ o.isFeatured ? 'Retirer' : 'Mettre en avant' }}
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -43,6 +43,9 @@
                   <h3>{{ s.label || 'Recherche sauvegardee' }}</h3>
                   <span class="rsc-date"><i class="bi bi-calendar3"></i> {{ s.createdAt | date:'dd MMM yyyy' }}</span>
                 </div>
+                <button class="rsc-alert" [class.rsc-alert-on]="s.alertEnabled" (click)="toggleAlert(s)" [title]="s.alertEnabled ? 'Desactiver l\'alerte' : 'Activer l\'alerte'">
+                  <i class="bi" [class.bi-bell-fill]="s.alertEnabled" [class.bi-bell]="!s.alertEnabled"></i>
+                </button>
                 <button class="rsc-delete" (click)="deleteSearch(s.id)" title="Supprimer">
                   <i class="bi bi-trash3"></i>
                 </button>

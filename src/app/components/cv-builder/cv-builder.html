@@ -11,6 +11,9 @@
         <i class="bi" [class.bi-eye]="!previewOpen()" [class.bi-eye-slash]="previewOpen()"></i>
         {{ previewOpen() ? 'Masquer' : 'Apercu' }}
       </button>
+      <button class="cvh-btn cvh-pdf" (click)="exportPdf()">
+        <i class="bi bi-file-earmark-pdf"></i> Telecharger PDF
+      </button>
       <label class="cvh-btn cvh-import" [class.loading]="parsingFile()">
         @if (parsingFile()) {
           <span class="sp"></span> Analyse...

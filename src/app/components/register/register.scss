@@ -1,1 +1,10 @@
-@import '../auth-shared';
+@use '../auth-shared' as *;
+
+.reg-closed-notice {
+  display: flex; align-items: flex-start; gap: 0.65rem;
+  padding: 0.85rem 1rem; margin-bottom: 1rem;
+  background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;
+  > i { font-size: 1.1rem; color: #dc2626; margin-top: 0.1rem; flex-shrink: 0; }
+  strong { font-size: 0.85rem; color: #991b1b; display: block; margin-bottom: 0.15rem; }
+  p { font-size: 0.78rem; color: #dc2626; margin: 0; line-height: 1.4; }
+}

@@ -99,6 +99,16 @@
   padding: 1rem 1.75rem; border-top: 1px solid var(--slate-100); background: var(--slate-50);
 }
 
+// ── Moderation notice ──
+.moderation-notice {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+  background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--r-md);
+  > i { font-size: 1.25rem; color: #2563eb; margin-top: 0.1rem; flex-shrink: 0; }
+  strong { font-size: 0.88rem; color: #1e40af; display: block; margin-bottom: 0.2rem; }
+  p { font-size: 0.8rem; color: #3b82f6; margin: 0; line-height: 1.5; }
+}
+
 // ── Options (Step 3) ──
 .options-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem;

@@ -20,6 +20,9 @@ export interface JobOffer {
   benefits?: string;
   companyDescription?: string;
   isUrgent?: boolean;
+  isFeatured?: boolean;
+  moderationStatus?: string;
+  moderationNote?: string;
   viewCount?: number;
   createdByUserId?: string;
   applications?: Application[];
@@ -76,6 +79,7 @@ export interface SavedSearch {
   contractType?: string;
   isRemote?: boolean;
   location?: string;
+  alertEnabled?: boolean;
   createdAt: string;
   resultCount: number;
 }

@@ -108,10 +108,18 @@
   i { font-size: 0.72rem; }
 }
 
+.rsc-alert {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm); font-size: 0.88rem; color: var(--text-muted);
+  transition: all var(--t); flex-shrink: 0; background: none; border: none; cursor: pointer;
+  &:hover { color: var(--amber); background: var(--amber-bg); }
+  &.rsc-alert-on { color: var(--amber); opacity: 1 !important; }
+}
+
 .rsc-delete {
   width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
   border-radius: var(--r-sm); font-size: 0.88rem; color: var(--text-muted);
-  opacity: 0; transition: all var(--t); flex-shrink: 0;
+  opacity: 0; transition: all var(--t); flex-shrink: 0; background: none; border: none; cursor: pointer;
   &:hover { color: var(--red); background: var(--red-bg); }
 }
 

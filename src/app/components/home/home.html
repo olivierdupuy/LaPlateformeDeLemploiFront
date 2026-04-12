@@ -18,6 +18,10 @@
       </div>
       <h1>Trouvez le poste<br/>qui vous <span class="accent">ressemble</span></h1>
 
+      @if (platform.welcomeMessage) {
+        <p class="hero-welcome">{{ platform.welcomeMessage }}</p>
+      }
+
       <!-- Slide caption -->
       <p class="hero-caption">{{ slides[currentSlide()].sub }}</p>
 

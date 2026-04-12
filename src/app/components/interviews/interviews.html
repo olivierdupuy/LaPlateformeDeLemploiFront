@@ -77,15 +77,42 @@
 
                   <!-- Actions -->
                   @if (iv.status === 'Proposed') {
-                    <div class="ivc-actions">
-                      @if (isCandidate()) {
-                        <button class="iva-accept" (click)="updateStatus(iv.id, 'Accepted')"><i class="bi bi-check-lg"></i> Accepter</button>
-                        <button class="iva-decline" (click)="updateStatus(iv.id, 'Declined')"><i class="bi bi-x-lg"></i> Decliner</button>
-                      }
-                      @if (isRecruiter()) {
-                        <button class="iva-decline" (click)="updateStatus(iv.id, 'Cancelled')"><i class="bi bi-x-lg"></i> Annuler</button>
-                      }
+                    @if (proposingId() === iv.id) {
+                      <div class="propose-form">
+                        <p class="propose-label">Proposez jusqu'a 3 creneaux alternatifs :</p>
+                        @for (i of [0, 1, 2]; track i) {
+                          <input type="datetime-local" [(ngModel)]="proposedSlots[i]" class="propose-input" />
+                        }
+                        <textarea [(ngModel)]="proposeMessage" placeholder="Message pour le recruteur (optionnel)..." rows="2" class="propose-input propose-textarea"></textarea>
+                        <div class="ivc-actions">
+                          <button class="iva-accept" (click)="submitSlots(iv.id)"><i class="bi bi-send"></i> Envoyer</button>
+                          <button class="iva-decline" (click)="cancelPropose()">Annuler</button>
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="ivc-actions">
+                        @if (isCandidate()) {
+                          <button class="iva-accept" (click)="updateStatus(iv.id, 'Accepted')"><i class="bi bi-check-lg"></i> Accepter</button>
+                          <button class="iva-propose" (click)="startPropose(iv.id)"><i class="bi bi-calendar-plus"></i> Proposer d'autres creneaux</button>
+                          <button class="iva-decline" (click)="updateStatus(iv.id, 'Declined')"><i class="bi bi-x-lg"></i> Decliner</button>
+                        }
+                        @if (isRecruiter()) {
+                          <button class="iva-decline" (click)="updateStatus(iv.id, 'Cancelled')"><i class="bi bi-x-lg"></i> Annuler</button>
+                        }
+                      </div>
+                    }
+                  }
+                  @if (iv.status === 'Negotiating') {
+                    <div class="negotiate-info">
+                      <i class="bi bi-chat-left-dots-fill"></i>
+                      <span>Creneaux proposes — en attente de reponse du recruteur</span>
                     </div>
+                    @if (isRecruiter()) {
+                      <div class="ivc-actions">
+                        <button class="iva-accept" (click)="updateStatus(iv.id, 'Accepted')"><i class="bi bi-check-lg"></i> Accepter</button>
+                        <button class="iva-decline" (click)="updateStatus(iv.id, 'Cancelled')"><i class="bi bi-x-lg"></i> Annuler</button>
+                      </div>
+                    }
                   }
                   @if (iv.status === 'Accepted') {
                     <div class="ivc-actions">

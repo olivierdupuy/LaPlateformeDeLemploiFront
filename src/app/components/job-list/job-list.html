@@ -63,6 +63,50 @@
         </div>
       </div>
 
+      <!-- Filtres avances -->
+      <div class="fp-group">
+        <button class="fp-toggle" (click)="showAdvanced = !showAdvanced">
+          <i class="bi" [class.bi-chevron-down]="!showAdvanced" [class.bi-chevron-up]="showAdvanced"></i>
+          Filtres avances
+          @if (hasAdvancedFilters) { <span class="fp-badge">actif</span> }
+        </button>
+        @if (showAdvanced) {
+          <div class="fp-advanced">
+            <div class="fp-field">
+              <label>Salaire min (EUR/an)</label>
+              <input type="number" placeholder="25000" [(ngModel)]="salaryMin" (change)="loadJobs()" />
+            </div>
+            <div class="fp-field">
+              <label>Salaire max (EUR/an)</label>
+              <input type="number" placeholder="60000" [(ngModel)]="salaryMax" (change)="loadJobs()" />
+            </div>
+            <div class="fp-field">
+              <label>Experience</label>
+              <select [(ngModel)]="experience" (change)="loadJobs()">
+                <option value="">Tous niveaux</option>
+                @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
+              </select>
+            </div>
+            <div class="fp-field">
+              <label>Formation</label>
+              <select [(ngModel)]="education" (change)="loadJobs()">
+                <option value="">Tous niveaux</option>
+                @for (l of educationLevels; track l) { <option [value]="l">{{ l }}</option> }
+              </select>
+            </div>
+            <div class="fp-field">
+              <label>Trier par</label>
+              <select [(ngModel)]="sort" (change)="loadJobs()">
+                <option value="">Plus recentes</option>
+                <option value="salary_desc">Salaire decroissant</option>
+                <option value="salary_asc">Salaire croissant</option>
+                <option value="views">Plus consultees</option>
+              </select>
+            </div>
+          </div>
+        }
+      </div>
+
       <!-- Recherches recentes -->
       @if (searchHistory.recent().length > 0) {
         <div class="fp-group">
@@ -105,6 +149,15 @@
             }
             @if (isRemote === true) {
               <span class="active-filter">Teletravail <button (click)="isRemote = undefined; loadJobs()"><i class="bi bi-x"></i></button></span>
+            }
+            @if (experience) {
+              <span class="active-filter">{{ experience }} <button (click)="experience = ''; loadJobs()"><i class="bi bi-x"></i></button></span>
+            }
+            @if (education) {
+              <span class="active-filter">{{ education }} <button (click)="education = ''; loadJobs()"><i class="bi bi-x"></i></button></span>
+            }
+            @if (salaryMin) {
+              <span class="active-filter">Min {{ salaryMin }}EUR <button (click)="salaryMin = undefined; loadJobs()"><i class="bi bi-x"></i></button></span>
             }
           </div>
         </div>

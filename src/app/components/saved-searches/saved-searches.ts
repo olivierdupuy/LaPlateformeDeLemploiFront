@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { SavedSearchService } from '../../services/saved-search.service';
+import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { SavedSearch } from '../../models/job-offer.model';
 
 @Component({
@@ -13,6 +14,7 @@ import { SavedSearch } from '../../models/job-offer.model';
 })
 export class SavedSearches implements OnInit {
   private searchService = inject(SavedSearchService);
+  private candidateService = inject(CandidateFeaturesService);
   private router = inject(Router);
   private toastr = inject(ToastrService);
 
@@ -39,6 +41,16 @@ export class SavedSearches implements OnInit {
     if (s.isRemote) params.remote = true;
     if (s.location) params.location = s.location;
     this.router.navigate(['/offres'], { queryParams: params });
+  }
+
+  toggleAlert(s: any) {
+    this.candidateService.toggleSearchAlert(s.id).subscribe({
+      next: (res) => {
+        s.alertEnabled = res.alertEnabled;
+        this.toastr.success(res.alertEnabled ? 'Alerte activee' : 'Alerte desactivee');
+      },
+      error: () => this.toastr.error('Erreur'),
+    });
   }
 
   deleteSearch(id: number) {

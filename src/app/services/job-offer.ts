@@ -15,6 +15,11 @@ export class JobOfferService {
     contractType?: string;
     isRemote?: boolean;
     location?: string;
+    salaryMin?: number;
+    salaryMax?: number;
+    experience?: string;
+    education?: string;
+    sort?: string;
   }): Observable<JobOffer[]> {
     let params = new HttpParams();
     if (filters) {
@@ -23,6 +28,11 @@ export class JobOfferService {
       if (filters.contractType) params = params.set('contractType', filters.contractType);
       if (filters.isRemote !== undefined) params = params.set('isRemote', filters.isRemote.toString());
       if (filters.location) params = params.set('location', filters.location);
+      if (filters.salaryMin) params = params.set('salaryMin', filters.salaryMin.toString());
+      if (filters.salaryMax) params = params.set('salaryMax', filters.salaryMax.toString());
+      if (filters.experience) params = params.set('experience', filters.experience);
+      if (filters.education) params = params.set('education', filters.education);
+      if (filters.sort) params = params.set('sort', filters.sort);
     }
     return this.http.get<JobOffer[]>(this.apiUrl, { params });
   }
@@ -41,6 +51,14 @@ export class JobOfferService {
 
   getDetailedStats(): Observable<DetailedStats> {
     return this.http.get<DetailedStats>(`${this.apiUrl}/stats/detailed`);
+  }
+
+  getAdminStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/stats/admin`);
+  }
+
+  isModerationRequired(): Observable<{ required: boolean }> {
+    return this.http.get<{ required: boolean }>(`${this.apiUrl}/moderation-required`);
   }
 
   getCompanies(): Observable<CompanyInfo[]> {

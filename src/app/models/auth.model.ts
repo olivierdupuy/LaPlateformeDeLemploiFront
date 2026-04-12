@@ -16,6 +16,7 @@ export interface UserDto {
   linkedInUrl?: string;
   portfolioUrl?: string;
   createdAt: string;
+  isOnline?: boolean;
 }
 
 export interface AuthResponse {
