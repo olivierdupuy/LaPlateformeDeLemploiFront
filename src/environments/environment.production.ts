@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:5013/api'
+  apiUrl: 'https://api.laplateformedelemploi.com/api'
 };
