@@ -56,12 +56,12 @@
 
         <select class="fchip" [(ngModel)]="workSchedule" (change)="loadJobs()">
           <option value="">Horaires</option>
-          @for (w of workSchedules; track w) { <option [value]="w">{{ w }}</option> }
+          @for (w of workSchedules(); track w) { <option [value]="w">{{ w }}</option> }
         </select>
 
         <select class="fchip" [(ngModel)]="language" (change)="loadJobs()">
           <option value="">Langue</option>
-          @for (l of languagesList; track l) { <option [value]="l">{{ l }}</option> }
+          @for (l of languagesList(); track l) { <option [value]="l">{{ l }}</option> }
         </select>
 
         <select class="fchip" [(ngModel)]="datePosted" (change)="loadJobs()">
@@ -103,14 +103,14 @@
             <label>Expérience</label>
             <select [(ngModel)]="experience" (change)="loadJobs()">
               <option value="">Tous niveaux</option>
-              @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
+              @for (l of experienceLevels(); track l) { <option [value]="l">{{ l }}</option> }
             </select>
           </div>
           <div class="form-group">
             <label>Formation</label>
             <select [(ngModel)]="education" (change)="loadJobs()">
               <option value="">Tous niveaux</option>
-              @for (l of educationLevels; track l) { <option [value]="l">{{ l }}</option> }
+              @for (l of educationLevels(); track l) { <option [value]="l">{{ l }}</option> }
             </select>
           </div>
         </div>

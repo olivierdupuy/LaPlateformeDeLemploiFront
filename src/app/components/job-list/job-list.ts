@@ -70,10 +70,12 @@ export class JobList implements OnInit {
   ];
 
   contractTypes = ['CDI', 'CDD', 'Stage', 'Alternance', 'Freelance'];
-  experienceLevels = ['Junior', 'Intermediaire', 'Senior', 'Expert'];
-  educationLevels = ['Bac', 'Bac+2', 'Bac+3', 'Bac+5', 'Doctorat'];
-  workSchedules = ['Temps plein', 'Temps partiel', 'Journee', 'Nuit', 'Week-end'];
-  languagesList = ['Francais', 'Anglais', 'Allemand', 'Espagnol', 'Italien'];
+  // Valeurs par défaut, remplacées par les valeurs réellement présentes en base
+  // (endpoint /filters) pour n'afficher aucune option qui renverrait 0 résultat.
+  experienceLevels = signal<string[]>(['Junior', 'Intermediaire', 'Senior', 'Expert']);
+  educationLevels = signal<string[]>(['Bac', 'Bac+2', 'Bac+3', 'Bac+5', 'Doctorat']);
+  workSchedules = signal<string[]>(['Temps plein', 'Temps partiel', 'Journee', 'Nuit', 'Week-end']);
+  languagesList = signal<string[]>(['Francais', 'Anglais', 'Allemand', 'Espagnol', 'Italien']);
   datePostedOptions = [
     { label: 'À tout moment', value: undefined },
     { label: 'Dernières 24 h', value: 1 },
@@ -111,6 +113,12 @@ export class JobList implements OnInit {
 
   ngOnInit() {
     this.jobService.getCategories().subscribe((c) => this.categories.set(c));
+    this.jobService.getFilterOptions().subscribe((o) => {
+      if (o.experiences?.length) this.experienceLevels.set(o.experiences);
+      if (o.educations?.length) this.educationLevels.set(o.educations);
+      if (o.workSchedules?.length) this.workSchedules.set(o.workSchedules);
+      if (o.languages?.length) this.languagesList.set(o.languages);
+    });
 
     // Autocompletion mots-cles
     this.kwInput$

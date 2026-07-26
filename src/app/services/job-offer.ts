@@ -78,6 +78,10 @@ export class JobOfferService {
     return this.http.get<string[]>(`${this.apiUrl}/categories`);
   }
 
+  getFilterOptions(): Observable<{ experiences: string[]; educations: string[]; workSchedules: string[]; languages: string[] }> {
+    return this.http.get<{ experiences: string[]; educations: string[]; workSchedules: string[]; languages: string[] }>(`${this.apiUrl}/filters`);
+  }
+
   getStats(): Observable<JobStats> {
     return this.http.get<JobStats>(`${this.apiUrl}/stats`);
   }
