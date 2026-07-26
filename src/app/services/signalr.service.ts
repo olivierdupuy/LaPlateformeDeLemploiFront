@@ -21,7 +21,7 @@ export class SignalRService {
   start(token: string): void {
     if (this.hubConnection) return;
 
-    const hubUrl = environment.apiUrl.replace('/api', '/hubs/chat');
+    const hubUrl = environment.apiUrl.replace(/\/api\/?$/, '') + '/hubs/chat';
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl, { accessTokenFactory: () => token })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])

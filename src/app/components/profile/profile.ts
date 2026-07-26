@@ -22,7 +22,7 @@ export class Profile implements OnInit {
   private uploadService = inject(UploadService);
   private cvService = inject(CvService);
   companyColor = companyColor;
-  apiBaseUrl = environment.apiUrl.replace('/api', '');
+  apiBaseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
 
   profileForm: { firstName: string; lastName: string; company: string; bio: string; title: string; skills: string; experienceYears: number | null; education: string; city: string; linkedInUrl: string; portfolioUrl: string; isSearchable: boolean } = { firstName: '', lastName: '', company: '', bio: '', title: '', skills: '', experienceYears: null, education: '', city: '', linkedInUrl: '', portfolioUrl: '', isSearchable: true };
   pwForm = { currentPassword: '', newPassword: '' };
