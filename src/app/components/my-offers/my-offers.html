@@ -11,6 +11,24 @@
     </div>
   </div>
 
+  <!-- Équipe de recrutement -->
+  @if (team().company && team().members.length > 1) {
+    <div class="container">
+      <div class="moh-team animate-in" style="animation-delay:.12s">
+        <div class="scope-toggle">
+          <button [class.active]="scope() === 'mine'" (click)="setScope('mine')">Mes offres</button>
+          <button [class.active]="scope() === 'team'" (click)="setScope('team')"><i class="bi bi-people-fill"></i> Toute l'équipe</button>
+        </div>
+        <div class="team-members">
+          <span class="tm-label"><i class="bi bi-building"></i> {{ team().company }}</span>
+          @for (m of team().members; track m.name) {
+            <span class="tm-chip" [class.me]="m.isMe">{{ m.name }}<span class="tm-count">{{ m.offerCount }}</span></span>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- Stats + filters -->
   @if (!loading() && counts().total > 0) {
     <div class="container">

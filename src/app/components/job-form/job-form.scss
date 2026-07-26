@@ -292,3 +292,5 @@
   background: var(--canvas); font-size: 0.9rem; font-family: inherit; resize: vertical; outline: none;
   &:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-ring); }
 }
+.jf-hint { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.76rem; color: var(--muted); margin-top: 0.4rem;
+  i { color: var(--brand); } }

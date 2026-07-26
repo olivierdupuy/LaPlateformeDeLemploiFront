@@ -26,9 +26,11 @@ Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) 
 - [x] ~~**Carte du lieu (Leaflet)**~~ ✅ carte OSM + marqueur sur la fiche offre (si coordonnées)
 - [x] ~~**Événements emploi**~~ ✅ modèle `JobEvent` + `EventsController`, page `/evenements` (à venir/passés, création par recruteur/admin), liens footer
 - [x] ~~**Réponses automatiques** recruteur~~ ✅ champ `AutoReplyMessage` sur l'offre (formulaire) → message auto envoyé au candidat (messagerie) à la réception de sa candidature
-- [ ] **Multi-utilisateurs / équipe** de recrutement (rôles, partage d'offres) — chantier structurel
-- [ ] **Description d'offre en HTML/markdown riche** (listes, titres) + assainissement
-- [ ] **Choix du pays / localisation** (mineur, lié à l'i18n)
+- [x] ~~**Multi-utilisateurs / équipe** de recrutement~~ ✅ partage des offres entre recruteurs d'une même entreprise (`GET /joboffers/mine?scope=team` + `/team-members`) : toggle « Mes offres / Toute l'équipe » + coéquipiers dans `my-offers`
+- [x] ~~**Description d'offre en HTML/markdown riche**~~ ✅ pipe markdown **assaini** (gras, italique, listes, sous-titres, liens) sur la fiche offre + hint formulaire
+- [x] ~~**Choix du pays / localisation**~~ ✅ sélecteur de pays (FR/BE/CH/CA/LU) dans le footer, préférence persistée (`I18nService`)
+
+**✅ Tous les items du TODO sont traités** — parité Indeed atteinte (hors profondeur des données réelles salaires/avis, paiement des offres sponsorisées, app mobile native).
 
 ---
 

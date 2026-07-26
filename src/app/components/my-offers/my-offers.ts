@@ -25,6 +25,8 @@ export class MyOffers implements OnInit {
   offers = signal<JobOffer[]>([]);
   loading = signal(true);
   filter = signal<'all' | 'active' | 'expired' | 'pending' | 'rejected'>('all');
+  scope = signal<'mine' | 'team'>('mine');
+  team = signal<{ company: string | null; members: { name: string; role: string; isMe: boolean; offerCount: number }[] }>({ company: null, members: [] });
 
   // Sponsorisation + stats
   statsOpenId = signal<number | null>(null);
@@ -50,8 +52,16 @@ export class MyOffers implements OnInit {
   }));
 
   ngOnInit() {
-    this.jobService.getMyOffers().subscribe((o) => { this.offers.set(o); this.loading.set(false); });
+    this.loadOffers();
+    this.jobService.getTeamMembers().subscribe((t) => this.team.set(t));
   }
+
+  loadOffers() {
+    this.loading.set(true);
+    this.jobService.getMyOffers(this.scope() === 'team' ? 'team' : undefined)
+      .subscribe((o) => { this.offers.set(o); this.loading.set(false); });
+  }
+  setScope(s: 'mine' | 'team') { this.scope.set(s); this.loadOffers(); }
 
   getDaysLeft(expiresAt?: string): number | null {
     if (!expiresAt) return null;

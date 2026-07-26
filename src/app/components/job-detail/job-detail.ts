@@ -11,13 +11,14 @@ import { CandidateFeaturesService } from '../../services/candidate-features.serv
 import { AuthService } from '../../services/auth.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { ApplyModal } from '../apply-modal/apply-modal';
+import { MarkdownPipe } from '../../utils/markdown.pipe';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
 import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-job-detail',
-  imports: [RouterLink, FormsModule, ApplyModal],
+  imports: [RouterLink, FormsModule, ApplyModal, MarkdownPipe],
   templateUrl: './job-detail.html',
   styleUrl: './job-detail.scss',
 })

@@ -45,4 +45,22 @@ export class I18nService {
     try { document.documentElement.lang = l; } catch {}
   }
   toggle() { this.setLang(this.lang() === 'fr' ? 'en' : 'fr'); }
+
+  // ── Pays / région ──
+  countries = [
+    { code: 'FR', label: 'France', flag: '🇫🇷' },
+    { code: 'BE', label: 'Belgique', flag: '🇧🇪' },
+    { code: 'CH', label: 'Suisse', flag: '🇨🇭' },
+    { code: 'CA', label: 'Canada', flag: '🇨🇦' },
+    { code: 'LU', label: 'Luxembourg', flag: '🇱🇺' },
+  ];
+  private readCountry(): string {
+    try { return localStorage.getItem('country') || 'FR'; } catch { return 'FR'; }
+  }
+  country = signal<string>(this.readCountry());
+  setCountry(code: string) {
+    this.country.set(code);
+    try { localStorage.setItem('country', code); } catch {}
+  }
+  get currentCountry() { return this.countries.find((c) => c.code === this.country()) || this.countries[0]; }
 }

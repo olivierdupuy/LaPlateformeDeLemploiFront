@@ -110,8 +110,13 @@ export class JobOfferService {
     return this.http.get<JobOffer[]>(`${this.apiUrl}/company/${encodeURIComponent(name)}`);
   }
 
-  getMyOffers(): Observable<JobOffer[]> {
-    return this.http.get<JobOffer[]>(`${this.apiUrl}/mine`);
+  getMyOffers(scope?: 'team'): Observable<JobOffer[]> {
+    const params = scope ? new HttpParams().set('scope', scope) : undefined;
+    return this.http.get<JobOffer[]>(`${this.apiUrl}/mine`, { params });
+  }
+
+  getTeamMembers(): Observable<{ company: string | null; members: { name: string; role: string; isMe: boolean; offerCount: number }[] }> {
+    return this.http.get<any>(`${this.apiUrl}/team-members`);
   }
 
   renewOffer(id: number): Observable<JobOffer> {

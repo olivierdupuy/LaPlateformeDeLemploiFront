@@ -120,7 +120,16 @@
 }
 
 // ── Description ──
-.jd-desc { color: var(--ink-soft); line-height: 1.85; font-size: 0.95rem; white-space: pre-wrap; }
+.jd-desc { color: var(--ink-soft); line-height: 1.85; font-size: 0.95rem; }
+.jd-desc:not(.jd-rich) { white-space: pre-wrap; }
+.jd-rich {
+  p { margin-bottom: 0.9rem; &:last-child { margin-bottom: 0; } }
+  h3 { font-size: 1.1rem; font-weight: 700; margin: 1.3rem 0 0.5rem; color: var(--ink); }
+  h4 { font-size: 0.98rem; font-weight: 700; margin: 1rem 0 0.4rem; color: var(--ink); }
+  ul { margin: 0.5rem 0 1rem; padding-left: 1.3rem; li { margin-bottom: 0.3rem; } }
+  strong { font-weight: 700; color: var(--ink); }
+  a { color: var(--brand); text-decoration: underline; }
+}
 .company-desc {
   margin-top: 1.5rem; padding-top: 1.35rem; border-top: 1px solid var(--line);
   h4 {

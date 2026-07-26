@@ -371,3 +371,22 @@
   border: 1px solid var(--line); border-radius: var(--r-full); padding: 0.25rem 0.7rem;
   strong { color: var(--brand-700); }
 }
+
+// ── Équipe de recrutement ──
+.moh-team { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1.25rem; }
+.scope-toggle {
+  display: inline-flex; background: var(--paper-2); border-radius: var(--r-full); padding: 3px; flex-shrink: 0;
+  button {
+    padding: 0.42rem 0.95rem; border-radius: var(--r-full); font-size: 0.82rem; font-weight: 600; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 0.35rem; transition: color var(--t), background var(--t);
+    &.active { background: var(--canvas); color: var(--brand); box-shadow: var(--shadow-xs); }
+  }
+}
+.team-members { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; }
+.tm-label { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-right: 0.2rem; i { color: var(--brand); } }
+.tm-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--ink-soft);
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-full); padding: 0.2rem 0.4rem 0.2rem 0.7rem;
+  &.me { border-color: var(--brand); background: var(--brand-tint); color: var(--brand-700); }
+}
+.tm-count { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; background: var(--canvas); border-radius: var(--r-full); padding: 0.05rem 0.4rem; min-width: 18px; text-align: center; }

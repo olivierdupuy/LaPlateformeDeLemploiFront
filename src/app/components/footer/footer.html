@@ -95,7 +95,15 @@
 
     <!-- Bottom bar -->
     <div class="ft-bottom">
-      <span class="ft-copy">&copy; {{ year }} La Plateforme de l'Emploi. Tous droits reserves.</span>
+      <div class="ft-bottom-left">
+        <span class="ft-copy">&copy; {{ year }} La Plateforme de l'Emploi. Tous droits reserves.</span>
+        <div class="ft-country">
+          <i class="bi bi-globe2"></i>
+          <select [value]="i18n.country()" (change)="i18n.setCountry($any($event.target).value)">
+            @for (c of i18n.countries; track c.code) { <option [value]="c.code">{{ c.flag }} {{ c.label }}</option> }
+          </select>
+        </div>
+      </div>
       <div class="ft-legal">
         <a href="#">Mentions legales</a>
         <a href="#">Politique de confidentialite</a>

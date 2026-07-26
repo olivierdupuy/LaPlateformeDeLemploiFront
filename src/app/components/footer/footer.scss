@@ -195,6 +195,17 @@ footer {
 }
 
 .ft-copy { font-family: var(--font-mono); font-size: 0.74rem; color: rgba(255, 255, 255, 0.4); }
+.ft-bottom-left { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+.ft-country {
+  display: inline-flex; align-items: center; gap: 0.4rem; color: rgba(255, 255, 255, 0.5);
+  i { font-size: 0.85rem; }
+  select {
+    background: transparent; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: var(--r-sm);
+    color: rgba(255, 255, 255, 0.7); font-size: 0.76rem; padding: 0.25rem 0.5rem; cursor: pointer; font-family: inherit;
+    option { color: var(--ink); }
+    &:hover { border-color: var(--spring); }
+  }
+}
 
 .ft-legal {
   display: flex; align-items: center; gap: 1.25rem;
