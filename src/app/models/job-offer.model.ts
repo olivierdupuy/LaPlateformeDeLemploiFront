@@ -27,6 +27,8 @@ export interface JobOffer {
   latitude?: number;
   longitude?: number;
   screeningQuestions?: string;
+  externalUrl?: string;
+  externalSource?: string;
   moderationStatus?: string;
   moderationNote?: string;
   viewCount?: number;

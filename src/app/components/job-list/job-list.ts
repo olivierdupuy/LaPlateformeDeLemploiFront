@@ -227,7 +227,7 @@ export class JobList implements OnInit {
   }
   canEasyApply(job: JobOffer): boolean {
     const hasScreening = !!job.screeningQuestions && job.screeningQuestions !== '[]';
-    return !!job.easyApply && !hasScreening && this.isCandidate() && !this.appliedIds().has(job.id);
+    return !!job.easyApply && !hasScreening && !job.externalUrl && this.isCandidate() && !this.appliedIds().has(job.id);
   }
   easyApply(job: JobOffer, event?: Event) {
     event?.preventDefault();

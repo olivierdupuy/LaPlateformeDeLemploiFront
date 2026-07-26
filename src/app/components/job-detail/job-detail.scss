@@ -320,3 +320,11 @@
 @media (max-width: 420px) {
   .facts-grid { grid-template-columns: 1fr; }
 }
+
+.apply-card .ext-tag {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .72rem; font-weight: 700; letter-spacing: .02em;
+  padding: .3rem .6rem; border-radius: 999px; margin-bottom: .7rem;
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+  color: var(--brand);
+}

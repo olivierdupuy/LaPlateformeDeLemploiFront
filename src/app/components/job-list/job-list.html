@@ -183,7 +183,8 @@
                 <div class="jcard-badges">
                   @if (job.isFeatured) { <span class="badge badge-sponsored"><i class="bi bi-megaphone"></i> Sponsorisée</span> }
                   <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
-                  @if (job.easyApply) { <span class="badge badge-easy"><i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée</span> }
+                  @if (job.externalUrl) { <span class="badge badge-blue"><i class="bi bi-broadcast"></i> Offre partenaire</span> }
+                  @else if (job.easyApply) { <span class="badge badge-easy"><i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée</span> }
                   @if (job.workSchedule) { <span class="badge badge-blue">{{ job.workSchedule }}</span> }
                   @if (job.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
                 </div>
@@ -245,7 +246,9 @@
               </div>
 
               <div class="dp-actions">
-                @if (appliedIds().has(job.id)) {
+                @if (job.externalUrl) {
+                  <a class="btn-spring" [href]="job.externalUrl" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i> Postuler sur le site</a>
+                } @else if (appliedIds().has(job.id)) {
                   <button class="btn-secondary" disabled><i class="bi bi-check2-circle"></i> Candidature envoyée</button>
                 } @else if (canEasyApply(job)) {
                   <button class="btn-spring" [disabled]="applying() === job.id" (click)="easyApply(job)">

@@ -150,7 +150,14 @@
         <aside class="jd-side">
           <!-- Carte candidature (sticky) -->
           <div class="apply-card animate-in" style="animation-delay:.12s">
-            @if (auth.currentUser(); as u) {
+            @if (j.externalUrl) {
+              <span class="ext-tag"><i class="bi bi-broadcast"></i> Offre partenaire</span>
+              <h3>Postuler sur le site d'origine</h3>
+              <p>Cette offre est diffusée par {{ sourceLabel(j.externalSource) }}. La candidature se fait directement sur leur site.</p>
+              <a class="btn-spring full-w" [href]="j.externalUrl" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-box-arrow-up-right"></i> Postuler sur {{ sourceLabel(j.externalSource) }}
+              </a>
+            } @else if (auth.currentUser(); as u) {
               @if (u.role === 'Candidate') {
                 @if (applied()) {
                   <div class="ac-check"><i class="bi bi-check-circle-fill"></i></div>

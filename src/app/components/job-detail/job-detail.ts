@@ -107,6 +107,10 @@ export class JobDetail implements OnInit {
 
   hasScreening(j: JobOffer): boolean { return !!j.screeningQuestions && j.screeningQuestions !== '[]'; }
 
+  sourceLabel(s?: string): string {
+    return { francetravail: 'France Travail', arbeitnow: 'Arbeitnow', remotive: 'Remotive' }[s || ''] || 'un site partenaire';
+  }
+
   ratingStar(value: number, i: number): 'full' | 'half' | 'empty' {
     if (value >= i) return 'full';
     if (value >= i - 0.5) return 'half';
