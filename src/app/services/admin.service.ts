@@ -8,6 +8,11 @@ export class AdminService {
   private http = inject(HttpClient);
   private api = `${environment.apiUrl}/admin`;
 
+  /** Importer de vraies offres depuis les API publiques (Arbeitnow, Remotive, France Travail). */
+  importJobs(): Observable<{ imported: number; message: string }> {
+    return this.http.post<{ imported: number; message: string }>(`${environment.apiUrl}/import/jobs`, {});
+  }
+
   // Activity Logs
   getActivityLogs(params?: { action?: string; entityType?: string; userId?: string; page?: number }): Observable<any> {
     let p = new HttpParams();

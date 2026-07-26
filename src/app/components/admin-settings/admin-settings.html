@@ -10,6 +10,17 @@
       </div>
     </div>
 
+    <div class="import-card animate-in" style="animation-delay:.03s">
+      <div class="ic-icon"><i class="bi bi-cloud-download"></i></div>
+      <div class="ic-text">
+        <strong>Importer de vraies offres d'emploi</strong>
+        <p>Récupère des offres réelles depuis Arbeitnow, Remotive et France Travail (si configuré). L'import s'exécute aussi automatiquement au démarrage et toutes les 6 h.</p>
+      </div>
+      <button class="btn-primary" [disabled]="importing()" (click)="importJobs()">
+        @if (importing()) { <span class="sp"></span> Import en cours… } @else { <i class="bi bi-cloud-download"></i> Importer maintenant }
+      </button>
+    </div>
+
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
     } @else {

@@ -16,6 +16,15 @@ export class AdminSettings implements OnInit {
   settings = signal<any[]>([]);
   loading = signal(true);
   saving = signal(false);
+  importing = signal(false);
+
+  importJobs() {
+    this.importing.set(true);
+    this.admin.importJobs().subscribe({
+      next: (r) => { this.importing.set(false); this.toastr.success(r.message, 'Import'); },
+      error: (err) => { this.importing.set(false); this.toastr.error(err.error?.message || "Échec de l'import"); },
+    });
+  }
 
   ngOnInit() {
     this.admin.getSettings().subscribe(s => {
