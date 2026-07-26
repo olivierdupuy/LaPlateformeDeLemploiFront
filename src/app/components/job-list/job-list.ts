@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, HostListener } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
@@ -181,13 +181,15 @@ export class JobList implements OnInit {
       this.hasMore.set(this.jobs().length < total);
       this.computeRelated(items);
       this.loading.set(false);
-      // Auto-selection de la 1re offre en vue split (desktop)
-      const current = this.selected();
-      if (!current || !items.some((j) => j.id === current.id)) {
-        this.selected.set(items.length ? items[0] : null);
-      }
+      // Le tiroir détail reste fermé au chargement (il s'ouvre au clic sur une offre).
+      this.selected.set(null);
     });
   }
+
+  closeDetail() { this.selected.set(null); }
+
+  @HostListener('document:keydown.escape')
+  onEscape() { if (this.selected()) this.closeDetail(); }
 
   loadMore() {
     if (this.loadingMore()) return;
@@ -208,18 +210,12 @@ export class JobList implements OnInit {
 
   // ── Vue split ──
   selectJob(job: JobOffer, event?: Event) {
-    // Sur mobile, on navigue vers la fiche complete
-    if (window.innerWidth < 1024) {
-      this.router.navigate(['/offres', job.id]);
-      return;
-    }
     event?.preventDefault();
     this.selected.set(job);
     // Rafraichit le detail (incremente les vues, applications a jour)
     this.jobService.getById(job.id).subscribe((full) => {
       if (this.selected()?.id === full.id) this.selected.set(full);
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ── Autocompletion ──

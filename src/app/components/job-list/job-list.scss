@@ -150,14 +150,13 @@
 .rt-query { font-size: 0.9rem; color: var(--muted); strong { color: var(--ink-soft); } }
 
 // ── Split layout ──
-.split {
+// ── Grille d'offres ──
+.offers-grid {
   display: grid;
-  grid-template-columns: minmax(380px, 440px) 1fr;
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
   align-items: start;
 }
-
-.split-list { display: flex; flex-direction: column; gap: 0.85rem; }
 
 // ── Job card (list) ──
 .jcard {
@@ -243,16 +242,58 @@
 }
 
 // ── Detail pane ──
-.split-detail { position: sticky; top: calc(68px + 1rem); }
+// ── Tiroir détail coulissant (droite) ──
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 15, 0.42);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t), visibility var(--t);
+  z-index: 1000;
+}
+.drawer-backdrop.show { opacity: 1; visibility: visible; }
+
+.offer-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: min(600px, 94vw);
+  background: var(--canvas);
+  border-left: 1px solid var(--line);
+  box-shadow: -18px 0 48px rgba(10, 20, 15, 0.18);
+  transform: translateX(100%);
+  transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 1001;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.offer-drawer.open { transform: translateX(0); }
 
 .detail-pane {
-  background: var(--canvas);
+  position: relative;
+  padding: 2rem 1.9rem;
+}
+
+.drawer-close {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
   border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  padding: 1.6rem;
-  max-height: calc(100vh - 68px - 2rem);
-  overflow-y: auto;
-  box-shadow: var(--shadow-sm);
+  border-radius: 50%;
+  background: var(--canvas);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background var(--t), color var(--t), border-color var(--t);
+  z-index: 2;
+
+  &:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
 }
 
 .dp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
@@ -334,10 +375,16 @@
 .rm-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.6rem; }
 
 // ── Responsive ──
+.detail-pane .dp-head { padding-right: 3rem; }
+
 @media (max-width: 1024px) {
-  .split { grid-template-columns: 1fr; }
-  .split-detail { display: none; }
+  .offers-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
   .sh-field-loc { flex: 0 0 40%; }
+}
+
+@media (max-width: 560px) {
+  .offers-grid { grid-template-columns: 1fr; }
+  .offer-drawer { width: 100vw; }
 }
 
 @media (max-width: 720px) {

@@ -153,9 +153,7 @@
         </div>
       }
 
-      <div class="split">
-        <!-- Liste -->
-        <div class="split-list">
+      <div class="offers-grid">
           @for (job of jobs(); track job.id; let i = $index) {
             <article class="jcard" [class.selected]="selected()?.id === job.id"
                      (click)="selectJob(job, $event)" tabindex="0" (keydown.enter)="selectJob(job)">
@@ -213,18 +211,21 @@
               </div>
             </article>
           }
-          @if (hasMore()) {
-            <button class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
-              @if (loadingMore()) { <span class="sp"></span> Chargement… }
-              @else { <i class="bi bi-arrow-down-circle"></i> Charger plus d'offres }
-            </button>
-          }
-        </div>
+      </div>
 
-        <!-- Volet détail -->
-        <aside class="split-detail">
+      @if (hasMore()) {
+        <button class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
+          @if (loadingMore()) { <span class="sp"></span> Chargement… }
+          @else { <i class="bi bi-arrow-down-circle"></i> Charger plus d'offres }
+        </button>
+      }
+
+      <!-- Tiroir détail coulissant (droite) -->
+      <div class="drawer-backdrop" [class.show]="!!selected()" (click)="closeDetail()"></div>
+      <aside class="offer-drawer" [class.open]="!!selected()" role="dialog" aria-modal="true">
           @if (selected(); as job) {
-            <div class="detail-pane" [class.animate-in]="true">
+            <div class="detail-pane">
+              <button class="drawer-close" (click)="closeDetail()" title="Fermer" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>
               <div class="dp-head">
                 <div class="dp-company">
                   <div class="dp-avatar" [style.background]="companyColor(job.company).bg">
@@ -309,8 +310,7 @@
               </div>
             </div>
           }
-        </aside>
-      </div>
+      </aside>
 
       @if (relatedSearches().length) {
         <div class="related-searches">
