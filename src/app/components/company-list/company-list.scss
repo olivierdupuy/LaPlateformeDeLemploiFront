@@ -330,3 +330,14 @@
   .eh-stats { width: 100%; justify-content: center; }
   .company-grid { grid-template-columns: 1fr; }
 }
+
+.load-more-ent {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  margin: 1.75rem auto 0; padding: .85rem 1.6rem;
+  border: 1px solid var(--line); border-radius: var(--r-md, 12px);
+  background: var(--canvas); color: var(--brand);
+  font-weight: 700; font-size: .95rem; cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.load-more-ent:hover:not(:disabled) { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 8%, transparent); }
+.load-more-ent:disabled { opacity: .6; cursor: default; }

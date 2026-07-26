@@ -107,8 +107,17 @@ export class JobOfferService {
     return this.http.get<any>(`${this.apiUrl}/browse`);
   }
 
-  getCompanies(): Observable<CompanyInfo[]> {
-    return this.http.get<CompanyInfo[]>(`${this.apiUrl}/companies`);
+  getCompanies(opts?: { search?: string; page?: number; pageSize?: number }): Observable<{ items: CompanyInfo[]; total: number }> {
+    let params = new HttpParams();
+    if (opts?.search) params = params.set('search', opts.search);
+    if (opts?.page) params = params.set('page', opts.page.toString());
+    if (opts?.pageSize) params = params.set('pageSize', opts.pageSize.toString());
+    return this.http
+      .get<CompanyInfo[]>(`${this.apiUrl}/companies`, { params, observe: 'response' })
+      .pipe(map((resp) => ({
+        items: resp.body ?? [],
+        total: Number(resp.headers.get('X-Total-Count')) || (resp.body?.length ?? 0),
+      })));
   }
 
   getByCompany(name: string): Observable<JobOffer[]> {

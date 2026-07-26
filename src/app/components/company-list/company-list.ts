@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { JobOfferService } from '../../services/job-offer';
 import { CompanyInfo } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
@@ -13,25 +14,50 @@ import { companyColor } from '../../utils/job.utils';
 })
 export class CompanyList implements OnInit {
   private jobService = inject(JobOfferService);
-  allCompanies = signal<CompanyInfo[]>([]);
+  companies = signal<CompanyInfo[]>([]);
+  total = signal(0);
   loading = signal(true);
+  loadingMore = signal(false);
+  hasMore = signal(false);
   searchQuery = '';
   companyColor = companyColor;
 
-  filtered = computed(() => {
-    const q = this.searchQuery.toLowerCase().trim();
-    if (!q) return this.allCompanies();
-    return this.allCompanies().filter(c =>
-      c.company.toLowerCase().includes(q) || c.locations.some(l => l.toLowerCase().includes(q))
-    );
-  });
-
-  totalJobs = computed(() => this.allCompanies().reduce((s, c) => s + c.jobCount, 0));
+  private readonly pageSize = 24;
+  private page = 1;
+  private search$ = new Subject<string>();
 
   ngOnInit() {
-    this.jobService.getCompanies().subscribe((c) => {
-      this.allCompanies.set(c);
-      this.loading.set(false);
-    });
+    this.load();
+    this.search$.pipe(debounceTime(300), distinctUntilChanged()).subscribe(() => this.load());
+  }
+
+  onSearch() { this.search$.next(this.searchQuery); }
+
+  private load() {
+    this.loading.set(true);
+    this.page = 1;
+    this.jobService.getCompanies({ search: this.searchQuery.trim() || undefined, page: 1, pageSize: this.pageSize })
+      .subscribe(({ items, total }) => {
+        this.companies.set(items);
+        this.total.set(total);
+        this.hasMore.set(items.length < total);
+        this.loading.set(false);
+      });
+  }
+
+  loadMore() {
+    if (this.loadingMore()) return;
+    this.loadingMore.set(true);
+    this.page += 1;
+    this.jobService.getCompanies({ search: this.searchQuery.trim() || undefined, page: this.page, pageSize: this.pageSize })
+      .subscribe({
+        next: ({ items, total }) => {
+          this.companies.update((cur) => [...cur, ...items]);
+          this.total.set(total);
+          this.hasMore.set(this.companies().length < total);
+          this.loadingMore.set(false);
+        },
+        error: () => this.loadingMore.set(false),
+      });
   }
 }

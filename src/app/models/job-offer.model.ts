@@ -76,7 +76,8 @@ export interface JobStats {
 export interface CompanyInfo {
   company: string;
   jobCount: number;
-  locations: string[];
+  siteCount: number;
+  location: string;
 }
 
 export interface ChartItem {
