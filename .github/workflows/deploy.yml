@@ -30,7 +30,8 @@ jobs:
           $content = @"
           export const environment = {
             production: true,
-            apiUrl: '${{ secrets.API_URL }}'
+            apiUrl: '${{ secrets.API_URL }}',
+            googleClientId: '${{ secrets.GOOGLE_CLIENT_ID }}'
           };
           "@
           Set-Content -Path $envFile -Value $content
