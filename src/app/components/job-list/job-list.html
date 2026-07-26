@@ -133,7 +133,8 @@
       </div>
     } @else {
       <div class="results-toolbar animate-in">
-        <span class="rt-count u-mono">{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }}</span>
+        <span class="rt-count u-mono">{{ total() | number }} offre{{ total() > 1 ? 's' : '' }}</span>
+        @if (hasMore()) { <span class="rt-shown">{{ jobs().length }} affichée{{ jobs().length > 1 ? 's' : '' }}</span> }
         @if (search || location) {
           <span class="rt-query">pour <strong>{{ search || 'toutes les offres' }}</strong>@if (location) { · {{ location }} }</span>
         }

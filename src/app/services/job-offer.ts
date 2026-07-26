@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { JobOffer, JobStats, CompanyInfo, DetailedStats, JobReport } from '../models/job-offer.model';
 import { environment } from '../../environments/environment';
 
@@ -9,25 +10,7 @@ export class JobOfferService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/joboffers`;
 
-  getAll(filters?: {
-    search?: string;
-    category?: string;
-    contractType?: string;
-    isRemote?: boolean;
-    location?: string;
-    salaryMin?: number;
-    salaryMax?: number;
-    experience?: string;
-    education?: string;
-    workSchedule?: string;
-    languages?: string;
-    benefits?: string;
-    datePosted?: number;
-    radius?: number;
-    sort?: string;
-    page?: number;
-    pageSize?: number;
-  }): Observable<JobOffer[]> {
+  private buildParams(filters?: JobFilters): HttpParams {
     let params = new HttpParams();
     if (filters) {
       if (filters.search) params = params.set('search', filters.search);
@@ -48,7 +31,21 @@ export class JobOfferService {
       if (filters.page) params = params.set('page', filters.page.toString());
       if (filters.pageSize) params = params.set('pageSize', filters.pageSize.toString());
     }
-    return this.http.get<JobOffer[]>(this.apiUrl, { params });
+    return params;
+  }
+
+  getAll(filters?: JobFilters): Observable<JobOffer[]> {
+    return this.http.get<JobOffer[]>(this.apiUrl, { params: this.buildParams(filters) });
+  }
+
+  /** Comme getAll, mais expose le nombre total d'offres (en-tête X-Total-Count). */
+  getAllPaged(filters?: JobFilters): Observable<{ items: JobOffer[]; total: number }> {
+    return this.http
+      .get<JobOffer[]>(this.apiUrl, { params: this.buildParams(filters), observe: 'response' })
+      .pipe(map((resp) => ({
+        items: resp.body ?? [],
+        total: Number(resp.headers.get('X-Total-Count')) || (resp.body?.length ?? 0),
+      })));
   }
 
   /** Autocompletion : suggestions de mots-cles ou de lieux. */
@@ -152,4 +149,24 @@ export class JobOfferService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+}
+
+export interface JobFilters {
+  search?: string;
+  category?: string;
+  contractType?: string;
+  isRemote?: boolean;
+  location?: string;
+  salaryMin?: number;
+  salaryMax?: number;
+  experience?: string;
+  education?: string;
+  workSchedule?: string;
+  languages?: string;
+  benefits?: string;
+  datePosted?: number;
+  radius?: number;
+  sort?: string;
+  page?: number;
+  pageSize?: number;
 }

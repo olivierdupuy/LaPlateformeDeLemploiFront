@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { JobOfferService } from '../../services/job-offer';
@@ -14,7 +15,7 @@ import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../
 
 @Component({
   selector: 'app-job-list',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, DecimalPipe],
   templateUrl: './job-list.html',
   styleUrl: './job-list.scss',
 })
@@ -143,6 +144,7 @@ export class JobList implements OnInit {
   page = 1;
   hasMore = signal(false);
   loadingMore = signal(false);
+  total = signal(0);
 
   private buildFilters(): any {
     const filters: any = {};
@@ -173,15 +175,16 @@ export class JobList implements OnInit {
 
     this.relevanceFeedback.set(null);
     this.alertSaved.set(false);
-    this.jobService.getAll(filters).subscribe((jobs) => {
-      this.jobs.set(jobs);
-      this.hasMore.set(jobs.length === this.pageSize);
-      this.computeRelated(jobs);
+    this.jobService.getAllPaged(filters).subscribe(({ items, total }) => {
+      this.jobs.set(items);
+      this.total.set(total);
+      this.hasMore.set(this.jobs().length < total);
+      this.computeRelated(items);
       this.loading.set(false);
       // Auto-selection de la 1re offre en vue split (desktop)
       const current = this.selected();
-      if (!current || !jobs.some((j) => j.id === current.id)) {
-        this.selected.set(jobs.length ? jobs[0] : null);
+      if (!current || !items.some((j) => j.id === current.id)) {
+        this.selected.set(items.length ? items[0] : null);
       }
     });
   }
@@ -192,10 +195,11 @@ export class JobList implements OnInit {
     this.page += 1;
     const filters = this.buildFilters();
     filters.page = this.page;
-    this.jobService.getAll(filters).subscribe({
-      next: (jobs) => {
-        this.jobs.update((cur) => [...cur, ...jobs]);
-        this.hasMore.set(jobs.length === this.pageSize);
+    this.jobService.getAllPaged(filters).subscribe({
+      next: ({ items, total }) => {
+        this.jobs.update((cur) => [...cur, ...items]);
+        this.total.set(total);
+        this.hasMore.set(this.jobs().length < total);
         this.loadingMore.set(false);
       },
       error: () => this.loadingMore.set(false),

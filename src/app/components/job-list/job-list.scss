@@ -397,3 +397,5 @@
 }
 .load-more:hover:not(:disabled) { background: color-mix(in srgb, var(--brand) 8%, transparent); border-color: var(--brand); }
 .load-more:disabled { opacity: .6; cursor: default; }
+
+.results-toolbar .rt-shown { color: var(--text-soft, #6c6e63); font-size: .85rem; margin-left: .5rem; }
