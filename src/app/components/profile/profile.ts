@@ -24,11 +24,12 @@ export class Profile implements OnInit {
   companyColor = companyColor;
   apiBaseUrl = environment.apiUrl.replace('/api', '');
 
-  profileForm: { firstName: string; lastName: string; company: string; bio: string; title: string; skills: string; experienceYears: number | null; education: string; city: string; linkedInUrl: string; portfolioUrl: string } = { firstName: '', lastName: '', company: '', bio: '', title: '', skills: '', experienceYears: null, education: '', city: '', linkedInUrl: '', portfolioUrl: '' };
+  profileForm: { firstName: string; lastName: string; company: string; bio: string; title: string; skills: string; experienceYears: number | null; education: string; city: string; linkedInUrl: string; portfolioUrl: string; isSearchable: boolean } = { firstName: '', lastName: '', company: '', bio: '', title: '', skills: '', experienceYears: null, education: '', city: '', linkedInUrl: '', portfolioUrl: '', isSearchable: true };
   pwForm = { currentPassword: '', newPassword: '' };
   savingProfile = false;
   savingPw = false;
   uploadingCv = false;
+  importingProfile = false;
 
   ngOnInit() {
     const u = this.auth.currentUser();
@@ -36,9 +37,63 @@ export class Profile implements OnInit {
       this.profileForm = {
         firstName: u.firstName, lastName: u.lastName, company: u.company || '', bio: u.bio || '',
         title: u.title || '', skills: u.skills || '', experienceYears: u.experienceYears || null,
-        education: u.education || '', city: u.city || '', linkedInUrl: u.linkedInUrl || '', portfolioUrl: u.portfolioUrl || ''
+        education: u.education || '', city: u.city || '', linkedInUrl: u.linkedInUrl || '', portfolioUrl: u.portfolioUrl || '',
+        isSearchable: u.isSearchable ?? true
       };
     }
+  }
+
+  get isCandidate(): boolean { return this.auth.currentUser()?.role === 'Candidate'; }
+
+  private completenessFields() {
+    const u = this.auth.currentUser();
+    return [
+      { key: 'title', label: 'Intitulé de poste', ok: !!u?.title },
+      { key: 'bio', label: 'Bio', ok: !!u?.bio },
+      { key: 'skills', label: 'Compétences', ok: !!u?.skills },
+      { key: 'experienceYears', label: 'Années d\'expérience', ok: u?.experienceYears != null },
+      { key: 'education', label: 'Formation', ok: !!u?.education },
+      { key: 'city', label: 'Ville', ok: !!u?.city },
+      { key: 'resumeUrl', label: 'CV', ok: !!u?.resumeUrl },
+    ];
+  }
+  get completeness(): number {
+    const f = this.completenessFields();
+    return Math.round((f.filter((x) => x.ok).length / f.length) * 100);
+  }
+  get missingFields(): string[] {
+    return this.completenessFields().filter((x) => !x.ok).map((x) => x.label);
+  }
+
+  toggleSearchable() {
+    this.profileForm.isSearchable = !this.profileForm.isSearchable;
+    this.auth.updateProfile({ isSearchable: this.profileForm.isSearchable }).subscribe({
+      next: () => this.toastr.success(this.profileForm.isSearchable ? 'Profil visible par les recruteurs' : 'Profil masqué du vivier'),
+      error: () => { this.profileForm.isSearchable = !this.profileForm.isSearchable; this.toastr.error('Erreur'); },
+    });
+  }
+
+  onProfileCvSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const ext = file.name.toLowerCase();
+    if (!ext.endsWith('.pdf') && !ext.endsWith('.docx') && !ext.endsWith('.doc')) { this.toastr.warning('Formats acceptés : PDF, DOCX, DOC'); return; }
+    if (file.size > 10 * 1024 * 1024) { this.toastr.warning('Le fichier ne doit pas dépasser 10 Mo'); return; }
+    (event.target as HTMLInputElement).value = '';
+    this.importingProfile = true;
+    this.cvService.parseProfile(file).subscribe({
+      next: (d) => {
+        this.importingProfile = false;
+        if (d.title) this.profileForm.title = d.title;
+        if (d.skills) this.profileForm.skills = d.skills;
+        if (d.experienceYears != null) this.profileForm.experienceYears = d.experienceYears;
+        if (d.education) this.profileForm.education = d.education;
+        if (d.city) this.profileForm.city = d.city;
+        if (d.bio) this.profileForm.bio = d.bio;
+        this.toastr.success('Profil pré-rempli depuis votre CV. Vérifiez puis enregistrez.', 'Import IA');
+      },
+      error: (err) => { this.importingProfile = false; this.toastr.error(err.error?.message || "Échec de l'analyse du CV"); },
+    });
   }
 
   saveProfile() {
@@ -81,8 +136,8 @@ export class Profile implements OnInit {
       text: 'Voulez-vous analyser ce PDF pour remplir automatiquement les sections de votre CV en ligne ?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#0d9488',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: '#0e5c43',
+      cancelButtonColor: '#6c6e63',
       confirmButtonText: 'Analyser',
       cancelButtonText: 'Non merci',
     });
@@ -122,14 +177,32 @@ export class Profile implements OnInit {
       text: 'Cette action est irreversible.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: '#c6362f',
+      cancelButtonColor: '#6c6e63',
       confirmButtonText: 'Supprimer',
       cancelButtonText: 'Annuler',
     });
     if (res.isConfirmed) {
-      this.auth.logout();
-      this.toastr.info('Compte deconnecte');
+      this.auth.deleteAccount().subscribe({
+        next: () => { this.toastr.success('Compte supprimé'); this.auth.logout(); },
+        error: () => this.toastr.error('Erreur lors de la suppression'),
+      });
     }
+  }
+
+  exportMyData() {
+    this.auth.exportData().subscribe({
+      next: (data) => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mes-donnees-laplateforme.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.toastr.success('Données exportées');
+      },
+      error: () => this.toastr.error('Erreur lors de l\'export'),
+    });
   }
 }

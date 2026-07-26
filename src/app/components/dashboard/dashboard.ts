@@ -3,18 +3,18 @@ import { JobOfferService } from '../../services/job-offer';
 import { JobStats, DetailedStats } from '../../models/job-offer.model';
 import Chart from 'chart.js/auto';
 
-// App palette
-const TEAL     = '#0d9488';
-const TEAL_400 = '#2dd4bf';
-const TEAL_50  = 'rgba(13, 148, 136, 0.10)';
-const NAVY_800 = '#1e293b';
-const NAVY_700 = '#334155';
-const AMBER    = '#d97706';
-const GREEN    = '#16a34a';
-const RED      = '#dc2626';
-const BLUE     = '#2563eb';
-const SLATE400 = '#94a3b8';
-const ORANGE   = '#f97316';
+// App palette — Clean SaaS identity
+const TEAL     = '#0e5c43'; // brand (evergreen)
+const TEAL_400 = '#3e9a78'; // brand-400
+const TEAL_50  = 'rgba(14, 92, 67, 0.06)'; // brand-tint
+const NAVY_800 = '#14150f'; // ink
+const NAVY_700 = '#3f4139'; // ink-soft
+const AMBER    = '#b4690e';
+const GREEN    = '#0e9f6e';
+const RED      = '#c6362f';
+const BLUE     = '#2563a8';
+const SLATE400 = '#6c6e63'; // muted
+const ORANGE   = '#e06a34';
 
 const STATUS_COLORS: Record<string, string> = { Pending: AMBER, Reviewed: BLUE, Accepted: GREEN, Rejected: RED };
 const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' };
@@ -83,7 +83,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private baseFont() {
-    return { family: "'Satoshi', sans-serif", size: 12, weight: 500 as const };
+    return { family: "'Space Grotesk', ui-monospace, monospace", size: 12, weight: 500 as const };
   }
 
   private buildCategoryChart(d: DetailedStats) {
@@ -207,10 +207,10 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
           c.save();
           c.textAlign = 'center';
           c.textBaseline = 'middle';
-          c.font = "800 1.6rem 'Satoshi', sans-serif";
+          c.font = "700 1.6rem 'Bricolage Grotesque', sans-serif";
           c.fillStyle = NAVY_800;
           c.fillText(String(total), cx, cy - 8);
-          c.font = "500 0.72rem 'Satoshi', sans-serif";
+          c.font = "500 0.72rem 'Space Grotesk', monospace";
           c.fillStyle = SLATE400;
           c.fillText('Total', cx, cy + 14);
           c.restore();

@@ -1,0 +1,92 @@
+<section class="ev-hero">
+  <div class="container">
+    <div class="ev-hero-inner animate-in">
+      <div>
+        <span class="eyebrow">Événements</span>
+        <h1>Événements <span class="hl">emploi</span></h1>
+        <p class="ev-sub">Salons, webinaires et job datings pour rencontrer les recruteurs et booster votre recherche.</p>
+      </div>
+      @if (canManage) {
+        <button class="btn-primary" (click)="openCreate()"><i class="bi bi-plus-lg"></i> Proposer un événement</button>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="ev-page">
+  <div class="container">
+    <div class="ev-tabs animate-in">
+      <button class="ev-tab" [class.active]="!past()" (click)="setPast(false)">À venir</button>
+      <button class="ev-tab" [class.active]="past()" (click)="setPast(true)">Passés</button>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (events().length === 0) {
+      <div class="empty-box">
+        <i class="bi bi-calendar-x"></i>
+        <h3>Aucun événement</h3>
+        <p>{{ past() ? 'Aucun événement passé.' : 'Aucun événement à venir pour le moment.' }}</p>
+      </div>
+    } @else {
+      <div class="ev-grid">
+        @for (e of events(); track e.id; let i = $index) {
+          <article class="ev-card card animate-in" [style.animation-delay]="(i*0.04)+'s'">
+            <div class="ev-date">
+              <span class="ev-day u-mono">{{ e.startsAt | date:'dd' }}</span>
+              <span class="ev-month u-mono">{{ e.startsAt | date:'MMM' }}</span>
+            </div>
+            <div class="ev-body">
+              <div class="ev-badges">
+                <span class="badge badge-blue"><i class="bi" [class]="typeIcon(e.type)"></i> {{ e.type }}</span>
+                @if (e.isOnline) { <span class="badge badge-green"><i class="bi bi-wifi"></i> En ligne</span> }
+              </div>
+              <h3>{{ e.title }}</h3>
+              <p class="ev-desc">{{ e.description }}</p>
+              <div class="ev-meta">
+                <span><i class="bi bi-clock"></i> {{ e.startsAt | date:'EEEE d MMMM, HH:mm' }}</span>
+                @if (e.location && !e.isOnline) { <span><i class="bi bi-geo-alt"></i> {{ e.location }}</span> }
+                @if (e.organizer) { <span><i class="bi bi-person"></i> {{ e.organizer }}</span> }
+              </div>
+              <div class="ev-actions">
+                @if (e.url) { <a [href]="e.url" target="_blank" rel="noopener" class="btn-primary"><i class="bi bi-box-arrow-up-right"></i> S'inscrire</a> }
+                @if (canDelete(e)) { <button class="ev-del" (click)="deleteEvent(e)" title="Supprimer"><i class="bi bi-trash3"></i></button> }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Modale création -->
+@if (modalOpen()) {
+  <div class="modal-overlay" (click)="closeCreate()">
+    <div class="modal-content ev-modal" (click)="$event.stopPropagation()">
+      <div class="evm-head">
+        <div><span class="eyebrow">Nouvel événement</span><h3>Proposer un événement</h3></div>
+        <button class="evm-close" (click)="closeCreate()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="form-group"><label>Titre <span class="req">*</span></label><input type="text" [(ngModel)]="form.title" placeholder="ex: Salon de l'emploi Tech" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Type</label><select [(ngModel)]="form.type">@for (t of types; track t) { <option [value]="t">{{ t }}</option> }</select></div>
+        <div class="form-group"><label>Organisateur</label><input type="text" [(ngModel)]="form.organizer" placeholder="optionnel" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Début <span class="req">*</span></label><input type="datetime-local" [(ngModel)]="form.startsAt" /></div>
+        <div class="form-group"><label>Fin</label><input type="datetime-local" [(ngModel)]="form.endsAt" /></div>
+      </div>
+      <label class="ev-online"><input type="checkbox" [(ngModel)]="form.isOnline" /> Événement en ligne</label>
+      <div class="form-group"><label>{{ form.isOnline ? 'Plateforme / lien' : 'Lieu' }}</label><input type="text" [(ngModel)]="form.location" [placeholder]="form.isOnline ? 'Zoom, Teams…' : 'Adresse'" /></div>
+      <div class="form-group"><label>Lien d'inscription</label><input type="url" [(ngModel)]="form.url" placeholder="https://…" /></div>
+      <div class="form-group"><label>Description</label><textarea [(ngModel)]="form.description" rows="3" placeholder="Programme, public visé…"></textarea></div>
+      <div class="evm-actions">
+        <button class="btn-secondary" (click)="closeCreate()">Annuler</button>
+        <button class="btn-primary" [disabled]="submitting()" (click)="submitCreate()">
+          @if (submitting()) { <span class="sp"></span> } @else { <i class="bi bi-check-lg"></i> } Publier
+        </button>
+      </div>
+    </div>
+  </div>
+}

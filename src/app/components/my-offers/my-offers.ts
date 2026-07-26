@@ -25,6 +25,13 @@ export class MyOffers implements OnInit {
   offers = signal<JobOffer[]>([]);
   loading = signal(true);
   filter = signal<'all' | 'active' | 'expired' | 'pending' | 'rejected'>('all');
+  scope = signal<'mine' | 'team'>('mine');
+  team = signal<{ company: string | null; members: { name: string; role: string; isMe: boolean; offerCount: number }[] }>({ company: null, members: [] });
+
+  // Sponsorisation + stats
+  statsOpenId = signal<number | null>(null);
+  statsData = signal<any>(null);
+  statsLoading = signal(false);
 
   filtered = computed(() => {
     const f = this.filter();
@@ -45,8 +52,16 @@ export class MyOffers implements OnInit {
   }));
 
   ngOnInit() {
-    this.jobService.getMyOffers().subscribe((o) => { this.offers.set(o); this.loading.set(false); });
+    this.loadOffers();
+    this.jobService.getTeamMembers().subscribe((t) => this.team.set(t));
   }
+
+  loadOffers() {
+    this.loading.set(true);
+    this.jobService.getMyOffers(this.scope() === 'team' ? 'team' : undefined)
+      .subscribe((o) => { this.offers.set(o); this.loading.set(false); });
+  }
+  setScope(s: 'mine' | 'team') { this.scope.set(s); this.loadOffers(); }
 
   getDaysLeft(expiresAt?: string): number | null {
     if (!expiresAt) return null;
@@ -63,11 +78,40 @@ export class MyOffers implements OnInit {
   }
 
   stripeColor(type: string): string {
-    return { CDI: 'var(--teal)', CDD: 'var(--amber)', Stage: 'var(--blue)', Freelance: 'var(--red)', Alternance: 'var(--green)' }[type] || 'var(--teal)';
+    return { CDI: 'var(--brand)', CDD: 'var(--amber)', Stage: 'var(--blue)', Freelance: 'var(--red)', Alternance: 'var(--purple)' }[type] || 'var(--brand)';
   }
 
   moderationLabel(status?: string): string {
     return { Pending: 'En attente de validation', Approved: 'Approuvee', Rejected: 'Rejetee' }[status || ''] || '';
+  }
+
+  sponsor(offer: JobOffer, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.jobService.toggleFeature(offer.id).subscribe({
+      next: (r) => {
+        offer.isFeatured = r.isFeatured;
+        this.toastr.success(r.isFeatured ? 'Offre sponsorisée — mise en avant' : 'Sponsorisation retirée');
+      },
+      error: () => this.toastr.error('Erreur'),
+    });
+  }
+
+  toggleStats(offer: JobOffer, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    if (this.statsOpenId() === offer.id) { this.statsOpenId.set(null); return; }
+    this.statsOpenId.set(offer.id);
+    this.statsData.set(null);
+    this.statsLoading.set(true);
+    this.jobService.getOfferStats(offer.id).subscribe({
+      next: (s) => { this.statsData.set(s); this.statsLoading.set(false); },
+      error: () => { this.statsLoading.set(false); this.toastr.error('Erreur stats'); },
+    });
+  }
+
+  statusLabel(status: string): string {
+    return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[status] || status;
   }
 
   duplicate(offer: JobOffer, event: Event) {

@@ -55,7 +55,7 @@ export class AdminAnnouncements implements OnInit {
   }
 
   typeColor(type: string): string {
-    return { info: 'var(--blue, #2563eb)', warning: 'var(--amber)', success: 'var(--green)', danger: 'var(--red)' }[type] || 'var(--blue, #2563eb)';
+    return { info: 'var(--blue)', warning: 'var(--amber)', success: 'var(--green)', danger: 'var(--red)' }[type] || 'var(--blue)';
   }
 
   // Export

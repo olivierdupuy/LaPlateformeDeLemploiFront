@@ -1,39 +1,387 @@
 <section class="cd-page">
   <div class="container">
-    <a routerLink="/entreprises" class="back-link animate-in"><i class="bi bi-arrow-left"></i> Entreprises</a>
+    <a routerLink="/entreprises" class="cd-back animate-in"><i class="bi bi-arrow-left"></i> Entreprises</a>
 
-    <div class="cd-header animate-in" style="animation-delay:.06s">
+    <header class="cd-header animate-in" style="animation-delay:.06s">
       <div class="cd-avatar" [style.background]="companyColor(companyName).bg">
         <span [style.color]="companyColor(companyName).fg">{{ companyName.charAt(0) }}</span>
       </div>
-      <div>
+      <div class="cd-heading">
+        <span class="eyebrow">Entreprise</span>
         <h1>{{ companyName }}</h1>
-        <p>{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }} active{{ jobs().length > 1 ? 's' : '' }}</p>
+        <div class="cd-headmeta">
+          <button class="cd-follow" [class.following]="following()" (click)="toggleFollow()">
+            <i class="bi" [class.bi-bell]="!following()" [class.bi-bell-fill]="following()"></i>
+            {{ following() ? 'Suivi' : 'Suivre' }}
+            @if (followCount()) { <span class="cd-follow-n">{{ followCount() }}</span> }
+          </button>
+          <span class="cd-count u-mono">{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }}</span>
+          @if (summary(); as s) {
+            @if (s.count > 0) {
+              <button class="cd-rating" (click)="setTab('reviews')">
+                <span class="stars">
+                  @for (i of stars; track i) {
+                    <i class="bi" [class.bi-star-fill]="starType(s.average, i)==='full'" [class.bi-star-half]="starType(s.average, i)==='half'" [class.bi-star]="starType(s.average, i)==='empty'"></i>
+                  }
+                </span>
+                <strong>{{ s.average }}</strong>
+                <span class="cd-rcount">({{ s.count }} avis)</span>
+              </button>
+            }
+          }
+        </div>
       </div>
+    </header>
+
+    <!-- Onglets -->
+    <div class="cd-tabs animate-in" style="animation-delay:.1s" role="tablist">
+      <button class="cd-tab" [class.active]="tab() === 'about'" (click)="setTab('about')">
+        <i class="bi bi-info-circle"></i> À propos
+      </button>
+      <button class="cd-tab" [class.active]="tab() === 'jobs'" (click)="setTab('jobs')">
+        <i class="bi bi-briefcase"></i> Emplois <span class="cd-tab-n">{{ jobs().length }}</span>
+      </button>
+      <button class="cd-tab" [class.active]="tab() === 'reviews'" (click)="setTab('reviews')">
+        <i class="bi bi-star"></i> Avis <span class="cd-tab-n">{{ summary()?.count || 0 }}</span>
+      </button>
+      <button class="cd-tab" [class.active]="tab() === 'questions'" (click)="setTab('questions')">
+        <i class="bi bi-patch-question"></i> Questions <span class="cd-tab-n">{{ questions().length }}</span>
+      </button>
     </div>
 
-    @if (loading()) {
-      <div class="empty-box"><div class="spinner"></div></div>
-    } @else {
-      <div class="cd-grid">
-        @for (job of jobs(); track job.id; let i = $index) {
-          <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="(i*0.05+0.1)+'s'">
-            <div class="jc-top">
-              <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
-              @if (job.isRemote) { <span class="remote-pill">Teletravail</span> }
-              <button class="bk-btn" (click)="$event.preventDefault(); bookmarkService.toggle(job.id)" [class.active]="bookmarkService.isBookmarked(job.id)">
-                <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
+    <!-- ═══ À PROPOS ═══ -->
+    @if (tab() === 'about') {
+      <div class="cd-about animate-in">
+        @if (editingProfile()) {
+          <div class="about-editor card">
+            <h3>Éditer la fiche entreprise</h3>
+            <div class="form-row">
+              <div class="form-group"><label>Année de création</label><input type="number" [(ngModel)]="profileForm.foundedYear" placeholder="ex: 2003" /></div>
+              <div class="form-group"><label>Effectif</label>
+                <select [(ngModel)]="profileForm.size"><option value="">—</option>@for (s of companySizes; track s) { <option [value]="s">{{ s }} employés</option> }</select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Secteur</label><input type="text" [(ngModel)]="profileForm.industry" placeholder="ex: Informatique" /></div>
+              <div class="form-group"><label>Siège social</label><input type="text" [(ngModel)]="profileForm.headquarters" placeholder="ex: Paris, FR" /></div>
+            </div>
+            <div class="form-group"><label>Site web</label><input type="url" [(ngModel)]="profileForm.website" placeholder="https://…" /></div>
+            <div class="form-group"><label>Présentation</label><textarea [(ngModel)]="profileForm.about" rows="5" placeholder="Décrivez l'entreprise, sa mission, sa culture…"></textarea></div>
+            <div class="about-editor-actions">
+              <button class="btn-secondary" (click)="cancelEditProfile()">Annuler</button>
+              <button class="btn-primary" [disabled]="savingProfile()" (click)="saveProfile()">
+                @if (savingProfile()) { <span class="sp"></span> } @else { <i class="bi bi-check-lg"></i> } Enregistrer
               </button>
             </div>
-            <h3>{{ job.title }}</h3>
-            <p class="jc-desc">{{ job.description }}</p>
-            <div class="jc-bottom">
-              <span class="jc-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
-              @if (job.salary) { <span class="jc-salary">{{ job.salary }}</span> }
+          </div>
+        } @else {
+          @if (profile(); as p) {
+            <div class="about-grid">
+              <div class="about-main card">
+                <div class="about-head">
+                  <h3>À propos de {{ companyName }}</h3>
+                  @if (canEditProfile) { <button class="about-edit" (click)="startEditProfile()"><i class="bi bi-pencil"></i> Éditer</button> }
+                </div>
+                @if (p.about) { <p class="about-text">{{ p.about }}</p> }
+                @else { <p class="about-empty">Aucune présentation pour le moment.@if (canEditProfile) { <button class="link-teal" (click)="startEditProfile()">Ajouter</button> }</p> }
+              </div>
+              <div class="about-facts card">
+                <dl>
+                  @if (p.foundedYear) { <div><dt>Création</dt><dd>{{ p.foundedYear }}</dd></div> }
+                  @if (p.size) { <div><dt>Effectif</dt><dd>{{ p.size }}</dd></div> }
+                  @if (p.industry) { <div><dt>Secteur</dt><dd>{{ p.industry }}</dd></div> }
+                  @if (p.headquarters) { <div><dt>Siège</dt><dd>{{ p.headquarters }}</dd></div> }
+                  <div><dt>Offres actives</dt><dd>{{ p.jobCount }}</dd></div>
+                  @if (p.website) { <div><dt>Site</dt><dd><a [href]="p.website" target="_blank" rel="noopener" class="link-teal">Visiter <i class="bi bi-box-arrow-up-right"></i></a></dd></div> }
+                </dl>
+              </div>
             </div>
-          </a>
+          }
+
+          @if (locations().length) {
+            <div class="about-block card">
+              <h3 class="ab-title"><i class="bi bi-geo-alt"></i> Lieux</h3>
+              <div class="ab-chips">
+                @for (l of locations(); track l.location) {
+                  <a class="ab-loc" [routerLink]="['/offres']" [queryParams]="{ location: l.location }">{{ l.location }} <span>{{ l.count }}</span></a>
+                }
+              </div>
+            </div>
+          }
+
+          @if (companySalaries().length) {
+            <div class="about-block card">
+              <h3 class="ab-title"><i class="bi bi-cash-coin"></i> Salaires par poste</h3>
+              @for (s of companySalaries(); track s.title) {
+                <div class="ab-sal">
+                  <a class="ab-sal-title" [routerLink]="['/salaires/metier', s.title]">{{ s.title }}</a>
+                  <span class="ab-sal-val u-mono">{{ euros(s.avgAnnual) }}<small> /an</small></span>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="about-block card about-faq">
+            <h3 class="ab-title"><i class="bi bi-patch-question"></i> Questions courantes sur {{ companyName }}</h3>
+            <details><summary>Où se situe {{ companyName }} ?</summary><p>{{ profile()?.headquarters || (locations().length ? locations()[0].location : 'Non précisé') }}</p></details>
+            <details><summary>Combien d'employés compte {{ companyName }} ?</summary><p>{{ profile()?.size ? profile()!.size + ' employés' : 'Non précisé' }}</p></details>
+            <details><summary>{{ companyName }} recrute-t-elle actuellement ?</summary><p>{{ (profile()?.jobCount || 0) > 0 ? profile()!.jobCount + ' offre(s) active(s) — voir l\'onglet Emplois.' : 'Aucune offre active pour le moment.' }}</p></details>
+            @if (summary(); as sm) { @if (sm.count > 0) { <details><summary>Quelle est la note de {{ companyName }} ?</summary><p>{{ sm.average }}/5 sur {{ sm.count }} avis.</p></details> } }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Autres entreprises qui pourraient vous intéresser -->
+    @if (tab() === 'about' && similar().length) {
+      <div class="cd-similar animate-in">
+        <div class="section-head"><div class="section-title"><span class="ed-pill"><i class="bi bi-building"></i></span> Autres entreprises qui pourraient vous intéresser</div></div>
+        <div class="sim-grid">
+          @for (c of similar(); track c.company) {
+            <a class="sim-card card" [routerLink]="['/entreprises', c.company]">
+              <div class="sim-av" [style.background]="companyColor(c.company).bg"><span [style.color]="companyColor(c.company).fg">{{ c.company.charAt(0) }}</span></div>
+              <div class="sim-meta"><strong>{{ c.company }}</strong><span>{{ c.jobCount }} offre{{ c.jobCount > 1 ? 's' : '' }}</span></div>
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ═══ EMPLOIS ═══ -->
+    @if (tab() === 'jobs') {
+      @if (loading()) {
+        <div class="empty-box"><div class="spinner"></div></div>
+      } @else if (jobs().length === 0) {
+        <div class="empty-box">
+          <i class="bi bi-briefcase"></i>
+          <h3>Aucune offre active</h3>
+          <p>Cette entreprise n'a pas d'offre publiée pour le moment.</p>
+          <a routerLink="/offres" class="link-teal">Parcourir toutes les offres <i class="bi bi-arrow-right"></i></a>
+        </div>
+      } @else {
+        <div class="cd-grid">
+          @for (job of jobs(); track job.id; let i = $index) {
+            <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="(i*0.05+0.1)+'s'">
+              <div class="jc-top">
+                <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+                @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
+                <button class="bk-btn" (click)="$event.preventDefault(); bookmarkService.toggle(job.id)" [class.active]="bookmarkService.isBookmarked(job.id)" aria-label="Enregistrer l'offre">
+                  <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
+                </button>
+              </div>
+              <h3>{{ job.title }}</h3>
+              <p class="jc-desc">{{ job.description }}</p>
+              <div class="jc-bottom">
+                <span class="jc-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
+                @if (job.salary) { <span class="jc-salary u-mono">{{ job.salary }}</span> }
+              </div>
+            </a>
+          }
+        </div>
+      }
+    }
+
+    <!-- ═══ AVIS ═══ -->
+    @if (tab() === 'reviews') {
+      <div class="cd-reviews animate-in">
+        @if (summary(); as s) {
+          <!-- Résumé des notes -->
+          <div class="rev-summary card">
+            <div class="rs-overall">
+              <div class="rs-score">{{ s.count ? s.average : '—' }}</div>
+              <div class="stars stars-lg">
+                @for (i of stars; track i) {
+                  <i class="bi" [class.bi-star-fill]="starType(s.average, i)==='full'" [class.bi-star-half]="starType(s.average, i)==='half'" [class.bi-star]="starType(s.average, i)==='empty'"></i>
+                }
+              </div>
+              <span class="rs-count">{{ s.count }} avis</span>
+              <button class="btn-primary rs-write" (click)="openReview()"><i class="bi bi-pencil-square"></i> Écrire un avis</button>
+            </div>
+
+            <div class="rs-detail">
+              <div class="rs-criteria">
+                @for (c of criteriaList; track c.key) {
+                  <div class="rs-crit">
+                    <span class="rs-crit-label">{{ c.label }}</span>
+                    <div class="rs-bar"><span [style.width.%]="(criteriaValue(c.key) / 5) * 100"></span></div>
+                    <span class="rs-crit-val u-mono">{{ criteriaValue(c.key) || '—' }}</span>
+                  </div>
+                }
+              </div>
+              <div class="rs-dist">
+                @for (star of [5,4,3,2,1]; track star) {
+                  <div class="rs-distrow">
+                    <span class="rs-dstar u-mono">{{ star }} <i class="bi bi-star-fill"></i></span>
+                    <div class="rs-bar"><span [style.width.%]="distributionPct(star)"></span></div>
+                    <span class="rs-dpct u-mono">{{ distributionPct(star) }}%</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Évolution des notes -->
+          @if (s.reviews.length > 0) {
+            <div class="rev-yearchart card">
+              <h3 class="ryc-title">Évolution de la note</h3>
+              <div class="ryc-canvas"><canvas id="rating-year-chart"></canvas></div>
+            </div>
+          }
+
+          <!-- Liste des avis -->
+          @if (s.reviews.length === 0) {
+            <div class="empty-box">
+              <i class="bi bi-chat-square-heart"></i>
+              <h3>Aucun avis pour le moment</h3>
+              <p>Vous avez travaillé ici ? Partagez votre expérience.</p>
+              <button class="btn-primary" (click)="openReview()"><i class="bi bi-pencil-square"></i> Écrire le premier avis</button>
+            </div>
+          } @else {
+            <div class="rev-list">
+              @for (r of s.reviews; track r.id) {
+                <article class="rev-card card">
+                  <div class="rev-head">
+                    <div class="stars">
+                      @for (i of stars; track i) {
+                        <i class="bi" [class.bi-star-fill]="starType(r.overallRating, i)==='full'" [class.bi-star]="starType(r.overallRating, i)==='empty'"></i>
+                      }
+                    </div>
+                    <span class="rev-date u-mono">{{ r.createdAt | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                  <h4 class="rev-title">{{ r.title }}</h4>
+                  @if (r.body) { <p class="rev-body">{{ r.body }}</p> }
+                  <div class="rev-foot">
+                    @if (r.jobTitle) { <span><i class="bi bi-person-badge"></i> {{ r.jobTitle }}</span> }
+                    @if (r.location) { <span><i class="bi bi-geo-alt"></i> {{ r.location }}</span> }
+                    @if (r.authorName) { <span class="rev-author">— {{ r.authorName }}</span> }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        } @else {
+          <div class="empty-box"><div class="spinner"></div></div>
+        }
+      </div>
+    }
+
+    <!-- ═══ QUESTIONS ═══ -->
+    @if (tab() === 'questions') {
+      <div class="cd-qa animate-in">
+        <div class="qa-ask card">
+          <h3><i class="bi bi-patch-question"></i> Poser une question</h3>
+          <p>Une question sur le recrutement, la culture, les avantages ? Posez-la à la communauté.</p>
+          <div class="qa-ask-row">
+            <input type="text" [(ngModel)]="newQuestion" placeholder="ex: Quel est le processus de recrutement ?" (keyup.enter)="submitQuestion()" />
+            <button class="btn-primary" [disabled]="asking() || !newQuestion.trim()" (click)="submitQuestion()">
+              @if (asking()) { <span class="sp"></span> } @else { <i class="bi bi-send"></i> } Publier
+            </button>
+          </div>
+        </div>
+
+        @if (questions().length === 0) {
+          <div class="empty-box">
+            <i class="bi bi-chat-dots"></i>
+            <h3>Aucune question pour le moment</h3>
+            <p>Soyez le premier à poser une question sur {{ companyName }}.</p>
+          </div>
+        } @else {
+          <div class="qa-list">
+            @for (q of questions(); track q.id) {
+              <article class="qa-card card">
+                <div class="qa-q">
+                  <i class="bi bi-question-circle"></i>
+                  <div class="qa-q-body">
+                    <p class="qa-q-text">{{ q.body }}</p>
+                    <span class="qa-meta u-mono">{{ q.authorName }} · {{ q.createdAt | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                </div>
+
+                @for (a of q.answers; track a.id) {
+                  <div class="qa-a">
+                    <i class="bi bi-arrow-return-right"></i>
+                    <div>
+                      <p class="qa-a-text">{{ a.body }}</p>
+                      <span class="qa-meta u-mono">{{ a.authorName }} · {{ a.createdAt | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                  </div>
+                }
+
+                @if (answeringId() === q.id) {
+                  <div class="qa-answer-form">
+                    <input type="text" [(ngModel)]="answerText" placeholder="Votre réponse…" (keyup.enter)="submitAnswer(q.id)" />
+                    <button class="btn-primary" (click)="submitAnswer(q.id)">Répondre</button>
+                    <button class="btn-ghost" (click)="openAnswer(q.id)">Annuler</button>
+                  </div>
+                } @else {
+                  <button class="qa-answer-btn" (click)="openAnswer(q.id)"><i class="bi bi-reply"></i> Répondre</button>
+                }
+              </article>
+            }
+          </div>
         }
       </div>
     }
   </div>
 </section>
+
+<!-- ═══ MODALE — écrire un avis ═══ -->
+@if (reviewOpen()) {
+  <div class="modal-overlay" (click)="closeReview()">
+    <div class="modal-content review-modal" (click)="$event.stopPropagation()">
+      <div class="rvm-head">
+        <div>
+          <span class="eyebrow">Votre avis</span>
+          <h3>Noter {{ companyName }}</h3>
+        </div>
+        <button class="rvm-close" (click)="closeReview()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="rvm-overall">
+        <label>Note globale <span class="am-req">*</span></label>
+        <div class="star-picker">
+          @for (i of stars; track i) {
+            <button type="button" (click)="setStar('overallRating', i)" [class.on]="reviewForm.overallRating >= i" aria-label="Note">
+              <i class="bi" [class.bi-star-fill]="reviewForm.overallRating >= i" [class.bi-star]="reviewForm.overallRating < i"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="rvm-criteria">
+        @for (c of criteriaList; track c.key) {
+          <div class="rvm-crit">
+            <span>{{ c.label }}</span>
+            <div class="star-picker star-picker-sm">
+              @for (i of stars; track i) {
+                <button type="button" (click)="setStar(c.key, i)" [class.on]="reviewForm[c.key] >= i" aria-label="Note">
+                  <i class="bi" [class.bi-star-fill]="reviewForm[c.key] >= i" [class.bi-star]="reviewForm[c.key] < i"></i>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Titre <span class="am-req">*</span></label>
+        <input type="text" [(ngModel)]="reviewForm.title" placeholder="ex: Bonne ambiance, management à revoir" maxlength="120" />
+      </div>
+      <div class="form-group">
+        <label>Votre expérience</label>
+        <textarea [(ngModel)]="reviewForm.body" placeholder="Points positifs, points à améliorer…" rows="4"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Votre poste</label><input type="text" [(ngModel)]="reviewForm.jobTitle" placeholder="ex: Développeur" /></div>
+        <div class="form-group"><label>Lieu</label><input type="text" [(ngModel)]="reviewForm.location" placeholder="ex: Paris" /></div>
+      </div>
+
+      <div class="rvm-actions">
+        <button class="btn-secondary" (click)="closeReview()">Annuler</button>
+        <button class="btn-primary" [disabled]="submitting()" (click)="submitReview()">
+          @if (submitting()) { <span class="sp"></span> Publication… } @else { <i class="bi bi-send"></i> Publier mon avis }
+        </button>
+      </div>
+    </div>
+  </div>
+}

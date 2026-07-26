@@ -18,9 +18,15 @@ export interface JobOffer {
   experienceRequired?: string;
   educationLevel?: string;
   benefits?: string;
+  workSchedule?: string;
+  languages?: string;
   companyDescription?: string;
   isUrgent?: boolean;
   isFeatured?: boolean;
+  easyApply?: boolean;
+  latitude?: number;
+  longitude?: number;
+  screeningQuestions?: string;
   moderationStatus?: string;
   moderationNote?: string;
   viewCount?: number;
@@ -41,8 +47,21 @@ export interface Application {
   availableFrom?: string;
   salaryExpectation?: string;
   source?: string;
+  screeningAnswers?: string;
   appliedAt: string;
   jobOffer?: JobOffer;
+}
+
+export interface JobReport {
+  id: number;
+  jobOfferId: number;
+  reason: string;
+  details?: string;
+  reporterEmail?: string;
+  status: string;
+  createdAt: string;
+  jobTitle?: string;
+  company?: string;
 }
 
 export interface JobStats {

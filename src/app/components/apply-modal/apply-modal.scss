@@ -1,32 +1,158 @@
-.modal-top {
-  display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem;
-  h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
-  p { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.1rem; }
-}
-.close-btn {
-  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-  border-radius: var(--r-sm); font-size: 0.95rem; color: var(--text-muted); transition: all var(--t);
-  &:hover { background: var(--slate-50); color: var(--text); }
-}
-.applicant-info {
-  display: flex; align-items: center; gap: 0.75rem;
-  padding: 0.85rem 1rem; margin-bottom: 1.25rem;
-  background: var(--teal-50); border: 1px solid rgba(13,148,136,0.12);
-  border-radius: var(--r-sm);
+// ═══════════════════════════════════
+//  APPLY MODAL — Clean SaaS
+// ═══════════════════════════════════
 
-  .ai-avatar {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: var(--teal); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem; flex-shrink: 0;
+.apply-modal {
+  max-width: 540px;
+}
+
+// ── Header ──
+.am-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.am-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+}
+
+.am-job {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.am-close {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  font-size: 0.95rem;
+  color: var(--muted);
+  border: 1px solid transparent;
+  transition: color var(--t), background var(--t), border-color var(--t);
+
+  &:hover {
+    background: var(--paper-2);
+    color: var(--ink);
+    border-color: var(--line);
+  }
+}
+
+// ── Applicant card ──
+.am-applicant {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.5rem;
+  background: var(--brand-tint);
+  border: 1px solid var(--brand-100);
+  border-radius: var(--r-md);
+}
+
+.am-avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--brand);
+  color: var(--spring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+}
+
+.am-applicant-id {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+
+  strong {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  strong { display: block; font-size: 0.9rem; }
-  span { display: block; font-size: 0.78rem; color: var(--text-muted); }
+  span {
+    font-size: 0.8rem;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
-.modal-form { display: flex; flex-direction: column; gap: 1rem; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; padding-top: 0.75rem; }
-.sp { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-button:disabled { opacity: 0.55; cursor: not-allowed; }
+.am-tag {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-700);
+  background: var(--brand-100);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--r-full);
+}
+
+// ── Form ──
+.am-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.am-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.15rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 520px) {
+  .am-actions {
+    flex-direction: column-reverse;
+
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+    }
+  }
+}
+
+// ── Questions de preselection ──
+.am-screening {
+  padding: 1rem 1.1rem; margin-bottom: 0.5rem;
+  background: var(--brand-tint); border: 1px solid var(--brand-100); border-radius: var(--r-md);
+}
+.am-screening-label {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--brand-700);
+  margin-bottom: 0.6rem;
+}
+.am-screening .form-group { margin-bottom: 0.7rem; &:last-child { margin-bottom: 0; } }
+.am-req { color: var(--red); }

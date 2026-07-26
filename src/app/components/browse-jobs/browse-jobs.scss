@@ -1,0 +1,55 @@
+// ═══════════════════════════════════
+//  BROWSE JOBS — pages de parcours
+// ═══════════════════════════════════
+
+.browse-hero {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: calc(68px + 2.5rem) 0 2.25rem;
+}
+.browse-hero h1 { font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.035em; margin: 0.5rem 0 0.6rem; }
+.bh-sub { font-size: 1rem; color: var(--muted); max-width: 52ch; }
+
+.browse-page { padding: 2.5rem 0 4rem; }
+
+.browse-block { margin-bottom: 2.75rem; }
+
+.chip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.7rem;
+}
+
+.browse-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t), background var(--t);
+
+  &:hover {
+    border-color: var(--brand);
+    background: var(--brand-tint);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+  }
+}
+.bc-label { font-weight: 600; font-size: 0.92rem; color: var(--ink); }
+.bc-count {
+  flex-shrink: 0;
+  font-size: 0.74rem; font-weight: 600; color: var(--brand-700);
+  background: var(--brand-100); border-radius: var(--r-full);
+  padding: 0.1rem 0.5rem;
+}
+
+.browse-empty { color: var(--muted); font-size: 0.9rem; }
+
+.browse-cta { margin-top: 1rem; }
+
+@media (max-width: 640px) {
+  .chip-grid { grid-template-columns: 1fr 1fr; }
+}

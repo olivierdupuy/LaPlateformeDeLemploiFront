@@ -1,23 +1,33 @@
 <section class="ann-page">
   <div class="container">
-    <div class="page-top animate-in">
-      <h1 class="section-title">Annonces &amp; Exports</h1>
-    </div>
+
+    <!-- Header -->
+    <header class="page-top animate-in">
+      <span class="eyebrow">Administration</span>
+      <h1 class="section-title">Annonces &amp; <span class="hl">exports</span></h1>
+      <p class="section-sub">Diffusez des messages a l'ensemble de la plateforme et exportez les donnees au format CSV.</p>
+    </header>
 
     <!-- Export section -->
     <div class="export-bar card animate-in" style="animation-delay:.05s">
-      <h3><i class="bi bi-download"></i> Exporter les donnees (CSV)</h3>
+      <div class="export-head">
+        <span class="export-eyebrow"><i class="bi bi-download"></i> Exporter les donnees</span>
+        <p class="export-note">Genere un fichier CSV a la demande.</p>
+      </div>
       <div class="export-btns">
-        <button (click)="exportUsers()" class="btn btn-export"><i class="bi bi-people"></i> Utilisateurs</button>
-        <button (click)="exportOffers()" class="btn btn-export"><i class="bi bi-briefcase"></i> Offres</button>
-        <button (click)="exportApps()" class="btn btn-export"><i class="bi bi-send"></i> Candidatures</button>
+        <button (click)="exportUsers()" class="btn-secondary"><i class="bi bi-people"></i> Utilisateurs</button>
+        <button (click)="exportOffers()" class="btn-secondary"><i class="bi bi-briefcase"></i> Offres</button>
+        <button (click)="exportApps()" class="btn-secondary"><i class="bi bi-send"></i> Candidatures</button>
       </div>
     </div>
 
     <!-- Announcements -->
     <div class="section-head animate-in" style="animation-delay:.1s">
-      <h2><i class="bi bi-megaphone"></i> Annonces</h2>
-      <button class="btn btn-teal" (click)="showForm.set(!showForm())">
+      <div>
+        <h2 class="section-title"><i class="bi bi-megaphone"></i> Annonces</h2>
+        <p class="section-sub">Bannieres et notifications visibles par vos utilisateurs.</p>
+      </div>
+      <button class="btn-primary" (click)="showForm.set(!showForm())">
         <i class="bi" [class.bi-plus-lg]="!showForm()" [class.bi-x-lg]="showForm()"></i>
         {{ showForm() ? 'Annuler' : 'Nouvelle annonce' }}
       </button>
@@ -25,49 +35,71 @@
 
     @if (showForm()) {
       <div class="form-card card animate-in">
-        <div class="form-row">
-          <input [(ngModel)]="form.title" placeholder="Titre de l'annonce" class="input" />
+        <div class="form-group">
+          <label>Titre</label>
+          <input [(ngModel)]="form.title" placeholder="Titre de l'annonce" />
         </div>
-        <div class="form-row">
-          <textarea [(ngModel)]="form.message" placeholder="Message..." rows="3" class="input textarea"></textarea>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea [(ngModel)]="form.message" placeholder="Message..." rows="3"></textarea>
         </div>
-        <div class="form-row form-inline">
-          <select [(ngModel)]="form.type" class="sel">
-            <option value="info">Info</option>
-            <option value="warning">Avertissement</option>
-            <option value="success">Succes</option>
-            <option value="danger">Alerte</option>
-          </select>
-          <select [(ngModel)]="form.targetRole" class="sel">
-            <option value="">Tous les utilisateurs</option>
-            <option value="Candidate">Candidats uniquement</option>
-            <option value="Recruiter">Recruteurs uniquement</option>
-          </select>
-          <label class="check-label">
-            <input type="checkbox" [(ngModel)]="form.isBanner" />
-            Afficher en banniere
-          </label>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="form.type">
+              <option value="info">Info</option>
+              <option value="warning">Avertissement</option>
+              <option value="success">Succes</option>
+              <option value="danger">Alerte</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Cible</label>
+            <select [(ngModel)]="form.targetRole">
+              <option value="">Tous les utilisateurs</option>
+              <option value="Candidate">Candidats uniquement</option>
+              <option value="Recruiter">Recruteurs uniquement</option>
+            </select>
+          </div>
         </div>
+        <label class="check-label">
+          <input type="checkbox" [(ngModel)]="form.isBanner" />
+          <span>Afficher en banniere</span>
+        </label>
         @if (form.isBanner) {
-          <div class="form-row form-inline">
-            <label class="date-label">Debut <input type="datetime-local" [(ngModel)]="form.startsAt" class="input input-sm" /></label>
-            <label class="date-label">Fin <input type="datetime-local" [(ngModel)]="form.endsAt" class="input input-sm" /></label>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Debut</label>
+              <input type="datetime-local" [(ngModel)]="form.startsAt" />
+            </div>
+            <div class="form-group">
+              <label>Fin</label>
+              <input type="datetime-local" [(ngModel)]="form.endsAt" />
+            </div>
           </div>
         }
-        <button (click)="create()" class="btn btn-teal" [disabled]="!form.title || !form.message">
-          <i class="bi bi-send"></i> Publier l'annonce
-        </button>
+        <div class="form-foot">
+          <button (click)="create()" class="btn-primary" [disabled]="!form.title || !form.message">
+            <i class="bi bi-send"></i> Publier l'annonce
+          </button>
+        </div>
       </div>
     }
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (announcements().length === 0) {
+      <div class="empty-box card">
+        <i class="bi bi-megaphone"></i>
+        <h3>Aucune annonce</h3>
+        <p>Creez votre premiere annonce pour informer vos utilisateurs.</p>
+      </div>
     } @else {
       <div class="ann-list">
         @for (a of announcements(); track a.id; let i = $index) {
           <div class="ann-item card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
-            <div class="ann-left">
-              <i class="bi" [class]="typeIcon(a.type)" [style.color]="typeColor(a.type)"></i>
+            <div class="ann-left" [style.color]="typeColor(a.type)">
+              <i class="bi" [class]="typeIcon(a.type)"></i>
             </div>
             <div class="ann-body">
               <div class="ann-head">
@@ -81,7 +113,7 @@
                 </div>
               </div>
               <p class="ann-msg">{{ a.message }}</p>
-              <span class="ann-date">{{ a.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span class="ann-date u-mono">{{ a.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
             </div>
             <div class="ann-actions">
               <button (click)="toggle(a.id)" class="btn-icon" [title]="a.isActive ? 'Desactiver' : 'Activer'">

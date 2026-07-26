@@ -15,6 +15,7 @@ export interface UserDto {
   city?: string;
   linkedInUrl?: string;
   portfolioUrl?: string;
+  isSearchable?: boolean;
   createdAt: string;
   isOnline?: boolean;
 }
@@ -52,6 +53,7 @@ export interface UpdateProfileRequest {
   city?: string;
   linkedInUrl?: string;
   portfolioUrl?: string;
+  isSearchable?: boolean;
 }
 
 export interface ChangePasswordRequest {

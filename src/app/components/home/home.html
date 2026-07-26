@@ -1,28 +1,19 @@
-<!-- ═══ HERO — Premium Carousel ═══ -->
+<!-- ═══ HERO — Split editorial ═══ -->
 <section class="hero">
-  <!-- Carousel background -->
-  <div class="carousel">
-    @for (slide of slides; track slide.img; let i = $index) {
-      <div class="carousel-slide" [class.active]="currentSlide() === i" [style.background-image]="'url(' + slide.img + ')'">
-      </div>
-    }
-    <div class="carousel-overlay"></div>
-  </div>
-
-  <!-- Hero content on top -->
-  <div class="container hero-content">
+  <div class="container hero-grid">
+    <!-- Left: pitch + search -->
     <div class="hero-left animate-in">
       <div class="hero-eyebrow">
         <span class="ed-pill">{{ stats().totalOffers }}</span>
         <span>offres disponibles</span>
       </div>
+
       <h1>Trouvez le poste<br/>qui vous <span class="accent">ressemble</span></h1>
 
       @if (platform.welcomeMessage) {
-        <p class="hero-welcome">{{ platform.welcomeMessage }}</p>
+        <p class="hero-welcome"><i class="bi bi-stars"></i> {{ platform.welcomeMessage }}</p>
       }
 
-      <!-- Slide caption -->
       <p class="hero-caption">{{ slides[currentSlide()].sub }}</p>
 
       <form class="hero-search" (ngSubmit)="search()">
@@ -33,49 +24,65 @@
         <button type="submit" class="btn-primary search-btn">Rechercher</button>
       </form>
 
-      <div class="hero-cats">
-        @for (cat of categories(); track cat) {
-          <a [routerLink]="['/offres']" [queryParams]="{category: cat}" class="cat-chip">{{ cat }}</a>
-        }
-      </div>
-    </div>
-
-    <!-- Right: floating stats -->
-    <div class="hero-stats animate-in" style="animation-delay:.2s">
-      <div class="hstat">
-        <span class="hstat-val">{{ stats().totalOffers }}</span>
-        <span class="hstat-lbl">Offres actives</span>
-      </div>
-      <div class="hstat">
-        <span class="hstat-val">{{ stats().totalCompanies }}</span>
-        <span class="hstat-lbl">Entreprises</span>
-      </div>
-      <div class="hstat">
-        <span class="hstat-val">{{ stats().remoteOffers }}</span>
-        <span class="hstat-lbl">Teletravail</span>
-      </div>
-      <div class="hstat">
-        <span class="hstat-val">{{ stats().totalApplications }}</span>
-        <span class="hstat-lbl">Candidatures</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Carousel controls -->
-  <div class="carousel-controls">
-    <button class="carousel-arrow" (click)="prevSlide()"><i class="bi bi-chevron-left"></i></button>
-    <div class="carousel-dots">
-      @for (slide of slides; track slide.img; let i = $index) {
-        <button class="dot" [class.active]="currentSlide() === i" (click)="goToSlide(i)">
-          <span class="dot-progress" [class.running]="currentSlide() === i"></span>
-        </button>
+      @if (categories().length) {
+        <div class="hero-cats">
+          <span class="cats-label">Populaire</span>
+          @for (cat of categories(); track cat) {
+            <a [routerLink]="['/offres']" [queryParams]="{category: cat}" class="cat-chip">{{ cat }}</a>
+          }
+        </div>
       }
     </div>
-    <button class="carousel-arrow" (click)="nextSlide()"><i class="bi bi-chevron-right"></i></button>
+
+    <!-- Right: rotating showcase + floating metrics -->
+    <div class="hero-media animate-in" style="animation-delay:.15s">
+      <div class="carousel">
+        @for (slide of slides; track slide.img; let i = $index) {
+          <div class="carousel-slide" [class.active]="currentSlide() === i" [style.background-image]="'url(' + slide.img + ')'"></div>
+        }
+        <div class="carousel-overlay"></div>
+        <div class="carousel-cap">
+          <span class="cap-kicker">La Plateforme de l'emploi</span>
+          <span class="cap-title">{{ slides[currentSlide()].title }}</span>
+        </div>
+
+        <div class="carousel-controls">
+          <button class="carousel-arrow" (click)="prevSlide()" aria-label="Precedent"><i class="bi bi-chevron-left"></i></button>
+          <div class="carousel-dots">
+            @for (slide of slides; track slide.img; let i = $index) {
+              <button class="dot" [class.active]="currentSlide() === i" (click)="goToSlide(i)" aria-label="Slide">
+                <span class="dot-progress" [class.running]="currentSlide() === i"></span>
+              </button>
+            }
+          </div>
+          <button class="carousel-arrow" (click)="nextSlide()" aria-label="Suivant"><i class="bi bi-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <!-- Floating metrics card -->
+      <div class="hero-stats">
+        <div class="hstat">
+          <span class="hstat-val">{{ stats().totalOffers }}</span>
+          <span class="hstat-lbl">Offres actives</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-val">{{ stats().totalCompanies }}</span>
+          <span class="hstat-lbl">Entreprises</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-val">{{ stats().remoteOffers }}</span>
+          <span class="hstat-lbl">Teletravail</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-val">{{ stats().totalApplications }}</span>
+          <span class="hstat-lbl">Candidatures</span>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ═══ STATS STRIP ═══ -->
+<!-- ═══ STATS STRIP — dark trust band ═══ -->
 <section class="stats-strip">
   <div class="container">
     <div class="strip-inner animate-in" style="animation-delay:.1s">
@@ -116,7 +123,7 @@
     <div class="jobs-grid">
       @for (job of latestJobs(); track job.id; let i = $index) {
         <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="(i * 0.05) + 's'">
-          <div class="card-stripe" [style.background]="{'CDI':'var(--teal)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--green)'}[job.contractType] || 'var(--teal)'"></div>
+          <div class="card-stripe" [style.background]="{'CDI':'var(--brand)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--purple)'}[job.contractType] || 'var(--brand)'"></div>
           <div class="jc-inner">
             <div class="jc-header">
               <div class="company-av" [style.background]="'hsl(' + (job.company.charCodeAt(0)*7%360) + ',45%,92%)'">

@@ -1,50 +1,186 @@
-.ann-page { padding: 6.5rem 0 4rem; }
-.page-top { margin-bottom: 1.5rem; }
+// ═══════════════════════════════════
+//  ADMIN ANNOUNCEMENTS — Clean SaaS
+// ═══════════════════════════════════
 
-.export-bar { padding: 1.25rem; margin-bottom: 1.5rem; &:hover { transform: none; }
-  h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.4rem; i { color: var(--teal); } }
+.ann-page { padding: 6.5rem 0 4rem; background: var(--paper); min-height: 100vh; }
+
+// ── Header ──
+.page-top {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  .section-title { font-size: clamp(1.7rem, 4vw, 2.3rem); }
 }
-.export-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.btn-export { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.8rem; font-weight: 600; background: #fff; cursor: pointer; font-family: inherit; color: var(--navy-800); display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.2s;
-  &:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-50); }
+
+// ── Export card ──
+.export-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  &:hover { transform: none; box-shadow: none; border-color: var(--line); }
 }
 
-.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;
-  h2 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; i { color: var(--teal); } }
+.export-head { display: flex; flex-direction: column; gap: 0.2rem; }
+
+.export-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  i { color: var(--brand); font-size: 0.95rem; }
 }
 
-.form-card { padding: 1.25rem; margin-bottom: 1.25rem; &:hover { transform: none; } }
-.form-row { margin-bottom: 0.75rem; }
-.form-inline { display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap; }
-.input { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.82rem; font-family: inherit; outline: none; &:focus { border-color: var(--teal); } }
-.input-sm { width: auto; }
-.textarea { resize: vertical; }
-.sel { padding: 0.45rem 0.65rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.8rem; font-weight: 500; background: #fff; cursor: pointer; font-family: inherit; outline: none; &:focus { border-color: var(--teal); } }
-.check-label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
-.date-label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 500; color: var(--text-secondary); }
+.export-note { font-size: 0.82rem; color: var(--muted); }
 
-.btn { padding: 0.45rem 0.85rem; border-radius: var(--r-sm); font-size: 0.78rem; font-weight: 600; cursor: pointer; border: none; font-family: inherit; display: inline-flex; align-items: center; gap: 0.3rem; transition: all 0.2s; }
-.btn-teal { background: var(--teal); color: #fff; &:hover { background: var(--teal-600); } &:disabled { opacity: 0.5; cursor: default; } }
+.export-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
-.ann-list { display: flex; flex-direction: column; gap: 0.65rem; }
-.ann-item { display: flex; align-items: flex-start; gap: 0.85rem; padding: 1rem 1.25rem; &:hover { transform: none; box-shadow: var(--shadow-sm); } }
-.ann-left { font-size: 1.15rem; padding-top: 0.1rem; }
+// ── Section head ──
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+
+  .section-title {
+    font-size: clamp(1.2rem, 3vw, 1.45rem);
+    i { color: var(--brand); font-size: 0.95em; }
+  }
+  .section-sub { margin-top: 0.3rem; }
+}
+
+// ── Form card ──
+.form-card {
+  padding: 1.6rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  &:hover { transform: none; box-shadow: none; border-color: var(--line); }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+
+  input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--brand);
+    cursor: pointer;
+  }
+}
+
+.form-foot { display: flex; justify-content: flex-end; margin-top: 0.2rem; }
+
+// ── Announcements list ──
+.ann-list { display: flex; flex-direction: column; gap: 0.85rem; }
+
+.ann-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem;
+  &:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--line-strong); }
+}
+
+.ann-left {
+  font-size: 1.35rem;
+  line-height: 1;
+  padding-top: 0.1rem;
+  flex-shrink: 0;
+}
+
 .ann-body { flex: 1; min-width: 0; }
-.ann-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; strong { font-size: 0.88rem; } }
-.ann-badges { display: flex; gap: 0.3rem; }
-.ann-msg { font-size: 0.82rem; color: var(--text-secondary); margin: 0.3rem 0; }
-.ann-date { font-size: 0.72rem; color: var(--text-muted); }
 
-.badge { font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.45rem; border-radius: var(--r-full); }
-.badge-green { background: var(--green-bg); color: var(--green); }
-.badge-gray { background: var(--slate-100); color: var(--slate-400); }
-.badge-purple { background: #f3e8ff; color: #7c3aed; }
-.badge-blue { background: var(--blue-bg, #eff6ff); color: var(--blue, #2563eb); }
+.ann-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  strong {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+}
 
-.ann-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
-.btn-icon { width: 32px; height: 32px; border-radius: var(--r-sm); border: 1px solid var(--border); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--navy-800); transition: all 0.2s; &:hover { border-color: var(--teal); color: var(--teal); } }
-.btn-icon-red { &:hover { border-color: var(--red); color: var(--red); } }
+.ann-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 
-.empty-box { display: flex; align-items: center; justify-content: center; padding: 5rem 0; }
-.spinner { width: 28px; height: 28px; border: 2.5px solid var(--slate-200); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.badge-gray { background: var(--paper-3); color: var(--muted); }
+
+.ann-msg {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin: 0.45rem 0 0.5rem;
+  line-height: 1.55;
+}
+
+.ann-date {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+// ── Icon actions ──
+.ann-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--canvas);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  transition: border-color var(--t), color var(--t), background var(--t), transform var(--t);
+  &:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-tint); transform: translateY(-1px); }
+}
+
+.btn-icon-red {
+  &:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+}
+
+// ── Empty ──
+.empty-box {
+  &.card:hover { transform: none; box-shadow: none; border-color: var(--line); }
+  i { color: var(--faint); }
+}
+
+// ── Responsive ──
+@media (max-width: 640px) {
+  .export-bar { flex-direction: column; align-items: stretch; }
+  .export-btns { .btn-secondary { flex: 1; justify-content: center; } }
+  .form-grid { grid-template-columns: 1fr; }
+  .section-head { align-items: flex-start; }
+  .ann-item { flex-wrap: wrap; }
+  .ann-actions { width: 100%; justify-content: flex-end; }
+}

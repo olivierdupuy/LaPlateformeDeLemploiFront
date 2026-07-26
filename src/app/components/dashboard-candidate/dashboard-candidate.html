@@ -3,18 +3,19 @@
   <div class="container dch-inner">
     @if (auth.currentUser(); as u) {
       <div class="dch-left animate-in">
-        <div class="dch-avatar" style="background: var(--teal-50);">
-          <span style="color: var(--teal);">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+        <div class="dch-avatar">
+          <span>{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
         </div>
-        <div>
-          <h1>Bonjour, {{ u.firstName }}</h1>
+        <div class="dch-heading">
+          <span class="eyebrow">Espace candidat</span>
+          <h1>Bonjour, <span class="accent">{{ u.firstName }}</span></h1>
           <p>Voici un resume de votre activite sur la plateforme</p>
         </div>
       </div>
     }
     <div class="dch-actions animate-in" style="animation-delay:.1s">
-      <a routerLink="/mon-cv" class="dch-btn dch-cv"><i class="bi bi-file-earmark-person"></i> Mon CV</a>
-      <a routerLink="/offres" class="dch-btn dch-search"><i class="bi bi-search"></i> Chercher un emploi</a>
+      <a routerLink="/mon-cv" class="btn-secondary"><i class="bi bi-file-earmark-person"></i> Mon CV</a>
+      <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Chercher un emploi</a>
     </div>
   </div>
 </section>
@@ -27,37 +28,41 @@
 <section class="dc-stats">
   <div class="container">
     <div class="stats-row">
-      <div class="st animate-in" style="animation-delay:.05s">
+      <div class="st card animate-in" style="animation-delay:.05s">
+        <span class="st-stripe" style="background: var(--brand);"></span>
         <div class="st-top">
           <div class="st-icon ic-teal"><i class="bi bi-send-fill"></i></div>
-          <span class="st-val">{{ d.totalCandidatures }}</span>
+          <span class="st-val u-mono">{{ d.totalCandidatures }}</span>
         </div>
         <span class="st-lbl">Candidatures envoyees</span>
-        <div class="st-bar"><div class="st-bar-fill" style="width:100%; background: var(--teal);"></div></div>
+        <div class="st-bar"><div class="st-bar-fill" style="width:100%; background: var(--brand);"></div></div>
       </div>
 
-      <div class="st animate-in" style="animation-delay:.1s">
+      <div class="st card animate-in" style="animation-delay:.1s">
+        <span class="st-stripe" style="background: var(--green);"></span>
         <div class="st-top">
           <div class="st-icon ic-green"><i class="bi bi-check-circle-fill"></i></div>
-          <span class="st-val">{{ d.acceptees }}</span>
+          <span class="st-val u-mono">{{ d.acceptees }}</span>
         </div>
         <span class="st-lbl">Acceptees</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.totalCandidatures > 0 ? (d.acceptees / d.totalCandidatures * 100) + '%' : '0%'" style="background: var(--green);"></div></div>
       </div>
 
-      <div class="st animate-in" style="animation-delay:.15s">
+      <div class="st card animate-in" style="animation-delay:.15s">
+        <span class="st-stripe" style="background: var(--blue);"></span>
         <div class="st-top">
           <div class="st-icon ic-blue"><i class="bi bi-calendar-event-fill"></i></div>
-          <span class="st-val">{{ d.entretiens }}</span>
+          <span class="st-val u-mono">{{ d.entretiens }}</span>
         </div>
         <span class="st-lbl">Entretiens planifies</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.entretiens > 0 ? '60%' : '0%'" style="background: var(--blue);"></div></div>
       </div>
 
-      <div class="st animate-in" style="animation-delay:.2s">
+      <div class="st card animate-in" style="animation-delay:.2s">
+        <span class="st-stripe" style="background: var(--amber);"></span>
         <div class="st-top">
           <div class="st-icon ic-amber"><i class="bi bi-chat-dots-fill"></i></div>
-          <span class="st-val">{{ d.messagesNonLus }}</span>
+          <span class="st-val u-mono">{{ d.messagesNonLus }}</span>
         </div>
         <span class="st-lbl">Messages non lus</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.messagesNonLus > 0 ? '40%' : '0%'" style="background: var(--amber);"></div></div>
@@ -124,10 +129,10 @@
       @if (analytics(); as a) {
         <div class="dc-analytics animate-in" style="animation-delay:.23s">
           <div class="ana-kpi">
-            <div class="ak"><span class="ak-val">{{ a.responseRate }}%</span><span class="ak-lbl">Taux de reponse</span></div>
-            <div class="ak"><span class="ak-val">{{ a.conversionRate }}%</span><span class="ak-lbl">Taux d'acceptation</span></div>
-            <div class="ak"><span class="ak-val">{{ a.interviewCount }}</span><span class="ak-lbl">Entretiens</span></div>
-            <div class="ak"><span class="ak-val">{{ a.total }}</span><span class="ak-lbl">Candidatures</span></div>
+            <div class="ak card"><span class="ak-val u-mono">{{ a.responseRate }}%</span><span class="ak-lbl">Taux de reponse</span></div>
+            <div class="ak card"><span class="ak-val u-mono">{{ a.conversionRate }}%</span><span class="ak-lbl">Taux d'acceptation</span></div>
+            <div class="ak card"><span class="ak-val u-mono">{{ a.interviewCount }}</span><span class="ak-lbl">Entretiens</span></div>
+            <div class="ak card"><span class="ak-val u-mono">{{ a.total }}</span><span class="ak-lbl">Candidatures</span></div>
           </div>
           <div class="ana-charts">
             <div class="ana-chart-box">
@@ -153,7 +158,7 @@
               <div class="sr-item">
                 <div class="sr-dot" [style.background]="statusColor(item.label)"></div>
                 <div class="sr-info">
-                  <span class="sr-val">{{ item.value }}</span>
+                  <span class="sr-val u-mono">{{ item.value }}</span>
                   <span class="sr-lbl">{{ item.label }}</span>
                 </div>
               </div>
@@ -194,8 +199,9 @@
               }
             </div>
           } @else {
-            <div class="dc-empty">
+            <div class="empty-box">
               <i class="bi bi-inbox"></i>
+              <h3>Aucune candidature</h3>
               <p>Vous n'avez pas encore postule a une offre</p>
               <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Explorer les offres</a>
             </div>
@@ -230,17 +236,17 @@
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
           <a routerLink="/messagerie" class="qn-item">
-            <div class="qn-icon" style="background:var(--red-bg);color:var(--red)"><i class="bi bi-chat-dots"></i></div>
+            <div class="qn-icon ic-red"><i class="bi bi-chat-dots"></i></div>
             <div class="qn-text"><strong>Messagerie</strong><span>{{ d.messagesNonLus }} non lu{{ d.messagesNonLus > 1 ? 's' : '' }}</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
           <a routerLink="/recherches-sauvegardees" class="qn-item">
-            <div class="qn-icon" style="background:var(--slate-100);color:var(--slate-500)"><i class="bi bi-bookmark-star"></i></div>
+            <div class="qn-icon ic-neutral"><i class="bi bi-bookmark-star"></i></div>
             <div class="qn-text"><strong>Recherches</strong><span>{{ d.recherches }} sauvegardee{{ d.recherches > 1 ? 's' : '' }}</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
           <a routerLink="/profil" class="qn-item">
-            <div class="qn-icon" style="background:var(--teal-50);color:var(--teal)"><i class="bi bi-person"></i></div>
+            <div class="qn-icon ic-teal"><i class="bi bi-person"></i></div>
             <div class="qn-text"><strong>Mon profil</strong><span>Modifier mes informations</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>

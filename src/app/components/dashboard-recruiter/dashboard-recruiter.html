@@ -3,18 +3,19 @@
   <div class="container drh-inner">
     @if (auth.currentUser(); as u) {
       <div class="drh-left animate-in">
-        <div class="drh-avatar" style="background: var(--teal-50);">
-          <span style="color: var(--teal);">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+        <div class="drh-avatar">
+          <span>{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
         </div>
-        <div>
-          <h1>Bonjour, {{ u.firstName }}</h1>
-          <p>Espace recruteur{{ u.company ? ' — ' + u.company : '' }}</p>
+        <div class="drh-greet">
+          <span class="eyebrow">Espace recruteur</span>
+          <h1>Bonjour, <span class="hl">{{ u.firstName }}</span></h1>
+          <p>{{ u.company ? u.company : 'Pilotez vos recrutements en un coup d’œil' }}</p>
         </div>
       </div>
     }
     <div class="drh-actions animate-in" style="animation-delay:.1s">
-      <a routerLink="/admin/mes-offres" class="drh-btn drh-glass"><i class="bi bi-collection"></i> Mes offres</a>
-      <a routerLink="/admin/nouvelle-offre" class="drh-btn drh-teal"><i class="bi bi-plus-lg"></i> Publier une offre</a>
+      <a routerLink="/admin/mes-offres" class="btn-secondary"><i class="bi bi-collection"></i> Mes offres</a>
+      <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
     </div>
   </div>
 </section>
@@ -27,40 +28,42 @@
 <section class="dr-stats">
   <div class="container">
     <div class="stats-row">
-      <div class="st animate-in" style="animation-delay:.05s">
+      <div class="st card animate-in" style="animation-delay:.05s">
         <div class="st-top">
-          <div class="st-icon ic-teal"><i class="bi bi-briefcase-fill"></i></div>
-          <span class="st-val">{{ d.offresActives }}</span>
+          <div class="st-icon ic-brand"><i class="bi bi-briefcase-fill"></i></div>
+          @if (d.offresExpirees > 0) {
+            <span class="st-extra">{{ d.offresExpirees }} expiree{{ d.offresExpirees > 1 ? 's' : '' }}</span>
+          }
         </div>
+        <span class="st-val">{{ d.offresActives }}</span>
         <span class="st-lbl">Offres actives</span>
-        <div class="st-bar"><div class="st-bar-fill" style="width:100%;background:var(--teal)"></div></div>
-        <span class="st-extra">{{ d.offresExpirees }} expiree{{ d.offresExpirees > 1 ? 's' : '' }}</span>
+        <div class="st-bar"><div class="st-bar-fill" style="width:100%;background:var(--brand)"></div></div>
       </div>
 
-      <div class="st animate-in" style="animation-delay:.1s">
+      <div class="st card animate-in" style="animation-delay:.1s">
         <div class="st-top">
           <div class="st-icon ic-blue"><i class="bi bi-people-fill"></i></div>
-          <span class="st-val">{{ d.totalCandidatures }}</span>
+          <span class="st-extra">{{ d.enAttente }} en attente</span>
         </div>
+        <span class="st-val">{{ d.totalCandidatures }}</span>
         <span class="st-lbl">Candidatures recues</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.totalCandidatures > 0 ? '100%' : '0%'" style="background:var(--blue)"></div></div>
-        <span class="st-extra">{{ d.enAttente }} en attente</span>
       </div>
 
-      <div class="st animate-in" style="animation-delay:.15s">
+      <div class="st card animate-in" style="animation-delay:.15s">
         <div class="st-top">
           <div class="st-icon ic-green"><i class="bi bi-calendar-event-fill"></i></div>
-          <span class="st-val">{{ d.entretiensPlanifies }}</span>
         </div>
+        <span class="st-val">{{ d.entretiensPlanifies }}</span>
         <span class="st-lbl">Entretiens planifies</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.entretiensPlanifies > 0 ? '60%' : '0%'" style="background:var(--green)"></div></div>
       </div>
 
-      <div class="st animate-in" style="animation-delay:.2s">
+      <div class="st card animate-in" style="animation-delay:.2s">
         <div class="st-top">
           <div class="st-icon ic-amber"><i class="bi bi-chat-dots-fill"></i></div>
-          <span class="st-val">{{ d.messagesNonLus }}</span>
         </div>
+        <span class="st-val">{{ d.messagesNonLus }}</span>
         <span class="st-lbl">Messages non lus</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.messagesNonLus > 0 ? '40%' : '0%'" style="background:var(--amber)"></div></div>
       </div>
@@ -74,9 +77,9 @@
     <!-- LEFT: Charts -->
     <div class="dr-main">
       <!-- Candidatures par offre -->
-      <div class="dr-card animate-in" style="animation-delay:.25s">
+      <div class="dr-card card animate-in" style="animation-delay:.25s">
         <div class="drc-head">
-          <h2><span class="ed-pill">01</span> Candidatures par offre</h2>
+          <h2 class="section-title"><span class="ed-pill">01</span> Candidatures par offre</h2>
           <a routerLink="/admin/candidatures" class="link-teal">Tout voir <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="drc-body">
@@ -89,9 +92,9 @@
       </div>
 
       <!-- Repartition par statut -->
-      <div class="dr-card animate-in" style="animation-delay:.3s">
+      <div class="dr-card card animate-in" style="animation-delay:.3s">
         <div class="drc-head">
-          <h2><span class="ed-pill">02</span> Repartition par statut</h2>
+          <h2 class="section-title"><span class="ed-pill">02</span> Repartition par statut</h2>
         </div>
         <div class="drc-body">
           @if (d.totalCandidatures > 0) {
@@ -105,11 +108,11 @@
 
     <!-- RIGHT: Quick access -->
     <aside class="dr-side">
-      <div class="dr-card animate-in" style="animation-delay:.2s">
-        <div class="drc-head"><h2>Acces rapide</h2></div>
+      <div class="dr-card card animate-in" style="animation-delay:.2s">
+        <div class="drc-head"><h2 class="section-title">Acces rapide</h2></div>
         <div class="drc-body qnav">
           <a routerLink="/admin/mes-offres" class="qn">
-            <div class="qn-icon ic-teal"><i class="bi bi-collection"></i></div>
+            <div class="qn-icon ic-brand"><i class="bi bi-collection"></i></div>
             <div class="qn-text"><strong>Mes offres</strong><span>Gerer et renouveler</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
@@ -129,17 +132,17 @@
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
           <a routerLink="/messagerie" class="qn">
-            <div class="qn-icon" style="background:var(--red-bg);color:var(--red)"><i class="bi bi-chat-dots"></i></div>
+            <div class="qn-icon ic-red"><i class="bi bi-chat-dots"></i></div>
             <div class="qn-text"><strong>Messagerie</strong><span>{{ d.messagesNonLus }} non lu{{ d.messagesNonLus > 1 ? 's' : '' }}</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
           <a routerLink="/admin/nouvelle-offre" class="qn">
-            <div class="qn-icon" style="background:var(--teal-50);color:var(--teal)"><i class="bi bi-plus-circle"></i></div>
+            <div class="qn-icon ic-brand"><i class="bi bi-plus-circle"></i></div>
             <div class="qn-text"><strong>Publier une offre</strong><span>Creer une nouvelle annonce</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
           <a routerLink="/profil" class="qn">
-            <div class="qn-icon" style="background:var(--slate-100);color:var(--slate-500)"><i class="bi bi-person"></i></div>
+            <div class="qn-icon ic-neutral"><i class="bi bi-person"></i></div>
             <div class="qn-text"><strong>Mon profil</strong><span>Modifier mes informations</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>

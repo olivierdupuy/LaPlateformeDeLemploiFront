@@ -2,14 +2,32 @@
 <section class="mo-hero">
   <div class="container moh-inner">
     <div class="moh-left animate-in">
-      <span class="ed-pill"><i class="bi bi-collection-fill"></i></span>
-      <h1>Mes offres d'emploi</h1>
-      <p>Gerez, renouvelez et suivez les performances de vos offres</p>
+      <span class="eyebrow">Espace recruteur</span>
+      <h1>Mes offres d'<span class="hl">emploi</span></h1>
+      <p>Gerez, renouvelez et suivez les performances de vos offres.</p>
     </div>
     <div class="moh-actions animate-in" style="animation-delay:.1s">
-      <a routerLink="/admin/nouvelle-offre" class="moh-cta"><i class="bi bi-plus-lg"></i> Publier une offre</a>
+      <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
     </div>
   </div>
+
+  <!-- Équipe de recrutement -->
+  @if (team().company && team().members.length > 1) {
+    <div class="container">
+      <div class="moh-team animate-in" style="animation-delay:.12s">
+        <div class="scope-toggle">
+          <button [class.active]="scope() === 'mine'" (click)="setScope('mine')">Mes offres</button>
+          <button [class.active]="scope() === 'team'" (click)="setScope('team')"><i class="bi bi-people-fill"></i> Toute l'équipe</button>
+        </div>
+        <div class="team-members">
+          <span class="tm-label"><i class="bi bi-building"></i> {{ team().company }}</span>
+          @for (m of team().members; track m.name) {
+            <span class="tm-chip" [class.me]="m.isMe">{{ m.name }}<span class="tm-count">{{ m.offerCount }}</span></span>
+          }
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Stats + filters -->
   @if (!loading() && counts().total > 0) {
@@ -40,7 +58,7 @@
         }
         <div class="mohs-div"></div>
         <div class="mohs mohs-noclk">
-          <span class="mohs-val mohs-teal">{{ counts().totalApps }}</span><span class="mohs-lbl">Candidatures</span>
+          <span class="mohs-val mohs-brand">{{ counts().totalApps }}</span><span class="mohs-lbl">Candidatures</span>
         </div>
       </div>
     </div>
@@ -56,12 +74,12 @@
       <div class="mo-empty animate-in">
         <div class="moe-circle"><i class="bi bi-briefcase"></i></div>
         <h3>Aucune offre publiee</h3>
-        <p>Publiez votre premiere offre pour commencer a recevoir des candidatures</p>
+        <p>Publiez votre premiere offre pour commencer a recevoir des candidatures.</p>
         <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
       </div>
     } @else {
       <div class="mo-info animate-in" style="animation-delay:.06s">
-        <span>{{ filtered().length }} offre{{ filtered().length > 1 ? 's' : '' }}</span>
+        <span class="u-mono">{{ filtered().length }} offre{{ filtered().length > 1 ? 's' : '' }}</span>
       </div>
 
       <div class="mo-grid">
@@ -78,13 +96,13 @@
                 </div>
                 <div class="oc-status-col">
                   @if (o.moderationStatus === 'Pending') {
-                    <span class="oc-pending"><i class="bi bi-hourglass-split"></i> En attente de validation</span>
+                    <span class="oc-tag oc-pending"><i class="bi bi-hourglass-split"></i> En attente</span>
                   } @else if (o.moderationStatus === 'Rejected') {
-                    <span class="oc-rejected"><i class="bi bi-x-octagon-fill"></i> Rejetee</span>
+                    <span class="oc-tag oc-rejected"><i class="bi bi-x-octagon-fill"></i> Rejetee</span>
                   } @else if (o.isActive) {
-                    <span class="oc-active"><i class="bi bi-check-circle-fill"></i> Active</span>
+                    <span class="oc-tag oc-active"><i class="bi bi-check-circle-fill"></i> Active</span>
                   } @else {
-                    <span class="oc-inactive"><i class="bi bi-x-circle-fill"></i> Expiree</span>
+                    <span class="oc-tag oc-inactive"><i class="bi bi-x-circle-fill"></i> Expiree</span>
                   }
                   @if (o.isFeatured) {
                     <span class="oc-featured"><i class="bi bi-star-fill"></i></span>
@@ -116,16 +134,16 @@
               </div>
 
               @if (o.moderationStatus === 'Rejected' && o.moderationNote) {
-                <div class="oc-rejection-note">
+                <div class="oc-note oc-note-red">
                   <i class="bi bi-chat-left-text-fill"></i>
                   <div><strong>Motif du rejet :</strong> {{ o.moderationNote }}</div>
                 </div>
               }
 
               @if (o.moderationStatus === 'Pending') {
-                <div class="oc-pending-note">
+                <div class="oc-note oc-note-amber">
                   <i class="bi bi-info-circle-fill"></i>
-                  Cette offre est en cours de verification par un administrateur.
+                  <div>Cette offre est en cours de verification par un administrateur.</div>
                 </div>
               }
 
@@ -140,6 +158,11 @@
                   }
                 </div>
                 <div class="oc-actions" (click)="$event.stopPropagation(); $event.preventDefault()">
+                  <button class="oc-btn oc-btn-stats" (click)="toggleStats(o, $event)"><i class="bi bi-bar-chart-line"></i> Stats</button>
+                  <button class="oc-btn oc-btn-sponsor" [class.on]="o.isFeatured" (click)="sponsor(o, $event)">
+                    <i class="bi" [class.bi-star]="!o.isFeatured" [class.bi-star-fill]="o.isFeatured"></i>
+                    {{ o.isFeatured ? 'Sponsorisée' : 'Sponsoriser' }}
+                  </button>
                   <a [routerLink]="['/admin/modifier-offre', o.id]" class="oc-btn" (click)="$event.stopPropagation()"><i class="bi bi-pencil"></i> Modifier</a>
                   <button class="oc-btn" (click)="duplicate(o, $event)"><i class="bi bi-copy"></i> Dupliquer</button>
                   @if (!o.isActive && o.moderationStatus !== 'Pending') {
@@ -147,6 +170,27 @@
                   }
                 </div>
               </div>
+
+              @if (statsOpenId() === o.id) {
+                <div class="oc-stats-panel" (click)="$event.stopPropagation(); $event.preventDefault()">
+                  @if (statsLoading()) {
+                    <div class=" osp-loading"><span class="sp sp-brand"></span> Chargement des stats…</div>
+                  } @else if (statsData(); as s) {
+                    <div class="osp-kpis">
+                      <div class="osp-kpi"><span class="osp-val u-mono">{{ s.views }}</span><span class="osp-lbl">Vues</span></div>
+                      <div class="osp-kpi"><span class="osp-val u-mono">{{ s.applications }}</span><span class="osp-lbl">Candidatures</span></div>
+                      <div class="osp-kpi"><span class="osp-val u-mono">{{ s.conversion }}%</span><span class="osp-lbl">Taux de conversion</span></div>
+                    </div>
+                    @if (s.byStatus.length) {
+                      <div class="osp-status">
+                        @for (st of s.byStatus; track st.label) {
+                          <span class="osp-chip">{{ statusLabel(st.label) }} · <strong>{{ st.value }}</strong></span>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              }
             </div>
           </a>
         }

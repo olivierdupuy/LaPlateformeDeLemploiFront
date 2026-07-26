@@ -32,13 +32,19 @@ export class JobForm implements OnInit {
     isRemote: false, tags: '', isActive: true,
     minSalary: null, maxSalary: null,
     experienceRequired: '', educationLevel: '',
-    benefits: '', companyDescription: '', isUrgent: false,
+    workSchedule: '', languages: '',
+    benefits: '', companyDescription: '', isUrgent: false, easyApply: true, autoReplyMessage: '',
   };
 
   contractTypes = ['CDI', 'CDD', 'Stage', 'Alternance', 'Freelance'];
   categories = ['Tech', 'Design', 'Marketing', 'Finance', 'Data', 'RH'];
   experienceLevels = ['Junior', 'Intermediaire', 'Senior', 'Expert'];
   educationLevels = ['Bac', 'Bac+2', 'Bac+3', 'Bac+5', 'Doctorat'];
+  workSchedules = ['Temps plein', 'Temps partiel', 'Journee', 'Nuit', 'Week-end'];
+
+  screeningQuestionsList: string[] = [];
+  addQuestion() { this.screeningQuestionsList.push(''); }
+  removeQuestion(i: number) { this.screeningQuestionsList.splice(i, 1); }
 
   ngOnInit() {
     const u = this.auth.currentUser();
@@ -58,9 +64,13 @@ export class JobForm implements OnInit {
             minSalary: job.minSalary || null, maxSalary: job.maxSalary || null,
             experienceRequired: job.experienceRequired || '',
             educationLevel: job.educationLevel || '',
+            workSchedule: job.workSchedule || '', languages: job.languages || '',
             benefits: job.benefits || '', companyDescription: job.companyDescription || '',
-            isUrgent: job.isUrgent || false,
+            isUrgent: job.isUrgent || false, easyApply: job.easyApply ?? true,
+            autoReplyMessage: (job as any).autoReplyMessage || '',
           };
+          try { this.screeningQuestionsList = job.screeningQuestions ? JSON.parse(job.screeningQuestions) : []; }
+          catch { this.screeningQuestionsList = []; }
         },
         error: () => { this.toastr.error('Offre introuvable'); this.router.navigate(['/offres']); },
       });
@@ -81,6 +91,9 @@ export class JobForm implements OnInit {
       return;
     }
 
+    const cleanQuestions = this.screeningQuestionsList.map(q => q.trim()).filter(Boolean);
+    this.form.screeningQuestions = cleanQuestions.length ? JSON.stringify(cleanQuestions) : null;
+
     this.submitting = true;
 
     if (this.isEdit()) {
@@ -92,7 +105,7 @@ export class JobForm implements OnInit {
               icon: 'info',
               title: 'Modifications enregistrees',
               text: 'Votre offre a ete renvoyee en moderation. Elle sera visible apres validation par un administrateur.',
-              confirmButtonColor: '#0d9488',
+              confirmButtonColor: '#0e5c43',
             }).then(() => this.router.navigate(['/admin/mes-offres']));
           } else {
             this.toastr.success('Offre mise a jour');
@@ -109,8 +122,8 @@ export class JobForm implements OnInit {
             Swal.fire({
               icon: 'info',
               title: 'Offre soumise a moderation',
-              html: '<p>Votre offre a bien ete envoyee.</p><p>Elle sera <strong>visible par les candidats</strong> une fois validee par un administrateur.</p><p style="margin-top:8px;font-size:13px;color:#94a3b8">Vous serez notifie lorsque votre offre sera approuvee.</p>',
-              confirmButtonColor: '#0d9488',
+              html: '<p>Votre offre a bien ete envoyee.</p><p>Elle sera <strong>visible par les candidats</strong> une fois validee par un administrateur.</p><p style="margin-top:8px;font-size:13px;color:#6c6e63">Vous serez notifie lorsque votre offre sera approuvee.</p>',
+              confirmButtonColor: '#0e5c43',
               confirmButtonText: 'Compris',
             }).then(() => this.router.navigate(['/admin/mes-offres']));
           } else {
@@ -118,7 +131,7 @@ export class JobForm implements OnInit {
               icon: 'success',
               title: 'Offre publiee !',
               text: 'Votre offre est maintenant visible par les candidats.',
-              confirmButtonColor: '#0d9488',
+              confirmButtonColor: '#0e5c43',
             }).then(() => this.router.navigate(['/offres', job.id]));
           }
         },

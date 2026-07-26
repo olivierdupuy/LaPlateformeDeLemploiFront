@@ -1,0 +1,72 @@
+<section class="browse-hero">
+  <div class="container">
+    <div class="bh-content animate-in">
+      <span class="eyebrow">Explorer</span>
+      <h1>Parcourez les <span class="hl">emplois</span></h1>
+      <p class="bh-sub">Trouvez votre voie par métier, par ville ou par type de contrat.</p>
+    </div>
+  </div>
+</section>
+
+<section class="browse-page">
+  <div class="container">
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div><p>Chargement…</p></div>
+    } @else {
+      <!-- Métiers -->
+      <div class="browse-block animate-in">
+        <div class="section-head">
+          <div class="section-title"><span class="ed-pill"><i class="bi bi-briefcase"></i></span> Par métier</div>
+        </div>
+        <div class="chip-grid">
+          @for (c of categories(); track c.label) {
+            <a class="browse-chip" [routerLink]="['/offres']" [queryParams]="{ category: c.label }">
+              <span class="bc-label">{{ c.label }}</span>
+              <span class="bc-count u-mono">{{ c.count }}</span>
+            </a>
+          } @empty {
+            <p class="browse-empty">Aucun métier pour le moment.</p>
+          }
+        </div>
+      </div>
+
+      <!-- Villes -->
+      <div class="browse-block animate-in" style="animation-delay:.06s">
+        <div class="section-head">
+          <div class="section-title"><span class="ed-pill"><i class="bi bi-geo-alt"></i></span> Par ville</div>
+        </div>
+        <div class="chip-grid">
+          @for (l of locations(); track l.label) {
+            <a class="browse-chip" [routerLink]="['/offres']" [queryParams]="{ location: l.label }">
+              <span class="bc-label">{{ l.label }}</span>
+              <span class="bc-count u-mono">{{ l.count }}</span>
+            </a>
+          } @empty {
+            <p class="browse-empty">Aucune ville pour le moment.</p>
+          }
+        </div>
+      </div>
+
+      <!-- Contrats -->
+      <div class="browse-block animate-in" style="animation-delay:.12s">
+        <div class="section-head">
+          <div class="section-title"><span class="ed-pill"><i class="bi bi-file-earmark-text"></i></span> Par type de contrat</div>
+        </div>
+        <div class="chip-grid">
+          @for (ct of contractTypes(); track ct.label) {
+            <a class="browse-chip" [routerLink]="['/offres']" [queryParams]="{ contractType: ct.label }">
+              <span class="bc-label">{{ ct.label }}</span>
+              <span class="bc-count u-mono">{{ ct.count }}</span>
+            </a>
+          } @empty {
+            <p class="browse-empty">Aucun contrat pour le moment.</p>
+          }
+        </div>
+      </div>
+
+      <div class="browse-cta animate-in" style="animation-delay:.18s">
+        <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Voir toutes les offres</a>
+      </div>
+    }
+  </div>
+</section>

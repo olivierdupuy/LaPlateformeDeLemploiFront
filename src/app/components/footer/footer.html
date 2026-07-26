@@ -55,6 +55,7 @@
         <h4>Plateforme</h4>
         <a routerLink="/">Accueil</a>
         <a routerLink="/offres">Toutes les offres</a>
+        <a routerLink="/parcourir">Parcourir par metier</a>
         <a routerLink="/offres" [queryParams]="{contractType: 'CDI'}">Offres CDI</a>
         <a routerLink="/offres" [queryParams]="{contractType: 'Stage'}">Stages</a>
         <a routerLink="/offres" [queryParams]="{isRemote: true}">Offres en teletravail</a>
@@ -78,10 +79,11 @@
 
       <div class="ft-col">
         <h4>Ressources</h4>
-        <a href="#">Blog carriere</a>
-        <a href="#">Guide du CV</a>
-        <a href="#">Conseils entretien</a>
-        <a href="#">FAQ</a>
+        <a routerLink="/guide">Guide carriere</a>
+        <a routerLink="/guide/reussir-son-cv">Guide du CV</a>
+        <a routerLink="/guide/preparer-entretien">Conseils entretien</a>
+        <a routerLink="/guide/negocier-salaire">Negocier son salaire</a>
+        <a routerLink="/evenements">Evenements emploi</a>
         @if (platform.contactEmail) {
           <a [href]="'mailto:' + platform.contactEmail"><i class="bi bi-envelope"></i> {{ platform.contactEmail }}</a>
         }
@@ -93,7 +95,15 @@
 
     <!-- Bottom bar -->
     <div class="ft-bottom">
-      <span class="ft-copy">&copy; {{ year }} La Plateforme de l'Emploi. Tous droits reserves.</span>
+      <div class="ft-bottom-left">
+        <span class="ft-copy">&copy; {{ year }} La Plateforme de l'Emploi. Tous droits reserves.</span>
+        <div class="ft-country">
+          <i class="bi bi-globe2"></i>
+          <select [value]="i18n.country()" (change)="i18n.setCountry($any($event.target).value)">
+            @for (c of i18n.countries; track c.code) { <option [value]="c.code">{{ c.flag }} {{ c.label }}</option> }
+          </select>
+        </div>
+      </div>
       <div class="ft-legal">
         <a href="#">Mentions legales</a>
         <a href="#">Politique de confidentialite</a>

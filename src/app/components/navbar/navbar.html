@@ -12,25 +12,34 @@
     <!-- Main links (toujours visibles) -->
     <div class="nav-center" [class.open]="mobileOpen()">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <i class="bi bi-house-door"></i> Accueil
+        <i class="bi bi-house-door"></i> {{ i18n.t('nav.home') }}
       </a>
       <a routerLink="/offres" routerLinkActive="active">
-        <i class="bi bi-search-heart"></i> Offres
+        <i class="bi bi-search-heart"></i> {{ i18n.t('nav.offers') }}
+      </a>
+      <a routerLink="/parcourir" routerLinkActive="active">
+        <i class="bi bi-compass"></i> {{ i18n.t('nav.browse') }}
       </a>
       <a routerLink="/entreprises" routerLinkActive="active">
-        <i class="bi bi-buildings"></i> Entreprises
+        <i class="bi bi-buildings"></i> {{ i18n.t('nav.companies') }}
+      </a>
+      <a routerLink="/salaires" routerLinkActive="active">
+        <i class="bi bi-cash-coin"></i> {{ i18n.t('nav.salaries') }}
       </a>
 
       <!-- CTA recruteur dans les liens principaux -->
       @if (auth.isRecruiter()) {
         <a routerLink="/admin/nouvelle-offre" routerLinkActive="active" class="nav-publish">
-          <i class="bi bi-plus-lg"></i> Publier
+          <i class="bi bi-plus-lg"></i> {{ i18n.t('nav.publish') }}
         </a>
       }
     </div>
 
     <!-- Right side -->
     <div class="nav-right">
+      <button class="lang-switch" (click)="i18n.toggle()" [title]="i18n.lang() === 'fr' ? 'Switch to English' : 'Passer en français'">
+        <i class="bi bi-translate"></i> {{ i18n.lang() === 'fr' ? 'FR' : 'EN' }}
+      </button>
       @if (auth.isLoggedIn()) {
         <!-- Notifications -->
         <div class="notif-wrap">
@@ -211,10 +220,10 @@
       } @else {
         <!-- Non connecte -->
         <a routerLink="/login" class="btn-login">
-          <i class="bi bi-box-arrow-in-right"></i> Connexion
+          <i class="bi bi-box-arrow-in-right"></i> {{ i18n.t('nav.login') }}
         </a>
         <a routerLink="/register" class="btn-register">
-          Inscription
+          {{ i18n.t('nav.register') }}
         </a>
       }
 

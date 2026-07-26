@@ -2,17 +2,26 @@
 <section class="iv-hero">
   <div class="container ivh-inner">
     <div class="ivh-left animate-in">
-      <span class="ed-pill"><i class="bi bi-calendar-event-fill"></i></span>
-      <h1>Mes entretiens</h1>
-      <p>Gerez vos entretiens d'embauche et suivez leur avancement</p>
+      <span class="eyebrow">Espace entretiens</span>
+      <h1>Mes <span class="hl">entretiens</span></h1>
+      <p>Gerez vos entretiens d'embauche et suivez leur avancement en un coup d'oeil.</p>
     </div>
     @if (!loading() && counts().total > 0) {
       <div class="ivh-counters animate-in" style="animation-delay:.1s">
-        <div class="ivhc"><span class="ivhc-val">{{ counts().proposed }}</span><span class="ivhc-lbl">En attente</span></div>
+        <div class="ivhc">
+          <span class="ivhc-val">{{ counts().proposed }}</span>
+          <span class="ivhc-lbl">En attente</span>
+        </div>
         <div class="ivhc-div"></div>
-        <div class="ivhc"><span class="ivhc-val ivhc-green">{{ counts().accepted }}</span><span class="ivhc-lbl">Confirmes</span></div>
+        <div class="ivhc">
+          <span class="ivhc-val ivhc-green">{{ counts().accepted }}</span>
+          <span class="ivhc-lbl">Confirmes</span>
+        </div>
         <div class="ivhc-div"></div>
-        <div class="ivhc"><span class="ivhc-val ivhc-purple">{{ counts().completed }}</span><span class="ivhc-lbl">Termines</span></div>
+        <div class="ivhc">
+          <span class="ivhc-val ivhc-purple">{{ counts().completed }}</span>
+          <span class="ivhc-lbl">Termines</span>
+        </div>
       </div>
     }
   </div>
@@ -37,7 +46,11 @@
       <!-- UPCOMING -->
       @if (upcoming().length > 0) {
         <div class="iv-section animate-in" style="animation-delay:.1s">
-          <h2 class="iv-sec-title"><span class="ed-pill">01</span> A venir <span class="iv-sec-count">{{ upcoming().length }}</span></h2>
+          <div class="iv-sec-head">
+            <span class="ed-pill">01</span>
+            <h2 class="iv-sec-title">A venir</h2>
+            <span class="iv-sec-count">{{ upcoming().length }}</span>
+          </div>
 
           <div class="iv-grid">
             @for (iv of upcoming(); track iv.id; let i = $index) {
@@ -132,7 +145,11 @@
       <!-- PAST -->
       @if (past().length > 0) {
         <div class="iv-section animate-in" style="animation-delay:.2s">
-          <h2 class="iv-sec-title"><span class="ed-pill">02</span> Passes <span class="iv-sec-count">{{ past().length }}</span></h2>
+          <div class="iv-sec-head">
+            <span class="ed-pill">02</span>
+            <h2 class="iv-sec-title">Passes</h2>
+            <span class="iv-sec-count">{{ past().length }}</span>
+          </div>
 
           <div class="iv-grid iv-grid-past">
             @for (iv of past(); track iv.id; let i = $index) {

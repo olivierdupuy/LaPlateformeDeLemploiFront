@@ -3,12 +3,13 @@ import { RouterOutlet } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
 import { SiteBanner } from './components/site-banner/site-banner';
+import { CookieConsent } from './components/cookie-consent/cookie-consent';
 import { PlatformService } from './services/platform.service';
 import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, Footer, SiteBanner],
+  imports: [RouterOutlet, Navbar, Footer, SiteBanner, CookieConsent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

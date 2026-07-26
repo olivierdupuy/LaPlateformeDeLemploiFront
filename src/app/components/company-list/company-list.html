@@ -1,28 +1,30 @@
 <!-- ═══ HERO HEADER ═══ -->
 <section class="ent-hero">
   <div class="container">
-    <div class="eh-content animate-in">
-      <span class="ed-pill">{{ allCompanies().length }}</span>
-      <h1>Entreprises qui recrutent</h1>
-      <p>Decouvrez les entreprises presentes sur la plateforme et explorez leurs offres</p>
+    <div class="eh-top">
+      <div class="eh-content animate-in">
+        <span class="eyebrow">Annuaire · {{ allCompanies().length }} entreprises</span>
+        <h1>Les entreprises qui <span class="hl">recrutent</span></h1>
+        <p>Decouvrez les entreprises presentes sur la plateforme et explorez leurs offres en cours.</p>
 
-      <!-- Search -->
-      <div class="eh-search">
-        <i class="bi bi-search"></i>
-        <input type="text" placeholder="Rechercher une entreprise ou une ville..." [(ngModel)]="searchQuery" />
+        <!-- Search -->
+        <div class="eh-search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Rechercher une entreprise ou une ville..." [(ngModel)]="searchQuery" />
+        </div>
       </div>
-    </div>
 
-    <!-- Stats row -->
-    <div class="eh-stats animate-in" style="animation-delay:.15s">
-      <div class="ehs">
-        <span class="ehs-val">{{ allCompanies().length }}</span>
-        <span class="ehs-lbl">Entreprises</span>
-      </div>
-      <div class="ehs-div"></div>
-      <div class="ehs">
-        <span class="ehs-val">{{ totalJobs() }}</span>
-        <span class="ehs-lbl">Offres actives</span>
+      <!-- Stats row -->
+      <div class="eh-stats animate-in" style="animation-delay:.12s">
+        <div class="ehs">
+          <span class="ehs-val">{{ allCompanies().length }}</span>
+          <span class="ehs-lbl">Entreprises</span>
+        </div>
+        <div class="ehs-div"></div>
+        <div class="ehs">
+          <span class="ehs-val">{{ totalJobs() }}</span>
+          <span class="ehs-lbl">Offres actives</span>
+        </div>
       </div>
     </div>
   </div>
@@ -41,7 +43,8 @@
       </div>
     } @else {
       <div class="results-info animate-in">
-        <span>{{ filtered().length }} entreprise{{ filtered().length > 1 ? 's' : '' }}</span>
+        <span class="ri-count u-mono">{{ filtered().length }}</span>
+        <span class="ri-label">entreprise{{ filtered().length > 1 ? 's' : '' }}</span>
       </div>
 
       <div class="company-grid">
@@ -66,12 +69,12 @@
               <div class="cc-stats">
                 <div class="cc-stat">
                   <i class="bi bi-briefcase-fill"></i>
-                  <span class="cc-stat-val">{{ c.jobCount }}</span>
+                  <span class="cc-stat-val u-mono">{{ c.jobCount }}</span>
                   <span class="cc-stat-lbl">offre{{ c.jobCount > 1 ? 's' : '' }} active{{ c.jobCount > 1 ? 's' : '' }}</span>
                 </div>
                 <div class="cc-stat">
                   <i class="bi bi-pin-map-fill"></i>
-                  <span class="cc-stat-val">{{ c.locations.length }}</span>
+                  <span class="cc-stat-val u-mono">{{ c.locations.length }}</span>
                   <span class="cc-stat-lbl">site{{ c.locations.length > 1 ? 's' : '' }}</span>
                 </div>
               </div>

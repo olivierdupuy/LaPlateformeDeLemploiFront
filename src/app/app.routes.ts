@@ -1,6 +1,11 @@
 import { Routes } from '@angular/router';
 import { Home } from './components/home/home';
 import { JobList } from './components/job-list/job-list';
+import { BrowseJobs } from './components/browse-jobs/browse-jobs';
+import { Salaries } from './components/salaries/salaries';
+import { SalaryDetail } from './components/salary-detail/salary-detail';
+import { CareersGuide } from './components/careers-guide/careers-guide';
+import { Events } from './components/events/events';
 import { JobDetail } from './components/job-detail/job-detail';
 import { JobForm } from './components/job-form/job-form';
 import { Applications } from './components/applications/applications';
@@ -33,6 +38,12 @@ export const routes: Routes = [
   // Public
   { path: '', component: Home },
   { path: 'offres', component: JobList },
+  { path: 'parcourir', component: BrowseJobs },
+  { path: 'salaires', component: Salaries },
+  { path: 'salaires/metier/:title', component: SalaryDetail },
+  { path: 'guide', component: CareersGuide },
+  { path: 'guide/:slug', component: CareersGuide },
+  { path: 'evenements', component: Events },
   { path: 'offres/:id', component: JobDetail },
   { path: 'entreprises', component: CompanyList },
   { path: 'entreprises/:name', component: CompanyDetail },
