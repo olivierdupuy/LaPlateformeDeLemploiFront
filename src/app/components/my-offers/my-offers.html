@@ -140,6 +140,11 @@
                   }
                 </div>
                 <div class="oc-actions" (click)="$event.stopPropagation(); $event.preventDefault()">
+                  <button class="oc-btn oc-btn-stats" (click)="toggleStats(o, $event)"><i class="bi bi-bar-chart-line"></i> Stats</button>
+                  <button class="oc-btn oc-btn-sponsor" [class.on]="o.isFeatured" (click)="sponsor(o, $event)">
+                    <i class="bi" [class.bi-star]="!o.isFeatured" [class.bi-star-fill]="o.isFeatured"></i>
+                    {{ o.isFeatured ? 'Sponsorisée' : 'Sponsoriser' }}
+                  </button>
                   <a [routerLink]="['/admin/modifier-offre', o.id]" class="oc-btn" (click)="$event.stopPropagation()"><i class="bi bi-pencil"></i> Modifier</a>
                   <button class="oc-btn" (click)="duplicate(o, $event)"><i class="bi bi-copy"></i> Dupliquer</button>
                   @if (!o.isActive && o.moderationStatus !== 'Pending') {
@@ -147,6 +152,27 @@
                   }
                 </div>
               </div>
+
+              @if (statsOpenId() === o.id) {
+                <div class="oc-stats-panel" (click)="$event.stopPropagation(); $event.preventDefault()">
+                  @if (statsLoading()) {
+                    <div class=" osp-loading"><span class="sp sp-brand"></span> Chargement des stats…</div>
+                  } @else if (statsData(); as s) {
+                    <div class="osp-kpis">
+                      <div class="osp-kpi"><span class="osp-val u-mono">{{ s.views }}</span><span class="osp-lbl">Vues</span></div>
+                      <div class="osp-kpi"><span class="osp-val u-mono">{{ s.applications }}</span><span class="osp-lbl">Candidatures</span></div>
+                      <div class="osp-kpi"><span class="osp-val u-mono">{{ s.conversion }}%</span><span class="osp-lbl">Taux de conversion</span></div>
+                    </div>
+                    @if (s.byStatus.length) {
+                      <div class="osp-status">
+                        @for (st of s.byStatus; track st.label) {
+                          <span class="osp-chip">{{ statusLabel(st.label) }} · <strong>{{ st.value }}</strong></span>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              }
             </div>
           </a>
         }

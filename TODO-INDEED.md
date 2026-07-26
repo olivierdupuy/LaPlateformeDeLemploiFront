@@ -189,7 +189,12 @@ Finalisation P0 (implémenté le 2026-07-26, builds verts) :
 - **Fiche offre `/offres/:id`** : mise en page refondue (hero card + outils, grille « Détails de l'emploi », sidebar candidature sticky + entreprise + notes).
 - **Avis d'entreprises** (démarré) : modèle `CompanyReview` (note globale + 5 critères : équilibre, salaire/avantages, sécurité/évolution, direction, culture), `CompanyReviewsController` (`GET/POST /companies/{name}/reviews`, `GET .../rating`), migration EF `CompanyReviews`. Page entreprise enrichie : **onglets Emplois/Avis**, résumé des notes (moyenne + critères + répartition), **liste d'avis**, **dépôt d'avis** (modale avec star-pickers). Builds verts.
 
-Reste P2 : Q&A entreprise + « suivre », **Salaires** (hub + par métier), employeur avancé (offres sponsorisées, stats par offre), contenu/i18n.
+- **Salaires** : modèle `SalaryContribution` + `SalariesController` (`GET /salaries/roles` meilleurs salaires par métier/secteur, `GET /salaries/estimate` fourchette min/médiane/max + par lieu + par entreprise, `POST /salaries/contribute`), migration EF `SalaryContributions`. Front : **hub `/salaires`** (recherche + filtre secteur + liste métiers), **détail `/salaires/metier/:title`** (salaire moyen, barre de fourchette avec médiane, par entreprise/lieu, **contribuer un salaire**), lien navbar. Builds verts.
+
+- **Q&A entreprise + suivre** : modèles `CompanyQuestion`/`CompanyAnswer`/`CompanyFollow` + endpoints (questions/réponses, follow toggle). Front : **onglet Questions** (poser/répondre) + **bouton Suivre** (compteur) sur la page entreprise. Migration EF `CompanyEngagement`.
+- **Employeur avancé** : endpoints recruteur `PATCH /joboffers/{id}/feature` (sponsoriser sa propre offre) + `GET /joboffers/{id}/stats` (vues, candidatures, conversion, statuts). Front : dans `my-offers`, boutons **Sponsoriser** + **Stats** (panneau KPI dépliable), **label « Sponsorisée »** sur les cartes d'offres (tri pertinence les remonte déjà).
+
+**➡️ Bloc P2 essentiellement terminé** (Avis, Salaires, Q&A/suivre, employeur avancé). Reste optionnel : Guide Carrières, i18n, PWA, SSO Google (P3/P4).
 
 ## Priorisation suggérée (pour atteindre la parité perçue rapidement)
 

@@ -1,0 +1,121 @@
+<section class="sd-page">
+  <div class="container">
+    <a routerLink="/salaires" class="back-link"><i class="bi bi-arrow-left"></i> Salaires</a>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (estimate(); as e) {
+      <header class="sd-header animate-in">
+        <span class="eyebrow">Estimation de salaire</span>
+        <h1>{{ e.title }}</h1>
+        @if (e.count > 0) {
+          <p class="sd-count u-mono">Basé sur {{ e.count }} donnée{{ e.count > 1 ? 's' : '' }} (offres + contributions)</p>
+        }
+      </header>
+
+      @if (e.count === 0) {
+        <div class="empty-box">
+          <i class="bi bi-cash-stack"></i>
+          <h3>Pas encore de données</h3>
+          <p>Soyez le premier à partager un salaire pour ce métier.</p>
+          <button class="btn-primary" (click)="openContribute()"><i class="bi bi-plus-lg"></i> Partager un salaire</button>
+        </div>
+      } @else {
+        <!-- Carte principale -->
+        <div class="sd-main card animate-in">
+          <div class="sd-figure">
+            <span class="sd-label">Salaire moyen</span>
+            <div class="sd-amount u-mono">{{ euros(e.avgAnnual) }}<span class="sd-per"> / an</span></div>
+            <span class="sd-median">Médiane : <strong class="u-mono">{{ euros(e.medianAnnual) }}</strong></span>
+          </div>
+
+          <div class="sd-range">
+            <div class="sd-rangebar">
+              <div class="sd-marker" [style.left.%]="pct(e.medianAnnual)"><span class="sd-marker-dot"></span></div>
+            </div>
+            <div class="sd-range-labels u-mono">
+              <span>{{ euros(e.minAnnual) }}</span>
+              <span>{{ euros(e.maxAnnual) }}</span>
+            </div>
+          </div>
+
+          <button class="btn-spring sd-contrib" (click)="openContribute()"><i class="bi bi-plus-circle"></i> Partager mon salaire</button>
+        </div>
+
+        <div class="sd-cols">
+          <!-- Par entreprise -->
+          @if (e.byCompany.length) {
+            <div class="sd-block card">
+              <h3 class="sd-block-title"><i class="bi bi-building"></i> Par entreprise</h3>
+              @for (b of e.byCompany; track b.label) {
+                <div class="sd-row">
+                  <span class="sd-row-label">{{ b.label }}</span>
+                  <div class="sd-row-bar"><span [style.width.%]="barWidth(b.avgAnnual, e.maxAnnual)"></span></div>
+                  <span class="sd-row-val u-mono">{{ euros(b.avgAnnual) }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Par lieu -->
+          @if (e.byLocation.length) {
+            <div class="sd-block card">
+              <h3 class="sd-block-title"><i class="bi bi-geo-alt"></i> Par lieu</h3>
+              @for (b of e.byLocation; track b.label) {
+                <div class="sd-row">
+                  <span class="sd-row-label">{{ b.label }}</span>
+                  <div class="sd-row-bar"><span [style.width.%]="barWidth(b.avgAnnual, e.maxAnnual)"></span></div>
+                  <span class="sd-row-val u-mono">{{ euros(b.avgAnnual) }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <a [routerLink]="['/offres']" [queryParams]="{ search: e.title }" class="link-teal sd-jobs-link">
+          Voir les offres « {{ e.title }} » <i class="bi bi-arrow-right"></i>
+        </a>
+      }
+    }
+  </div>
+</section>
+
+<!-- Modale contribution -->
+@if (contribOpen()) {
+  <div class="modal-overlay" (click)="closeContribute()">
+    <div class="modal-content contrib-modal" (click)="$event.stopPropagation()">
+      <div class="cm-head">
+        <div>
+          <span class="eyebrow">Anonyme</span>
+          <h3>Partager un salaire</h3>
+        </div>
+        <button class="cm-close" (click)="closeContribute()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <p class="cm-job">{{ title }}</p>
+
+      <div class="form-group">
+        <label>Salaire annuel brut (€) <span class="am-req">*</span></label>
+        <input type="number" [(ngModel)]="contribForm.amountAnnual" placeholder="45000" />
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Entreprise</label><input type="text" [(ngModel)]="contribForm.company" placeholder="optionnel" /></div>
+        <div class="form-group"><label>Lieu</label><input type="text" [(ngModel)]="contribForm.location" placeholder="ex: Paris" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Contrat</label>
+          <select [(ngModel)]="contribForm.contractType"><option value="">—</option>@for (c of contractTypes; track c) { <option [value]="c">{{ c }}</option> }</select>
+        </div>
+        <div class="form-group"><label>Expérience</label>
+          <select [(ngModel)]="contribForm.experienceLevel"><option value="">—</option>@for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }</select>
+        </div>
+      </div>
+
+      <div class="cm-actions">
+        <button class="btn-secondary" (click)="closeContribute()">Annuler</button>
+        <button class="btn-primary" [disabled]="submitting()" (click)="submitContribute()">
+          @if (submitting()) { <span class="sp"></span> Envoi… } @else { <i class="bi bi-send"></i> Partager }
+        </button>
+      </div>
+    </div>
+  </div>
+}

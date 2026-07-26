@@ -10,6 +10,11 @@
         <span class="eyebrow">Entreprise</span>
         <h1>{{ companyName }}</h1>
         <div class="cd-headmeta">
+          <button class="cd-follow" [class.following]="following()" (click)="toggleFollow()">
+            <i class="bi" [class.bi-bell]="!following()" [class.bi-bell-fill]="following()"></i>
+            {{ following() ? 'Suivi' : 'Suivre' }}
+            @if (followCount()) { <span class="cd-follow-n">{{ followCount() }}</span> }
+          </button>
           <span class="cd-count u-mono">{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }}</span>
           @if (summary(); as s) {
             @if (s.count > 0) {
@@ -35,6 +40,9 @@
       </button>
       <button class="cd-tab" [class.active]="tab() === 'reviews'" (click)="setTab('reviews')">
         <i class="bi bi-star"></i> Avis <span class="cd-tab-n">{{ summary()?.count || 0 }}</span>
+      </button>
+      <button class="cd-tab" [class.active]="tab() === 'questions'" (click)="setTab('questions')">
+        <i class="bi bi-patch-question"></i> Questions <span class="cd-tab-n">{{ questions().length }}</span>
       </button>
     </div>
 
@@ -144,6 +152,64 @@
           }
         } @else {
           <div class="empty-box"><div class="spinner"></div></div>
+        }
+      </div>
+    }
+
+    <!-- ═══ QUESTIONS ═══ -->
+    @if (tab() === 'questions') {
+      <div class="cd-qa animate-in">
+        <div class="qa-ask card">
+          <h3><i class="bi bi-patch-question"></i> Poser une question</h3>
+          <p>Une question sur le recrutement, la culture, les avantages ? Posez-la à la communauté.</p>
+          <div class="qa-ask-row">
+            <input type="text" [(ngModel)]="newQuestion" placeholder="ex: Quel est le processus de recrutement ?" (keyup.enter)="submitQuestion()" />
+            <button class="btn-primary" [disabled]="asking() || !newQuestion.trim()" (click)="submitQuestion()">
+              @if (asking()) { <span class="sp"></span> } @else { <i class="bi bi-send"></i> } Publier
+            </button>
+          </div>
+        </div>
+
+        @if (questions().length === 0) {
+          <div class="empty-box">
+            <i class="bi bi-chat-dots"></i>
+            <h3>Aucune question pour le moment</h3>
+            <p>Soyez le premier à poser une question sur {{ companyName }}.</p>
+          </div>
+        } @else {
+          <div class="qa-list">
+            @for (q of questions(); track q.id) {
+              <article class="qa-card card">
+                <div class="qa-q">
+                  <i class="bi bi-question-circle"></i>
+                  <div class="qa-q-body">
+                    <p class="qa-q-text">{{ q.body }}</p>
+                    <span class="qa-meta u-mono">{{ q.authorName }} · {{ q.createdAt | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                </div>
+
+                @for (a of q.answers; track a.id) {
+                  <div class="qa-a">
+                    <i class="bi bi-arrow-return-right"></i>
+                    <div>
+                      <p class="qa-a-text">{{ a.body }}</p>
+                      <span class="qa-meta u-mono">{{ a.authorName }} · {{ a.createdAt | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                  </div>
+                }
+
+                @if (answeringId() === q.id) {
+                  <div class="qa-answer-form">
+                    <input type="text" [(ngModel)]="answerText" placeholder="Votre réponse…" (keyup.enter)="submitAnswer(q.id)" />
+                    <button class="btn-primary" (click)="submitAnswer(q.id)">Répondre</button>
+                    <button class="btn-ghost" (click)="openAnswer(q.id)">Annuler</button>
+                  </div>
+                } @else {
+                  <button class="qa-answer-btn" (click)="openAnswer(q.id)"><i class="bi bi-reply"></i> Répondre</button>
+                }
+              </article>
+            }
+          </div>
         }
       </div>
     }

@@ -118,6 +118,16 @@ export class JobOfferService {
     return this.http.patch<JobOffer>(`${this.apiUrl}/${id}/renew`, {});
   }
 
+  /** Recruteur : sponsoriser / retirer la mise en avant de sa propre offre. */
+  toggleFeature(id: number): Observable<{ isFeatured: boolean }> {
+    return this.http.patch<{ isFeatured: boolean }>(`${this.apiUrl}/${id}/feature`, {});
+  }
+
+  /** Recruteur : statistiques d'une offre (vues, candidatures, conversion, statuts). */
+  getOfferStats(id: number): Observable<{ views: number; applications: number; isFeatured: boolean; conversion: number; byStatus: { label: string; value: number }[]; appsByDay: { label: string; value: number }[] }> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/stats`);
+  }
+
   create(job: Partial<JobOffer>): Observable<JobOffer> {
     return this.http.post<JobOffer>(this.apiUrl, job);
   }

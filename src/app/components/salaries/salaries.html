@@ -1,0 +1,64 @@
+<section class="sal-hero">
+  <div class="container">
+    <div class="sh-content animate-in">
+      <span class="eyebrow">Salaires</span>
+      <h1>Estimez votre <span class="hl">prochain salaire</span></h1>
+      <p class="sh-sub">Explorez les rémunérations par métier, secteur et entreprise, à partir des offres de la plateforme.</p>
+
+      <form class="sal-search" (ngSubmit)="load()">
+        <div class="ss-field">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Intitulé de poste…" [(ngModel)]="q" name="q" />
+        </div>
+        <button type="submit" class="btn-primary">Rechercher</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="sal-page">
+  <div class="container">
+    <!-- Filtre secteur -->
+    <div class="sal-sectors animate-in">
+      <button class="sec-chip" [class.active]="!sector" (click)="pickSector('')">Tous les secteurs</button>
+      @for (c of categories(); track c) {
+        <button class="sec-chip" [class.active]="sector === c" (click)="pickSector(c)">{{ c }}</button>
+      }
+    </div>
+
+    <div class="section-head">
+      <div class="section-title"><span class="ed-pill"><i class="bi bi-graph-up-arrow"></i></span> Meilleurs salaires {{ sector ? '· ' + sector : 'par métier' }}</div>
+    </div>
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (roles().length === 0) {
+      <div class="empty-box">
+        <i class="bi bi-cash-stack"></i>
+        <h3>Aucune donnée de salaire</h3>
+        <p>Aucune offre avec fourchette de salaire pour ce filtre. Élargissez la recherche.</p>
+      </div>
+    } @else {
+      <div class="role-grid">
+        @for (r of roles(); track r.title; let i = $index) {
+          <button class="role-card animate-in" [style.animation-delay]="(i*0.03)+'s'" (click)="goToRole(r.title)">
+            <div class="rc-top">
+              <span class="rc-title">{{ r.title }}</span>
+              @if (r.category) { <span class="rc-cat">{{ r.category }}</span> }
+            </div>
+            <div class="rc-avg u-mono">{{ euros(r.avgAnnual) }}<span class="rc-per"> / an</span></div>
+            <div class="rc-range">
+              <span class="u-mono">{{ euros(r.minAnnual) }}</span>
+              <div class="rc-bar"></div>
+              <span class="u-mono">{{ euros(r.maxAnnual) }}</span>
+            </div>
+            <div class="rc-foot">
+              <span class="rc-count">{{ r.count }} offre{{ r.count > 1 ? 's' : '' }}</span>
+              <span class="rc-link">Détails <i class="bi bi-arrow-right"></i></span>
+            </div>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</section>

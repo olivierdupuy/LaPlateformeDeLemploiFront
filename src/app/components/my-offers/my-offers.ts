@@ -26,6 +26,11 @@ export class MyOffers implements OnInit {
   loading = signal(true);
   filter = signal<'all' | 'active' | 'expired' | 'pending' | 'rejected'>('all');
 
+  // Sponsorisation + stats
+  statsOpenId = signal<number | null>(null);
+  statsData = signal<any>(null);
+  statsLoading = signal(false);
+
   filtered = computed(() => {
     const f = this.filter();
     if (f === 'active') return this.offers().filter(o => o.isActive && o.moderationStatus === 'Approved');
@@ -68,6 +73,35 @@ export class MyOffers implements OnInit {
 
   moderationLabel(status?: string): string {
     return { Pending: 'En attente de validation', Approved: 'Approuvee', Rejected: 'Rejetee' }[status || ''] || '';
+  }
+
+  sponsor(offer: JobOffer, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.jobService.toggleFeature(offer.id).subscribe({
+      next: (r) => {
+        offer.isFeatured = r.isFeatured;
+        this.toastr.success(r.isFeatured ? 'Offre sponsorisée — mise en avant' : 'Sponsorisation retirée');
+      },
+      error: () => this.toastr.error('Erreur'),
+    });
+  }
+
+  toggleStats(offer: JobOffer, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    if (this.statsOpenId() === offer.id) { this.statsOpenId.set(null); return; }
+    this.statsOpenId.set(offer.id);
+    this.statsData.set(null);
+    this.statsLoading.set(true);
+    this.jobService.getOfferStats(offer.id).subscribe({
+      next: (s) => { this.statsData.set(s); this.statsLoading.set(false); },
+      error: () => { this.statsLoading.set(false); this.toastr.error('Erreur stats'); },
+    });
+  }
+
+  statusLabel(status: string): string {
+    return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[status] || status;
   }
 
   duplicate(offer: JobOffer, event: Event) {

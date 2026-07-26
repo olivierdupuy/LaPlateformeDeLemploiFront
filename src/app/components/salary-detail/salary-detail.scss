@@ -1,0 +1,81 @@
+// ═══════════════════════════════════
+//  SALAIRE — détail métier
+// ═══════════════════════════════════
+
+.sd-page { padding: calc(68px + 1.5rem) 0 4rem; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-family: var(--font-mono); font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted);
+  transition: gap var(--t), color var(--t); margin-bottom: 1.25rem;
+  &:hover { color: var(--brand); gap: 0.65rem; }
+}
+
+.sd-header { margin-bottom: 1.75rem; }
+.sd-header h1 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); letter-spacing: -0.035em; margin: 0.4rem 0 0.5rem; }
+.sd-count { font-size: 0.82rem; color: var(--muted); }
+
+// ── Carte principale ──
+.sd-main {
+  padding: 2rem; margin-bottom: 1.25rem;
+  &:hover { transform: none; box-shadow: none; border-color: var(--line); }
+}
+.sd-figure { text-align: center; margin-bottom: 2rem; }
+.sd-label { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.sd-amount { font-size: clamp(2.4rem, 6vw, 3.4rem); font-weight: 800; color: var(--brand-700); letter-spacing: -0.03em; line-height: 1.1; margin: 0.25rem 0; }
+.sd-per { font-size: 1rem; font-weight: 500; color: var(--muted); }
+.sd-median { font-size: 0.88rem; color: var(--muted); strong { color: var(--ink); } }
+
+.sd-range { max-width: 620px; margin: 0 auto 1.75rem; }
+.sd-rangebar {
+  position: relative; height: 10px; border-radius: var(--r-full);
+  background: linear-gradient(90deg, var(--brand-100), var(--brand-300), var(--brand));
+}
+.sd-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); }
+.sd-marker-dot {
+  display: block; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--brand); box-shadow: var(--shadow-md);
+}
+.sd-range-labels { display: flex; justify-content: space-between; margin-top: 0.6rem; font-size: 0.8rem; color: var(--muted); }
+
+.sd-contrib { display: flex; margin: 0 auto; }
+
+// ── Colonnes ──
+.sd-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+.sd-block {
+  padding: 1.5rem;
+  &:hover { transform: none; box-shadow: none; border-color: var(--line); }
+}
+.sd-block-title {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.9rem; font-weight: 700; margin-bottom: 1.1rem;
+  i { color: var(--brand); }
+}
+.sd-row { display: grid; grid-template-columns: 1fr 90px auto; align-items: center; gap: 0.75rem; padding: 0.4rem 0; }
+.sd-row-label { font-size: 0.84rem; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-row-bar {
+  height: 6px; border-radius: var(--r-full); background: var(--paper-2); overflow: hidden;
+  span { display: block; height: 100%; background: var(--brand); border-radius: var(--r-full); transition: width 0.5s var(--ease-out); }
+}
+.sd-row-val { font-size: 0.8rem; font-weight: 600; color: var(--brand-700); text-align: right; }
+
+.sd-jobs-link { display: inline-flex; }
+
+// ── Modale contribution ──
+.contrib-modal { max-width: 520px; }
+.cm-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.4rem;
+  h3 { font-size: 1.3rem; letter-spacing: -0.02em; margin-top: 0.35rem; } }
+.cm-close { width: 34px; height: 34px; border-radius: var(--r-sm); color: var(--muted); &:hover { background: var(--paper-2); color: var(--ink); } }
+.cm-job { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.4rem; }
+.am-req { color: var(--red); }
+.contrib-modal .form-group { margin-bottom: 0.9rem; }
+.contrib-modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+.cm-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.4rem; }
+
+@media (max-width: 768px) {
+  .sd-cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .contrib-modal .form-row { grid-template-columns: 1fr; }
+}

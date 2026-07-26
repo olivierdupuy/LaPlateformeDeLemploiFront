@@ -6,7 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { JobOfferService } from '../../services/job-offer';
 import { BookmarkService } from '../../services/bookmark.service';
 import { AuthService } from '../../services/auth.service';
-import { CompanyReviewService, CompanyReviewSummary } from '../../services/company-review.service';
+import { CompanyReviewService, CompanyReviewSummary, CompanyQuestion } from '../../services/company-review.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
 
@@ -28,8 +28,19 @@ export class CompanyDetail implements OnInit {
   jobs = signal<JobOffer[]>([]);
   loading = signal(true);
 
-  tab = signal<'jobs' | 'reviews'>('jobs');
+  tab = signal<'jobs' | 'reviews' | 'questions'>('jobs');
   summary = signal<CompanyReviewSummary | null>(null);
+
+  // Suivre
+  following = signal(false);
+  followCount = signal(0);
+
+  // Q&A
+  questions = signal<CompanyQuestion[]>([]);
+  newQuestion = '';
+  asking = signal(false);
+  answeringId = signal<number | null>(null);
+  answerText = '';
 
   // Formulaire d'avis
   reviewOpen = signal(false);
@@ -57,13 +68,45 @@ export class CompanyDetail implements OnInit {
       this.loading.set(false);
     });
     this.loadReviews();
+    this.reviewSvc.getFollow(this.companyName).subscribe((f) => { this.following.set(f.following); this.followCount.set(f.count); });
+    this.reviewSvc.getQuestions(this.companyName).subscribe((q) => this.questions.set(q));
   }
 
   loadReviews() {
     this.reviewSvc.getReviews(this.companyName).subscribe((s) => this.summary.set(s));
   }
 
-  setTab(t: 'jobs' | 'reviews') { this.tab.set(t); }
+  setTab(t: 'jobs' | 'reviews' | 'questions') { this.tab.set(t); }
+
+  // ── Suivre ──
+  toggleFollow() {
+    if (!this.auth.isLoggedIn()) { this.toastr.info('Connectez-vous pour suivre une entreprise'); return; }
+    this.reviewSvc.toggleFollow(this.companyName).subscribe((f) => {
+      this.following.set(f.following);
+      this.followCount.set(f.count);
+      this.toastr.success(f.following ? 'Entreprise suivie' : 'Vous ne suivez plus cette entreprise');
+    });
+  }
+
+  // ── Q&A ──
+  submitQuestion() {
+    if (!this.auth.isLoggedIn()) { this.toastr.info('Connectez-vous pour poser une question'); return; }
+    if (!this.newQuestion.trim()) return;
+    this.asking.set(true);
+    this.reviewSvc.askQuestion(this.companyName, this.newQuestion.trim()).subscribe({
+      next: () => { this.asking.set(false); this.newQuestion = ''; this.toastr.success('Question publiée'); this.reviewSvc.getQuestions(this.companyName).subscribe((q) => this.questions.set(q)); },
+      error: () => { this.asking.set(false); this.toastr.error('Erreur'); },
+    });
+  }
+  openAnswer(qid: number) { this.answeringId.set(this.answeringId() === qid ? null : qid); this.answerText = ''; }
+  submitAnswer(qid: number) {
+    if (!this.auth.isLoggedIn()) { this.toastr.info('Connectez-vous pour répondre'); return; }
+    if (!this.answerText.trim()) return;
+    this.reviewSvc.answerQuestion(qid, this.answerText.trim()).subscribe({
+      next: () => { this.answeringId.set(null); this.answerText = ''; this.toastr.success('Réponse publiée'); this.reviewSvc.getQuestions(this.companyName).subscribe((q) => this.questions.set(q)); },
+      error: () => this.toastr.error('Erreur'),
+    });
+  }
 
   criteriaValue(key: string): number {
     const c = this.summary()?.criteria as any;
