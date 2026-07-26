@@ -23,6 +23,8 @@ export class TrackApplications implements OnInit {
 
   applications = signal<Application[]>([]);
   loading = signal(true);
+  remindingId = signal<number | null>(null);
+  remindedIds = signal<Set<number>>(new Set());
 
   counts = computed(() => {
     const apps = this.applications();
@@ -52,6 +54,20 @@ export class TrackApplications implements OnInit {
 
   getStatusIcon(status: string): string {
     return { Pending: 'bi-clock', Reviewed: 'bi-eye-fill', Accepted: 'bi-check-circle-fill', Rejected: 'bi-x-circle-fill' }[status] || 'bi-circle';
+  }
+
+  daysSince(date: string): number {
+    return Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
+  }
+  canRemind(app: Application): boolean {
+    return app.status === 'Pending' && this.daysSince(app.appliedAt) >= 3 && !this.remindedIds().has(app.id);
+  }
+  remind(app: Application) {
+    this.remindingId.set(app.id);
+    this.appService.remind(app.id).subscribe({
+      next: (r) => { this.remindingId.set(null); this.remindedIds.update((s) => new Set(s).add(app.id)); this.toastr.success(r.message, 'Relance'); },
+      error: (err) => { this.remindingId.set(null); this.toastr.error(err.error?.message || 'Erreur'); },
+    });
   }
 
   withdraw(app: Application) {

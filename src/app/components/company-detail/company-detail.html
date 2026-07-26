@@ -97,7 +97,53 @@
               </div>
             </div>
           }
+
+          @if (locations().length) {
+            <div class="about-block card">
+              <h3 class="ab-title"><i class="bi bi-geo-alt"></i> Lieux</h3>
+              <div class="ab-chips">
+                @for (l of locations(); track l.location) {
+                  <a class="ab-loc" [routerLink]="['/offres']" [queryParams]="{ location: l.location }">{{ l.location }} <span>{{ l.count }}</span></a>
+                }
+              </div>
+            </div>
+          }
+
+          @if (companySalaries().length) {
+            <div class="about-block card">
+              <h3 class="ab-title"><i class="bi bi-cash-coin"></i> Salaires par poste</h3>
+              @for (s of companySalaries(); track s.title) {
+                <div class="ab-sal">
+                  <a class="ab-sal-title" [routerLink]="['/salaires/metier', s.title]">{{ s.title }}</a>
+                  <span class="ab-sal-val u-mono">{{ euros(s.avgAnnual) }}<small> /an</small></span>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="about-block card about-faq">
+            <h3 class="ab-title"><i class="bi bi-patch-question"></i> Questions courantes sur {{ companyName }}</h3>
+            <details><summary>Où se situe {{ companyName }} ?</summary><p>{{ profile()?.headquarters || (locations().length ? locations()[0].location : 'Non précisé') }}</p></details>
+            <details><summary>Combien d'employés compte {{ companyName }} ?</summary><p>{{ profile()?.size ? profile()!.size + ' employés' : 'Non précisé' }}</p></details>
+            <details><summary>{{ companyName }} recrute-t-elle actuellement ?</summary><p>{{ (profile()?.jobCount || 0) > 0 ? profile()!.jobCount + ' offre(s) active(s) — voir l\'onglet Emplois.' : 'Aucune offre active pour le moment.' }}</p></details>
+            @if (summary(); as sm) { @if (sm.count > 0) { <details><summary>Quelle est la note de {{ companyName }} ?</summary><p>{{ sm.average }}/5 sur {{ sm.count }} avis.</p></details> } }
+          </div>
         }
+      </div>
+    }
+
+    <!-- Autres entreprises qui pourraient vous intéresser -->
+    @if (tab() === 'about' && similar().length) {
+      <div class="cd-similar animate-in">
+        <div class="section-head"><div class="section-title"><span class="ed-pill"><i class="bi bi-building"></i></span> Autres entreprises qui pourraient vous intéresser</div></div>
+        <div class="sim-grid">
+          @for (c of similar(); track c.company) {
+            <a class="sim-card card" [routerLink]="['/entreprises', c.company]">
+              <div class="sim-av" [style.background]="companyColor(c.company).bg"><span [style.color]="companyColor(c.company).fg">{{ c.company.charAt(0) }}</span></div>
+              <div class="sim-meta"><strong>{{ c.company }}</strong><span>{{ c.jobCount }} offre{{ c.jobCount > 1 ? 's' : '' }}</span></div>
+            </a>
+          }
+        </div>
       </div>
     }
 

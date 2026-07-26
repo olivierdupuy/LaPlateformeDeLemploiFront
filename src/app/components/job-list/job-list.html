@@ -139,6 +139,19 @@
         }
       </div>
 
+      @if (search || location || category || contractType) {
+        <div class="alert-bar">
+          <span><i class="bi bi-bell"></i> Recevez les nouvelles offres de cette recherche par email</span>
+          @if (alertSaved()) {
+            <span class="alert-done"><i class="bi bi-check-circle-fill"></i> Alerte activée</span>
+          } @else {
+            <button class="btn-secondary alert-btn" [disabled]="alertSaving()" (click)="createAlert()">
+              @if (alertSaving()) { <span class="sp"></span> } @else { <i class="bi bi-plus-lg"></i> } Créer l'alerte
+            </button>
+          }
+        </div>
+      }
+
       <div class="split">
         <!-- Liste -->
         <div class="split-list">

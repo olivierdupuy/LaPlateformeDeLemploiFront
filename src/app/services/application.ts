@@ -25,6 +25,11 @@ export class ApplicationService {
     return this.http.post<Application>(this.apiUrl, application);
   }
 
+  /** Candidat : relancer le recruteur sur une candidature en attente. */
+  remind(id: number): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${id}/remind`, {});
+  }
+
   updateNotes(id: number, notes: string): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/${id}/notes`, { notes });
   }

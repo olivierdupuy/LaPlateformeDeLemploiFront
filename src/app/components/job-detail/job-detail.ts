@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import { JobOfferService } from '../../services/job-offer';
 import { ApplicationService } from '../../services/application';
 import { CompanyReviewService } from '../../services/company-review.service';
@@ -18,7 +19,7 @@ import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-job-detail',
-  imports: [RouterLink, FormsModule, ApplyModal, MarkdownPipe],
+  imports: [RouterLink, FormsModule, ApplyModal, MarkdownPipe, DatePipe],
   templateUrl: './job-detail.html',
   styleUrl: './job-detail.scss',
 })

@@ -113,6 +113,13 @@
                   @if (app.coverLetter) { <span class="tl-meta"><i class="bi bi-file-text"></i> Lettre jointe</span> }
                   @if (app.jobOffer) { <span class="tl-meta"><i class="bi bi-briefcase"></i> {{ app.jobOffer.contractType }}</span> }
                   @if (app.jobOffer && app.jobOffer.salary) { <span class="tl-meta tl-salary"><i class="bi bi-cash-stack"></i> {{ app.jobOffer.salary }}</span> }
+                  @if (canRemind(app)) {
+                    <button class="tl-remind" [disabled]="remindingId() === app.id" (click)="remind(app)">
+                      @if (remindingId() === app.id) { <span class="sp sp-brand"></span> } @else { <i class="bi bi-bell"></i> } Relancer
+                    </button>
+                  } @else if (remindedIds().has(app.id)) {
+                    <span class="tl-reminded"><i class="bi bi-check2"></i> Relancé</span>
+                  }
                   @if (app.status !== 'Accepted') {
                     <button class="tl-withdraw" (click)="withdraw(app)"><i class="bi bi-x-circle"></i> Retirer</button>
                   }

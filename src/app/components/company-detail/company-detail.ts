@@ -43,6 +43,11 @@ export class CompanyDetail implements OnInit {
   following = signal(false);
   followCount = signal(0);
 
+  // Lieux / salaires / similaires
+  locations = signal<{ location: string; count: number }[]>([]);
+  companySalaries = signal<{ title: string; avgAnnual: number; count: number }[]>([]);
+  similar = signal<{ company: string; jobCount: number; location?: string }[]>([]);
+
   // Q&A
   questions = signal<CompanyQuestion[]>([]);
   newQuestion = '';
@@ -79,7 +84,12 @@ export class CompanyDetail implements OnInit {
     this.reviewSvc.getFollow(this.companyName).subscribe((f) => { this.following.set(f.following); this.followCount.set(f.count); });
     this.reviewSvc.getQuestions(this.companyName).subscribe((q) => this.questions.set(q));
     this.reviewSvc.getProfile(this.companyName).subscribe((p) => this.profile.set(p));
+    this.reviewSvc.getLocations(this.companyName).subscribe((l) => this.locations.set(l));
+    this.reviewSvc.getCompanySalaries(this.companyName).subscribe((s) => this.companySalaries.set(s));
+    this.reviewSvc.getSimilar(this.companyName).subscribe((s) => this.similar.set(s));
   }
+
+  euros(n: number): string { return n ? n.toLocaleString('fr-FR') + ' €' : '—'; }
 
   loadReviews() {
     this.reviewSvc.getReviews(this.companyName).subscribe((s) => this.summary.set(s));

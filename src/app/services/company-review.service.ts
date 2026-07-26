@@ -73,6 +73,15 @@ export class CompanyReviewService {
   getActivity(company: string): Observable<{ hires30d: number; responsive: boolean }> {
     return this.http.get<{ hires30d: number; responsive: boolean }>(`${this.base}/${this.enc(company)}/activity`);
   }
+  getLocations(company: string): Observable<{ location: string; count: number }[]> {
+    return this.http.get<any[]>(`${this.base}/${this.enc(company)}/locations`);
+  }
+  getCompanySalaries(company: string): Observable<{ title: string; avgAnnual: number; count: number }[]> {
+    return this.http.get<any[]>(`${this.base}/${this.enc(company)}/salaries`);
+  }
+  getSimilar(company: string): Observable<{ company: string; jobCount: number; location?: string }[]> {
+    return this.http.get<any[]>(`${this.base}/${this.enc(company)}/similar`);
+  }
 
   // ── Q&A ──
   getQuestions(company: string): Observable<CompanyQuestion[]> {

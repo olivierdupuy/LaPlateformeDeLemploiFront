@@ -52,7 +52,7 @@ Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) 
 - [x] ✅ **Tri** : par pertinence / par date / salaire / vues
 - [x] ✅ **Recherches associées** ("les candidats ont aussi recherché…") — chips cliquables
 - [x] ✅ **Recherches sauvegardées** (composant `saved-searches`)
-- [ ] 🟡 **Alerte email** activable directement depuis la SERP (le système d'alertes existe via `saved-searches`, mais pas de toggle sur la page de résultats)
+- [x] ✅ **Alerte email** depuis la SERP : bouton « Créer l'alerte » qui enregistre la recherche courante avec alerte activée
 - [x] ✅ **Recommandations personnalisées** ("emplois pour vous") — recommandations IA existantes
 - [x] ✅ **Pagination** des résultats
 - [x] ✅ **Feedback de pertinence** (pouce haut/bas sous les résultats)
@@ -81,7 +81,7 @@ Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) 
 - [x] ✅ **Bloc "Détails de l'emploi" structuré** : salaire, type, horaires, télétravail, expérience, formation, langues, secteur
 - [x] ✅ **Carte/plan du lieu** (Leaflet + OpenStreetMap) + type de télétravail
 - [x] ✅ **Signaler l'offre** (contenu abusif / frauduleux)
-- [ ] 🔴 **Transparence de l'annonce** (origine, sponsorisation)
+- [x] ✅ **Transparence de l'annonce** (bloc dépliable : date de publication, type d'affichage, origine, référence)
 - [x] ✅ **Description riche** (markdown assaini : listes, titres, gras…)
 
 ## 4. Candidature
@@ -91,7 +91,7 @@ Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) 
 - [x] ✅ **Import de CV PDF/DOCX** + parsing (préremplissage du profil)
 - [x] ✅ **Questions de présélection** (screening questions) définies par le recruteur
 - [x] ✅ **Suivi des candidatures** avec statuts (`track-applications`)
-- [ ] 🟡 **Historique / accusé de réception + relances automatiques** (accusé de réception fait via réponse auto ; **relances programmées non implémentées**)
+- [x] ✅ **Accusé de réception + relance** : réponse auto à la candidature + bouton « Relancer » sur les candidatures en attente (message au recruteur, anti-spam 7 j)
 - [x] ✅ **Lettre de motivation** (optionnelle) attachée à la candidature
 
 ## 5. Espace candidat
@@ -118,12 +118,12 @@ Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) 
 - [x] ✅ **Avis d'employés** : note /5 + poste + lieu + date + titre + texte libre
 - [x] ✅ **Déposer un avis** (formulaire avec star-pickers)
 - [x] ✅ **Questions & réponses** (onglet Questions : poser / répondre)
-- [ ] 🔴 **FAQ auto de l'entreprise** ("recrute-t-elle en France ?", "combien d'employés ?", "où est le siège ?")
-- [ ] 🔴 **Lieux de l'entreprise** (avec note par lieu) + parcourir les offres par lieu
-- [ ] 🔴 **Salaires par poste** dans la page entreprise (le hub Salaires global existe, pas la ventilation par entreprise)
+- [x] ✅ **FAQ auto de l'entreprise** (questions courantes générées : siège, effectif, recrutement, note)
+- [x] ✅ **Lieux de l'entreprise** (compteur d'offres par lieu + lien vers les offres filtrées)
+- [x] ✅ **Salaires par poste** dans la page entreprise (moyenne annuelle par métier)
 - [x] ✅ **Offres de l'entreprise** (onglet Emplois)
 - [x] ✅ **Suivre une entreprise** (relation de suivi + compteur)
-- [ ] 🔴 **"Autres entreprises qui pourraient vous intéresser"** (suggestions)
+- [x] ✅ **"Autres entreprises qui pourraient vous intéresser"** (même secteur)
 - [x] ✅ **Modération des avis** (onglet Avis dans `admin-moderation`)
 
 ## 7. Salaires *(nouvelle zone produit)* — audité en direct sur `/career/salaries`

@@ -132,6 +132,18 @@
               </div>
             </section>
           }
+
+          <!-- Transparence de l'annonce -->
+          <details class="jd-transparency">
+            <summary><i class="bi bi-shield-check"></i> Transparence de l'annonce</summary>
+            <ul>
+              <li><span>Publiée le</span><strong>{{ j.createdAt | date:'dd/MM/yyyy' }}</strong></li>
+              <li><span>Type d'affichage</span><strong>{{ j.isFeatured ? 'Sponsorisée (mise en avant)' : 'Standard' }}</strong></li>
+              <li><span>Origine</span><strong>Publiée directement sur la plateforme par {{ j.company }}</strong></li>
+              <li><span>Candidature</span><strong>{{ j.easyApply ? 'Traitée sur la plateforme' : 'Traitée sur la plateforme' }}</strong></li>
+              <li><span>Référence</span><strong class="u-mono">OFF-{{ j.id }}</strong></li>
+            </ul>
+          </details>
         </main>
 
         <!-- ═══ SIDEBAR ═══ -->

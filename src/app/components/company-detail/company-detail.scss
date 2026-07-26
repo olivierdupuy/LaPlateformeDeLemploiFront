@@ -349,3 +349,34 @@
 .rev-yearchart { padding: 1.5rem; margin-bottom: 1.5rem; &:hover { transform: none; box-shadow: none; border-color: var(--line); } }
 .ryc-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem; }
 .ryc-canvas { height: 220px; position: relative; }
+
+// ── À propos : blocs additionnels ──
+.about-block { padding: 1.5rem; margin-top: 1.25rem; &:hover { transform: none; box-shadow: none; border-color: var(--line); } }
+.ab-title { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; i { color: var(--brand); } }
+.ab-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ab-loc {
+  display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.84rem; color: var(--ink-soft);
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-full); padding: 0.3rem 0.4rem 0.3rem 0.8rem;
+  transition: border-color var(--t), color var(--t);
+  span { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; background: var(--canvas); border-radius: var(--r-full); padding: 0.05rem 0.4rem; }
+  &:hover { border-color: var(--brand); color: var(--brand); }
+}
+.ab-sal { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px solid var(--line); &:last-child { border: none; } }
+.ab-sal-title { font-size: 0.88rem; font-weight: 600; color: var(--ink); &:hover { color: var(--brand); } }
+.ab-sal-val { font-size: 0.9rem; font-weight: 700; color: var(--brand-700); small { font-weight: 500; color: var(--muted); } }
+.about-faq details { border-bottom: 1px solid var(--line); padding: 0.2rem 0; &:last-child { border: none; }
+  summary { cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--ink); padding: 0.55rem 0; list-style: none;
+    &::-webkit-details-marker { display: none; }
+    &::before { content: '+'; display: inline-block; width: 1.1em; color: var(--brand); font-weight: 700; } }
+  &[open] summary::before { content: '−'; }
+  p { font-size: 0.86rem; color: var(--muted); padding: 0 0 0.7rem 1.1em; line-height: 1.6; }
+}
+
+// ── Autres entreprises ──
+.cd-similar { margin-top: 2rem; }
+.cd-similar .section-head { margin-bottom: 1.25rem; }
+.sim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.8rem; }
+.sim-card { display: flex; align-items: center; gap: 0.7rem; padding: 1rem 1.15rem; &:hover strong { color: var(--brand); } }
+.sim-av { width: 40px; height: 40px; border-radius: var(--r-sm); flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 1rem; }
+.sim-meta { min-width: 0; strong { display: block; font-size: 0.9rem; font-weight: 700; transition: color var(--t); } span { font-size: 0.76rem; color: var(--muted); } }

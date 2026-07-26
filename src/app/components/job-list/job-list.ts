@@ -8,6 +8,7 @@ import { BookmarkService } from '../../services/bookmark.service';
 import { SearchHistoryService } from '../../services/search-history.service';
 import { ApplicationService } from '../../services/application';
 import { AuthService } from '../../services/auth.service';
+import { SavedSearchService } from '../../services/saved-search.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
 
@@ -25,7 +26,10 @@ export class JobList implements OnInit {
   bookmarkService = inject(BookmarkService);
   searchHistory = inject(SearchHistoryService);
   private appService = inject(ApplicationService);
+  private savedSearchSvc = inject(SavedSearchService);
   auth = inject(AuthService);
+  alertSaving = signal(false);
+  alertSaved = signal(false);
 
   jobs = signal<JobOffer[]>([]);
   appliedIds = signal<Set<number>>(new Set());
@@ -147,6 +151,7 @@ export class JobList implements OnInit {
     if (this.sort) filters.sort = this.sort;
 
     this.relevanceFeedback.set(null);
+    this.alertSaved.set(false);
     this.jobService.getAll(filters).subscribe((jobs) => {
       this.jobs.set(jobs);
       this.computeRelated(jobs);
@@ -282,6 +287,25 @@ export class JobList implements OnInit {
   rateRelevance(n: number) {
     this.relevanceFeedback.set(n);
     this.toastr.success('Merci, votre retour affine nos recommandations.', 'Pertinence');
+  }
+
+  // ── Alerte email pour cette recherche ──
+  createAlert() {
+    if (!this.auth.isLoggedIn()) { this.toastr.info('Connectez-vous pour créer une alerte emploi'); return; }
+    this.alertSaving.set(true);
+    const label = [this.search, this.location].filter(Boolean).join(' · ') || 'Toutes les offres';
+    this.savedSearchSvc.create({
+      label,
+      query: this.search || undefined,
+      location: this.location || undefined,
+      category: this.category || undefined,
+      contractType: this.contractType || undefined,
+      isRemote: this.isRemote,
+      alertEnabled: true,
+    }).subscribe({
+      next: () => { this.alertSaving.set(false); this.alertSaved.set(true); this.toastr.success('Alerte créée — vous recevrez les nouvelles offres par email.', 'Alerte emploi'); },
+      error: () => { this.alertSaving.set(false); this.toastr.error('Erreur lors de la création de l\'alerte'); },
+    });
   }
 
   getBenefits(job: JobOffer): string[] {
