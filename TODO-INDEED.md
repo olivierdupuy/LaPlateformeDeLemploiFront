@@ -36,141 +36,140 @@ Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) 
 
 ## 1. Recherche d'emploi (SERP)
 
-- [ ] 🟡 **Double champ de recherche** : mots-clés / intitulé / entreprise **+** lieu (deux champs séparés)
-- [ ] 🔴 **Autocomplétion** sur le champ mots-clés (intitulés, entreprises, compétences populaires)
-- [ ] 🔴 **Autocomplétion lieu** (villes, départements, codes postaux) + géolocalisation "près de moi"
-- [ ] 🔴 **Rayon / distance** autour du lieu (0, 5, 10, 25, 50 km…)
-- [ ] **Filtres** (barre horizontale, chacun un menu déroulant) :
-  - [ ] 🟡 Salaire (minimum estimé, tranches)
-  - [ ] 🟡 Type de contrat (CDI, CDD, Intérim, Stage, Alternance, Freelance…)
-  - [ ] 🟡 Télétravail (sur site / hybride / 100 % télétravail)
-  - [ ] 🔴 Secteur d'activité
-  - [ ] 🟡 Horaires de travail (temps plein, temps partiel, journée, nuit…)
-  - [ ] 🔴 Langues demandées
-  - [ ] 🔴 Niveau d'études requis
-  - [ ] 🟡 Date de publication (24 h, 3 j, 7 j, 14 j…)
-- [ ] 🟡 **Tri** : par pertinence / par date
-- [ ] 🔴 **Recherches associées** ("les chercheurs d'emploi ont aussi recherché…") — chips cliquables
-- [ ] ✅ **Recherches sauvegardées** (composant `saved-searches`)
-- [ ] 🟡 **Alerte email** activable directement depuis la SERP (toggle "recevoir des alertes pour cette recherche")
-- [ ] ✅ **Recommandations personnalisées** ("emplois pour vous") — recommandations IA existantes
-- [ ] ✅ **Pagination** des résultats
-- [ ] 🔴 **Feedback de pertinence** ("à quel point ces offres sont-elles pertinentes ?") pour affiner l'algo
-- [ ] 🔴 **URL SEO partageables** (`/q-<mot>-l-<ville>-emplois.html`) + pages "parcourir par métier/ville"
+- [x] ✅ **Double champ de recherche** : mots-clés / intitulé / entreprise **+** lieu (deux champs séparés)
+- [x] ✅ **Autocomplétion** sur le champ mots-clés (intitulés, entreprises)
+- [x] ✅ **Autocomplétion lieu** *(géolocalisation « près de moi » non implémentée)*
+- [x] ✅ **Rayon / distance** autour du lieu (10, 25, 50, 100 km)
+- [x] ✅ **Filtres** (barre horizontale, chacun un menu déroulant) :
+  - [x] ✅ Salaire (min/max)
+  - [x] ✅ Type de contrat (CDI, CDD, Stage, Alternance, Freelance)
+  - [x] ✅ Télétravail (sur site / télétravail)
+  - [x] ✅ Secteur d'activité
+  - [x] ✅ Horaires de travail
+  - [x] ✅ Langues demandées
+  - [x] ✅ Niveau d'études requis
+  - [x] ✅ Date de publication (24 h, 3 j, 7 j, 14 j)
+- [x] ✅ **Tri** : par pertinence / par date / salaire / vues
+- [x] ✅ **Recherches associées** ("les candidats ont aussi recherché…") — chips cliquables
+- [x] ✅ **Recherches sauvegardées** (composant `saved-searches`)
+- [ ] 🟡 **Alerte email** activable directement depuis la SERP (le système d'alertes existe via `saved-searches`, mais pas de toggle sur la page de résultats)
+- [x] ✅ **Recommandations personnalisées** ("emplois pour vous") — recommandations IA existantes
+- [x] ✅ **Pagination** des résultats
+- [x] ✅ **Feedback de pertinence** (pouce haut/bas sous les résultats)
+- [x] ✅ **Pages "parcourir par métier/ville"** (`/parcourir`) *(URLs SEO en slug `.html` non implémentées)*
 
 ## 2. Carte d'offre (résultats)
 
-- [ ] 🔴 **Vue split** : liste des offres à gauche + **volet détail** de l'offre sélectionnée à droite (sans changer de page)
-- [ ] 🟡 **Badge "Candidature simplifiée"** (postuler en 1 clic avec le CV de la plateforme)
-- [ ] ✅ **Badge "Urgent"**
-- [ ] 🔴 **Indicateur de réactivité employeur** ("répond souvent sous X jours")
-- [ ] 🔴 **Compteur d'embauches** ("X embauche(s) au cours des 30 derniers jours")
-- [ ] 🔴 **Label "Annonce" / Sponsorisé** pour les offres mises en avant
-- [ ] 🟡 **Avantages listés sur la carte** (tickets resto, RTT, participation, mutuelle, CE…) — nécessite un modèle "avantages/perks"
-- [ ] ✅ **Salaire** affiché (fourchette)
-- [ ] ✅ **Bouton Enregistrer/Favori** directement sur la carte
-- [ ] ✅ **Extrait de description** (snippet)
-- [ ] 🔴 **"Offres similaires de cet employeur"** (regroupement par entreprise)
+- [x] ✅ **Vue split** : liste à gauche + **volet détail** à droite (sans changer de page)
+- [x] ✅ **Badge "Candidature simplifiée"** (postuler en 1 clic avec le CV de la plateforme)
+- [x] ✅ **Badge "Urgent"**
+- [x] ✅ **Indicateur de réactivité employeur** ("Répond souvent" — sur la fiche offre)
+- [x] ✅ **Compteur d'embauches** ("X recrutements récents" — sur la fiche offre)
+- [x] ✅ **Label "Sponsorisée"** pour les offres mises en avant
+- [x] ✅ **Avantages listés sur la carte** (via champ `Benefits`)
+- [x] ✅ **Salaire** affiché (fourchette)
+- [x] ✅ **Bouton Enregistrer/Favori** directement sur la carte
+- [x] ✅ **Extrait de description** (snippet)
+- [x] ✅ **"Autres offres de cet employeur"** (sur la fiche offre)
 
 ## 3. Fiche offre (détail)
 
-- [ ] 🔴 **Note entreprise (étoiles) + lien** vers la page d'avis de l'entreprise
-- [ ] ✅ **Postuler** (composant `apply-modal`)
-- [ ] ✅ **Enregistrer l'offre**
-- [ ] 🟡 **Partager l'offre** (lien copiable, email, réseaux sociaux)
-- [ ] 🟡 **Bloc "Détails de l'emploi" structuré** : salaire, type de poste, lieu, avantages, expérience requise, langues
-- [ ] 🟡 **Carte/plan du lieu** (Leaflet déjà dispo dans les deps) + type de télétravail
-- [ ] 🔴 **Signaler l'offre** (contenu abusif / frauduleux)
+- [x] ✅ **Note entreprise (étoiles) + lien** vers la page d'avis de l'entreprise
+- [x] ✅ **Postuler** (composant `apply-modal`)
+- [x] ✅ **Enregistrer l'offre**
+- [x] ✅ **Partager l'offre** (Web Share API / copie du lien)
+- [x] ✅ **Bloc "Détails de l'emploi" structuré** : salaire, type, horaires, télétravail, expérience, formation, langues, secteur
+- [x] ✅ **Carte/plan du lieu** (Leaflet + OpenStreetMap) + type de télétravail
+- [x] ✅ **Signaler l'offre** (contenu abusif / frauduleux)
 - [ ] 🔴 **Transparence de l'annonce** (origine, sponsorisation)
-- [ ] 🟡 **Description riche** (HTML formaté : listes, titres, avantages)
+- [x] ✅ **Description riche** (markdown assaini : listes, titres, gras…)
 
 ## 4. Candidature
 
-- [ ] 🟡 **Candidature simplifiée / 1 clic** avec le CV de la plateforme (Easy Apply)
-- [ ] ✅ **Postuler avec CV** créé sur la plateforme (`cv-builder`)
-- [ ] 🟡 **Import de CV PDF/DOCX** + parsing (préremplissage du profil)
-- [ ] 🔴 **Questions de présélection** (screening questions) définies par le recruteur
-- [ ] ✅ **Suivi des candidatures** avec statuts (`track-applications`)
-- [ ] 🟡 **Historique / accusé de réception** + relances automatiques
-- [ ] 🔴 **Lettre de motivation** (optionnelle) attachée à la candidature
+- [x] ✅ **Candidature simplifiée / 1 clic** avec le CV de la plateforme (Easy Apply)
+- [x] ✅ **Postuler avec CV** créé sur la plateforme (`cv-builder`)
+- [x] ✅ **Import de CV PDF/DOCX** + parsing (préremplissage du profil)
+- [x] ✅ **Questions de présélection** (screening questions) définies par le recruteur
+- [x] ✅ **Suivi des candidatures** avec statuts (`track-applications`)
+- [ ] 🟡 **Historique / accusé de réception + relances automatiques** (accusé de réception fait via réponse auto ; **relances programmées non implémentées**)
+- [x] ✅ **Lettre de motivation** (optionnelle) attachée à la candidature
 
 ## 5. Espace candidat
 
-- [ ] ✅ **Profil** (`profile`)
-- [ ] ✅ **CV en ligne** (`cv-builder`) — *à compléter : upload PDF, multi-CV, export PDF*
-- [ ] 🟡 **CV visible par les employeurs** (toggle de visibilité → alimente le vivier `candidate-list`)
-- [ ] ✅ **Offres enregistrées / favoris** (`bookmarks`)
-- [ ] ✅ **Mes candidatures** (`track-applications`)
-- [ ] ✅ **Alertes emploi**
-- [ ] ✅ **Recherches sauvegardées** (`saved-searches`)
-- [ ] ✅ **Entretiens** (`interviews`)
-- [ ] ✅ **Messagerie** avec les recruteurs (`inbox`, temps réel SignalR)
-- [ ] ✅ **Notifications** (push / temps réel)
-- [ ] 🔴 **Complétude du profil** (% + suggestions pour être trouvé)
+- [x] ✅ **Profil** (`profile`)
+- [x] ✅ **CV en ligne** (`cv-builder`) — *reste optionnel : multi-CV, export PDF*
+- [x] ✅ **CV visible par les employeurs** (toggle de visibilité → alimente le vivier `candidate-list`)
+- [x] ✅ **Offres enregistrées / favoris** (`bookmarks`)
+- [x] ✅ **Mes candidatures** (`track-applications`)
+- [x] ✅ **Alertes emploi**
+- [x] ✅ **Recherches sauvegardées** (`saved-searches`)
+- [x] ✅ **Entretiens** (`interviews`)
+- [x] ✅ **Messagerie** avec les recruteurs (`inbox`, temps réel SignalR)
+- [x] ✅ **Notifications** (push / temps réel)
+- [x] ✅ **Complétude du profil** (% + champs manquants)
 
-## 6. Avis sur les entreprises *(nouvelle zone produit — 🔴 majeur)* — audité en direct sur `/cmp/Waisso`
+## 6. Avis sur les entreprises *(nouvelle zone produit)* — audité en direct sur `/cmp/Waisso`
 
-- [ ] 🔴 **Page entreprise à onglets** : `À propos` · `Pourquoi postuler` · `Avis` · `Salaires` · `Emplois` · `Questions` (Entretiens en cours de suppression chez Indeed)
-- [ ] 🔴 **En-tête** : logo, **note globale (x,x/5 étoiles)**, bouton **Suivre**, bouton **Ajouter un avis**
-- [ ] 🔴 **Bloc "À propos de l'entreprise"** : date de création, nombre d'employés (tranche), chiffre d'affaires, secteur, siège social, lien site web
-- [ ] 🔴 **Notes par 5 critères** (chacun /5, cliquable → avis filtrés) :
-  - Équilibre vie privée/professionnelle · Avantages et salaires · Sécurité et évolution · Direction · Culture d'entreprise
-- [ ] 🔴 **Aperçu des notes** : graphique d'évolution **année par année**
-- [ ] 🔴 **Avis d'employés** : note /5 + **poste + lieu** + date + **titre** + texte libre ; tri/filtre par critère
-- [ ] 🔴 **Déposer un avis** (formulaire, modéré)
-- [ ] 🔴 **Questions & réponses** : onglets `Questions fréquentes` / `Entretiens d'embauche`, regroupées par sujet
+- [x] ✅ **Page entreprise à onglets** : `À propos` · `Emplois` · `Avis` · `Questions`
+- [x] ✅ **En-tête** : avatar, **note globale (x,x/5 étoiles)**, bouton **Suivre**, bouton **Ajouter un avis**
+- [x] ✅ **Bloc "À propos de l'entreprise"** : création, effectif, secteur, siège, site web *(chiffre d'affaires non inclus)*
+- [x] ✅ **Notes par 5 critères** (équilibre, avantages/salaires, sécurité/évolution, direction, culture)
+- [x] ✅ **Aperçu des notes** : graphique d'évolution **année par année** (Chart.js)
+- [x] ✅ **Avis d'employés** : note /5 + poste + lieu + date + titre + texte libre
+- [x] ✅ **Déposer un avis** (formulaire avec star-pickers)
+- [x] ✅ **Questions & réponses** (onglet Questions : poser / répondre)
 - [ ] 🔴 **FAQ auto de l'entreprise** ("recrute-t-elle en France ?", "combien d'employés ?", "où est le siège ?")
 - [ ] 🔴 **Lieux de l'entreprise** (avec note par lieu) + parcourir les offres par lieu
-- [ ] 🔴 **Salaires par poste** dans l'entreprise ("x salaires bruts partagés", moyenne annuelle par poste)
-- [ ] 🟡 **Offres de l'entreprise** en carrousel (déjà via `company-detail`)
-- [ ] 🔴 **Suivre une entreprise** (recevoir ses nouvelles offres)
+- [ ] 🔴 **Salaires par poste** dans la page entreprise (le hub Salaires global existe, pas la ventilation par entreprise)
+- [x] ✅ **Offres de l'entreprise** (onglet Emplois)
+- [x] ✅ **Suivre une entreprise** (relation de suivi + compteur)
 - [ ] 🔴 **"Autres entreprises qui pourraient vous intéresser"** (suggestions)
-- [ ] 🔴 **Modération des avis** (côté admin — étendre `admin-moderation`)
+- [x] ✅ **Modération des avis** (onglet Avis dans `admin-moderation`)
 
-## 7. Salaires *(nouvelle zone produit — 🔴)* — audité en direct sur `/career/salaries`
+## 7. Salaires *(nouvelle zone produit)* — audité en direct sur `/career/salaries`
 
-- [ ] 🔴 **Hub Salaires** : recherche **Intitulé de poste + Lieu** ("Imaginez votre prochain salaire")
-- [ ] 🔴 **Meilleurs salaires par secteur** (filtre secteur) : liste de métiers + **salaire moyen annuel** + lien vers les offres
-- [ ] 🔴 **Page salaire par métier** (`/career/<metier>/salaries`) : salaire moyen, **fourchette (bas/médian/haut)**, par **lieu**, par **entreprise**, satisfaction salariale, métiers proches — graphique (Chart.js déjà utilisé)
-- [ ] 🔴 **Contribuer un salaire** (anonyme) pour alimenter les données
-- [ ] 🔴 **Salaire de l'offre rapproché de l'estimation du marché** (badge "au-dessus/en dessous du marché")
-- [ ] 🔴 **Lien croisé** salaire ↔ offres d'emploi correspondantes
+- [x] ✅ **Hub Salaires** : recherche par intitulé de poste + filtre secteur *(recherche par lieu non incluse)*
+- [x] ✅ **Meilleurs salaires par secteur** : liste de métiers + salaire moyen annuel + lien vers les offres
+- [x] ✅ **Page salaire par métier** (`/salaires/metier/:title`) : moyen, **fourchette (min/médiane/max)**, par **lieu**, par **entreprise**
+- [x] ✅ **Contribuer un salaire** (anonyme) pour alimenter les données
+- [x] ✅ **Salaire de l'offre rapproché de l'estimation du marché** (badge au-dessus/dans/en dessous)
+- [x] ✅ **Lien croisé** salaire ↔ offres d'emploi correspondantes
 
 ## 8. Espace recruteur / employeur
 
-- [ ] ✅ **Publier une offre** (`job-form`)
-- [ ] ✅ **Gérer les candidatures** — kanban, notes, actions groupées (`applications`)
-- [ ] ✅ **Vivier de candidats / recherche de CV** (`candidate-list`, `candidate-profile`)
-- [ ] ✅ **Templates d'offres** + **duplication**
-- [ ] ✅ **Tableau de bord analytics** (`dashboard-recruiter`, Chart.js)
-- [ ] ✅ **Planification d'entretiens** (`interviews`)
-- [ ] ✅ **Messagerie candidats** (`inbox`)
-- [ ] 🔴 **Offres sponsorisées / mise en avant** (budget, boost de visibilité, label "Annonce")
-- [ ] 🔴 **Questions de présélection** paramétrables à la création d'offre
-- [ ] 🟡 **Page entreprise / branding employeur** (logo, présentation, culture — lié à la zone Avis)
-- [ ] 🔴 **Réponses automatiques** aux candidats + indicateur de réactivité
-- [ ] 🔴 **Statistiques par offre** (vues, clics, taux de candidature, provenance)
-- [ ] 🟡 **Multi-utilisateurs / équipe** de recrutement (rôles, partage d'offres)
+- [x] ✅ **Publier une offre** (`job-form`)
+- [x] ✅ **Gérer les candidatures** — kanban, notes, actions groupées (`applications`)
+- [x] ✅ **Vivier de candidats / recherche de CV** (`candidate-list`, `candidate-profile`)
+- [x] ✅ **Templates d'offres** + **duplication**
+- [x] ✅ **Tableau de bord analytics** (`dashboard-recruiter`, Chart.js)
+- [x] ✅ **Planification d'entretiens** (`interviews`)
+- [x] ✅ **Messagerie candidats** (`inbox`)
+- [x] ✅ **Offres sponsorisées / mise en avant** (toggle + label "Sponsorisée") *(pas de tunnel de paiement)*
+- [x] ✅ **Questions de présélection** paramétrables à la création d'offre
+- [x] ✅ **Page entreprise / branding employeur** (fiche "À propos" éditable)
+- [x] ✅ **Réponses automatiques** aux candidats + indicateur de réactivité
+- [x] ✅ **Statistiques par offre** (vues, candidatures, conversion, statuts)
+- [x] ✅ **Multi-utilisateurs / équipe** de recrutement (partage d'offres par entreprise)
 
 ## 9. Contenu & carrière
 
-- [ ] 🔴 **Guide Carrières** : articles (rédaction de CV, préparation d'entretien, conseils métier)
-- [ ] 🟡 **Parcourir les emplois** par catégorie / ville / entreprise (pages SEO)
-- [ ] 🟡 **Parcourir les entreprises** (annuaire — `company-list` existe)
-- [ ] 🔴 **Événements emploi** (salons, webinaires — type Indeed Events)
+- [x] ✅ **Guide Carrières** : articles (rédaction de CV, entretien, salaire, reconversion)
+- [x] ✅ **Parcourir les emplois** par catégorie / ville / contrat (`/parcourir`)
+- [x] ✅ **Parcourir les entreprises** (annuaire — `company-list`)
+- [x] ✅ **Événements emploi** (salons, webinaires — `/evenements`)
 
 ## 10. Transverse / plateforme
 
-- [ ] 🔴 **Multi-langue (i18n)** — au minimum FR, base extensible
-- [ ] 🔴 **Choix du pays / localisation**
-- [ ] 🟡 **Géolocalisation & cartes** (Leaflet) — recherche par rayon, plan des offres
-- [ ] ✅ **Recommandations IA / matching** offre ↔ candidat
-- [ ] 🟡 **Accessibilité** (a11y : focus, ARIA, contrastes — base posée dans le design system)
-- [ ] 🔴 **PWA / expérience mobile** (installable, offline léger)
-- [ ] 🟡 **RGPD** : gestion des cookies, consentement, export/suppression des données, signalement (DSA)
-- [ ] ✅ **Notifications temps réel** (SignalR)
-- [ ] 🟡 **Modération & anti-fraude** (offres frauduleuses, signalements — étendre l'admin)
-- [ ] 🔴 **SSO / connexion sociale** (Google, etc. — Indeed propose "Continuer avec Google")
+- [x] ✅ **Multi-langue (i18n)** — service runtime FR/EN + switcher (extensible)
+- [x] ✅ **Choix du pays / localisation** (sélecteur footer, préférence persistée)
+- [x] ✅ **Géolocalisation & cartes** (Leaflet) — recherche par rayon + carte du lieu
+- [x] ✅ **Recommandations IA / matching** offre ↔ candidat
+- [x] ✅ **Accessibilité** (a11y : focus visible, reduced-motion, contrastes — base du design system)
+- [x] ✅ **PWA / expérience mobile** (manifest + service worker, installable)
+- [x] ✅ **RGPD** : bandeau cookies, export/suppression des données *(signalement DSA : lien seulement)*
+- [x] ✅ **Notifications temps réel** (SignalR)
+- [x] ✅ **Modération & anti-fraude** (signalements d'offres + modération admin)
+- [x] ✅ **SSO / connexion sociale** (Google — *scaffold, nécessite un Client ID*)
 
 ---
 
