@@ -139,9 +139,12 @@ export class JobList implements OnInit {
     });
   }
 
-  loadJobs() {
-    this.loading.set(true);
-    if (this.search) this.searchHistory.add(this.search);
+  private readonly pageSize = 24;
+  page = 1;
+  hasMore = signal(false);
+  loadingMore = signal(false);
+
+  private buildFilters(): any {
     const filters: any = {};
     if (this.search) filters.search = this.search;
     if (this.location) filters.location = this.location;
@@ -157,11 +160,22 @@ export class JobList implements OnInit {
     if (this.datePosted) filters.datePosted = this.datePosted;
     if (this.radius && this.location) filters.radius = this.radius;
     if (this.sort) filters.sort = this.sort;
+    filters.pageSize = this.pageSize;
+    return filters;
+  }
+
+  loadJobs() {
+    this.loading.set(true);
+    this.page = 1;
+    if (this.search) this.searchHistory.add(this.search);
+    const filters = this.buildFilters();
+    filters.page = 1;
 
     this.relevanceFeedback.set(null);
     this.alertSaved.set(false);
     this.jobService.getAll(filters).subscribe((jobs) => {
       this.jobs.set(jobs);
+      this.hasMore.set(jobs.length === this.pageSize);
       this.computeRelated(jobs);
       this.loading.set(false);
       // Auto-selection de la 1re offre en vue split (desktop)
@@ -169,6 +183,22 @@ export class JobList implements OnInit {
       if (!current || !jobs.some((j) => j.id === current.id)) {
         this.selected.set(jobs.length ? jobs[0] : null);
       }
+    });
+  }
+
+  loadMore() {
+    if (this.loadingMore()) return;
+    this.loadingMore.set(true);
+    this.page += 1;
+    const filters = this.buildFilters();
+    filters.page = this.page;
+    this.jobService.getAll(filters).subscribe({
+      next: (jobs) => {
+        this.jobs.update((cur) => [...cur, ...jobs]);
+        this.hasMore.set(jobs.length === this.pageSize);
+        this.loadingMore.set(false);
+      },
+      error: () => this.loadingMore.set(false),
     });
   }
 

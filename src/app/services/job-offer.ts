@@ -25,6 +25,8 @@ export class JobOfferService {
     datePosted?: number;
     radius?: number;
     sort?: string;
+    page?: number;
+    pageSize?: number;
   }): Observable<JobOffer[]> {
     let params = new HttpParams();
     if (filters) {
@@ -43,6 +45,8 @@ export class JobOfferService {
       if (filters.datePosted) params = params.set('datePosted', filters.datePosted.toString());
       if (filters.radius) params = params.set('radius', filters.radius.toString());
       if (filters.sort) params = params.set('sort', filters.sort);
+      if (filters.page) params = params.set('page', filters.page.toString());
+      if (filters.pageSize) params = params.set('pageSize', filters.pageSize.toString());
     }
     return this.http.get<JobOffer[]>(this.apiUrl, { params });
   }

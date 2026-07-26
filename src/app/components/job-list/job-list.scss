@@ -386,3 +386,14 @@
 }
 .alert-btn { padding: 0.5rem 1rem; font-size: 0.82rem; }
 .alert-done { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; color: var(--brand); i { font-size: 0.9rem; } }
+
+.load-more {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  width: 100%; margin-top: 1rem; padding: .85rem 1rem;
+  border: 1px solid var(--border); border-radius: var(--radius, 14px);
+  background: var(--surface, #fff); color: var(--brand);
+  font-weight: 700; font-size: .95rem; cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.load-more:hover:not(:disabled) { background: color-mix(in srgb, var(--brand) 8%, transparent); border-color: var(--brand); }
+.load-more:disabled { opacity: .6; cursor: default; }

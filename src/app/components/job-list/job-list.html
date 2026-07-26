@@ -212,6 +212,12 @@
               </div>
             </article>
           }
+          @if (hasMore()) {
+            <button class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
+              @if (loadingMore()) { <span class="sp"></span> Chargement… }
+              @else { <i class="bi bi-arrow-down-circle"></i> Charger plus d'offres }
+            </button>
+          }
         </div>
 
         <!-- Volet détail -->
