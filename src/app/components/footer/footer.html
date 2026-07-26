@@ -79,10 +79,10 @@
 
       <div class="ft-col">
         <h4>Ressources</h4>
-        <a href="#">Blog carriere</a>
-        <a href="#">Guide du CV</a>
-        <a href="#">Conseils entretien</a>
-        <a href="#">FAQ</a>
+        <a routerLink="/guide">Guide carriere</a>
+        <a routerLink="/guide/reussir-son-cv">Guide du CV</a>
+        <a routerLink="/guide/preparer-entretien">Conseils entretien</a>
+        <a routerLink="/guide/negocier-salaire">Negocier son salaire</a>
         @if (platform.contactEmail) {
           <a [href]="'mailto:' + platform.contactEmail"><i class="bi bi-envelope"></i> {{ platform.contactEmail }}</a>
         }

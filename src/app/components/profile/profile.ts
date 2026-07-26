@@ -163,8 +163,26 @@ export class Profile implements OnInit {
       cancelButtonText: 'Annuler',
     });
     if (res.isConfirmed) {
-      this.auth.logout();
-      this.toastr.info('Compte deconnecte');
+      this.auth.deleteAccount().subscribe({
+        next: () => { this.toastr.success('Compte supprimé'); this.auth.logout(); },
+        error: () => this.toastr.error('Erreur lors de la suppression'),
+      });
     }
+  }
+
+  exportMyData() {
+    this.auth.exportData().subscribe({
+      next: (data) => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mes-donnees-laplateforme.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.toastr.success('Données exportées');
+      },
+      error: () => this.toastr.error('Erreur lors de l\'export'),
+    });
   }
 }

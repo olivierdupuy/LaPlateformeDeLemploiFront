@@ -44,6 +44,13 @@ export class AuthService {
     );
   }
 
+  /** SSO : échange un jeton Google contre une session. */
+  googleSignIn(credential: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/google`, { credential }).pipe(
+      tap((res) => this.handleAuth(res))
+    );
+  }
+
   getMe(): Observable<UserDto> {
     return this.http.get<UserDto>(`${this.apiUrl}/me`).pipe(
       tap((user) => {
@@ -64,6 +71,16 @@ export class AuthService {
 
   changePassword(data: ChangePasswordRequest): Observable<any> {
     return this.http.post(`${this.apiUrl}/change-password`, data);
+  }
+
+  /** RGPD : export des données personnelles. */
+  exportData(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/export-data`);
+  }
+
+  /** RGPD : suppression définitive du compte. */
+  deleteAccount(): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/account`);
   }
 
   // Admin endpoints

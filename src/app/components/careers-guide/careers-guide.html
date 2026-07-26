@@ -1,0 +1,52 @@
+@if (selected(); as a) {
+  <!-- ═══ ARTICLE ═══ -->
+  <article class="cg-article">
+    <div class="container">
+      <a routerLink="/guide" class="back-link"><i class="bi bi-arrow-left"></i> Guide Carrières</a>
+      <div class="cg-art-head animate-in">
+        <span class="badge badge-green">{{ a.category }}</span>
+        <h1>{{ a.title }}</h1>
+        <span class="cg-read u-mono"><i class="bi bi-clock"></i> {{ a.readMin }} min de lecture</span>
+      </div>
+      <div class="cg-art-body">
+        @for (s of a.sections; track s.heading; let i = $index) {
+          <section class="cg-section animate-in" [style.animation-delay]="(i*0.05)+'s'">
+            <h2><span class="ed-pill">{{ i + 1 }}</span> {{ s.heading }}</h2>
+            <p>{{ s.body }}</p>
+          </section>
+        }
+      </div>
+      <div class="cg-art-foot">
+        <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Trouver un emploi</a>
+        <a routerLink="/guide" class="btn-secondary"><i class="bi bi-journals"></i> Autres articles</a>
+      </div>
+    </div>
+  </article>
+} @else {
+  <!-- ═══ LISTE ═══ -->
+  <section class="cg-hero">
+    <div class="container">
+      <div class="animate-in">
+        <span class="eyebrow">Ressources</span>
+        <h1>Guide <span class="hl">Carrières</span></h1>
+        <p class="cg-sub">Conseils pratiques pour rédiger votre CV, réussir vos entretiens et faire avancer votre carrière.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cg-list-page">
+    <div class="container">
+      <div class="cg-grid">
+        @for (a of articles; track a.slug; let i = $index) {
+          <a [routerLink]="['/guide', a.slug]" class="cg-card animate-in" [style.animation-delay]="(i*0.05)+'s'">
+            <div class="cg-icon"><i class="bi" [class]="a.icon"></i></div>
+            <span class="cg-cat">{{ a.category }}</span>
+            <h3>{{ a.title }}</h3>
+            <p>{{ a.excerpt }}</p>
+            <span class="cg-more">Lire l'article <i class="bi bi-arrow-right"></i></span>
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+}

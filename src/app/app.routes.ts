@@ -4,6 +4,7 @@ import { JobList } from './components/job-list/job-list';
 import { BrowseJobs } from './components/browse-jobs/browse-jobs';
 import { Salaries } from './components/salaries/salaries';
 import { SalaryDetail } from './components/salary-detail/salary-detail';
+import { CareersGuide } from './components/careers-guide/careers-guide';
 import { JobDetail } from './components/job-detail/job-detail';
 import { JobForm } from './components/job-form/job-form';
 import { Applications } from './components/applications/applications';
@@ -39,6 +40,8 @@ export const routes: Routes = [
   { path: 'parcourir', component: BrowseJobs },
   { path: 'salaires', component: Salaries },
   { path: 'salaires/metier/:title', component: SalaryDetail },
+  { path: 'guide', component: CareersGuide },
+  { path: 'guide/:slug', component: CareersGuide },
   { path: 'offres/:id', component: JobDetail },
   { path: 'entreprises', component: CompanyList },
   { path: 'entreprises/:name', component: CompanyDetail },

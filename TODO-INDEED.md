@@ -194,7 +194,16 @@ Finalisation P0 (implémenté le 2026-07-26, builds verts) :
 - **Q&A entreprise + suivre** : modèles `CompanyQuestion`/`CompanyAnswer`/`CompanyFollow` + endpoints (questions/réponses, follow toggle). Front : **onglet Questions** (poser/répondre) + **bouton Suivre** (compteur) sur la page entreprise. Migration EF `CompanyEngagement`.
 - **Employeur avancé** : endpoints recruteur `PATCH /joboffers/{id}/feature` (sponsoriser sa propre offre) + `GET /joboffers/{id}/stats` (vues, candidatures, conversion, statuts). Front : dans `my-offers`, boutons **Sponsoriser** + **Stats** (panneau KPI dépliable), **label « Sponsorisée »** sur les cartes d'offres (tri pertinence les remonte déjà).
 
-**➡️ Bloc P2 essentiellement terminé** (Avis, Salaires, Q&A/suivre, employeur avancé). Reste optionnel : Guide Carrières, i18n, PWA, SSO Google (P3/P4).
+**➡️ Bloc P2 essentiellement terminé** (Avis, Salaires, Q&A/suivre, employeur avancé).
+
+## ✅ Avancement — Blocs P3 / P4 (2026-07-26, builds verts)
+- **Guide Carrières** : composant `careers-guide` (liste + article) route `/guide` et `/guide/:slug`, 4 articles (CV, entretien, salaire, reconversion), liens footer.
+- **RGPD** : bandeau de consentement cookies (app shell, localStorage), endpoints `GET /auth/export-data` (export JSON) + `DELETE /auth/account` (suppression + nettoyage des données), boutons Export / Supprimer dans le profil.
+- **i18n** : `I18nService` runtime (dictionnaire FR/EN + `t()`, persistance), **switcher FR/EN** dans la navbar, libellés du layout traduits (extensible aux autres écrans via `t()`).
+- **PWA** : `manifest.webmanifest` + icône SVG + `theme-color`/apple meta dans `index.html` + service worker (`public/sw.js`, coquille offline) enregistré.
+- **SSO Google** *(scaffold)* : endpoint `POST /auth/google` (vérif du jeton via Google tokeninfo + JWT), `GoogleSignInButton` (GIS) sur la page de connexion, config `environment.googleClientId`. **⚠️ Nécessite un Google Client ID** (front `environment.googleClientId` + back `Google:ClientId`) pour être fonctionnel.
+
+**➡️ Roadmap Indeed P0 → P4 complète.** Restent des raffinements optionnels (traduction i18n exhaustive, icônes PWA PNG, événements emploi, notifications aux abonnés d'entreprise).
 
 ## Priorisation suggérée (pour atteindre la parité perçue rapidement)
 

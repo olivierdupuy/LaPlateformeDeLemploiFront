@@ -70,6 +70,16 @@ nav {
   flex-shrink: 0;
 }
 
+// ── Language switch ──
+.lang-switch {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.42rem 0.6rem; border-radius: var(--r-sm);
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600; color: var(--ink-soft);
+  transition: color var(--t), background var(--t);
+  &:hover { color: var(--ink); background: var(--paper-2); }
+  i { font-size: 0.85rem; }
+}
+
 // ── Icon buttons ──
 .icon-btn {
   display: flex; align-items: center; justify-content: center;
