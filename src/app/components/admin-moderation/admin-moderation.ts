@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
 import { JobOfferService } from '../../services/job-offer';
 import { JobReport } from '../../models/job-offer.model';
+import { CompanyReviewService } from '../../services/company-review.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -16,10 +17,12 @@ import { ToastrService } from 'ngx-toastr';
 export class AdminModeration implements OnInit {
   private admin = inject(AdminService);
   private jobService = inject(JobOfferService);
+  private reviewSvc = inject(CompanyReviewService);
   private toastr = inject(ToastrService);
 
   offers = signal<any[]>([]);
   reports = signal<JobReport[]>([]);
+  companyReviews = signal<any[]>([]);
   loading = signal(true);
   activeTab = signal<string>('Pending');
   rejectNote = '';
@@ -29,7 +32,9 @@ export class AdminModeration implements OnInit {
 
   load() {
     this.loading.set(true);
-    if (this.activeTab() === 'Reports') {
+    if (this.activeTab() === 'Reviews') {
+      this.reviewSvc.getAllReviewsAdmin().subscribe(r => { this.companyReviews.set(r); this.loading.set(false); });
+    } else if (this.activeTab() === 'Reports') {
       this.jobService.getReports().subscribe(r => { this.reports.set(r); this.loading.set(false); });
     } else {
       this.admin.getModerationQueue(this.activeTab()).subscribe(o => {
@@ -51,6 +56,15 @@ export class AdminModeration implements OnInit {
   reportStatusLabel(status: string): string {
     return { Pending: 'En attente', Reviewed: 'Traité', Dismissed: 'Rejeté' }[status] || status;
   }
+
+  // ── Modération des avis entreprise ──
+  moderateReview(id: number, status: string) {
+    this.reviewSvc.setReviewStatus(id, status).subscribe(() => {
+      this.toastr.success(status === 'Approved' ? 'Avis approuvé' : 'Avis masqué');
+      this.load();
+    });
+  }
+  reviewStars(n: number): number[] { return Array.from({ length: n }, (_, i) => i); }
 
   approve(id: number) {
     this.admin.approveOffer(id).subscribe(() => {

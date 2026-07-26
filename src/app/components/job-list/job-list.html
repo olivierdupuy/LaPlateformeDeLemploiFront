@@ -288,6 +288,27 @@
           }
         </aside>
       </div>
+
+      @if (relatedSearches().length) {
+        <div class="related-searches">
+          <span class="rs-label">Les candidats ont aussi recherché</span>
+          @for (t of relatedSearches(); track t) {
+            <button class="rs-chip" (click)="applyRelated(t)">{{ t }}</button>
+          }
+        </div>
+      }
+
+      <div class="relevance-fb">
+        <span>Ces offres sont-elles pertinentes ?</span>
+        @if (relevanceFeedback() === null) {
+          <div class="fb-btns">
+            <button (click)="rateRelevance(1)" title="Peu pertinent"><i class="bi bi-hand-thumbs-down"></i></button>
+            <button (click)="rateRelevance(5)" title="Pertinent"><i class="bi bi-hand-thumbs-up"></i></button>
+          </div>
+        } @else {
+          <span class="fb-thanks"><i class="bi bi-check-circle-fill"></i> Merci pour votre retour</span>
+        }
+      </div>
     }
   </div>
 </section>

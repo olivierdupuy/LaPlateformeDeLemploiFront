@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { JobOfferService } from '../../services/job-offer';
 import { ApplicationService } from '../../services/application';
+import { CompanyReviewService } from '../../services/company-review.service';
 import { BookmarkService } from '../../services/bookmark.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
@@ -23,6 +24,7 @@ export class JobDetail implements OnInit {
   private router = inject(Router);
   private jobService = inject(JobOfferService);
   private appService = inject(ApplicationService);
+  private reviewSvc = inject(CompanyReviewService);
   private toastr = inject(ToastrService);
   bookmarkService = inject(BookmarkService);
   private candidateService = inject(CandidateFeaturesService);
@@ -30,6 +32,9 @@ export class JobDetail implements OnInit {
 
   job = signal<JobOffer | null>(null);
   similarJobs = signal<JobOffer[]>([]);
+  employerJobs = signal<JobOffer[]>([]);
+  companyRating = signal<{ average: number; count: number } | null>(null);
+  stars5 = [1, 2, 3, 4, 5];
   showApplyModal = signal(false);
   loading = signal(true);
   noteContent = '';
@@ -56,6 +61,10 @@ export class JobDetail implements OnInit {
         this.job.set(job);
         this.loading.set(false);
         this.loadSimilarJobs(job);
+        this.reviewSvc.getRating(job.company).subscribe((r) => { if (r.count > 0) this.companyRating.set(r); });
+        this.jobService.getByCompany(job.company).subscribe((jobs) => {
+          this.employerJobs.set(jobs.filter((j) => j.id !== job.id).slice(0, 4));
+        });
         if (this.auth.isLoggedIn() && this.auth.currentUser()?.role === 'Candidate') {
           this.candidateService.getNote(job.id).subscribe(n => { if (n.content) { this.noteContent = n.content; this.showNote.set(true); } });
         }
@@ -85,6 +94,12 @@ export class JobDetail implements OnInit {
   applying = signal(false);
 
   hasScreening(j: JobOffer): boolean { return !!j.screeningQuestions && j.screeningQuestions !== '[]'; }
+
+  ratingStar(value: number, i: number): 'full' | 'half' | 'empty' {
+    if (value >= i) return 'full';
+    if (value >= i - 0.5) return 'half';
+    return 'empty';
+  }
 
   openApply() { this.showApplyModal.set(true); }
   closeApply() { this.showApplyModal.set(false); }

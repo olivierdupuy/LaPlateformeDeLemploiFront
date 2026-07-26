@@ -203,7 +203,16 @@ Finalisation P0 (implémenté le 2026-07-26, builds verts) :
 - **PWA** : `manifest.webmanifest` + icône SVG + `theme-color`/apple meta dans `index.html` + service worker (`public/sw.js`, coquille offline) enregistré.
 - **SSO Google** *(scaffold)* : endpoint `POST /auth/google` (vérif du jeton via Google tokeninfo + JWT), `GoogleSignInButton` (GIS) sur la page de connexion, config `environment.googleClientId`. **⚠️ Nécessite un Google Client ID** (front `environment.googleClientId` + back `Google:ClientId`) pour être fonctionnel.
 
-**➡️ Roadmap Indeed P0 → P4 complète.** Restent des raffinements optionnels (traduction i18n exhaustive, icônes PWA PNG, événements emploi, notifications aux abonnés d'entreprise).
+**➡️ Roadmap Indeed P0 → P4 complète.**
+
+## ✅ Avancement — Compléments (items 🟡/🔴 restants, 2026-07-26, builds verts)
+- **Fiche « À propos » d'une entreprise** : modèle `CompanyProfile` (création, effectif, secteur, siège, site, présentation) + `GET/PUT /companies/{name}/profile`, migration `CompanyProfile`. Front : **onglet « À propos »** sur la page entreprise (affichage + **éditeur** pour recruteur/admin).
+- **Modération des avis** : endpoints admin `GET /companies/reviews/all` + `PATCH /companies/reviews/{id}/status` ; **onglet « Avis entreprises »** dans `admin-moderation` (approuver/masquer). Les avis masqués n'apparaissent plus côté public.
+- **Note entreprise (étoiles)** sur la fiche offre (carte entreprise, lien vers les avis) + **« Autres offres chez <entreprise> »**.
+- **Complétude du profil** : barre de progression % + champs manquants dans le profil candidat.
+- **Recherches associées** (chips « les candidats ont aussi recherché ») + **feedback de pertinence** (pouce haut/bas) sous les résultats de recherche.
+
+Restent (raffinements de niche, non bloquants) : réactivité employeur (« répond sous X j »), compteur d'embauches 30 j, carte Leaflet du lieu, graphique des notes année/année, badge salaire vs marché, événements emploi, réponses auto recruteur, multi-utilisateurs, description d'offre en HTML riche.
 
 ## Priorisation suggérée (pour atteindre la parité perçue rapidement)
 

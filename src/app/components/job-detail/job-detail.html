@@ -156,6 +156,16 @@
               </div>
               <div><strong>{{ j.company }}</strong><span>{{ j.location }}</span></div>
             </div>
+            @if (companyRating(); as r) {
+              <a class="sc-rating" [routerLink]="['/entreprises', j.company]">
+                <span class="stars">
+                  @for (i of stars5; track i) {
+                    <i class="bi" [class.bi-star-fill]="ratingStar(r.average, i)==='full'" [class.bi-star-half]="ratingStar(r.average, i)==='half'" [class.bi-star]="ratingStar(r.average, i)==='empty'"></i>
+                  }
+                </span>
+                <strong>{{ r.average }}</strong> <span class="sc-rc">({{ r.count }} avis)</span>
+              </a>
+            }
             <a class="link-teal" [routerLink]="['/entreprises', j.company]">Voir l'entreprise <i class="bi bi-arrow-right"></i></a>
           </div>
 
@@ -187,6 +197,35 @@
           }
         </aside>
       </div>
+
+      <!-- ═══ Offres de cet employeur ═══ -->
+      @if (employerJobs().length > 0) {
+        <div class="similar-section animate-in">
+          <div class="section-head">
+            <div class="section-title"><span class="ed-pill"><i class="bi bi-building"></i></span> Autres offres chez {{ j.company }}</div>
+            <a [routerLink]="['/entreprises', j.company]" class="link-teal">Voir l'entreprise <i class="bi bi-arrow-right"></i></a>
+          </div>
+          <div class="similar-grid">
+            @for (ej of employerJobs(); track ej.id) {
+              <a [routerLink]="['/offres', ej.id]" class="similar-card card">
+                <div class="sc-top">
+                  <div class="sc-avatar" [style.background]="companyColor(ej.company).bg">
+                    <span [style.color]="companyColor(ej.company).fg">{{ ej.company.charAt(0) }}</span>
+                  </div>
+                  <div class="sc-meta">
+                    <strong>{{ ej.title }}</strong>
+                    <span>{{ ej.location }}</span>
+                  </div>
+                </div>
+                <div class="sc-bottom">
+                  <span class="badge" [class]="getContractBadgeClass(ej.contractType)">{{ ej.contractType }}</span>
+                  @if (ej.salary) { <span class="sc-salary">{{ ej.salary }}</span> }
+                </div>
+              </a>
+            }
+          </div>
+        </div>
+      }
 
       <!-- ═══ Offres similaires ═══ -->
       @if (similarJobs().length > 0) {

@@ -30,6 +30,8 @@ export class JobList implements OnInit {
   jobs = signal<JobOffer[]>([]);
   appliedIds = signal<Set<number>>(new Set());
   applying = signal<number | null>(null);
+  relatedSearches = signal<string[]>([]);
+  relevanceFeedback = signal<number | null>(null);
   categories = signal<string[]>([]);
   loading = signal(true);
 
@@ -144,8 +146,10 @@ export class JobList implements OnInit {
     if (this.radius && this.location) filters.radius = this.radius;
     if (this.sort) filters.sort = this.sort;
 
+    this.relevanceFeedback.set(null);
     this.jobService.getAll(filters).subscribe((jobs) => {
       this.jobs.set(jobs);
+      this.computeRelated(jobs);
       this.loading.set(false);
       // Auto-selection de la 1re offre en vue split (desktop)
       const current = this.selected();
@@ -255,6 +259,29 @@ export class JobList implements OnInit {
   useRecentSearch(q: string) {
     this.search = q;
     this.loadJobs();
+  }
+
+  // ── Recherches associées ──
+  private computeRelated(jobs: JobOffer[]) {
+    const stop = new Set(['pour', 'avec', 'dans', 'chez', 'senior', 'junior', 'confirme', 'confirmé', 'h/f', 'f/h', '(h/f)', 'stage', 'cdi', 'cdd']);
+    const freq = new Map<string, number>();
+    const cur = this.search.toLowerCase().trim();
+    for (const j of jobs) {
+      for (const w of j.title.toLowerCase().split(/[\s/()\-,]+/)) {
+        const word = w.trim();
+        if (word.length < 4 || stop.has(word) || cur.includes(word)) continue;
+        freq.set(word, (freq.get(word) || 0) + 1);
+      }
+    }
+    const words = [...freq.entries()].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).map(([w]) => w).slice(0, 6);
+    const cats = [...new Set(jobs.map((j) => j.category).filter(Boolean))].slice(0, 4);
+    this.relatedSearches.set([...new Set([...words, ...cats.map((c) => c.toLowerCase())])].slice(0, 8));
+  }
+  applyRelated(term: string) { this.search = term; this.loadJobs(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+  rateRelevance(n: number) {
+    this.relevanceFeedback.set(n);
+    this.toastr.success('Merci, votre retour affine nos recommandations.', 'Pertinence');
   }
 
   getBenefits(job: JobOffer): string[] {

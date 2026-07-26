@@ -319,3 +319,28 @@
     &:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-ring); }
   }
 }
+
+// ── À propos ──
+.about-grid { display: grid; grid-template-columns: 1fr 300px; gap: 1.25rem; align-items: start; }
+.about-main, .about-facts, .about-editor { padding: 1.6rem; &:hover { transform: none; box-shadow: none; border-color: var(--line); } }
+.about-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem;
+  h3 { font-size: 1.1rem; font-weight: 700; } }
+.about-edit { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 600; color: var(--brand);
+  &:hover { text-decoration: underline; } }
+.about-text { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.8; white-space: pre-line; }
+.about-empty { font-size: 0.9rem; color: var(--muted); display: flex; gap: 0.4rem; align-items: center; }
+.about-facts dl { display: flex; flex-direction: column; }
+.about-facts dl > div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.6rem 0; border-bottom: 1px solid var(--line);
+  &:last-child { border: none; } }
+.about-facts dt { font-size: 0.82rem; color: var(--muted); }
+.about-facts dd { font-size: 0.85rem; font-weight: 600; margin: 0; text-align: right; }
+
+.about-editor h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.1rem; }
+.about-editor .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+.about-editor .form-group { margin-bottom: 0.9rem; }
+.about-editor-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1rem; }
+
+@media (max-width: 768px) {
+  .about-grid { grid-template-columns: 1fr; }
+  .about-editor .form-row { grid-template-columns: 1fr; }
+}

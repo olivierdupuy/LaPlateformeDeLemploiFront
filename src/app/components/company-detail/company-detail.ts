@@ -6,7 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { JobOfferService } from '../../services/job-offer';
 import { BookmarkService } from '../../services/bookmark.service';
 import { AuthService } from '../../services/auth.service';
-import { CompanyReviewService, CompanyReviewSummary, CompanyQuestion } from '../../services/company-review.service';
+import { CompanyReviewService, CompanyReviewSummary, CompanyQuestion, CompanyProfile } from '../../services/company-review.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
 
@@ -28,8 +28,15 @@ export class CompanyDetail implements OnInit {
   jobs = signal<JobOffer[]>([]);
   loading = signal(true);
 
-  tab = signal<'jobs' | 'reviews' | 'questions'>('jobs');
+  tab = signal<'about' | 'jobs' | 'reviews' | 'questions'>('jobs');
   summary = signal<CompanyReviewSummary | null>(null);
+
+  // À propos
+  profile = signal<CompanyProfile | null>(null);
+  editingProfile = signal(false);
+  savingProfile = signal(false);
+  profileForm: any = { foundedYear: null, size: '', industry: '', headquarters: '', website: '', about: '' };
+  companySizes = ['1 à 10', '11 à 50', '51 à 200', '201 à 500', '501 à 1000', '1000+'];
 
   // Suivre
   following = signal(false);
@@ -70,13 +77,44 @@ export class CompanyDetail implements OnInit {
     this.loadReviews();
     this.reviewSvc.getFollow(this.companyName).subscribe((f) => { this.following.set(f.following); this.followCount.set(f.count); });
     this.reviewSvc.getQuestions(this.companyName).subscribe((q) => this.questions.set(q));
+    this.reviewSvc.getProfile(this.companyName).subscribe((p) => this.profile.set(p));
   }
 
   loadReviews() {
     this.reviewSvc.getReviews(this.companyName).subscribe((s) => this.summary.set(s));
   }
 
-  setTab(t: 'jobs' | 'reviews' | 'questions') { this.tab.set(t); }
+  setTab(t: 'about' | 'jobs' | 'reviews' | 'questions') { this.tab.set(t); }
+
+  get canEditProfile(): boolean {
+    const r = this.auth.currentUser()?.role;
+    return r === 'Recruiter' || r === 'Admin';
+  }
+  get hasProfileInfo(): boolean {
+    const p = this.profile();
+    return !!(p && (p.foundedYear || p.size || p.industry || p.headquarters || p.website || p.about));
+  }
+  startEditProfile() {
+    const p = this.profile();
+    this.profileForm = {
+      foundedYear: p?.foundedYear ?? null, size: p?.size || '', industry: p?.industry || '',
+      headquarters: p?.headquarters || '', website: p?.website || '', about: p?.about || '',
+    };
+    this.editingProfile.set(true);
+  }
+  cancelEditProfile() { this.editingProfile.set(false); }
+  saveProfile() {
+    this.savingProfile.set(true);
+    this.reviewSvc.saveProfile(this.companyName, this.profileForm).subscribe({
+      next: () => {
+        this.savingProfile.set(false);
+        this.editingProfile.set(false);
+        this.reviewSvc.getProfile(this.companyName).subscribe((p) => this.profile.set(p));
+        this.toastr.success('Fiche entreprise enregistrée');
+      },
+      error: () => { this.savingProfile.set(false); this.toastr.error('Erreur'); },
+    });
+  }
 
   // ── Suivre ──
   toggleFollow() {

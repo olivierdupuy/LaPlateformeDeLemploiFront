@@ -27,6 +27,9 @@
       <button class="tab" [class.active]="activeTab() === 'Reports'" (click)="switchTab('Reports')">
         <i class="bi bi-flag"></i> Signalements
       </button>
+      <button class="tab" [class.active]="activeTab() === 'Reviews'" (click)="switchTab('Reviews')">
+        <i class="bi bi-star"></i> Avis entreprises
+      </button>
     </div>
 
     @if (loading()) {
@@ -77,6 +80,53 @@
                 @if (r.status === 'Pending') {
                   <button (click)="resolveReport(r.id, 'Reviewed')" class="btn-approve"><i class="bi bi-check-lg"></i> Traiter</button>
                   <button (click)="resolveReport(r.id, 'Dismissed')" class="btn-reject"><i class="bi bi-x-lg"></i> Rejeter</button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    } @else if (activeTab() === 'Reviews') {
+      @if (companyReviews().length === 0) {
+        <div class="empty-box animate-in">
+          <i class="bi bi-star"></i>
+          <h3>Aucun avis</h3>
+          <p>Aucun avis d'entreprise à modérer.</p>
+        </div>
+      } @else {
+        <div class="offer-list">
+          @for (r of companyReviews(); track r.id; let i = $index) {
+            <article class="offer-card card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
+              <span class="card-stripe"
+                [class.stripe-approved]="r.status === 'Approved'"
+                [class.stripe-rejected]="r.status === 'Rejected'"></span>
+              <div class="oc-top">
+                <div class="oc-info">
+                  <h3>{{ r.title }}</h3>
+                  <span class="oc-meta">
+                    <span class="oc-company">{{ r.company }}</span>
+                    <span class="oc-sep">·</span>
+                    <span class="rev-stars">@for (s of reviewStars(r.overallRating); track s) { <i class="bi bi-star-fill"></i> }</span>
+                    @if (r.jobTitle) { <span class="oc-sep">·</span>{{ r.jobTitle }} }
+                  </span>
+                </div>
+                <div class="oc-badges">
+                  <span class="badge" [class.badge-green]="r.status === 'Approved'" [class.badge-red]="r.status === 'Rejected'">
+                    {{ r.status === 'Approved' ? 'Visible' : 'Masqué' }}
+                  </span>
+                </div>
+              </div>
+              @if (r.body) { <p class="oc-desc">{{ r.body }}</p> }
+              <div class="oc-foot">
+                <span class="oc-stat"><i class="bi bi-calendar3"></i> {{ r.createdAt | date:'dd/MM/yyyy' }}</span>
+                @if (r.authorName) { <span class="oc-stat"><i class="bi bi-person"></i> {{ r.authorName }}</span> }
+              </div>
+              <div class="oc-actions">
+                @if (r.status !== 'Approved') {
+                  <button (click)="moderateReview(r.id, 'Approved')" class="btn-approve"><i class="bi bi-check-lg"></i> Approuver</button>
+                }
+                @if (r.status !== 'Rejected') {
+                  <button (click)="moderateReview(r.id, 'Rejected')" class="btn-reject"><i class="bi bi-eye-slash"></i> Masquer</button>
                 }
               </div>
             </article>

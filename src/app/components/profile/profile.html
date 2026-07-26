@@ -100,6 +100,25 @@
     <!-- RIGHT: Edit forms -->
     <main class="prof-main">
       <!-- Informations personnelles -->
+      @if (isCandidate && completeness < 100) {
+        <div class="pm-complete animate-in">
+          <div class="pc-top">
+            <div>
+              <strong>Complétez votre profil</strong>
+              <p>Un profil complet est plus visible auprès des recruteurs.</p>
+            </div>
+            <span class="pc-pct u-mono">{{ completeness }}%</span>
+          </div>
+          <div class="pc-bar"><span [style.width.%]="completeness"></span></div>
+          @if (missingFields.length) {
+            <div class="pc-missing">
+              <span>À compléter :</span>
+              @for (m of missingFields; track m) { <span class="pc-chip">{{ m }}</span> }
+            </div>
+          }
+        </div>
+      }
+
       <div class="pm-section animate-in" style="animation-delay:.06s">
         <div class="pm-head">
           <span class="ed-pill">01</span>

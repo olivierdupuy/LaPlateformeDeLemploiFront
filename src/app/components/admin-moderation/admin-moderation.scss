@@ -243,3 +243,5 @@
   .oc-actions button,
   .rej-actions button { flex: 1; justify-content: center; }
 }
+
+.rev-stars { display: inline-flex; gap: 1px; color: var(--spring-600); i { font-size: 0.72rem; } }

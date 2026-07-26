@@ -363,3 +363,17 @@
   strong { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
   small { font-size: 0.8rem; color: var(--muted); }
 }
+
+// ── Complétude du profil ──
+.pm-complete {
+  padding: 1.4rem; margin-bottom: 1.25rem;
+  background: var(--brand-tint); border: 1px solid var(--brand-100); border-radius: var(--r-lg);
+}
+.pc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem;
+  strong { font-size: 0.98rem; font-weight: 700; }
+  p { font-size: 0.84rem; color: var(--muted); margin-top: 0.15rem; } }
+.pc-pct { font-size: 1.6rem; font-weight: 800; color: var(--brand-700); flex-shrink: 0; }
+.pc-bar { height: 8px; border-radius: var(--r-full); background: var(--canvas); overflow: hidden;
+  span { display: block; height: 100%; background: var(--brand); border-radius: var(--r-full); transition: width 0.5s var(--ease-out); } }
+.pc-missing { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.9rem; font-size: 0.8rem; color: var(--muted); }
+.pc-chip { background: var(--canvas); border: 1px solid var(--brand-100); color: var(--brand-700); border-radius: var(--r-full); padding: 0.15rem 0.6rem; font-weight: 600; }

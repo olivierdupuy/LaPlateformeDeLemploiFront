@@ -45,6 +45,26 @@ export class Profile implements OnInit {
 
   get isCandidate(): boolean { return this.auth.currentUser()?.role === 'Candidate'; }
 
+  private completenessFields() {
+    const u = this.auth.currentUser();
+    return [
+      { key: 'title', label: 'Intitulé de poste', ok: !!u?.title },
+      { key: 'bio', label: 'Bio', ok: !!u?.bio },
+      { key: 'skills', label: 'Compétences', ok: !!u?.skills },
+      { key: 'experienceYears', label: 'Années d\'expérience', ok: u?.experienceYears != null },
+      { key: 'education', label: 'Formation', ok: !!u?.education },
+      { key: 'city', label: 'Ville', ok: !!u?.city },
+      { key: 'resumeUrl', label: 'CV', ok: !!u?.resumeUrl },
+    ];
+  }
+  get completeness(): number {
+    const f = this.completenessFields();
+    return Math.round((f.filter((x) => x.ok).length / f.length) * 100);
+  }
+  get missingFields(): string[] {
+    return this.completenessFields().filter((x) => !x.ok).map((x) => x.label);
+  }
+
   toggleSearchable() {
     this.profileForm.isSearchable = !this.profileForm.isSearchable;
     this.auth.updateProfile({ isSearchable: this.profileForm.isSearchable }).subscribe({

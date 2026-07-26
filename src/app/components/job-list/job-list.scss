@@ -350,3 +350,28 @@
   .adv-panel { grid-template-columns: 1fr 1fr; }
   .filter-bar .fb-spacer { display: none; }
 }
+
+// ── Recherches associées + feedback ──
+.related-searches { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 2rem; }
+.rs-label { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-right: 0.3rem; }
+.rs-chip {
+  font-size: 0.82rem; font-weight: 500; color: var(--ink-soft);
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-full);
+  padding: 0.35rem 0.85rem; transition: border-color var(--t), color var(--t), background var(--t);
+  &:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-tint); }
+}
+
+.relevance-fb {
+  display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
+  margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+  font-size: 0.86rem; color: var(--muted);
+}
+.fb-btns { display: flex; gap: 0.4rem;
+  button {
+    width: 36px; height: 36px; border-radius: var(--r-sm); border: 1px solid var(--line-strong); color: var(--muted);
+    transition: border-color var(--t), color var(--t), background var(--t);
+    &:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-tint); }
+  }
+}
+.fb-thanks { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--brand); font-weight: 600;
+  i { font-size: 0.9rem; } }

@@ -207,6 +207,16 @@
 .sc-company div strong { display: block; font-size: 0.9rem; font-weight: 700; }
 .sc-company div span { font-size: 0.78rem; color: var(--muted); }
 
+.sc-rating {
+  display: flex; align-items: center; gap: 0.4rem; margin: 0.9rem 0;
+  font-size: 0.82rem; color: var(--ink-soft);
+  strong { color: var(--ink); }
+  .sc-rc { color: var(--muted); }
+  &:hover strong { color: var(--brand); }
+}
+.stars { display: inline-flex; gap: 1px; color: var(--spring-600); i { font-size: 0.82rem; } }
+.stars .bi-star { color: var(--line-strong); }
+
 // ── Notes ──
 .note-card { padding: 0; }
 .note-toggle {

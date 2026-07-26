@@ -44,6 +44,17 @@ export interface CompanyReviewCreate {
 export interface CompanyAnswer { id: number; body: string; authorName?: string; createdAt: string; }
 export interface CompanyQuestion { id: number; body: string; authorName?: string; createdAt: string; answers: CompanyAnswer[]; }
 
+export interface CompanyProfile {
+  company: string;
+  foundedYear?: number | null;
+  size?: string;
+  industry?: string;
+  headquarters?: string;
+  website?: string;
+  about?: string;
+  jobCount: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CompanyReviewService {
   private http = inject(HttpClient);
@@ -77,5 +88,22 @@ export class CompanyReviewService {
   }
   toggleFollow(company: string): Observable<{ following: boolean; count: number }> {
     return this.http.post<{ following: boolean; count: number }>(`${this.base}/${this.enc(company)}/follow`, {});
+  }
+
+  // ── Fiche « À propos » ──
+  getProfile(company: string): Observable<CompanyProfile> {
+    return this.http.get<CompanyProfile>(`${this.base}/${this.enc(company)}/profile`);
+  }
+  saveProfile(company: string, dto: Partial<CompanyProfile>): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.base}/${this.enc(company)}/profile`, dto);
+  }
+
+  // ── Modération avis (admin) ──
+  getAllReviewsAdmin(status?: string): Observable<any[]> {
+    const url = `${this.base}/reviews/all${status ? '?status=' + status : ''}`;
+    return this.http.get<any[]>(url);
+  }
+  setReviewStatus(id: number, status: string): Observable<void> {
+    return this.http.patch<void>(`${this.base}/reviews/${id}/status`, { body: status });
   }
 }
