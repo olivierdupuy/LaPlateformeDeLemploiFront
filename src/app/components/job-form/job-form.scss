@@ -264,3 +264,26 @@
     .btn-primary, .btn-secondary { flex: 1; }
   }
 }
+
+// ── Questions de preselection ──
+.jf-screening {
+  margin-top: 1.5rem; padding: 1.25rem;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md);
+}
+.jf-screening-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; }
+.jf-screening-title { display: block; font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+.jf-screening-hint { font-size: 0.8rem; color: var(--muted); }
+.jf-screening-row {
+  display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;
+  input {
+    flex: 1; padding: 0.6rem 0.85rem; border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm); background: var(--canvas); font-size: 0.9rem; outline: none;
+    &:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-ring); }
+  }
+}
+.jf-q-num { flex-shrink: 0; font-size: 0.72rem; font-weight: 600; color: var(--brand-700); }
+.jf-q-remove {
+  flex-shrink: 0; width: 32px; height: 32px; border-radius: var(--r-sm);
+  color: var(--faint); &:hover { background: var(--red-bg); color: var(--red); }
+}
+.jf-screening-empty { font-size: 0.85rem; color: var(--muted); }

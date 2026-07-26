@@ -13,8 +13,12 @@ import { ToastrService } from 'ngx-toastr';
 export class ApplyModal implements OnInit {
   @Input({ required: true }) jobId!: number;
   @Input({ required: true }) jobTitle!: string;
+  @Input() screeningQuestions?: string;
   @Output() close = new EventEmitter<void>();
   @Output() applied = new EventEmitter<void>();
+
+  questions: string[] = [];
+  answers: string[] = [];
 
   private appService = inject(ApplicationService);
   private auth = inject(AuthService);
@@ -35,6 +39,14 @@ export class ApplyModal implements OnInit {
       this.userName = `${u.firstName} ${u.lastName}`;
       this.userEmail = u.email;
     }
+    if (this.screeningQuestions) {
+      try { this.questions = JSON.parse(this.screeningQuestions) || []; } catch { this.questions = []; }
+      this.answers = this.questions.map(() => '');
+    }
+  }
+
+  get answersComplete(): boolean {
+    return this.questions.every((_, i) => (this.answers[i] || '').trim().length > 0);
   }
 
   onOverlayClick(event: MouseEvent) {
@@ -45,12 +57,16 @@ export class ApplyModal implements OnInit {
 
   submit() {
     this.submitting = true;
+    const screeningAnswers = this.questions.length
+      ? JSON.stringify(this.questions.map((q, i) => ({ question: q, answer: (this.answers[i] || '').trim() })))
+      : undefined;
     this.appService.create({
       jobOfferId: this.jobId,
       fullName: this.userName,
       email: this.userEmail,
       phone: this.form.phone || undefined,
       coverLetter: this.form.coverLetter || undefined,
+      screeningAnswers,
     }).subscribe({
       next: () => {
         this.submitting = false;

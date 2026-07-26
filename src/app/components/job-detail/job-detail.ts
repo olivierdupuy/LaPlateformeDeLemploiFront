@@ -84,6 +84,8 @@ export class JobDetail implements OnInit {
   applied = signal(false);
   applying = signal(false);
 
+  hasScreening(j: JobOffer): boolean { return !!j.screeningQuestions && j.screeningQuestions !== '[]'; }
+
   openApply() { this.showApplyModal.set(true); }
   closeApply() { this.showApplyModal.set(false); }
 

@@ -73,6 +73,11 @@ export class Applications implements OnInit {
     });
   }
 
+  getScreeningAnswers(app: Application): { question: string; answer: string }[] {
+    if (!app.screeningAnswers) return [];
+    try { return JSON.parse(app.screeningAnswers) || []; } catch { return []; }
+  }
+
   openNotes(app: Application) { this.editingNotesId.set(app.id); this.notesText = app.recruiterNotes || ''; }
   saveNotes(app: Application) {
     this.appService.updateNotes(app.id, this.notesText).subscribe({

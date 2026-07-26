@@ -142,3 +142,17 @@
     }
   }
 }
+
+// ── Questions de preselection ──
+.am-screening {
+  padding: 1rem 1.1rem; margin-bottom: 0.5rem;
+  background: var(--brand-tint); border: 1px solid var(--brand-100); border-radius: var(--r-md);
+}
+.am-screening-label {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--font-mono); font-size: 0.72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--brand-700);
+  margin-bottom: 0.6rem;
+}
+.am-screening .form-group { margin-bottom: 0.7rem; &:last-child { margin-bottom: 0; } }
+.am-req { color: var(--red); }

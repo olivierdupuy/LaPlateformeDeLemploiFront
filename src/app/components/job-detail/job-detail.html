@@ -94,7 +94,7 @@
                 <h3>Candidature envoyée <i class="bi bi-check-circle-fill" style="color:var(--brand)"></i></h3>
                 <p>Votre candidature a bien été transmise au recruteur.</p>
                 <a routerLink="/suivi" class="btn-secondary full-w"><i class="bi bi-clipboard-check"></i> Suivre mes candidatures</a>
-              } @else if (j.easyApply) {
+              } @else if (j.easyApply && !hasScreening(j)) {
                 <h3>Intéressé par ce poste ?</h3>
                 <p>Postulez en 1 clic avec votre profil et votre CV.</p>
                 <button class="btn-spring full-w" [disabled]="applying()" (click)="easyApplyNow()">
@@ -203,7 +203,7 @@
     }
 
   @if (showApplyModal()) {
-    <app-apply-modal [jobId]="j.id" [jobTitle]="j.title" (close)="closeApply()" (applied)="onApplicationSent()" />
+    <app-apply-modal [jobId]="j.id" [jobTitle]="j.title" [screeningQuestions]="j.screeningQuestions" (close)="closeApply()" (applied)="onApplicationSent()" />
   }
 
   @if (reportOpen()) {

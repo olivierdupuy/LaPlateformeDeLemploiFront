@@ -108,6 +108,15 @@
             <p>Ces informations alimentent votre profil public et vos candidatures.</p>
           </div>
         </div>
+        @if (isCandidate) {
+          <div class="pm-import">
+            <label class="pm-import-btn" [class.loading]="importingProfile">
+              @if (importingProfile) { <span class="sp"></span> Analyse en cours… } @else { <i class="bi bi-magic"></i> Pré-remplir depuis mon CV }
+              <input type="file" accept=".pdf,.docx,.doc" (change)="onProfileCvSelected($event)" hidden />
+            </label>
+            <span class="pm-import-hint">L'IA extrait titre, compétences, expérience et formation de votre CV (PDF/DOCX). Vous vérifiez avant d'enregistrer.</span>
+          </div>
+        }
         <form (ngSubmit)="saveProfile()" class="pm-form">
           <div class="form-row">
             <div class="form-group"><label>Prenom</label><input type="text" [(ngModel)]="profileForm.firstName" name="firstName" /></div>
@@ -173,6 +182,25 @@
               </label>
             </div>
           }
+        </div>
+
+        <!-- Visibilite vivier -->
+        <div class="pm-section animate-in" style="animation-delay:.15s">
+          <div class="pm-head">
+            <span class="ed-pill"><i class="bi bi-eye"></i></span>
+            <div class="pm-head-text">
+              <h2>Visibilité auprès des recruteurs</h2>
+              <p>Autorisez les recruteurs à vous trouver dans le vivier de candidats.</p>
+            </div>
+          </div>
+          <label class="vis-toggle">
+            <input type="checkbox" [checked]="profileForm.isSearchable" (change)="toggleSearchable()" />
+            <span class="vis-switch"></span>
+            <span class="vis-text">
+              <strong>{{ profileForm.isSearchable ? 'Profil visible dans le vivier' : 'Profil masqué' }}</strong>
+              <small>{{ profileForm.isSearchable ? 'Les recruteurs peuvent consulter votre profil et vous contacter.' : 'Vous n\'apparaissez pas dans les recherches de candidats.' }}</small>
+            </span>
+          </label>
         </div>
       }
 

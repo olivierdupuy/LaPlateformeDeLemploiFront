@@ -26,6 +26,7 @@ export interface JobOffer {
   easyApply?: boolean;
   latitude?: number;
   longitude?: number;
+  screeningQuestions?: string;
   moderationStatus?: string;
   moderationNote?: string;
   viewCount?: number;
@@ -46,6 +47,7 @@ export interface Application {
   availableFrom?: string;
   salaryExpectation?: string;
   source?: string;
+  screeningAnswers?: string;
   appliedAt: string;
   jobOffer?: JobOffer;
 }

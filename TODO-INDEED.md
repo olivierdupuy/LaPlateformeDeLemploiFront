@@ -176,7 +176,14 @@ Finalisation P0 (implémenté le 2026-07-26, builds verts) :
 - **Pages de parcours SEO** : endpoint `GET /joboffers/browse` (métiers, villes, contrats avec compteurs) + composant `browse-jobs` à la route **`/parcourir`** (chips cliquables → recherche filtrée) + liens navbar & footer.
 - **Signalements dans la modération admin** : onglet **Signalements** dans `admin-moderation` (liste offre/motif/détails/date/statut, actions **Traiter/Rejeter**, lien vers l'offre) branché sur `GET/PATCH /joboffers/reports`.
 
-**➡️ Bloc P0 terminé.** Prochaine étape : P1 (candidature simplifiée déjà faite ; reste import CV + parsing, visibilité CV/vivier, questions de présélection).
+**➡️ Bloc P0 terminé.**
+
+## ✅ Avancement — Bloc P1 (implémenté le 2026-07-26, builds verts)
+- **Visibilité CV / vivier** : champ `IsSearchable` sur `AppUser` (+ DTOs), filtre du vivier `candidate-list` côté back, **toggle** dans le profil.
+- **Import CV → préremplissage profil** : endpoint `POST /cv/parse-profile` (extraction PDF/DOCX + OpenAI → titre/compétences/expérience/formation/ville/bio), bouton **« Pré-remplir depuis mon CV »** dans le profil.
+- **Questions de présélection** : champ `ScreeningQuestions` (offre) + `ScreeningAnswers` (candidature) ; éditeur dans `job-form`, affichage/collecte obligatoire dans `apply-modal` (l'easy-apply 1-clic bascule sur la modale si des questions existent), consultation par le recruteur dans `applications`. Migration EF `P1Features`.
+
+**➡️ Bloc P1 terminé.** Restent surtout les zones produit P2+ : Avis d'entreprises, Salaires, employeur avancé, contenu/i18n.
 
 ## Priorisation suggérée (pour atteindre la parité perçue rapidement)
 

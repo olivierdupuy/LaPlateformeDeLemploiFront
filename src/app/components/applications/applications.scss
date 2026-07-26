@@ -563,3 +563,13 @@
   .kanban { grid-template-columns: 1fr; }
   .sf-grid { grid-template-columns: 1fr; }
 }
+
+// ── Reponses aux questions de preselection ──
+.ac-screening {
+  margin-top: 0.6rem; padding: 0.7rem 0.85rem;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-sm);
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+.ac-qa { display: flex; flex-direction: column; gap: 0.1rem; }
+.ac-q { font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+.ac-a { font-size: 0.85rem; color: var(--ink); }

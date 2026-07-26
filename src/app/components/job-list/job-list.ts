@@ -217,7 +217,8 @@ export class JobList implements OnInit {
     return this.auth.isLoggedIn() && this.auth.currentUser()?.role === 'Candidate';
   }
   canEasyApply(job: JobOffer): boolean {
-    return !!job.easyApply && this.isCandidate() && !this.appliedIds().has(job.id);
+    const hasScreening = !!job.screeningQuestions && job.screeningQuestions !== '[]';
+    return !!job.easyApply && !hasScreening && this.isCandidate() && !this.appliedIds().has(job.id);
   }
   easyApply(job: JobOffer, event?: Event) {
     event?.preventDefault();

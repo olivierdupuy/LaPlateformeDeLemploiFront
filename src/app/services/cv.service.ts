@@ -42,4 +42,20 @@ export class CvService {
     formData.append('file', file);
     return this.http.post<CvSectionCreate[]>(`${this.apiUrl}/parse-file`, formData);
   }
+
+  /** Analyse un CV et renvoie des champs de profil pré-remplis. */
+  parseProfile(file: File): Observable<ProfileDraft> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ProfileDraft>(`${this.apiUrl}/parse-profile`, formData);
+  }
+}
+
+export interface ProfileDraft {
+  title?: string;
+  skills?: string;
+  experienceYears?: number | null;
+  education?: string;
+  city?: string;
+  bio?: string;
 }

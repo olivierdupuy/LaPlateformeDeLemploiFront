@@ -42,6 +42,10 @@ export class JobForm implements OnInit {
   educationLevels = ['Bac', 'Bac+2', 'Bac+3', 'Bac+5', 'Doctorat'];
   workSchedules = ['Temps plein', 'Temps partiel', 'Journee', 'Nuit', 'Week-end'];
 
+  screeningQuestionsList: string[] = [];
+  addQuestion() { this.screeningQuestionsList.push(''); }
+  removeQuestion(i: number) { this.screeningQuestionsList.splice(i, 1); }
+
   ngOnInit() {
     const u = this.auth.currentUser();
     if (u?.company) this.form.company = u.company;
@@ -64,6 +68,8 @@ export class JobForm implements OnInit {
             benefits: job.benefits || '', companyDescription: job.companyDescription || '',
             isUrgent: job.isUrgent || false, easyApply: job.easyApply ?? true,
           };
+          try { this.screeningQuestionsList = job.screeningQuestions ? JSON.parse(job.screeningQuestions) : []; }
+          catch { this.screeningQuestionsList = []; }
         },
         error: () => { this.toastr.error('Offre introuvable'); this.router.navigate(['/offres']); },
       });
@@ -83,6 +89,9 @@ export class JobForm implements OnInit {
       this.currentStep.set(1);
       return;
     }
+
+    const cleanQuestions = this.screeningQuestionsList.map(q => q.trim()).filter(Boolean);
+    this.form.screeningQuestions = cleanQuestions.length ? JSON.stringify(cleanQuestions) : null;
 
     this.submitting = true;
 

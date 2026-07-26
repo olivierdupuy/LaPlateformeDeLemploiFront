@@ -184,6 +184,26 @@
               }
             </div>
 
+            <!-- Questions de preselection -->
+            <div class="jf-screening">
+              <div class="jf-screening-head">
+                <div>
+                  <label class="jf-screening-title">Questions de présélection</label>
+                  <span class="jf-screening-hint">Posées au candidat au moment de la candidature (optionnel).</span>
+                </div>
+                <button type="button" class="btn-ghost" (click)="addQuestion()"><i class="bi bi-plus-lg"></i> Ajouter</button>
+              </div>
+              @for (q of screeningQuestionsList; track $index) {
+                <div class="jf-screening-row">
+                  <span class="jf-q-num u-mono">Q{{ $index + 1 }}</span>
+                  <input type="text" placeholder="ex: Avez-vous le permis B ?" [(ngModel)]="screeningQuestionsList[$index]" [name]="'sq' + $index" />
+                  <button type="button" class="jf-q-remove" (click)="removeQuestion($index)" title="Supprimer"><i class="bi bi-x-lg"></i></button>
+                </div>
+              } @empty {
+                <p class="jf-screening-empty">Aucune question. Les candidats postuleront directement.</p>
+              }
+            </div>
+
             <!-- Resume -->
             <div class="jf-resume">
               <h3><span class="eyebrow">Recapitulatif</span></h3>
