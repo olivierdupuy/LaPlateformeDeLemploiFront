@@ -9,39 +9,204 @@
       <div class="cd-heading">
         <span class="eyebrow">Entreprise</span>
         <h1>{{ companyName }}</h1>
-        <p class="cd-count u-mono">{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }} active{{ jobs().length > 1 ? 's' : '' }}</p>
+        <div class="cd-headmeta">
+          <span class="cd-count u-mono">{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }}</span>
+          @if (summary(); as s) {
+            @if (s.count > 0) {
+              <button class="cd-rating" (click)="setTab('reviews')">
+                <span class="stars">
+                  @for (i of stars; track i) {
+                    <i class="bi" [class.bi-star-fill]="starType(s.average, i)==='full'" [class.bi-star-half]="starType(s.average, i)==='half'" [class.bi-star]="starType(s.average, i)==='empty'"></i>
+                  }
+                </span>
+                <strong>{{ s.average }}</strong>
+                <span class="cd-rcount">({{ s.count }} avis)</span>
+              </button>
+            }
+          }
+        </div>
       </div>
     </header>
 
-    @if (loading()) {
-      <div class="empty-box"><div class="spinner"></div></div>
-    } @else if (jobs().length === 0) {
-      <div class="empty-box">
-        <i class="bi bi-briefcase"></i>
-        <h3>Aucune offre active</h3>
-        <p>Cette entreprise n'a pas d'offre publiee pour le moment.</p>
-        <a routerLink="/offres" class="link-teal">Parcourir toutes les offres <i class="bi bi-arrow-right"></i></a>
-      </div>
-    } @else {
-      <div class="cd-grid">
-        @for (job of jobs(); track job.id; let i = $index) {
-          <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="(i*0.05+0.1)+'s'">
-            <div class="jc-top">
-              <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
-              @if (job.isRemote) { <span class="remote-pill">Teletravail</span> }
-              <button class="bk-btn" (click)="$event.preventDefault(); bookmarkService.toggle(job.id)" [class.active]="bookmarkService.isBookmarked(job.id)" aria-label="Enregistrer l'offre">
-                <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
-              </button>
+    <!-- Onglets -->
+    <div class="cd-tabs animate-in" style="animation-delay:.1s" role="tablist">
+      <button class="cd-tab" [class.active]="tab() === 'jobs'" (click)="setTab('jobs')">
+        <i class="bi bi-briefcase"></i> Emplois <span class="cd-tab-n">{{ jobs().length }}</span>
+      </button>
+      <button class="cd-tab" [class.active]="tab() === 'reviews'" (click)="setTab('reviews')">
+        <i class="bi bi-star"></i> Avis <span class="cd-tab-n">{{ summary()?.count || 0 }}</span>
+      </button>
+    </div>
+
+    <!-- ═══ EMPLOIS ═══ -->
+    @if (tab() === 'jobs') {
+      @if (loading()) {
+        <div class="empty-box"><div class="spinner"></div></div>
+      } @else if (jobs().length === 0) {
+        <div class="empty-box">
+          <i class="bi bi-briefcase"></i>
+          <h3>Aucune offre active</h3>
+          <p>Cette entreprise n'a pas d'offre publiée pour le moment.</p>
+          <a routerLink="/offres" class="link-teal">Parcourir toutes les offres <i class="bi bi-arrow-right"></i></a>
+        </div>
+      } @else {
+        <div class="cd-grid">
+          @for (job of jobs(); track job.id; let i = $index) {
+            <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="(i*0.05+0.1)+'s'">
+              <div class="jc-top">
+                <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+                @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
+                <button class="bk-btn" (click)="$event.preventDefault(); bookmarkService.toggle(job.id)" [class.active]="bookmarkService.isBookmarked(job.id)" aria-label="Enregistrer l'offre">
+                  <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
+                </button>
+              </div>
+              <h3>{{ job.title }}</h3>
+              <p class="jc-desc">{{ job.description }}</p>
+              <div class="jc-bottom">
+                <span class="jc-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
+                @if (job.salary) { <span class="jc-salary u-mono">{{ job.salary }}</span> }
+              </div>
+            </a>
+          }
+        </div>
+      }
+    }
+
+    <!-- ═══ AVIS ═══ -->
+    @if (tab() === 'reviews') {
+      <div class="cd-reviews animate-in">
+        @if (summary(); as s) {
+          <!-- Résumé des notes -->
+          <div class="rev-summary card">
+            <div class="rs-overall">
+              <div class="rs-score">{{ s.count ? s.average : '—' }}</div>
+              <div class="stars stars-lg">
+                @for (i of stars; track i) {
+                  <i class="bi" [class.bi-star-fill]="starType(s.average, i)==='full'" [class.bi-star-half]="starType(s.average, i)==='half'" [class.bi-star]="starType(s.average, i)==='empty'"></i>
+                }
+              </div>
+              <span class="rs-count">{{ s.count }} avis</span>
+              <button class="btn-primary rs-write" (click)="openReview()"><i class="bi bi-pencil-square"></i> Écrire un avis</button>
             </div>
-            <h3>{{ job.title }}</h3>
-            <p class="jc-desc">{{ job.description }}</p>
-            <div class="jc-bottom">
-              <span class="jc-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
-              @if (job.salary) { <span class="jc-salary u-mono">{{ job.salary }}</span> }
+
+            <div class="rs-detail">
+              <div class="rs-criteria">
+                @for (c of criteriaList; track c.key) {
+                  <div class="rs-crit">
+                    <span class="rs-crit-label">{{ c.label }}</span>
+                    <div class="rs-bar"><span [style.width.%]="(criteriaValue(c.key) / 5) * 100"></span></div>
+                    <span class="rs-crit-val u-mono">{{ criteriaValue(c.key) || '—' }}</span>
+                  </div>
+                }
+              </div>
+              <div class="rs-dist">
+                @for (star of [5,4,3,2,1]; track star) {
+                  <div class="rs-distrow">
+                    <span class="rs-dstar u-mono">{{ star }} <i class="bi bi-star-fill"></i></span>
+                    <div class="rs-bar"><span [style.width.%]="distributionPct(star)"></span></div>
+                    <span class="rs-dpct u-mono">{{ distributionPct(star) }}%</span>
+                  </div>
+                }
+              </div>
             </div>
-          </a>
+          </div>
+
+          <!-- Liste des avis -->
+          @if (s.reviews.length === 0) {
+            <div class="empty-box">
+              <i class="bi bi-chat-square-heart"></i>
+              <h3>Aucun avis pour le moment</h3>
+              <p>Vous avez travaillé ici ? Partagez votre expérience.</p>
+              <button class="btn-primary" (click)="openReview()"><i class="bi bi-pencil-square"></i> Écrire le premier avis</button>
+            </div>
+          } @else {
+            <div class="rev-list">
+              @for (r of s.reviews; track r.id) {
+                <article class="rev-card card">
+                  <div class="rev-head">
+                    <div class="stars">
+                      @for (i of stars; track i) {
+                        <i class="bi" [class.bi-star-fill]="starType(r.overallRating, i)==='full'" [class.bi-star]="starType(r.overallRating, i)==='empty'"></i>
+                      }
+                    </div>
+                    <span class="rev-date u-mono">{{ r.createdAt | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                  <h4 class="rev-title">{{ r.title }}</h4>
+                  @if (r.body) { <p class="rev-body">{{ r.body }}</p> }
+                  <div class="rev-foot">
+                    @if (r.jobTitle) { <span><i class="bi bi-person-badge"></i> {{ r.jobTitle }}</span> }
+                    @if (r.location) { <span><i class="bi bi-geo-alt"></i> {{ r.location }}</span> }
+                    @if (r.authorName) { <span class="rev-author">— {{ r.authorName }}</span> }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        } @else {
+          <div class="empty-box"><div class="spinner"></div></div>
         }
       </div>
     }
   </div>
 </section>
+
+<!-- ═══ MODALE — écrire un avis ═══ -->
+@if (reviewOpen()) {
+  <div class="modal-overlay" (click)="closeReview()">
+    <div class="modal-content review-modal" (click)="$event.stopPropagation()">
+      <div class="rvm-head">
+        <div>
+          <span class="eyebrow">Votre avis</span>
+          <h3>Noter {{ companyName }}</h3>
+        </div>
+        <button class="rvm-close" (click)="closeReview()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="rvm-overall">
+        <label>Note globale <span class="am-req">*</span></label>
+        <div class="star-picker">
+          @for (i of stars; track i) {
+            <button type="button" (click)="setStar('overallRating', i)" [class.on]="reviewForm.overallRating >= i" aria-label="Note">
+              <i class="bi" [class.bi-star-fill]="reviewForm.overallRating >= i" [class.bi-star]="reviewForm.overallRating < i"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="rvm-criteria">
+        @for (c of criteriaList; track c.key) {
+          <div class="rvm-crit">
+            <span>{{ c.label }}</span>
+            <div class="star-picker star-picker-sm">
+              @for (i of stars; track i) {
+                <button type="button" (click)="setStar(c.key, i)" [class.on]="reviewForm[c.key] >= i" aria-label="Note">
+                  <i class="bi" [class.bi-star-fill]="reviewForm[c.key] >= i" [class.bi-star]="reviewForm[c.key] < i"></i>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Titre <span class="am-req">*</span></label>
+        <input type="text" [(ngModel)]="reviewForm.title" placeholder="ex: Bonne ambiance, management à revoir" maxlength="120" />
+      </div>
+      <div class="form-group">
+        <label>Votre expérience</label>
+        <textarea [(ngModel)]="reviewForm.body" placeholder="Points positifs, points à améliorer…" rows="4"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Votre poste</label><input type="text" [(ngModel)]="reviewForm.jobTitle" placeholder="ex: Développeur" /></div>
+        <div class="form-group"><label>Lieu</label><input type="text" [(ngModel)]="reviewForm.location" placeholder="ex: Paris" /></div>
+      </div>
+
+      <div class="rvm-actions">
+        <button class="btn-secondary" (click)="closeReview()">Annuler</button>
+        <button class="btn-primary" [disabled]="submitting()" (click)="submitReview()">
+          @if (submitting()) { <span class="sp"></span> Publication… } @else { <i class="bi bi-send"></i> Publier mon avis }
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -167,4 +167,101 @@
   .cd-header { gap: 1rem; }
   .cd-avatar { width: 60px; height: 60px; span { font-size: 1.45rem; } }
   .cd-grid { grid-template-columns: 1fr; }
+  .rs-detail { grid-template-columns: 1fr !important; }
+  .rs-overall { border-right: none !important; border-bottom: 1px solid var(--line); padding-bottom: 1.25rem; }
+}
+
+// ═══ Notation & avis ═══
+.cd-headmeta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 0.35rem; }
+.stars { display: inline-flex; gap: 1px; color: var(--spring-600); i { font-size: 0.85rem; } }
+.stars .bi-star { color: var(--line-strong); }
+.cd-rating {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.85rem; color: var(--ink-soft);
+  strong { color: var(--ink); }
+  .cd-rcount { color: var(--muted); }
+  &:hover strong { color: var(--brand); }
+}
+
+.cd-tabs { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--line); margin: 1.75rem 0 1.5rem; }
+.cd-tab {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.7rem 0.4rem; margin-bottom: -1px;
+  font-size: 0.9rem; font-weight: 600; color: var(--muted);
+  border-bottom: 2px solid transparent; transition: color var(--t), border-color var(--t);
+  &:hover { color: var(--ink); }
+  &.active { color: var(--brand); border-bottom-color: var(--brand); }
+}
+.cd-tab-n {
+  font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
+  background: var(--paper-2); color: var(--ink-soft); border-radius: var(--r-full); padding: 0.05rem 0.4rem;
+}
+
+// ── Résumé des notes ──
+.rev-summary { padding: 1.75rem; margin-bottom: 1.5rem; &:hover { transform: none; box-shadow: none; border-color: var(--line); } }
+.rs-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.rs-overall {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem;
+  padding-right: 2rem; border-right: 1px solid var(--line);
+}
+.rs-score { font-family: var(--font-display); font-size: 3.2rem; font-weight: 800; line-height: 1; color: var(--ink); }
+.stars-lg i { font-size: 1.15rem; }
+.rs-count { font-size: 0.82rem; color: var(--muted); }
+.rs-write { margin-top: 0.75rem; }
+
+.rs-overall { grid-column: 1; }
+.rev-summary { display: grid; grid-template-columns: 240px 1fr; gap: 2rem; }
+.rev-summary .rs-detail { grid-template-columns: 1fr; }
+
+.rs-criteria { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1.25rem; }
+.rs-crit { display: grid; grid-template-columns: 1fr 120px 32px; align-items: center; gap: 0.75rem; }
+.rs-crit-label { font-size: 0.84rem; color: var(--ink-soft); }
+.rs-crit-val { font-size: 0.8rem; font-weight: 600; color: var(--brand-700); text-align: right; }
+.rs-bar {
+  height: 7px; border-radius: var(--r-full); background: var(--paper-2); overflow: hidden;
+  span { display: block; height: 100%; background: var(--brand); border-radius: var(--r-full); transition: width 0.5s var(--ease-out); }
+}
+.rs-dist { display: flex; flex-direction: column; gap: 0.4rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.rs-distrow { display: grid; grid-template-columns: 42px 1fr 42px; align-items: center; gap: 0.6rem; }
+.rs-dstar { font-size: 0.72rem; color: var(--muted); i { color: var(--spring-600); font-size: 0.7rem; } }
+.rs-dist .rs-bar span { background: var(--spring-600); }
+.rs-dpct { font-size: 0.72rem; color: var(--muted); text-align: right; }
+
+// ── Liste d'avis ──
+.rev-list { display: flex; flex-direction: column; gap: 0.9rem; }
+.rev-card { padding: 1.35rem 1.5rem; &:hover { transform: none; box-shadow: none; border-color: var(--line); } }
+.rev-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.rev-date { font-size: 0.74rem; color: var(--faint); }
+.rev-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 0.4rem; }
+.rev-body { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.7; margin-bottom: 0.7rem; white-space: pre-line; }
+.rev-foot {
+  display: flex; flex-wrap: wrap; gap: 0.9rem; font-size: 0.78rem; color: var(--muted);
+  span { display: inline-flex; align-items: center; gap: 0.3rem; i { color: var(--faint); } }
+  .rev-author { font-weight: 600; color: var(--ink-soft); margin-left: auto; }
+}
+
+// ── Modale d'avis ──
+.review-modal { max-width: 560px; }
+.rvm-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem;
+  h3 { font-size: 1.35rem; letter-spacing: -0.02em; margin-top: 0.35rem; } }
+.rvm-close { width: 34px; height: 34px; border-radius: var(--r-sm); color: var(--muted); &:hover { background: var(--paper-2); color: var(--ink); } }
+.am-req { color: var(--red); }
+.rvm-overall { margin-bottom: 1.1rem;
+  label { display: block; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.4rem; } }
+.star-picker { display: inline-flex; gap: 0.25rem;
+  button { font-size: 1.6rem; color: var(--line-strong); transition: color var(--t), transform var(--t);
+    &:hover { transform: scale(1.1); } &.on { color: var(--spring-600); } }
+}
+.star-picker-sm button { font-size: 1.1rem; }
+.rvm-criteria { display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem; margin-bottom: 1.25rem; background: var(--paper); border-radius: var(--r-md); }
+.rvm-crit { display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  span { font-size: 0.86rem; color: var(--ink-soft); } }
+.review-modal .form-group { margin-bottom: 0.9rem; }
+.review-modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+.rvm-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.4rem; }
+
+@media (max-width: 640px) {
+  .rev-summary { grid-template-columns: 1fr; }
+  .rs-overall { border-right: none; padding-right: 0; padding-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
+  .review-modal .form-row { grid-template-columns: 1fr; }
 }

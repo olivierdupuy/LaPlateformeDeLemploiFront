@@ -183,7 +183,13 @@ Finalisation P0 (implémenté le 2026-07-26, builds verts) :
 - **Import CV → préremplissage profil** : endpoint `POST /cv/parse-profile` (extraction PDF/DOCX + OpenAI → titre/compétences/expérience/formation/ville/bio), bouton **« Pré-remplir depuis mon CV »** dans le profil.
 - **Questions de présélection** : champ `ScreeningQuestions` (offre) + `ScreeningAnswers` (candidature) ; éditeur dans `job-form`, affichage/collecte obligatoire dans `apply-modal` (l'easy-apply 1-clic bascule sur la modale si des questions existent), consultation par le recruteur dans `applications`. Migration EF `P1Features`.
 
-**➡️ Bloc P1 terminé.** Restent surtout les zones produit P2+ : Avis d'entreprises, Salaires, employeur avancé, contenu/i18n.
+**➡️ Bloc P1 terminé.**
+
+## 🚧 Avancement — Bloc P2 (en cours, 2026-07-26)
+- **Fiche offre `/offres/:id`** : mise en page refondue (hero card + outils, grille « Détails de l'emploi », sidebar candidature sticky + entreprise + notes).
+- **Avis d'entreprises** (démarré) : modèle `CompanyReview` (note globale + 5 critères : équilibre, salaire/avantages, sécurité/évolution, direction, culture), `CompanyReviewsController` (`GET/POST /companies/{name}/reviews`, `GET .../rating`), migration EF `CompanyReviews`. Page entreprise enrichie : **onglets Emplois/Avis**, résumé des notes (moyenne + critères + répartition), **liste d'avis**, **dépôt d'avis** (modale avec star-pickers). Builds verts.
+
+Reste P2 : Q&A entreprise + « suivre », **Salaires** (hub + par métier), employeur avancé (offres sponsorisées, stats par offre), contenu/i18n.
 
 ## Priorisation suggérée (pour atteindre la parité perçue rapidement)
 
