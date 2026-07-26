@@ -24,8 +24,8 @@ Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) 
 - [x] ~~**Badge salaire vs marché**~~ ✅ fiche offre : salaire de l'offre situé vs estimation du métier (au-dessus / dans / en dessous)
 - [x] ~~**Graphique des notes année/année**~~ ✅ Chart.js sur l'onglet Avis (moyenne par an)
 - [x] ~~**Carte du lieu (Leaflet)**~~ ✅ carte OSM + marqueur sur la fiche offre (si coordonnées)
-- [ ] **Événements emploi** (salons / webinaires — type Indeed Events)
-- [ ] **Réponses automatiques** recruteur (message auto au candidat à la réception d'une candidature)
+- [x] ~~**Événements emploi**~~ ✅ modèle `JobEvent` + `EventsController`, page `/evenements` (à venir/passés, création par recruteur/admin), liens footer
+- [x] ~~**Réponses automatiques** recruteur~~ ✅ champ `AutoReplyMessage` sur l'offre (formulaire) → message auto envoyé au candidat (messagerie) à la réception de sa candidature
 - [ ] **Multi-utilisateurs / équipe** de recrutement (rôles, partage d'offres) — chantier structurel
 - [ ] **Description d'offre en HTML/markdown riche** (listes, titres) + assainissement
 - [ ] **Choix du pays / localisation** (mineur, lié à l'i18n)

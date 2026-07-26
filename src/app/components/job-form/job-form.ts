@@ -33,7 +33,7 @@ export class JobForm implements OnInit {
     minSalary: null, maxSalary: null,
     experienceRequired: '', educationLevel: '',
     workSchedule: '', languages: '',
-    benefits: '', companyDescription: '', isUrgent: false, easyApply: true,
+    benefits: '', companyDescription: '', isUrgent: false, easyApply: true, autoReplyMessage: '',
   };
 
   contractTypes = ['CDI', 'CDD', 'Stage', 'Alternance', 'Freelance'];
@@ -67,6 +67,7 @@ export class JobForm implements OnInit {
             workSchedule: job.workSchedule || '', languages: job.languages || '',
             benefits: job.benefits || '', companyDescription: job.companyDescription || '',
             isUrgent: job.isUrgent || false, easyApply: job.easyApply ?? true,
+            autoReplyMessage: (job as any).autoReplyMessage || '',
           };
           try { this.screeningQuestionsList = job.screeningQuestions ? JSON.parse(job.screeningQuestions) : []; }
           catch { this.screeningQuestionsList = []; }

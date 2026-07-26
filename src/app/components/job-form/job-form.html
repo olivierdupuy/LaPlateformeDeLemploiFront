@@ -204,6 +204,18 @@
               }
             </div>
 
+            <!-- Reponse automatique -->
+            <div class="jf-screening">
+              <div class="jf-screening-head">
+                <div>
+                  <label class="jf-screening-title">Réponse automatique</label>
+                  <span class="jf-screening-hint">Message envoyé au candidat dès réception de sa candidature (optionnel).</span>
+                </div>
+              </div>
+              <textarea class="jf-autoreply" [(ngModel)]="form.autoReplyMessage" name="autoReplyMessage" rows="3" maxlength="500"
+                placeholder="ex: Merci pour votre candidature ! Nous revenons vers vous sous 5 jours ouvrés."></textarea>
+            </div>
+
             <!-- Resume -->
             <div class="jf-resume">
               <h3><span class="eyebrow">Recapitulatif</span></h3>

@@ -287,3 +287,8 @@
   color: var(--faint); &:hover { background: var(--red-bg); color: var(--red); }
 }
 .jf-screening-empty { font-size: 0.85rem; color: var(--muted); }
+.jf-autoreply {
+  width: 100%; padding: 0.7rem 0.9rem; border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+  background: var(--canvas); font-size: 0.9rem; font-family: inherit; resize: vertical; outline: none;
+  &:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-ring); }
+}
