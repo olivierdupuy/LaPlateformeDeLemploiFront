@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth.service';
 import { CompanyReviewService, CompanyReviewSummary, CompanyQuestion, CompanyProfile } from '../../services/company-review.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-company-detail',
@@ -84,7 +85,42 @@ export class CompanyDetail implements OnInit {
     this.reviewSvc.getReviews(this.companyName).subscribe((s) => this.summary.set(s));
   }
 
-  setTab(t: 'about' | 'jobs' | 'reviews' | 'questions') { this.tab.set(t); }
+  private yearChart?: Chart;
+  setTab(t: 'about' | 'jobs' | 'reviews' | 'questions') {
+    this.tab.set(t);
+    if (t === 'reviews') setTimeout(() => this.renderYearChart(), 120);
+  }
+
+  private renderYearChart() {
+    const s = this.summary();
+    const el = document.getElementById('rating-year-chart') as HTMLCanvasElement | null;
+    if (!el || !s || s.reviews.length === 0) return;
+
+    const byYear = new Map<number, number[]>();
+    for (const r of s.reviews) {
+      const y = new Date(r.createdAt).getFullYear();
+      (byYear.get(y) ?? byYear.set(y, []).get(y)!).push(r.overallRating);
+    }
+    const years = [...byYear.keys()].sort((a, b) => a - b);
+    const avgs = years.map((y) => {
+      const arr = byYear.get(y)!;
+      return Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 10) / 10;
+    });
+
+    this.yearChart?.destroy();
+    this.yearChart = new Chart(el, {
+      type: 'bar',
+      data: {
+        labels: years.map(String),
+        datasets: [{ data: avgs, backgroundColor: '#0e5c43', borderRadius: 6, maxBarThickness: 46 }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.parsed.y} / 5` } } },
+        scales: { y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } }, x: { grid: { display: false } } },
+      },
+    });
+  }
 
   get canEditProfile(): boolean {
     const r = this.auth.currentUser()?.role;

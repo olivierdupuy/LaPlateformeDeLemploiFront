@@ -344,3 +344,8 @@
   .about-grid { grid-template-columns: 1fr; }
   .about-editor .form-row { grid-template-columns: 1fr; }
 }
+
+// ── Graphique des notes ──
+.rev-yearchart { padding: 1.5rem; margin-bottom: 1.5rem; &:hover { transform: none; box-shadow: none; border-color: var(--line); } }
+.ryc-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem; }
+.ryc-canvas { height: 220px; position: relative; }

@@ -13,7 +13,22 @@
 - 🟡 **Partiel** — existe mais à compléter/aligner sur Indeed
 - 🔴 **À créer** — absent
 
-> Note : les flags sont estimés à partir des composants existants (`job-list`, `job-detail`, `job-form`, `applications`, `bookmarks`, `saved-searches`, `track-applications`, `cv-builder`, `interviews`, `inbox`, `candidate-list`, `company-list/detail`, dashboards, admin…) et de l'historique git (alertes emploi, recommandations IA, kanban, templates, bulk actions, SignalR temps réel). À vérifier dans le code avant chaque implémentation.
+> Note : les flags des sections 1–10 ci-dessous datent de l'audit initial. La quasi-totalité a été livrée (voir « Avancement P0 → Compléments » en bas). **La liste actionnable de ce qui reste est ci-dessous.**
+
+---
+
+## 🎯 Reste à faire (au 2026-07-26)
+
+Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) :
+- [x] ~~**Compteur d'embauches / réactivité**~~ ✅ endpoint `GET /companies/{name}/activity` + badges « X recrutements récents » / « Répond souvent » sur la fiche offre
+- [x] ~~**Badge salaire vs marché**~~ ✅ fiche offre : salaire de l'offre situé vs estimation du métier (au-dessus / dans / en dessous)
+- [x] ~~**Graphique des notes année/année**~~ ✅ Chart.js sur l'onglet Avis (moyenne par an)
+- [x] ~~**Carte du lieu (Leaflet)**~~ ✅ carte OSM + marqueur sur la fiche offre (si coordonnées)
+- [ ] **Événements emploi** (salons / webinaires — type Indeed Events)
+- [ ] **Réponses automatiques** recruteur (message auto au candidat à la réception d'une candidature)
+- [ ] **Multi-utilisateurs / équipe** de recrutement (rôles, partage d'offres) — chantier structurel
+- [ ] **Description d'offre en HTML/markdown riche** (listes, titres) + assainissement
+- [ ] **Choix du pays / localisation** (mineur, lié à l'i18n)
 
 ---
 

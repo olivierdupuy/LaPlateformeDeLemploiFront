@@ -217,6 +217,22 @@
 .stars { display: inline-flex; gap: 1px; color: var(--spring-600); i { font-size: 0.82rem; } }
 .stars .bi-star { color: var(--line-strong); }
 
+// ── Signaux (activité / marché) ──
+.jd-signals { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+.jd-signal {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.78rem; font-weight: 600; color: var(--ink-soft);
+  background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-full);
+  padding: 0.32rem 0.75rem;
+  i { color: var(--brand); }
+}
+.signal-above { background: var(--brand-100); color: var(--brand-700); border-color: transparent; i { color: var(--brand-700); } }
+.signal-below { background: var(--amber-bg); color: var(--amber); border-color: transparent; i { color: var(--amber); } }
+
+// ── Carte lieu ──
+.jd-loc-text { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 1rem; i { color: var(--brand); margin-right: 0.2rem; } }
+.jd-map { height: 280px; border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--line); position: relative; z-index: 0; }
+
 // ── Notes ──
 .note-card { padding: 0; }
 .note-toggle {

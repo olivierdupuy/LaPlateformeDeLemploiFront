@@ -42,6 +42,18 @@
         </div>
 
         @if (j.salary) { <div class="jd-salary"><i class="bi bi-cash-stack"></i> {{ j.salary }}</div> }
+
+        <div class="jd-signals">
+          @if (market(); as m) {
+            <span class="jd-signal" [class.signal-above]="m.verdict==='above'" [class.signal-below]="m.verdict==='below'">
+              <i class="bi bi-graph-up-arrow"></i> Salaire {{ marketLabel(m.verdict) }}
+            </span>
+          }
+          @if (activity(); as a) {
+            @if (a.hires30d > 0) { <span class="jd-signal"><i class="bi bi-person-check-fill"></i> {{ a.hires30d }} recrutement{{ a.hires30d > 1 ? 's' : '' }} récent{{ a.hires30d > 1 ? 's' : '' }}</span> }
+            @if (a.responsive) { <span class="jd-signal"><i class="bi bi-lightning-charge"></i> Répond souvent</span> }
+          }
+        </div>
       </header>
 
       <!-- ═══ BODY ═══ -->
@@ -61,6 +73,15 @@
               @if (j.category) { <div class="fact"><span class="fact-l">Secteur</span><span class="fact-v">{{ j.category }}</span></div> }
             </div>
           </section>
+
+          <!-- Lieu -->
+          @if (j.latitude && j.longitude) {
+            <section class="jd-card animate-in">
+              <h2 class="jd-card-title"><span class="ed-pill"><i class="bi bi-geo-alt"></i></span> Lieu</h2>
+              <p class="jd-loc-text"><i class="bi bi-geo-alt-fill"></i> {{ j.location }} @if (j.isRemote) { · <span class="remote-pill">Télétravail</span> }</p>
+              <div id="jd-map" class="jd-map"></div>
+            </section>
+          }
 
           <!-- Avantages -->
           @if (j.benefits) {

@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { JobOfferService } from '../../services/job-offer';
 import { ApplicationService } from '../../services/application';
 import { CompanyReviewService } from '../../services/company-review.service';
+import { SalaryService } from '../../services/salary.service';
+import * as L from 'leaflet';
 import { BookmarkService } from '../../services/bookmark.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
@@ -25,6 +27,7 @@ export class JobDetail implements OnInit {
   private jobService = inject(JobOfferService);
   private appService = inject(ApplicationService);
   private reviewSvc = inject(CompanyReviewService);
+  private salarySvc = inject(SalaryService);
   private toastr = inject(ToastrService);
   bookmarkService = inject(BookmarkService);
   private candidateService = inject(CandidateFeaturesService);
@@ -34,6 +37,8 @@ export class JobDetail implements OnInit {
   similarJobs = signal<JobOffer[]>([]);
   employerJobs = signal<JobOffer[]>([]);
   companyRating = signal<{ average: number; count: number } | null>(null);
+  activity = signal<{ hires30d: number; responsive: boolean } | null>(null);
+  market = signal<{ avg: number; verdict: 'above' | 'in' | 'below' } | null>(null);
   stars5 = [1, 2, 3, 4, 5];
   showApplyModal = signal(false);
   loading = signal(true);
@@ -65,6 +70,11 @@ export class JobDetail implements OnInit {
         this.jobService.getByCompany(job.company).subscribe((jobs) => {
           this.employerJobs.set(jobs.filter((j) => j.id !== job.id).slice(0, 4));
         });
+        this.reviewSvc.getActivity(job.company).subscribe((a) => this.activity.set(a));
+        this.computeMarket(job);
+        if (job.latitude && job.longitude) {
+          setTimeout(() => this.initMap(job.latitude!, job.longitude!), 120);
+        }
         if (this.auth.isLoggedIn() && this.auth.currentUser()?.role === 'Candidate') {
           this.candidateService.getNote(job.id).subscribe(n => { if (n.content) { this.noteContent = n.content; this.showNote.set(true); } });
         }
@@ -99,6 +109,32 @@ export class JobDetail implements OnInit {
     if (value >= i) return 'full';
     if (value >= i - 0.5) return 'half';
     return 'empty';
+  }
+
+  private computeMarket(job: JobOffer) {
+    const offerMid = job.minSalary && job.maxSalary ? (job.minSalary + job.maxSalary) / 2 : (job.minSalary || job.maxSalary || 0);
+    if (!offerMid) return;
+    this.salarySvc.getEstimate(job.title).subscribe((e) => {
+      if (!e || !e.avgAnnual) return;
+      const ratio = offerMid / e.avgAnnual;
+      const verdict = ratio >= 1.08 ? 'above' : ratio <= 0.92 ? 'below' : 'in';
+      this.market.set({ avg: e.avgAnnual, verdict });
+    });
+  }
+
+  private initMap(lat: number, lng: number) {
+    const el = document.getElementById('jd-map');
+    if (!el || (el as any)._leaflet_id) return;
+    const map = L.map(el, { scrollWheelZoom: false, attributionControl: true }).setView([lat, lng], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18, attribution: '&copy; OpenStreetMap',
+    }).addTo(map);
+    L.circleMarker([lat, lng], { radius: 11, color: '#0e5c43', weight: 3, fillColor: '#16c47f', fillOpacity: 0.5 }).addTo(map);
+    setTimeout(() => map.invalidateSize(), 200);
+  }
+
+  marketLabel(v: string): string {
+    return { above: 'au-dessus du marché', in: 'dans la fourchette du marché', below: 'en dessous du marché' }[v] || '';
   }
 
   openApply() { this.showApplyModal.set(true); }

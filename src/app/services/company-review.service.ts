@@ -70,6 +70,9 @@ export class CompanyReviewService {
   getRating(company: string): Observable<{ average: number; count: number }> {
     return this.http.get<{ average: number; count: number }>(`${this.base}/${this.enc(company)}/rating`);
   }
+  getActivity(company: string): Observable<{ hires30d: number; responsive: boolean }> {
+    return this.http.get<{ hires30d: number; responsive: boolean }>(`${this.base}/${this.enc(company)}/activity`);
+  }
 
   // ── Q&A ──
   getQuestions(company: string): Observable<CompanyQuestion[]> {
