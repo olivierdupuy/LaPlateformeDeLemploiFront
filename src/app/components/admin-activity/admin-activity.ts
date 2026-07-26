@@ -55,10 +55,10 @@ export class AdminActivity implements OnInit {
 
   actionColor(action: string): string {
     const map: Record<string, string> = {
-      Login: 'var(--teal)', Register: 'var(--blue, #2563eb)', ExportCSV: 'var(--amber)',
-      ApproveOffer: 'var(--green)', RejectOffer: 'var(--red)', ToggleFeature: '#f97316',
-      CreateAnnouncement: '#8b5cf6', UpdateSettings: 'var(--navy-700)',
+      Login: 'var(--brand)', Register: 'var(--blue)', ExportCSV: 'var(--amber)',
+      ApproveOffer: 'var(--green)', RejectOffer: 'var(--red)', ToggleFeature: 'var(--spring-600)',
+      CreateAnnouncement: 'var(--purple)', UpdateSettings: 'var(--ink-soft)',
     };
-    return map[action] || 'var(--slate-400)';
+    return map[action] || 'var(--muted)';
   }
 }

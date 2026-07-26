@@ -81,8 +81,8 @@ export class Profile implements OnInit {
       text: 'Voulez-vous analyser ce PDF pour remplir automatiquement les sections de votre CV en ligne ?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#0d9488',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: '#0e5c43',
+      cancelButtonColor: '#6c6e63',
       confirmButtonText: 'Analyser',
       cancelButtonText: 'Non merci',
     });
@@ -122,8 +122,8 @@ export class Profile implements OnInit {
       text: 'Cette action est irreversible.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: '#c6362f',
+      cancelButtonColor: '#6c6e63',
       confirmButtonText: 'Supprimer',
       cancelButtonText: 'Annuler',
     });

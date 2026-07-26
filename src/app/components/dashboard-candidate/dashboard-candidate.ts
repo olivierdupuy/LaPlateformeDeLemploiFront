@@ -60,12 +60,12 @@ export class DashboardCandidate implements OnInit {
 
     if (this.statusCanvas && a.statusBreakdown?.length) {
       const labels: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' };
-      const colors: Record<string, string> = { Pending: '#d97706', Reviewed: '#2563eb', Accepted: '#16a34a', Rejected: '#dc2626' };
+      const colors: Record<string, string> = { Pending: '#b4690e', Reviewed: '#2563a8', Accepted: '#0e9f6e', Rejected: '#c6362f' };
       this.charts.push(new Chart(this.statusCanvas.nativeElement, {
         type: 'doughnut',
         data: {
           labels: a.statusBreakdown.map((s: any) => labels[s.label] || s.label),
-          datasets: [{ data: a.statusBreakdown.map((s: any) => s.value), backgroundColor: a.statusBreakdown.map((s: any) => colors[s.label] || '#94a3b8'), borderWidth: 2, borderColor: '#fff' }],
+          datasets: [{ data: a.statusBreakdown.map((s: any) => s.value), backgroundColor: a.statusBreakdown.map((s: any) => colors[s.label] || '#6c6e63'), borderWidth: 2, borderColor: '#fff' }],
         },
         options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: { size: 11 } } } } },
       }));
@@ -76,14 +76,14 @@ export class DashboardCandidate implements OnInit {
         type: 'bar',
         data: {
           labels: a.appsByMonth.map((m: any) => m.label),
-          datasets: [{ data: a.appsByMonth.map((m: any) => m.value), backgroundColor: '#0d9488', borderRadius: 4, barPercentage: 0.6 }],
+          datasets: [{ data: a.appsByMonth.map((m: any) => m.value), backgroundColor: '#0e5c43', borderRadius: 4, barPercentage: 0.6 }],
         },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
             x: { grid: { display: false }, ticks: { font: { size: 10 } } },
-            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#e2e8f0' } },
+            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: '#e7e7df' } },
           },
         },
       }));

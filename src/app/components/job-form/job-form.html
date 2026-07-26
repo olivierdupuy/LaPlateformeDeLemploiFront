@@ -2,27 +2,27 @@
 <section class="jf-hero">
   <div class="container jfh-inner">
     <div class="jfh-left animate-in">
-      <a routerLink="/admin/mes-offres" class="jfh-back"><i class="bi bi-arrow-left"></i> Retour</a>
-      <span class="ed-pill"><i class="bi bi-plus-circle-fill"></i></span>
+      <a routerLink="/admin/mes-offres" class="jfh-back"><i class="bi bi-arrow-left"></i> Retour a mes offres</a>
+      <span class="eyebrow">{{ isEdit() ? 'Edition' : 'Nouvelle annonce' }}</span>
       <h1>{{ isEdit() ? 'Modifier l\'offre' : 'Publier une offre' }}</h1>
       <p>{{ isEdit() ? 'Mettez a jour les informations de cette offre' : 'Decrivez le poste pour attirer les meilleurs profils' }}</p>
     </div>
   </div>
 </section>
 
-<!-- ══��� STEPPER ═══ -->
+<!-- ═══ STEPPER ═══ -->
 <section class="jf-stepper">
   <div class="container">
     <div class="stepper animate-in" style="animation-delay:.06s">
-      <button class="step" [class.active]="currentStep() === 1" [class.done]="currentStep() > 1" (click)="goStep(1)">
+      <button type="button" class="step" [class.active]="currentStep() === 1" [class.done]="currentStep() > 1" (click)="goStep(1)">
         <span class="step-num">1</span><span class="step-label">Informations</span>
       </button>
       <div class="step-line" [class.done]="currentStep() > 1"></div>
-      <button class="step" [class.active]="currentStep() === 2" [class.done]="currentStep() > 2" (click)="goStep(2)">
+      <button type="button" class="step" [class.active]="currentStep() === 2" [class.done]="currentStep() > 2" (click)="goStep(2)">
         <span class="step-num">2</span><span class="step-label">Details</span>
       </button>
       <div class="step-line" [class.done]="currentStep() > 2"></div>
-      <button class="step" [class.active]="currentStep() === 3" (click)="goStep(3)">
+      <button type="button" class="step" [class.active]="currentStep() === 3" (click)="goStep(3)">
         <span class="step-num">3</span><span class="step-label">Publication</span>
       </button>
     </div>
@@ -37,7 +37,13 @@
       <!-- STEP 1: Informations principales -->
       @if (currentStep() === 1) {
         <div class="jf-card">
-          <div class="jfc-head"><h2><span class="ed-pill">01</span> Informations principales</h2></div>
+          <div class="jfc-head">
+            <span class="ed-pill">01</span>
+            <div>
+              <h2>Informations principales</h2>
+              <p>L'essentiel du poste, visible en tete de l'annonce.</p>
+            </div>
+          </div>
           <div class="jfc-body">
             <div class="form-group span-2">
               <label>Intitule du poste *</label>
@@ -70,7 +76,13 @@
       <!-- STEP 2: Details et avantages -->
       @if (currentStep() === 2) {
         <div class="jf-card">
-          <div class="jfc-head"><h2><span class="ed-pill">02</span> Details et avantages</h2></div>
+          <div class="jfc-head">
+            <span class="ed-pill">02</span>
+            <div>
+              <h2>Details et avantages</h2>
+              <p>Precisez la remuneration, les competences et les avantages.</p>
+            </div>
+          </div>
           <div class="jfc-body">
             <div class="form-row">
               <div class="form-group"><label>Remuneration (texte)</label><input type="text" placeholder="ex: 45K - 55K EUR" [(ngModel)]="form.salary" name="salary" /></div>
@@ -94,6 +106,17 @@
                 </select>
               </div>
             </div>
+            <div class="form-row">
+              <div class="form-group"><label>Horaires de travail</label>
+                <select [(ngModel)]="form.workSchedule" name="workSchedule">
+                  <option value="">Non specifie</option>
+                  @for (w of workSchedules; track w) { <option [value]="w">{{ w }}</option> }
+                </select>
+              </div>
+              <div class="form-group"><label>Langues demandees (separees par virgules)</label>
+                <input type="text" placeholder="Francais, Anglais..." [(ngModel)]="form.languages" name="languages" />
+              </div>
+            </div>
             <div class="form-group span-2">
               <label>Avantages (separes par virgules)</label>
               <input type="text" placeholder="Teletravail, Tickets restaurant, RTT, Mutuelle..." [(ngModel)]="form.benefits" name="benefits" />
@@ -113,7 +136,13 @@
       <!-- STEP 3: Options et publication -->
       @if (currentStep() === 3) {
         <div class="jf-card">
-          <div class="jfc-head"><h2><span class="ed-pill">03</span> Options et publication</h2></div>
+          <div class="jfc-head">
+            <span class="ed-pill">03</span>
+            <div>
+              <h2>Options et publication</h2>
+              <p>Derniers reglages avant la mise en ligne.</p>
+            </div>
+          </div>
           <div class="jfc-body">
 
             @if (showModerationNotice) {
@@ -131,24 +160,33 @@
                 <input type="checkbox" [(ngModel)]="form.isRemote" name="isRemote" />
                 <div class="opt-icon"><i class="bi bi-wifi"></i></div>
                 <div class="opt-text"><strong>Teletravail</strong><span>Le poste est ouvert au teletravail</span></div>
+                <i class="bi bi-check-lg opt-check"></i>
               </label>
               <label class="opt-card" [class.active]="form.isUrgent">
                 <input type="checkbox" [(ngModel)]="form.isUrgent" name="isUrgent" />
                 <div class="opt-icon opt-urgent"><i class="bi bi-lightning-fill"></i></div>
                 <div class="opt-text"><strong>Urgent</strong><span>Recrutement prioritaire</span></div>
+                <i class="bi bi-check-lg opt-check"></i>
+              </label>
+              <label class="opt-card" [class.active]="form.easyApply">
+                <input type="checkbox" [(ngModel)]="form.easyApply" name="easyApply" />
+                <div class="opt-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                <div class="opt-text"><strong>Candidature simplifiee</strong><span>Postulation en 1 clic sur la plateforme</span></div>
+                <i class="bi bi-check-lg opt-check"></i>
               </label>
               @if (isEdit() && !showModerationNotice) {
                 <label class="opt-card" [class.active]="form.isActive">
                   <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" />
                   <div class="opt-icon opt-active"><i class="bi bi-check-circle-fill"></i></div>
                   <div class="opt-text"><strong>Offre active</strong><span>Visible par les candidats</span></div>
+                  <i class="bi bi-check-lg opt-check"></i>
                 </label>
               }
             </div>
 
             <!-- Resume -->
             <div class="jf-resume">
-              <h3>Recapitulatif</h3>
+              <h3><span class="eyebrow">Recapitulatif</span></h3>
               <div class="res-grid">
                 <div class="res-item"><span class="res-label">Poste</span><span class="res-val">{{ form.title || '—' }}</span></div>
                 <div class="res-item"><span class="res-label">Entreprise</span><span class="res-val">{{ form.company || '—' }}</span></div>

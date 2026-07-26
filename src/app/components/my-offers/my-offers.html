@@ -2,12 +2,12 @@
 <section class="mo-hero">
   <div class="container moh-inner">
     <div class="moh-left animate-in">
-      <span class="ed-pill"><i class="bi bi-collection-fill"></i></span>
-      <h1>Mes offres d'emploi</h1>
-      <p>Gerez, renouvelez et suivez les performances de vos offres</p>
+      <span class="eyebrow">Espace recruteur</span>
+      <h1>Mes offres d'<span class="hl">emploi</span></h1>
+      <p>Gerez, renouvelez et suivez les performances de vos offres.</p>
     </div>
     <div class="moh-actions animate-in" style="animation-delay:.1s">
-      <a routerLink="/admin/nouvelle-offre" class="moh-cta"><i class="bi bi-plus-lg"></i> Publier une offre</a>
+      <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
     </div>
   </div>
 
@@ -40,7 +40,7 @@
         }
         <div class="mohs-div"></div>
         <div class="mohs mohs-noclk">
-          <span class="mohs-val mohs-teal">{{ counts().totalApps }}</span><span class="mohs-lbl">Candidatures</span>
+          <span class="mohs-val mohs-brand">{{ counts().totalApps }}</span><span class="mohs-lbl">Candidatures</span>
         </div>
       </div>
     </div>
@@ -56,12 +56,12 @@
       <div class="mo-empty animate-in">
         <div class="moe-circle"><i class="bi bi-briefcase"></i></div>
         <h3>Aucune offre publiee</h3>
-        <p>Publiez votre premiere offre pour commencer a recevoir des candidatures</p>
+        <p>Publiez votre premiere offre pour commencer a recevoir des candidatures.</p>
         <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
       </div>
     } @else {
       <div class="mo-info animate-in" style="animation-delay:.06s">
-        <span>{{ filtered().length }} offre{{ filtered().length > 1 ? 's' : '' }}</span>
+        <span class="u-mono">{{ filtered().length }} offre{{ filtered().length > 1 ? 's' : '' }}</span>
       </div>
 
       <div class="mo-grid">
@@ -78,13 +78,13 @@
                 </div>
                 <div class="oc-status-col">
                   @if (o.moderationStatus === 'Pending') {
-                    <span class="oc-pending"><i class="bi bi-hourglass-split"></i> En attente de validation</span>
+                    <span class="oc-tag oc-pending"><i class="bi bi-hourglass-split"></i> En attente</span>
                   } @else if (o.moderationStatus === 'Rejected') {
-                    <span class="oc-rejected"><i class="bi bi-x-octagon-fill"></i> Rejetee</span>
+                    <span class="oc-tag oc-rejected"><i class="bi bi-x-octagon-fill"></i> Rejetee</span>
                   } @else if (o.isActive) {
-                    <span class="oc-active"><i class="bi bi-check-circle-fill"></i> Active</span>
+                    <span class="oc-tag oc-active"><i class="bi bi-check-circle-fill"></i> Active</span>
                   } @else {
-                    <span class="oc-inactive"><i class="bi bi-x-circle-fill"></i> Expiree</span>
+                    <span class="oc-tag oc-inactive"><i class="bi bi-x-circle-fill"></i> Expiree</span>
                   }
                   @if (o.isFeatured) {
                     <span class="oc-featured"><i class="bi bi-star-fill"></i></span>
@@ -116,16 +116,16 @@
               </div>
 
               @if (o.moderationStatus === 'Rejected' && o.moderationNote) {
-                <div class="oc-rejection-note">
+                <div class="oc-note oc-note-red">
                   <i class="bi bi-chat-left-text-fill"></i>
                   <div><strong>Motif du rejet :</strong> {{ o.moderationNote }}</div>
                 </div>
               }
 
               @if (o.moderationStatus === 'Pending') {
-                <div class="oc-pending-note">
+                <div class="oc-note oc-note-amber">
                   <i class="bi bi-info-circle-fill"></i>
-                  Cette offre est en cours de verification par un administrateur.
+                  <div>Cette offre est en cours de verification par un administrateur.</div>
                 </div>
               }
 

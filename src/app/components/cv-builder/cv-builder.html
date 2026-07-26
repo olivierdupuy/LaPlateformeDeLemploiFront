@@ -1,20 +1,20 @@
-<!-- ═══ HEADER ═══ -->
+<!-- ═══ HERO ═══ -->
 <section class="cv-hero">
   <div class="container cvh-inner">
     <div class="cvh-left animate-in">
-      <span class="ed-pill"><i class="bi bi-file-earmark-person"></i></span>
-      <h1>Mon CV en ligne</h1>
-      <p>Construisez votre CV section par section, ou importez-le depuis un fichier</p>
+      <span class="eyebrow">Mon profil</span>
+      <h1>Mon <span class="hl">CV</span> en ligne</h1>
+      <p>Construisez votre CV section par section, ou importez-le depuis un fichier.</p>
     </div>
     <div class="cvh-actions animate-in" style="animation-delay:.1s">
-      <button class="cvh-btn cvh-preview" (click)="previewOpen.set(!previewOpen())">
+      <button class="btn-secondary cvh-btn" (click)="previewOpen.set(!previewOpen())">
         <i class="bi" [class.bi-eye]="!previewOpen()" [class.bi-eye-slash]="previewOpen()"></i>
         {{ previewOpen() ? 'Masquer' : 'Apercu' }}
       </button>
-      <button class="cvh-btn cvh-pdf" (click)="exportPdf()">
+      <button class="btn-secondary cvh-btn cvh-pdf" (click)="exportPdf()">
         <i class="bi bi-file-earmark-pdf"></i> Telecharger PDF
       </button>
-      <label class="cvh-btn cvh-import" [class.loading]="parsingFile()">
+      <label class="btn-primary cvh-btn cvh-import" [class.loading]="parsingFile()">
         @if (parsingFile()) {
           <span class="sp"></span> Analyse...
         } @else {
@@ -37,14 +37,14 @@
       <!-- EDITOR -->
       <div class="cv-editor">
         @for (type of TYPES; track type; let ti = $index) {
-          <div class="sec-group animate-in" [style.animation-delay]="(ti * 0.04) + 's'">
+          <div class="sec-group card animate-in" [style.animation-delay]="(ti * 0.04) + 's'">
             <div class="sg-head">
               <div class="sg-icon" [style.background]="sectionColor(type)"><i class="bi" [class]="sectionIcon(type)"></i></div>
               <div class="sg-title">
                 <h2>{{ sectionLabel(type) }}</h2>
                 <span class="sg-count">{{ grouped()[type].length }}</span>
               </div>
-              <button class="sg-add" (click)="openAdd(type)"><i class="bi bi-plus-lg"></i></button>
+              <button class="sg-add" (click)="openAdd(type)"><i class="bi bi-plus-lg"></i> Ajouter</button>
             </div>
 
             @for (s of grouped()[type]; track s.id) {
@@ -58,8 +58,8 @@
                     </div>
                     @if (s.level) { <span class="si-level">{{ s.level }}</span> }
                     <div class="si-actions">
-                      <button (click)="openEdit(s)"><i class="bi bi-pencil"></i></button>
-                      <button (click)="deleteSection(s.id)"><i class="bi bi-trash3"></i></button>
+                      <button (click)="openEdit(s)" aria-label="Modifier"><i class="bi bi-pencil"></i></button>
+                      <button class="si-del" (click)="deleteSection(s.id)" aria-label="Supprimer"><i class="bi bi-trash3"></i></button>
                     </div>
                   </div>
                   @if (s.startDate || s.location) {

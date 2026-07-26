@@ -83,7 +83,7 @@ export class Applications implements OnInit {
   cancelNotes() { this.editingNotesId.set(null); }
 
   async deleteApplication(app: Application) {
-    const res = await Swal.fire({ title: 'Supprimer cette candidature ?', text: `Candidature de ${app.fullName}`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'Supprimer', cancelButtonText: 'Annuler' });
+    const res = await Swal.fire({ title: 'Supprimer cette candidature ?', text: `Candidature de ${app.fullName}`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#c6362f', confirmButtonText: 'Supprimer', cancelButtonText: 'Annuler' });
     if (res.isConfirmed) {
       this.appService.delete(app.id).subscribe({
         next: () => { this.applications.update((a) => a.filter((x) => x.id !== app.id)); this.toastr.success('Supprimee'); },

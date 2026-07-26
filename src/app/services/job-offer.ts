@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { JobOffer, JobStats, CompanyInfo, DetailedStats } from '../models/job-offer.model';
+import { JobOffer, JobStats, CompanyInfo, DetailedStats, JobReport } from '../models/job-offer.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +19,11 @@ export class JobOfferService {
     salaryMax?: number;
     experience?: string;
     education?: string;
+    workSchedule?: string;
+    languages?: string;
+    benefits?: string;
+    datePosted?: number;
+    radius?: number;
     sort?: string;
   }): Observable<JobOffer[]> {
     let params = new HttpParams();
@@ -32,9 +37,37 @@ export class JobOfferService {
       if (filters.salaryMax) params = params.set('salaryMax', filters.salaryMax.toString());
       if (filters.experience) params = params.set('experience', filters.experience);
       if (filters.education) params = params.set('education', filters.education);
+      if (filters.workSchedule) params = params.set('workSchedule', filters.workSchedule);
+      if (filters.languages) params = params.set('languages', filters.languages);
+      if (filters.benefits) params = params.set('benefits', filters.benefits);
+      if (filters.datePosted) params = params.set('datePosted', filters.datePosted.toString());
+      if (filters.radius) params = params.set('radius', filters.radius.toString());
       if (filters.sort) params = params.set('sort', filters.sort);
     }
     return this.http.get<JobOffer[]>(this.apiUrl, { params });
+  }
+
+  /** Autocompletion : suggestions de mots-cles ou de lieux. */
+  suggest(q: string, type: 'keyword' | 'location' = 'keyword'): Observable<string[]> {
+    const params = new HttpParams().set('q', q).set('type', type);
+    return this.http.get<string[]>(`${this.apiUrl}/suggest`, { params });
+  }
+
+  /** Signaler une offre d'emploi. */
+  report(id: number, payload: { reason: string; details?: string; reporterEmail?: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${id}/report`, payload);
+  }
+
+  /** Admin : liste des signalements d'offres. */
+  getReports(status?: string): Observable<JobReport[]> {
+    let params = new HttpParams();
+    if (status) params = params.set('status', status);
+    return this.http.get<JobReport[]>(`${this.apiUrl}/reports`, { params });
+  }
+
+  /** Admin : mettre à jour le statut d'un signalement (Reviewed / Dismissed). */
+  updateReport(reportId: number, status: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/reports/${reportId}`, { reason: status });
   }
 
   getById(id: number): Observable<JobOffer> {
@@ -59,6 +92,14 @@ export class JobOfferService {
 
   isModerationRequired(): Observable<{ required: boolean }> {
     return this.http.get<{ required: boolean }>(`${this.apiUrl}/moderation-required`);
+  }
+
+  getBrowse(): Observable<{
+    categories: { label: string; count: number }[];
+    locations: { label: string; count: number }[];
+    contractTypes: { label: string; count: number }[];
+  }> {
+    return this.http.get<any>(`${this.apiUrl}/browse`);
   }
 
   getCompanies(): Observable<CompanyInfo[]> {

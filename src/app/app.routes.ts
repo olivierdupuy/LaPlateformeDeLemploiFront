@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Home } from './components/home/home';
 import { JobList } from './components/job-list/job-list';
+import { BrowseJobs } from './components/browse-jobs/browse-jobs';
 import { JobDetail } from './components/job-detail/job-detail';
 import { JobForm } from './components/job-form/job-form';
 import { Applications } from './components/applications/applications';
@@ -33,6 +34,7 @@ export const routes: Routes = [
   // Public
   { path: '', component: Home },
   { path: 'offres', component: JobList },
+  { path: 'parcourir', component: BrowseJobs },
   { path: 'offres/:id', component: JobDetail },
   { path: 'entreprises', component: CompanyList },
   { path: 'entreprises/:name', component: CompanyDetail },

@@ -1,45 +1,245 @@
-.mod-page { padding: 6.5rem 0 4rem; }
-.page-top { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.5rem; }
-.count { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); }
+// ═══════════════════════════════════
+//  ADMIN — Moderation des offres
+// ═══════════════════════════════════
 
-.tabs { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; }
-.tab { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: var(--r-full); font-size: 0.8rem; font-weight: 600; background: #fff; cursor: pointer; font-family: inherit; color: var(--text-secondary); transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.35rem;
-  &:hover { border-color: var(--teal); color: var(--teal); }
-  &.active { background: var(--navy-900); color: #fff; border-color: var(--navy-900); }
+.mod-page {
+  padding: 7rem 0 5rem;
+  background: var(--paper);
+  min-height: 100vh;
 }
 
-.offer-list { display: flex; flex-direction: column; gap: 0.85rem; }
-.offer-card { padding: 1.25rem; &:hover { transform: none; box-shadow: var(--shadow-sm); } }
+// ── Header ──
+.mod-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
 
-.oc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
-.oc-info h3 { font-size: 1rem; font-weight: 700; margin: 0; }
-.oc-meta { font-size: 0.8rem; color: var(--text-muted); }
-.oc-badges { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.mod-head-text {
+  .eyebrow { margin-bottom: 0.75rem; }
+  .section-sub { margin-top: 0.5rem; }
+}
 
-.badge { font-size: 0.68rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: var(--r-full); }
-.badge-green { background: var(--green-bg); color: var(--green); }
-.badge-red { background: var(--red-bg); color: var(--red); }
-.badge-amber { background: var(--amber-bg); color: var(--amber); }
-.badge-star { background: #fff7ed; color: #f97316; }
-.badge-urgent { background: var(--red-bg); color: var(--red); }
+.mod-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--brand-700);
+  background: var(--brand-100);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--r-full);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
 
-.oc-desc { font-size: 0.82rem; color: var(--text-secondary); margin: 0.75rem 0; line-height: 1.5; }
-.oc-foot { display: flex; gap: 1.25rem; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; }
-.oc-note { font-size: 0.78rem; color: var(--amber); background: var(--amber-bg); padding: 0.5rem 0.75rem; border-radius: var(--r-sm); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem; }
+// ── Tabs ──
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
 
-.oc-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.05rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  background: var(--canvas);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: color var(--t), border-color var(--t), background var(--t), transform var(--t);
 
-.btn { padding: 0.45rem 0.85rem; border-radius: var(--r-sm); font-size: 0.78rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; font-family: inherit; display: inline-flex; align-items: center; gap: 0.3rem; transition: all 0.2s; }
-.btn-green { background: var(--green); color: #fff; &:hover { background: #15803d; } }
-.btn-red { background: var(--red); color: #fff; &:hover { background: #b91c1c; } }
-.btn-red-outline { background: #fff; color: var(--red); border-color: var(--red); &:hover { background: var(--red-bg); } }
-.btn-ghost { background: #fff; color: var(--text-secondary); border-color: var(--border); &:hover { border-color: var(--teal); color: var(--teal); } }
+  i { font-size: 0.9rem; }
 
-.reject-form { margin-top: 0.5rem; }
-.rej-input { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 0.82rem; font-family: inherit; resize: vertical; outline: none; &:focus { border-color: var(--teal); } }
-.rej-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+  &:hover { border-color: var(--brand); color: var(--brand); transform: translateY(-1px); }
+  &.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+}
 
-.empty-box { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5rem 0; }
-.empty-icon { font-size: 2rem; color: var(--text-muted); margin-bottom: 0.5rem; }
-.spinner { width: 28px; height: 28px; border: 2.5px solid var(--slate-200); border-top-color: var(--teal); border-radius: 50%; animation: spin .7s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+// ── List ──
+.offer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.offer-card {
+  padding: 1.35rem 1.5rem;
+  overflow: hidden;
+
+  &:hover { transform: none; box-shadow: var(--shadow-md); }
+}
+
+.card-stripe {
+  background: var(--line-strong);
+  &.stripe-approved { background: var(--green); }
+  &.stripe-rejected { background: var(--red); }
+  &.stripe-pending  { background: var(--amber); }
+}
+
+// ── Card top ──
+.oc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.oc-info {
+  h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+  }
+}
+
+.oc-meta {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.oc-company { font-weight: 600; color: var(--ink-soft); }
+.oc-sep { color: var(--faint); }
+
+.oc-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+// ── Body ──
+.oc-desc {
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  margin: 0.9rem 0 0.85rem;
+  line-height: 1.6;
+}
+
+.oc-foot {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.oc-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--muted);
+
+  i { font-size: 0.85rem; color: var(--faint); }
+}
+
+.oc-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--amber);
+  background: var(--amber-bg);
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--r-sm);
+  margin: 0.75rem 0 0;
+  line-height: 1.5;
+
+  i { margin-top: 0.1rem; flex-shrink: 0; }
+}
+
+// ── Actions ──
+.oc-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+// Compact action buttons (local — smaller than global btns)
+%mod-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background var(--t), border-color var(--t), color var(--t), transform var(--t);
+
+  i { font-size: 0.95rem; }
+  &:hover { transform: translateY(-1px); }
+}
+
+.btn-approve {
+  @extend %mod-btn;
+  background: var(--brand);
+  color: #fff;
+  &:hover { background: var(--brand-700); box-shadow: var(--shadow-brand); }
+}
+
+.btn-reject {
+  @extend %mod-btn;
+  background: var(--canvas);
+  color: var(--red);
+  border-color: var(--line-strong);
+  &:hover { border-color: var(--red); background: var(--red-bg); }
+}
+
+.oc-feature {
+  &.is-featured { color: var(--brand-700); }
+  i.bi-star-fill { color: var(--spring-600); }
+}
+
+// ── Reject form ──
+.reject-form {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.rej-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+// ── Empty / loading ──
+.empty-box {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  margin-top: 0.5rem;
+}
+
+// ── Responsive ──
+@media (max-width: 640px) {
+  .mod-page { padding: 5.5rem 0 3.5rem; }
+  .oc-top { flex-direction: column; }
+  .oc-badges { order: -1; }
+  .oc-actions button,
+  .rej-actions button { flex: 1; justify-content: center; }
+}

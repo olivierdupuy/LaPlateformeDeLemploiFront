@@ -3,15 +3,12 @@
 } @else if (job(); as j) {
   <section class="detail">
     <!-- Top bar -->
-    <div class="detail-top">
-      <div class="container">
-        <a routerLink="/offres" class="back-link animate-in"><i class="bi bi-arrow-left"></i> Retour aux offres</a>
-      </div>
+    <div class="container detail-top">
+      <a routerLink="/offres" class="back-link animate-in"><i class="bi bi-arrow-left"></i> Retour aux offres</a>
     </div>
 
     <!-- Header -->
-    <div class="detail-header">
-      <div class="dh-diamond"></div>
+    <header class="detail-header">
       <div class="container dh-inner animate-in" style="animation-delay:.06s">
         <div class="company-block-lg" [style.background]="'hsl(' + (j.company.charCodeAt(0)*7%360) + ',45%,92%)'">
           <span [style.color]="'hsl(' + (j.company.charCodeAt(0)*7%360) + ',55%,35%)'">{{ j.company.charAt(0) }}</span>
@@ -19,7 +16,7 @@
         <div class="dh-info">
           <div class="dh-badges">
             <span class="badge badge-indigo">{{ j.contractType }}</span>
-            @if (j.isRemote) { <span class="remote-pill-lg"><i class="bi bi-wifi"></i> Teletravail</span> }
+            @if (j.isRemote) { <span class="remote-pill"><i class="bi bi-wifi"></i> Teletravail</span> }
             @if (j.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
           </div>
           <h1>{{ j.title }}</h1>
@@ -33,12 +30,12 @@
           </div>
         </div>
       </div>
-    </div>
+    </header>
 
     <!-- Body -->
     <div class="container detail-body">
       <div class="detail-main">
-        <div class="section-block animate-in" style="animation-delay:.12s">
+        <article class="section-block card animate-in" style="animation-delay:.12s">
           <h2 class="section-title"><span class="ed-pill">01</span> Description du poste</h2>
           <p class="desc">{{ j.description }}</p>
           @if (j.companyDescription) {
@@ -47,33 +44,33 @@
               <p>{{ j.companyDescription }}</p>
             </div>
           }
-        </div>
+        </article>
 
         @if (j.tags) {
-          <div class="section-block animate-in" style="animation-delay:.18s">
+          <article class="section-block card animate-in" style="animation-delay:.18s">
             <h2 class="section-title"><span class="ed-pill">02</span> Competences requises</h2>
             <div class="skill-tags">
               @for (tag of getTags(j.tags); track tag) {
                 <span class="skill-pill">{{ tag }}</span>
               }
             </div>
-          </div>
+          </article>
         }
 
         @if (j.benefits) {
-          <div class="section-block animate-in" style="animation-delay:.24s">
+          <article class="section-block card animate-in" style="animation-delay:.24s">
             <h2 class="section-title"><span class="ed-pill">03</span> Avantages</h2>
             <div class="skill-tags">
               @for (b of j.benefits.split(','); track b) {
                 <span class="tag benefit-tag"><i class="bi bi-check-circle"></i> {{ b.trim() }}</span>
               }
             </div>
-          </div>
+          </article>
         }
 
         @if (j.applications && j.applications.length > 0) {
-          <div class="section-block animate-in" style="animation-delay:.24s">
-            <h2 class="section-title">Candidatures recues ({{ j.applications.length }})</h2>
+          <article class="section-block card animate-in" style="animation-delay:.24s">
+            <h2 class="section-title"><span class="ed-pill">04</span> Candidatures recues ({{ j.applications.length }})</h2>
             <div class="app-list">
               @for (app of j.applications.slice(0,5); track app.id) {
                 <div class="app-item">
@@ -85,17 +82,30 @@
                 </div>
               }
             </div>
-          </div>
+          </article>
         }
       </div>
 
       <aside class="detail-side animate-in" style="animation-delay:.15s">
-        <div class="side-apply">
+        <div class="side-apply card-stripe-wrap">
           @if (auth.currentUser(); as u) {
             @if (u.role === 'Candidate') {
-              <h3>Interesse par ce poste ?</h3>
-              <p>Envoyez votre candidature en quelques clics.</p>
-              <button class="btn-primary full-w" (click)="openApply()"><i class="bi bi-send-fill"></i> Postuler maintenant</button>
+              @if (applied()) {
+                <h3>Candidature envoyée <i class="bi bi-check-circle-fill" style="color:var(--brand)"></i></h3>
+                <p>Votre candidature a bien été transmise au recruteur.</p>
+                <a routerLink="/suivi" class="btn-secondary full-w"><i class="bi bi-clipboard-check"></i> Suivre mes candidatures</a>
+              } @else if (j.easyApply) {
+                <h3>Intéressé par ce poste ?</h3>
+                <p>Postulez en 1 clic avec votre profil et votre CV.</p>
+                <button class="btn-spring full-w" [disabled]="applying()" (click)="easyApplyNow()">
+                  @if (applying()) { <span class="sp"></span> Envoi… } @else { <i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée }
+                </button>
+                <button class="btn-secondary full-w" style="margin-top:0.5rem" (click)="openApply()"><i class="bi bi-pencil"></i> Postuler avec lettre</button>
+              } @else {
+                <h3>Intéressé par ce poste ?</h3>
+                <p>Envoyez votre candidature en quelques clics.</p>
+                <button class="btn-primary full-w" (click)="openApply()"><i class="bi bi-send-fill"></i> Postuler maintenant</button>
+              }
             } @else {
               <h3>Espace recruteur</h3>
               <p>Vous consultez cette offre en tant que recruteur.</p>
@@ -115,6 +125,9 @@
             }
             <button class="action-btn" (click)="shareJob()">
               <i class="bi bi-share"></i> Partager
+            </button>
+            <button class="action-btn action-report" (click)="openReport()">
+              <i class="bi bi-flag"></i> Signaler
             </button>
           </div>
         </div>
@@ -138,7 +151,7 @@
         }
 
         <div class="side-info card">
-          <h3>Recapitulatif</h3>
+          <h3><span class="eyebrow">Recapitulatif</span></h3>
           <dl class="info-dl">
             <div><dt>Contrat</dt><dd>{{ j.contractType }}</dd></div>
             <div><dt>Localisation</dt><dd>{{ j.location }}</dd></div>
@@ -163,7 +176,10 @@
 
     @if (similarJobs().length > 0) {
       <div class="container similar-section animate-in" style="animation-delay:.3s">
-        <h2 class="section-title">Offres similaires</h2>
+        <div class="section-head">
+          <h2 class="section-title">Offres similaires</h2>
+          <a routerLink="/offres" class="link-teal">Toutes les offres <i class="bi bi-arrow-right"></i></a>
+        </div>
         <div class="similar-grid">
           @for (sj of similarJobs(); track sj.id) {
             <a [routerLink]="['/offres', sj.id]" class="similar-card card">
@@ -188,5 +204,44 @@
 
   @if (showApplyModal()) {
     <app-apply-modal [jobId]="j.id" [jobTitle]="j.title" (close)="closeApply()" (applied)="onApplicationSent()" />
+  }
+
+  @if (reportOpen()) {
+    <div class="modal-overlay" (click)="closeReport()">
+      <div class="modal-content report-modal" (click)="$event.stopPropagation()">
+        <div class="rm-head">
+          <div>
+            <span class="eyebrow">Signalement</span>
+            <h3>Signaler cette offre</h3>
+          </div>
+          <button class="rm-close" (click)="closeReport()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <p class="rm-job">{{ j.title }} &bull; {{ j.company }}</p>
+
+        <div class="form-group">
+          <label>Motif</label>
+          <div class="rm-reasons">
+            @for (r of reportReasons; track r) {
+              <button type="button" class="rm-reason" [class.active]="reportReason === r" (click)="reportReason = r">{{ r }}</button>
+            }
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Détails (optionnel)</label>
+          <textarea [(ngModel)]="reportDetails" placeholder="Précisez le problème…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Votre email (optionnel)</label>
+          <input type="email" [(ngModel)]="reportEmail" placeholder="pour un suivi éventuel" />
+        </div>
+
+        <div class="rm-actions">
+          <button class="btn-secondary" (click)="closeReport()">Annuler</button>
+          <button class="btn-primary" [disabled]="!reportReason || reportSubmitting()" (click)="submitReport()">
+            @if (reportSubmitting()) { <span class="sp"></span> Envoi… } @else { <i class="bi bi-flag"></i> Envoyer le signalement }
+          </button>
+        </div>
+      </div>
+    </div>
   }
 }

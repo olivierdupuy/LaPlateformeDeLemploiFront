@@ -1,11 +1,20 @@
 <section class="mod-page">
   <div class="container">
-    <div class="page-top animate-in">
-      <h1 class="section-title">Moderation des offres</h1>
-      <span class="count">{{ offers().length }} offre{{ offers().length > 1 ? 's' : '' }}</span>
-    </div>
 
-    <div class="tabs animate-in" style="animation-delay:.05s">
+    <header class="mod-head animate-in">
+      <div class="mod-head-text">
+        <span class="eyebrow">Administration</span>
+        <h1 class="section-title">Moderation des <span class="hl">offres</span></h1>
+        <p class="section-sub">Validez, rejetez et mettez en avant les offres publiees sur la plateforme.</p>
+      </div>
+      @if (activeTab() === 'Reports') {
+        <span class="mod-count u-mono">{{ reports().length }} signalement{{ reports().length > 1 ? 's' : '' }}</span>
+      } @else {
+        <span class="mod-count u-mono">{{ offers().length }} offre{{ offers().length > 1 ? 's' : '' }}</span>
+      }
+    </header>
+
+    <div class="tabs animate-in" style="animation-delay:.05s" role="tablist">
       <button class="tab" [class.active]="activeTab() === 'Pending'" (click)="switchTab('Pending')">
         <i class="bi bi-hourglass-split"></i> En attente
       </button>
@@ -15,62 +24,136 @@
       <button class="tab" [class.active]="activeTab() === 'Rejected'" (click)="switchTab('Rejected')">
         <i class="bi bi-x-circle"></i> Rejetees
       </button>
+      <button class="tab" [class.active]="activeTab() === 'Reports'" (click)="switchTab('Reports')">
+        <i class="bi bi-flag"></i> Signalements
+      </button>
     </div>
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (activeTab() === 'Reports') {
+      @if (reports().length === 0) {
+        <div class="empty-box animate-in">
+          <i class="bi bi-flag"></i>
+          <h3>Aucun signalement</h3>
+          <p>Aucune offre n'a été signalée pour le moment.</p>
+        </div>
+      } @else {
+        <div class="offer-list">
+          @for (r of reports(); track r.id; let i = $index) {
+            <article class="offer-card card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
+              <span class="card-stripe"
+                [class.stripe-pending]="r.status === 'Pending'"
+                [class.stripe-approved]="r.status === 'Reviewed'"
+                [class.stripe-rejected]="r.status === 'Dismissed'"></span>
+
+              <div class="oc-top">
+                <div class="oc-info">
+                  <h3>{{ r.jobTitle || 'Offre #' + r.jobOfferId }}</h3>
+                  <span class="oc-meta">
+                    @if (r.company) { <span class="oc-company">{{ r.company }}</span><span class="oc-sep">·</span> }
+                    <span class="tag">{{ r.reason }}</span>
+                  </span>
+                </div>
+                <div class="oc-badges">
+                  <span class="badge"
+                    [class.badge-yellow]="r.status === 'Pending'"
+                    [class.badge-green]="r.status === 'Reviewed'"
+                    [class.badge-red]="r.status === 'Dismissed'">
+                    {{ reportStatusLabel(r.status) }}
+                  </span>
+                </div>
+              </div>
+
+              @if (r.details) { <p class="oc-desc">{{ r.details }}</p> }
+
+              <div class="oc-foot">
+                <span class="oc-stat"><i class="bi bi-calendar3"></i> {{ r.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                @if (r.reporterEmail) { <span class="oc-stat"><i class="bi bi-envelope"></i> {{ r.reporterEmail }}</span> }
+              </div>
+
+              <div class="oc-actions">
+                <a class="btn-ghost" [routerLink]="['/offres', r.jobOfferId]"><i class="bi bi-box-arrow-up-right"></i> Voir l'offre</a>
+                @if (r.status === 'Pending') {
+                  <button (click)="resolveReport(r.id, 'Reviewed')" class="btn-approve"><i class="bi bi-check-lg"></i> Traiter</button>
+                  <button (click)="resolveReport(r.id, 'Dismissed')" class="btn-reject"><i class="bi bi-x-lg"></i> Rejeter</button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
     } @else if (offers().length === 0) {
-      <div class="empty-box animate-in"><div class="empty-icon"><i class="bi bi-inbox"></i></div><h3>Aucune offre</h3></div>
+      <div class="empty-box animate-in">
+        <i class="bi bi-inbox"></i>
+        <h3>Aucune offre</h3>
+        <p>Rien a moderer dans cette file pour le moment.</p>
+      </div>
     } @else {
       <div class="offer-list">
         @for (o of offers(); track o.id; let i = $index) {
-          <div class="offer-card card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
+          <article class="offer-card card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
+            <span class="card-stripe"
+              [class.stripe-approved]="o.moderationStatus === 'Approved'"
+              [class.stripe-rejected]="o.moderationStatus === 'Rejected'"
+              [class.stripe-pending]="o.moderationStatus === 'Pending'"></span>
+
             <div class="oc-top">
               <div class="oc-info">
                 <h3>{{ o.title }}</h3>
-                <span class="oc-meta">{{ o.company }} — {{ o.location }} — {{ o.contractType }}</span>
+                <span class="oc-meta">
+                  <span class="oc-company">{{ o.company }}</span>
+                  <span class="oc-sep">·</span>{{ o.location }}
+                  <span class="oc-sep">·</span><span class="tag">{{ o.contractType }}</span>
+                </span>
               </div>
               <div class="oc-badges">
                 @if (o.isFeatured) { <span class="badge badge-star"><i class="bi bi-star-fill"></i> Mise en avant</span> }
                 @if (o.isUrgent) { <span class="badge badge-urgent">Urgent</span> }
-                <span class="badge" [class.badge-green]="o.moderationStatus === 'Approved'" [class.badge-red]="o.moderationStatus === 'Rejected'" [class.badge-amber]="o.moderationStatus === 'Pending'">
+                <span class="badge"
+                  [class.badge-green]="o.moderationStatus === 'Approved'"
+                  [class.badge-red]="o.moderationStatus === 'Rejected'"
+                  [class.badge-yellow]="o.moderationStatus === 'Pending'">
                   {{ moderationLabel(o.moderationStatus) }}
                 </span>
               </div>
             </div>
+
             <p class="oc-desc">{{ o.description | slice:0:200 }}{{ o.description.length > 200 ? '...' : '' }}</p>
+
             <div class="oc-foot">
-              <span class="oc-date"><i class="bi bi-calendar3"></i> {{ o.createdAt | date:'dd/MM/yyyy' }}</span>
-              <span class="oc-views"><i class="bi bi-eye"></i> {{ o.viewCount }} vues</span>
+              <span class="oc-stat"><i class="bi bi-calendar3"></i> {{ o.createdAt | date:'dd/MM/yyyy' }}</span>
+              <span class="oc-stat"><i class="bi bi-eye"></i> {{ o.viewCount }} vues</span>
             </div>
 
             @if (o.moderationNote) {
-              <div class="oc-note"><i class="bi bi-chat-left-text"></i> {{ o.moderationNote }}</div>
+              <div class="oc-note"><i class="bi bi-chat-left-text"></i><span>{{ o.moderationNote }}</span></div>
             }
 
             @if (rejectingId() === o.id) {
-              <div class="reject-form">
-                <textarea [(ngModel)]="rejectNote" placeholder="Raison du rejet (optionnel)..." rows="2" class="rej-input"></textarea>
+              <div class="reject-form form-group">
+                <label>Motif du rejet</label>
+                <textarea [(ngModel)]="rejectNote" placeholder="Raison du rejet (optionnel)..." rows="2"></textarea>
                 <div class="rej-actions">
-                  <button (click)="confirmReject(o.id)" class="btn btn-red"><i class="bi bi-x-circle"></i> Confirmer le rejet</button>
-                  <button (click)="cancelReject()" class="btn btn-ghost">Annuler</button>
+                  <button (click)="confirmReject(o.id)" class="btn-red"><i class="bi bi-x-circle"></i> Confirmer le rejet</button>
+                  <button (click)="cancelReject()" class="btn-ghost">Annuler</button>
                 </div>
               </div>
             } @else {
               <div class="oc-actions">
                 @if (o.moderationStatus === 'Pending' || o.moderationStatus === 'Rejected') {
-                  <button (click)="approve(o.id)" class="btn btn-green"><i class="bi bi-check-lg"></i> Approuver</button>
+                  <button (click)="approve(o.id)" class="btn-approve"><i class="bi bi-check-lg"></i> Approuver</button>
                 }
                 @if (o.moderationStatus === 'Pending' || o.moderationStatus === 'Approved') {
-                  <button (click)="startReject(o.id)" class="btn btn-red-outline"><i class="bi bi-x-lg"></i> Rejeter</button>
+                  <button (click)="startReject(o.id)" class="btn-reject"><i class="bi bi-x-lg"></i> Rejeter</button>
                 }
-                <button (click)="toggleFeature(o.id)" class="btn btn-ghost">
+                <button (click)="toggleFeature(o.id)" class="btn-ghost oc-feature" [class.is-featured]="o.isFeatured">
                   <i class="bi" [class.bi-star-fill]="o.isFeatured" [class.bi-star]="!o.isFeatured"></i>
                   {{ o.isFeatured ? 'Retirer' : 'Mettre en avant' }}
                 </button>
               </div>
             }
-          </div>
+          </article>
         }
       </div>
     }

@@ -2,9 +2,9 @@
 <section class="app-hero">
   <div class="container ah-inner">
     <div class="ah-left animate-in">
-      <span class="ed-pill"><i class="bi bi-people-fill"></i></span>
-      <h1>Candidatures recues</h1>
-      <p>Gerez et suivez les candidatures de vos offres d'emploi</p>
+      <span class="eyebrow">Espace recruteur</span>
+      <h1>Candidatures <span class="hl">reçues</span></h1>
+      <p>Gérez et suivez les candidatures à vos offres d'emploi.</p>
     </div>
     @if (!loading() && counts().total > 0) {
       <div class="ah-counters animate-in" style="animation-delay:.1s">
@@ -12,11 +12,11 @@
         <div class="ahc-div"></div>
         <button class="ahc" [class.active]="filterStatus === 'Pending'" (click)="filterStatus = filterStatus === 'Pending' ? '' : 'Pending'"><span class="ahc-val ahc-amber">{{ counts().pending }}</span><span class="ahc-lbl">En attente</span></button>
         <div class="ahc-div"></div>
-        <button class="ahc" [class.active]="filterStatus === 'Reviewed'" (click)="filterStatus = filterStatus === 'Reviewed' ? '' : 'Reviewed'"><span class="ahc-val ahc-blue">{{ counts().reviewed }}</span><span class="ahc-lbl">Examinees</span></button>
+        <button class="ahc" [class.active]="filterStatus === 'Reviewed'" (click)="filterStatus = filterStatus === 'Reviewed' ? '' : 'Reviewed'"><span class="ahc-val ahc-blue">{{ counts().reviewed }}</span><span class="ahc-lbl">Examinées</span></button>
         <div class="ahc-div"></div>
-        <button class="ahc" [class.active]="filterStatus === 'Accepted'" (click)="filterStatus = filterStatus === 'Accepted' ? '' : 'Accepted'"><span class="ahc-val ahc-green">{{ counts().accepted }}</span><span class="ahc-lbl">Acceptees</span></button>
+        <button class="ahc" [class.active]="filterStatus === 'Accepted'" (click)="filterStatus = filterStatus === 'Accepted' ? '' : 'Accepted'"><span class="ahc-val ahc-green">{{ counts().accepted }}</span><span class="ahc-lbl">Acceptées</span></button>
         <div class="ahc-div"></div>
-        <button class="ahc" [class.active]="filterStatus === 'Rejected'" (click)="filterStatus = filterStatus === 'Rejected' ? '' : 'Rejected'"><span class="ahc-val ahc-red">{{ counts().rejected }}</span><span class="ahc-lbl">Refusees</span></button>
+        <button class="ahc" [class.active]="filterStatus === 'Rejected'" (click)="filterStatus = filterStatus === 'Rejected' ? '' : 'Rejected'"><span class="ahc-val ahc-red">{{ counts().rejected }}</span><span class="ahc-lbl">Refusées</span></button>
       </div>
     }
   </div>
@@ -30,24 +30,25 @@
     } @else if (applications().length === 0) {
       <div class="app-empty animate-in">
         <div class="ae-circle"><i class="bi bi-people"></i></div>
-        <h3>Aucune candidature recue</h3>
-        <p>Les candidatures a vos offres apparaitront ici</p>
+        <h3>Aucune candidature reçue</h3>
+        <p>Les candidatures à vos offres apparaîtront ici.</p>
         <a routerLink="/admin/mes-offres" class="btn-primary"><i class="bi bi-collection"></i> Voir mes offres</a>
       </div>
     } @else {
       <!-- Toolbar: view toggle + bulk actions -->
       <div class="app-toolbar animate-in" style="animation-delay:.06s">
         <div class="toolbar-left">
-          <span>{{ filtered().length }} candidature{{ filtered().length > 1 ? 's' : '' }}{{ filterStatus ? ' — ' + getStatusLabel(filterStatus) : '' }}</span>
+          <span class="tl-count">{{ filtered().length }}</span>
+          <span class="tl-label">candidature{{ filtered().length > 1 ? 's' : '' }}{{ filterStatus ? ' — ' + getStatusLabel(filterStatus) : '' }}</span>
         </div>
         <div class="toolbar-right">
           @if (selectedIds().size > 0) {
             <div class="bulk-bar">
-              <span class="bulk-count">{{ selectedIds().size }} selectionnee{{ selectedIds().size > 1 ? 's' : '' }}</span>
+              <span class="bulk-count">{{ selectedIds().size }} sélectionnée{{ selectedIds().size > 1 ? 's' : '' }}</span>
               <button class="bulk-btn bulk-reviewed" (click)="bulkAction('Reviewed')">Examiner</button>
               <button class="bulk-btn bulk-accepted" (click)="bulkAction('Accepted')">Accepter</button>
               <button class="bulk-btn bulk-rejected" (click)="bulkAction('Rejected')">Rejeter</button>
-              <button class="bulk-btn bulk-clear" (click)="deselectAll()"><i class="bi bi-x"></i></button>
+              <button class="bulk-btn bulk-clear" (click)="deselectAll()" title="Effacer la sélection"><i class="bi bi-x-lg"></i></button>
             </div>
           }
           <div class="view-toggle">
@@ -61,7 +62,7 @@
       @if (viewMode() === 'list') {
         @if (filtered().length > 5) {
           <div class="bulk-select-bar animate-in">
-            <button (click)="selectAll()">Tout selectionner</button>
+            <button (click)="selectAll()"><i class="bi bi-check2-square"></i> Tout sélectionner</button>
           </div>
         }
 
@@ -103,8 +104,8 @@
                 </div>
                 <div class="ac-actions">
                   <select [value]="app.status" (change)="updateStatus(app, $any($event.target).value)" class="ac-select">
-                    <option value="Pending">En attente</option><option value="Reviewed">Examinee</option>
-                    <option value="Accepted">Acceptee</option><option value="Rejected">Refusee</option>
+                    <option value="Pending">En attente</option><option value="Reviewed">Examinée</option>
+                    <option value="Accepted">Acceptée</option><option value="Rejected">Refusée</option>
                   </select>
                   <button class="ac-btn ac-btn-interview" (click)="openSchedule(app.id)" title="Planifier un entretien">
                     <i class="bi bi-calendar-plus"></i>
@@ -124,9 +125,9 @@
                     <div class="sf-grid">
                       <div class="sf-field"><label>Date et heure *</label><input type="datetime-local" [(ngModel)]="interviewForm.proposedAt" /></div>
                       <div class="sf-field"><label>Type</label>
-                        <select [(ngModel)]="interviewForm.type"><option value="Visio">Visio</option><option value="Telephonique">Telephonique</option><option value="Presentiel">Presentiel</option></select>
+                        <select [(ngModel)]="interviewForm.type"><option value="Visio">Visio</option><option value="Telephonique">Téléphonique</option><option value="Presentiel">Présentiel</option></select>
                       </div>
-                      <div class="sf-field"><label>Duree (min)</label><input type="number" [(ngModel)]="interviewForm.duration" /></div>
+                      <div class="sf-field"><label>Durée (min)</label><input type="number" [(ngModel)]="interviewForm.duration" /></div>
                       <div class="sf-field"><label>Intervieweur</label><input type="text" [(ngModel)]="interviewForm.interviewerName" placeholder="Nom" /></div>
                       <div class="sf-field sf-full"><label>Lieu / lien</label><input type="text" [(ngModel)]="interviewForm.location" placeholder="Lien Zoom, adresse..." /></div>
                       <div class="sf-field sf-full"><label>Notes</label><textarea [(ngModel)]="interviewForm.notes" rows="2" placeholder="Instructions pour le candidat..."></textarea></div>
@@ -141,7 +142,7 @@
                 <!-- Notes editor -->
                 @if (editingNotesId() === app.id) {
                   <div class="ac-notes-editor">
-                    <label><i class="bi bi-sticky-fill"></i> Notes privees sur {{ app.fullName }}</label>
+                    <label><i class="bi bi-sticky-fill"></i> Notes privées sur {{ app.fullName }}</label>
                     <textarea [(ngModel)]="notesText" rows="3" placeholder="Ajoutez vos observations..."></textarea>
                     <div class="ac-notes-actions">
                       <button class="btn-ghost" (click)="cancelNotes()">Annuler</button>
@@ -177,7 +178,7 @@
                   </div>
                 }
                 @if (col.items.length === 0) {
-                  <div class="kb-empty">Deposez ici</div>
+                  <div class="kb-empty">Déposez ici</div>
                 }
               </div>
             </div>

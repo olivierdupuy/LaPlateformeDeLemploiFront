@@ -1,218 +1,332 @@
-<!-- ═══ SEARCH HEADER ═══ -->
+<!-- ═══ SEARCH HERO ═══ -->
 <section class="search-hero">
   <div class="container">
     <div class="sh-content animate-in">
-      <h1>Explorer les offres</h1>
-      <p>{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }} disponible{{ jobs().length > 1 ? 's' : '' }}</p>
+      <span class="eyebrow">Offres d'emploi</span>
+      <h1>Explorez les <span class="hl">opportunités</span></h1>
+
+      <!-- Double champ : mot-clé + lieu -->
       <form class="sh-search" (ngSubmit)="loadJobs()">
         <div class="sh-field">
           <i class="bi bi-search"></i>
-          <input type="text" placeholder="Poste, entreprise, competence..." [(ngModel)]="search" name="search" />
+          <input type="text" placeholder="Poste, entreprise, compétence…" autocomplete="off"
+                 [(ngModel)]="search" name="search" (input)="onSearchInput()" (blur)="clearSuggestions()" />
+          @if (kwSuggestions().length) {
+            <div class="sh-ac">
+              @for (s of kwSuggestions(); track s) {
+                <button type="button" class="sh-ac-item" (mousedown)="pickKeyword(s)"><i class="bi bi-search"></i> {{ s }}</button>
+              }
+            </div>
+          }
+        </div>
+        <div class="sh-divider"></div>
+        <div class="sh-field sh-field-loc">
+          <i class="bi bi-geo-alt"></i>
+          <input type="text" placeholder="Ville, région…" autocomplete="off"
+                 [(ngModel)]="location" name="location" (input)="onLocationInput()" (blur)="clearSuggestions()" />
+          @if (locSuggestions().length) {
+            <div class="sh-ac">
+              @for (s of locSuggestions(); track s) {
+                <button type="button" class="sh-ac-item" (mousedown)="pickLocation(s)"><i class="bi bi-geo-alt"></i> {{ s }}</button>
+              }
+            </div>
+          }
         </div>
         <button type="submit" class="btn-primary sh-btn">Rechercher</button>
       </form>
+
+      <!-- Barre de filtres -->
+      <div class="filter-bar">
+        <select class="fchip" [(ngModel)]="contractType" (change)="loadJobs()">
+          <option value="">Type de contrat</option>
+          @for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }
+        </select>
+
+        <select class="fchip" [ngModel]="isRemote === undefined ? '' : (isRemote ? 'remote' : 'onsite')"
+                (ngModelChange)="isRemote = $event === '' ? undefined : $event === 'remote'; loadJobs()">
+          <option value="">Télétravail</option>
+          <option value="remote">Télétravail</option>
+          <option value="onsite">Sur site</option>
+        </select>
+
+        <select class="fchip" [(ngModel)]="category" (change)="loadJobs()">
+          <option value="">Secteur</option>
+          @for (c of categories(); track c) { <option [value]="c">{{ c }}</option> }
+        </select>
+
+        <select class="fchip" [(ngModel)]="workSchedule" (change)="loadJobs()">
+          <option value="">Horaires</option>
+          @for (w of workSchedules; track w) { <option [value]="w">{{ w }}</option> }
+        </select>
+
+        <select class="fchip" [(ngModel)]="language" (change)="loadJobs()">
+          <option value="">Langue</option>
+          @for (l of languagesList; track l) { <option [value]="l">{{ l }}</option> }
+        </select>
+
+        <select class="fchip" [(ngModel)]="datePosted" (change)="loadJobs()">
+          @for (d of datePostedOptions; track d.label) { <option [ngValue]="d.value">{{ d.label }}</option> }
+        </select>
+
+        <select class="fchip" [(ngModel)]="radius" (change)="loadJobs()" [disabled]="!location" title="Rayon autour du lieu">
+          @for (r of radiusOptions; track r.label) { <option [ngValue]="r.value">{{ r.value ? 'Rayon ' + r.label : r.label }}</option> }
+        </select>
+
+        <button class="fchip fchip-btn" [class.active]="showAdvanced || hasAdvancedFilters" (click)="showAdvanced = !showAdvanced">
+          <i class="bi bi-sliders"></i> Plus de filtres
+          @if (activeFilterCount) { <span class="fchip-badge">{{ activeFilterCount }}</span> }
+        </button>
+
+        <div class="fb-spacer"></div>
+
+        <select class="fchip fchip-sort" [(ngModel)]="sort" (change)="loadJobs()">
+          @for (s of sortOptions; track s.value) { <option [value]="s.value">Trier : {{ s.label }}</option> }
+        </select>
+
+        @if (activeFilterCount) {
+          <button class="fb-clear" (click)="clearFilters()"><i class="bi bi-x-circle"></i> Effacer</button>
+        }
+      </div>
+
+      <!-- Filtres avancés -->
+      @if (showAdvanced) {
+        <div class="adv-panel animate-in">
+          <div class="form-group">
+            <label>Salaire min (€/an)</label>
+            <input type="number" placeholder="25000" [(ngModel)]="salaryMin" (change)="loadJobs()" />
+          </div>
+          <div class="form-group">
+            <label>Salaire max (€/an)</label>
+            <input type="number" placeholder="60000" [(ngModel)]="salaryMax" (change)="loadJobs()" />
+          </div>
+          <div class="form-group">
+            <label>Expérience</label>
+            <select [(ngModel)]="experience" (change)="loadJobs()">
+              <option value="">Tous niveaux</option>
+              @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Formation</label>
+            <select [(ngModel)]="education" (change)="loadJobs()">
+              <option value="">Tous niveaux</option>
+              @for (l of educationLevels; track l) { <option [value]="l">{{ l }}</option> }
+            </select>
+          </div>
+        </div>
+      }
     </div>
   </div>
 </section>
 
-<!-- ═══ MAIN CONTENT ═══ -->
+<!-- ═══ RÉSULTATS — VUE SPLIT ═══ -->
 <section class="offers-page">
-  <div class="container offers-layout">
-    <!-- Sidebar filters -->
-    <aside class="filters-panel animate-in" style="animation-delay:.06s">
-      <div class="fp-header">
-        <h2><i class="bi bi-funnel"></i> Filtres</h2>
-        @if (category || contractType || isRemote !== undefined) {
-          <button class="fp-clear" (click)="clearFilters()"><i class="bi bi-x-circle"></i> Tout effacer</button>
+  <div class="container">
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div><p>Chargement des offres…</p></div>
+    } @else if (jobs().length === 0) {
+      <div class="empty-box animate-in">
+        <i class="bi bi-search"></i>
+        <h3>Aucune offre trouvée</h3>
+        <p>Modifiez vos filtres ou élargissez votre recherche</p>
+        <button class="btn-primary" (click)="clearFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+      </div>
+    } @else {
+      <div class="results-toolbar animate-in">
+        <span class="rt-count u-mono">{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }}</span>
+        @if (search || location) {
+          <span class="rt-query">pour <strong>{{ search || 'toutes les offres' }}</strong>@if (location) { · {{ location }} }</span>
         }
       </div>
 
-      <!-- Categorie -->
-      <div class="fp-group">
-        <h3>Categorie</h3>
-        <div class="fp-pills">
-          <button class="fp-pill" [class.active]="!category" (click)="category = ''; loadJobs()">Toutes</button>
-          @for (cat of categories(); track cat) {
-            <button class="fp-pill" [class.active]="category === cat" (click)="category = cat; loadJobs()">{{ cat }}</button>
-          }
-        </div>
-      </div>
-
-      <!-- Type de contrat -->
-      <div class="fp-group">
-        <h3>Type de contrat</h3>
-        <div class="fp-pills">
-          <button class="fp-pill" [class.active]="!contractType" (click)="contractType = ''; loadJobs()">Tous</button>
-          @for (ct of contractTypes; track ct) {
-            <button class="fp-pill" [class.active]="contractType === ct" (click)="contractType = ct; loadJobs()">{{ ct }}</button>
-          }
-        </div>
-      </div>
-
-      <!-- Teletravail -->
-      <div class="fp-group">
-        <h3>Mode de travail</h3>
-        <div class="fp-pills">
-          <button class="fp-pill" [class.active]="isRemote === undefined" (click)="isRemote = undefined; loadJobs()">Tous</button>
-          <button class="fp-pill" [class.active]="isRemote === true" (click)="isRemote = true; loadJobs()">
-            <i class="bi bi-wifi"></i> Teletravail
-          </button>
-          <button class="fp-pill" [class.active]="isRemote === false" (click)="isRemote = false; loadJobs()">
-            <i class="bi bi-building"></i> Sur site
-          </button>
-        </div>
-      </div>
-
-      <!-- Filtres avances -->
-      <div class="fp-group">
-        <button class="fp-toggle" (click)="showAdvanced = !showAdvanced">
-          <i class="bi" [class.bi-chevron-down]="!showAdvanced" [class.bi-chevron-up]="showAdvanced"></i>
-          Filtres avances
-          @if (hasAdvancedFilters) { <span class="fp-badge">actif</span> }
-        </button>
-        @if (showAdvanced) {
-          <div class="fp-advanced">
-            <div class="fp-field">
-              <label>Salaire min (EUR/an)</label>
-              <input type="number" placeholder="25000" [(ngModel)]="salaryMin" (change)="loadJobs()" />
-            </div>
-            <div class="fp-field">
-              <label>Salaire max (EUR/an)</label>
-              <input type="number" placeholder="60000" [(ngModel)]="salaryMax" (change)="loadJobs()" />
-            </div>
-            <div class="fp-field">
-              <label>Experience</label>
-              <select [(ngModel)]="experience" (change)="loadJobs()">
-                <option value="">Tous niveaux</option>
-                @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
-              </select>
-            </div>
-            <div class="fp-field">
-              <label>Formation</label>
-              <select [(ngModel)]="education" (change)="loadJobs()">
-                <option value="">Tous niveaux</option>
-                @for (l of educationLevels; track l) { <option [value]="l">{{ l }}</option> }
-              </select>
-            </div>
-            <div class="fp-field">
-              <label>Trier par</label>
-              <select [(ngModel)]="sort" (change)="loadJobs()">
-                <option value="">Plus recentes</option>
-                <option value="salary_desc">Salaire decroissant</option>
-                <option value="salary_asc">Salaire croissant</option>
-                <option value="views">Plus consultees</option>
-              </select>
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Recherches recentes -->
-      @if (searchHistory.recent().length > 0) {
-        <div class="fp-group">
-          <div class="fp-group-head">
-            <h3>Recherches recentes</h3>
-            <button class="fp-clear-sm" (click)="searchHistory.clear()"><i class="bi bi-x"></i></button>
-          </div>
-          <div class="fp-recent">
-            @for (q of searchHistory.recent(); track q) {
-              <button class="fp-recent-item" (click)="useRecentSearch(q)">
-                <i class="bi bi-clock-history"></i> {{ q }}
-              </button>
-            }
-          </div>
-        </div>
-      }
-    </aside>
-
-    <!-- Job results -->
-    <main class="results">
-      @if (loading()) {
-        <div class="empty-box"><div class="spinner"></div><p>Chargement des offres...</p></div>
-      } @else if (jobs().length === 0) {
-        <div class="empty-box animate-in">
-          <div class="empty-icon"><i class="bi bi-search"></i></div>
-          <h3>Aucune offre trouvee</h3>
-          <p>Modifiez vos filtres ou elargissez votre recherche</p>
-          <button class="btn-primary" (click)="clearFilters()"><i class="bi bi-arrow-counterclockwise"></i> Reinitialiser</button>
-        </div>
-      } @else {
-        <!-- Results header -->
-        <div class="results-header animate-in" style="animation-delay:.08s">
-          <span class="rh-count">{{ jobs().length }} offre{{ jobs().length > 1 ? 's' : '' }}</span>
-          <div class="rh-active-filters">
-            @if (category) {
-              <span class="active-filter">{{ category }} <button (click)="category = ''; loadJobs()"><i class="bi bi-x"></i></button></span>
-            }
-            @if (contractType) {
-              <span class="active-filter">{{ contractType }} <button (click)="contractType = ''; loadJobs()"><i class="bi bi-x"></i></button></span>
-            }
-            @if (isRemote === true) {
-              <span class="active-filter">Teletravail <button (click)="isRemote = undefined; loadJobs()"><i class="bi bi-x"></i></button></span>
-            }
-            @if (experience) {
-              <span class="active-filter">{{ experience }} <button (click)="experience = ''; loadJobs()"><i class="bi bi-x"></i></button></span>
-            }
-            @if (education) {
-              <span class="active-filter">{{ education }} <button (click)="education = ''; loadJobs()"><i class="bi bi-x"></i></button></span>
-            }
-            @if (salaryMin) {
-              <span class="active-filter">Min {{ salaryMin }}EUR <button (click)="salaryMin = undefined; loadJobs()"><i class="bi bi-x"></i></button></span>
-            }
-          </div>
-        </div>
-
-        <!-- Job cards grid -->
-        <div class="jobs-grid">
+      <div class="split">
+        <!-- Liste -->
+        <div class="split-list">
           @for (job of jobs(); track job.id; let i = $index) {
-            <a [routerLink]="['/offres', job.id]" class="jcard card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
-              <div class="card-stripe" [style.background]="{'CDI':'var(--teal)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--green)'}[job.contractType] || 'var(--teal)'"></div>
-
+            <article class="jcard" [class.selected]="selected()?.id === job.id"
+                     (click)="selectJob(job, $event)" tabindex="0" (keydown.enter)="selectJob(job)">
+              <div class="card-stripe" [style.background]="{'CDI':'var(--brand)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--purple)'}[job.contractType] || 'var(--brand)'"></div>
               <div class="jcard-body">
-                <!-- Top row: company + badges -->
                 <div class="jcard-top">
                   <div class="jcard-company">
                     <div class="jcard-avatar" [style.background]="companyColor(job.company).bg">
                       <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
                     </div>
-                    <div>
+                    <div class="jcard-cmeta">
                       <span class="jcard-cname">{{ job.company }}</span>
-                      <span class="jcard-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}</span>
+                      <span class="jcard-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}
+                        @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
+                      </span>
                     </div>
                   </div>
-                  <button class="jcard-bk" (click)="$event.preventDefault(); bookmarkService.toggle(job.id)" [class.active]="bookmarkService.isBookmarked(job.id)">
+                  <button class="jcard-bk" (click)="$event.stopPropagation(); bookmarkService.toggle(job.id)"
+                          [class.active]="bookmarkService.isBookmarked(job.id)" title="Enregistrer">
                     <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
                   </button>
                 </div>
 
-                <!-- Title -->
                 <h3 class="jcard-title">{{ job.title }}</h3>
 
-                <!-- Description -->
-                <p class="jcard-desc">{{ job.description }}</p>
-
-                <!-- Tags -->
-                <div class="jcard-tags">
-                  @for (tag of getTags(job.tags); track tag) { <span class="tag">{{ tag }}</span> }
+                <div class="jcard-badges">
+                  <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+                  @if (job.easyApply) { <span class="badge badge-easy"><i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée</span> }
+                  @if (job.workSchedule) { <span class="badge badge-blue">{{ job.workSchedule }}</span> }
+                  @if (job.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
                 </div>
 
-                <!-- Footer: badges + salary + time -->
-                <div class="jcard-footer">
-                  <div class="jcard-badges">
-                    <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
-                    @if (job.isRemote) { <span class="remote-pill">Teletravail</span> }
-                    @if (job.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
+                @if (salaryLabel(job)) {
+                  <div class="jcard-salary"><i class="bi bi-cash-stack"></i> {{ salaryLabel(job) }}</div>
+                }
+
+                @if (getBenefits(job).length) {
+                  <div class="jcard-benefits">
+                    @for (b of getBenefits(job).slice(0, 4); track b) { <span class="perk"><i class="bi bi-check2"></i> {{ b }}</span> }
+                    @if (getBenefits(job).length > 4) { <span class="perk perk-more">+{{ getBenefits(job).length - 4 }}</span> }
                   </div>
-                  <div class="jcard-info">
-                    @if (job.salary) { <span class="jcard-salary"><i class="bi bi-cash-stack"></i> {{ job.salary }}</span> }
-                    <span class="jcard-time">{{ getTimeAgo(job.createdAt) }}</span>
+                }
+
+                <p class="jcard-desc">{{ job.description }}</p>
+
+                <div class="jcard-foot">
+                  <span class="jcard-time u-mono">{{ getTimeAgo(job.createdAt) }}</span>
+                  <div class="jcard-actions">
+                    <button (click)="shareJob(job, $event)" title="Partager"><i class="bi bi-share"></i></button>
+                    <button (click)="openReport(job, $event)" title="Signaler"><i class="bi bi-flag"></i></button>
                   </div>
                 </div>
               </div>
-            </a>
+            </article>
           }
         </div>
-      }
-    </main>
+
+        <!-- Volet détail -->
+        <aside class="split-detail">
+          @if (selected(); as job) {
+            <div class="detail-pane" [class.animate-in]="true">
+              <div class="dp-head">
+                <div class="dp-company">
+                  <div class="dp-avatar" [style.background]="companyColor(job.company).bg">
+                    <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
+                  </div>
+                  <div>
+                    <a class="dp-cname" [routerLink]="['/entreprises', job.company]">{{ job.company }}</a>
+                    <span class="dp-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}
+                      @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
+                    </span>
+                  </div>
+                </div>
+                <button class="dp-bk" (click)="bookmarkService.toggle(job.id)"
+                        [class.active]="bookmarkService.isBookmarked(job.id)" title="Enregistrer">
+                  <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
+                </button>
+              </div>
+
+              <h2 class="dp-title">{{ job.title }}</h2>
+
+              <div class="dp-badges">
+                <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+                @if (job.workSchedule) { <span class="badge badge-blue">{{ job.workSchedule }}</span> }
+                @if (job.experienceRequired) { <span class="badge badge-purple">{{ job.experienceRequired }}</span> }
+                @if (job.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
+              </div>
+
+              <div class="dp-actions">
+                @if (appliedIds().has(job.id)) {
+                  <button class="btn-secondary" disabled><i class="bi bi-check2-circle"></i> Candidature envoyée</button>
+                } @else if (canEasyApply(job)) {
+                  <button class="btn-spring" [disabled]="applying() === job.id" (click)="easyApply(job)">
+                    @if (applying() === job.id) { <span class="sp"></span> Envoi… }
+                    @else { <i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée }
+                  </button>
+                } @else {
+                  <a class="btn-primary" [routerLink]="['/offres', job.id]"><i class="bi bi-send"></i> Postuler</a>
+                }
+                <button class="btn-secondary" (click)="shareJob(job)"><i class="bi bi-share"></i> Partager</button>
+                <button class="dp-icon-btn" (click)="openReport(job)" title="Signaler"><i class="bi bi-flag"></i></button>
+              </div>
+
+              <!-- Détails structurés -->
+              <div class="dp-facts">
+                @if (salaryLabel(job)) {
+                  <div class="fact"><span class="fact-l">Salaire</span><span class="fact-v">{{ salaryLabel(job) }}</span></div>
+                }
+                <div class="fact"><span class="fact-l">Type de poste</span><span class="fact-v">{{ job.contractType }}</span></div>
+                @if (job.educationLevel) {
+                  <div class="fact"><span class="fact-l">Formation</span><span class="fact-v">{{ job.educationLevel }}</span></div>
+                }
+                @if (getLanguages(job).length) {
+                  <div class="fact"><span class="fact-l">Langues</span><span class="fact-v">{{ getLanguages(job).join(', ') }}</span></div>
+                }
+              </div>
+
+              @if (getBenefits(job).length) {
+                <div class="dp-section">
+                  <h3>Avantages</h3>
+                  <div class="dp-perks">
+                    @for (b of getBenefits(job); track b) { <span class="perk"><i class="bi bi-check2-circle"></i> {{ b }}</span> }
+                  </div>
+                </div>
+              }
+
+              <div class="dp-section">
+                <h3>Description du poste</h3>
+                <p class="dp-desc">{{ job.description }}</p>
+              </div>
+
+              @if (getTags(job.tags).length) {
+                <div class="dp-tags">
+                  @for (tag of getTags(job.tags); track tag) { <span class="tag">{{ tag }}</span> }
+                </div>
+              }
+
+              <div class="dp-foot">
+                <a class="link-teal" [routerLink]="['/offres', job.id]">Voir l'offre complète <i class="bi bi-arrow-right"></i></a>
+                <button class="dp-report" (click)="openReport(job)"><i class="bi bi-flag"></i> Signaler cette offre</button>
+              </div>
+            </div>
+          }
+        </aside>
+      </div>
+    }
   </div>
 </section>
+
+<!-- ═══ MODALE SIGNALEMENT ═══ -->
+@if (reportOpen()) {
+  <div class="modal-overlay" (click)="closeReport()">
+    <div class="modal-content report-modal" (click)="$event.stopPropagation()">
+      <div class="rm-head">
+        <div>
+          <span class="eyebrow">Signalement</span>
+          <h3>Signaler cette offre</h3>
+        </div>
+        <button class="rm-close" (click)="closeReport()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      @if (reportJob) { <p class="rm-job">{{ reportJob.title }} · {{ reportJob.company }}</p> }
+
+      <div class="form-group">
+        <label>Motif</label>
+        <div class="rm-reasons">
+          @for (r of reportReasons; track r) {
+            <button type="button" class="rm-reason" [class.active]="reportReason === r" (click)="reportReason = r">{{ r }}</button>
+          }
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Détails (optionnel)</label>
+        <textarea [(ngModel)]="reportDetails" placeholder="Précisez le problème…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Votre email (optionnel)</label>
+        <input type="email" [(ngModel)]="reportEmail" placeholder="pour un suivi éventuel" />
+      </div>
+
+      <div class="rm-actions">
+        <button class="btn-secondary" (click)="closeReport()">Annuler</button>
+        <button class="btn-primary" [disabled]="!reportReason || reportSubmitting()" (click)="submitReport()">
+          @if (reportSubmitting()) { <span class="sp"></span> Envoi… } @else { <i class="bi bi-flag"></i> Envoyer le signalement }
+        </button>
+      </div>
+    </div>
+  </div>
+}

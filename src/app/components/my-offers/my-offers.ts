@@ -63,7 +63,7 @@ export class MyOffers implements OnInit {
   }
 
   stripeColor(type: string): string {
-    return { CDI: 'var(--teal)', CDD: 'var(--amber)', Stage: 'var(--blue)', Freelance: 'var(--red)', Alternance: 'var(--green)' }[type] || 'var(--teal)';
+    return { CDI: 'var(--brand)', CDD: 'var(--amber)', Stage: 'var(--blue)', Freelance: 'var(--red)', Alternance: 'var(--purple)' }[type] || 'var(--brand)';
   }
 
   moderationLabel(status?: string): string {

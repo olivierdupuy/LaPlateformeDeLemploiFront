@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { JobOfferService } from '../../services/job-offer';
+import { ApplicationService } from '../../services/application';
 import { BookmarkService } from '../../services/bookmark.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
@@ -21,6 +22,7 @@ export class JobDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobService = inject(JobOfferService);
+  private appService = inject(ApplicationService);
   private toastr = inject(ToastrService);
   bookmarkService = inject(BookmarkService);
   private candidateService = inject(CandidateFeaturesService);
@@ -33,6 +35,14 @@ export class JobDetail implements OnInit {
   noteContent = '';
   noteSaving = false;
   showNote = signal(false);
+
+  // Signalement
+  reportOpen = signal(false);
+  reportReason = '';
+  reportDetails = '';
+  reportEmail = '';
+  reportSubmitting = signal(false);
+  reportReasons = ['Offre frauduleuse', 'Contenu discriminatoire', 'Offre expirée / pourvue', 'Doublon', 'Autre'];
 
   getTimeAgo = getTimeAgo;
   getTags = getTags;
@@ -71,16 +81,37 @@ export class JobDetail implements OnInit {
     return j.createdByUserId === user.id;
   }
 
+  applied = signal(false);
+  applying = signal(false);
+
   openApply() { this.showApplyModal.set(true); }
   closeApply() { this.showApplyModal.set(false); }
 
+  easyApplyNow() {
+    const j = this.job();
+    if (!j) return;
+    this.applying.set(true);
+    this.appService.create({ jobOfferId: j.id, source: 'Candidature simplifiée' }).subscribe({
+      next: () => {
+        this.applying.set(false);
+        this.applied.set(true);
+        this.toastr.success('Candidature envoyée en 1 clic !', 'Candidature simplifiée');
+      },
+      error: (err) => {
+        this.applying.set(false);
+        this.toastr.error(err.error?.message || err.error || "Échec de la candidature");
+      },
+    });
+  }
+
   onApplicationSent() {
     this.showApplyModal.set(false);
+    this.applied.set(true);
     Swal.fire({
       icon: 'success',
       title: 'Candidature envoyee !',
       text: 'Votre candidature a ete transmise avec succes.',
-      confirmButtonColor: '#0d9488',
+      confirmButtonColor: '#0e5c43',
       confirmButtonText: 'Parfait',
     });
   }
@@ -113,14 +144,30 @@ export class JobDetail implements OnInit {
     }
   }
 
+  openReport() { this.reportReason = ''; this.reportDetails = ''; this.reportEmail = ''; this.reportOpen.set(true); }
+  closeReport() { this.reportOpen.set(false); }
+  submitReport() {
+    const j = this.job();
+    if (!j || !this.reportReason) return;
+    this.reportSubmitting.set(true);
+    this.jobService.report(j.id, {
+      reason: this.reportReason,
+      details: this.reportDetails || undefined,
+      reporterEmail: this.reportEmail || undefined,
+    }).subscribe({
+      next: (r) => { this.toastr.success(r.message, 'Signalement'); this.reportSubmitting.set(false); this.closeReport(); },
+      error: () => { this.toastr.error('Échec du signalement. Réessayez.'); this.reportSubmitting.set(false); },
+    });
+  }
+
   async deleteJob() {
     const result = await Swal.fire({
       title: 'Supprimer cette offre ?',
       text: 'Cette action est irreversible.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#6b7280',
+      confirmButtonColor: '#c6362f',
+      cancelButtonColor: '#6c6e63',
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
     });

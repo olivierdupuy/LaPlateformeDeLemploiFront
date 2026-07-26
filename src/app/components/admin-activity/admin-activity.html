@@ -1,55 +1,75 @@
 <section class="act-page">
   <div class="container">
-    <div class="page-top animate-in">
-      <h1 class="section-title">Journal d'activite</h1>
-      <span class="count">{{ total() }} evenement{{ total() > 1 ? 's' : '' }}</span>
-    </div>
+    <header class="act-head animate-in">
+      <div class="act-head-text">
+        <span class="eyebrow">Administration</span>
+        <h1 class="section-title">Journal d'<span class="hl">activite</span></h1>
+        <p class="section-sub">Trace complete des actions realisees sur la plateforme.</p>
+      </div>
+      <span class="act-count u-mono">{{ total() }} evenement{{ total() > 1 ? 's' : '' }}</span>
+    </header>
 
     <div class="filters card animate-in" style="animation-delay:.05s">
-      <select [(ngModel)]="filterAction" (change)="applyFilter()" class="sel">
-        <option value="">Toutes les actions</option>
-        @for (a of actions(); track a) { <option [value]="a">{{ a }}</option> }
-      </select>
-      <select [(ngModel)]="filterEntity" (change)="applyFilter()" class="sel">
-        <option value="">Tous les types</option>
-        <option value="User">Utilisateur</option>
-        <option value="JobOffer">Offre</option>
-        <option value="Application">Candidature</option>
-        <option value="Announcement">Annonce</option>
-        <option value="PlatformSetting">Parametre</option>
-      </select>
-      <button class="btn-reset" (click)="resetFilters()"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+      <div class="form-group filter-field">
+        <label>Action</label>
+        <select [(ngModel)]="filterAction" (change)="applyFilter()">
+          <option value="">Toutes les actions</option>
+          @for (a of actions(); track a) { <option [value]="a">{{ a }}</option> }
+        </select>
+      </div>
+      <div class="form-group filter-field">
+        <label>Type d'entite</label>
+        <select [(ngModel)]="filterEntity" (change)="applyFilter()">
+          <option value="">Tous les types</option>
+          <option value="User">Utilisateur</option>
+          <option value="JobOffer">Offre</option>
+          <option value="Application">Candidature</option>
+          <option value="Announcement">Annonce</option>
+          <option value="PlatformSetting">Parametre</option>
+        </select>
+      </div>
+      <button class="btn-secondary btn-reset" (click)="resetFilters()">
+        <i class="bi bi-arrow-counterclockwise"></i> Reinitialiser
+      </button>
     </div>
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
     } @else {
-      <div class="timeline animate-in" style="animation-delay:.1s">
-        @for (log of logs(); track log.id) {
-          <div class="tl-item">
-            <div class="tl-icon" [style.color]="actionColor(log.action)" [style.background]="actionColor(log.action) + '15'">
-              <i class="bi" [class]="actionIcon(log.action)"></i>
-            </div>
-            <div class="tl-body">
-              <div class="tl-head">
-                <strong>{{ log.userName }}</strong>
-                <span class="tl-action-badge">{{ log.action }}</span>
-                <span class="tl-time">{{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+      @if (logs().length === 0) {
+        <div class="empty-box card">
+          <i class="bi bi-clock-history"></i>
+          <h3>Aucun evenement</h3>
+          <p>Aucune activite ne correspond aux filtres selectionnes.</p>
+        </div>
+      } @else {
+        <div class="timeline animate-in" style="animation-delay:.1s">
+          @for (log of logs(); track log.id) {
+            <div class="tl-item">
+              <div class="tl-icon" [style.color]="actionColor(log.action)">
+                <i class="bi" [class]="actionIcon(log.action)"></i>
               </div>
-              <p class="tl-detail">{{ log.details }}</p>
-              @if (log.ipAddress) {
-                <span class="tl-ip"><i class="bi bi-globe2"></i> {{ log.ipAddress }}</span>
-              }
+              <div class="tl-body card">
+                <div class="tl-head">
+                  <strong class="tl-user">{{ log.userName }}</strong>
+                  <span class="badge tl-action-badge">{{ log.action }}</span>
+                  <span class="tl-time u-mono">{{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <p class="tl-detail">{{ log.details }}</p>
+                @if (log.ipAddress) {
+                  <span class="tl-ip u-mono"><i class="bi bi-globe2"></i> {{ log.ipAddress }}</span>
+                }
+              </div>
             </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
 
-      <div class="pagination">
-        <button (click)="prevPage()" [disabled]="page() <= 1" class="pg-btn"><i class="bi bi-chevron-left"></i></button>
-        <span class="pg-info">Page {{ page() }} / {{ Math.ceil(total() / 50) || 1 }}</span>
-        <button (click)="nextPage()" [disabled]="logs().length < 50" class="pg-btn"><i class="bi bi-chevron-right"></i></button>
-      </div>
+        <div class="pagination animate-in">
+          <button (click)="prevPage()" [disabled]="page() <= 1" class="pg-btn"><i class="bi bi-chevron-left"></i></button>
+          <span class="pg-info u-mono">Page {{ page() }} / {{ Math.ceil(total() / 50) || 1 }}</span>
+          <button (click)="nextPage()" [disabled]="logs().length < 50" class="pg-btn"><i class="bi bi-chevron-right"></i></button>
+        </div>
+      }
     }
   </div>
 </section>

@@ -2,13 +2,15 @@
 <section class="trk-hero">
   <div class="container th-inner">
     <div class="th-left animate-in">
-      <span class="ed-pill"><i class="bi bi-clipboard-check"></i></span>
-      <h1>Mes candidatures</h1>
+      <span class="eyebrow">Espace candidat</span>
+      <h1>Mes <span class="hl">candidatures</span></h1>
       @if (auth.currentUser(); as u) {
         <p>Suivez l'evolution de vos candidatures en temps reel, {{ u.firstName }}</p>
+      } @else {
+        <p>Suivez l'evolution de vos candidatures en temps reel</p>
       }
     </div>
-    <a routerLink="/offres" class="th-cta animate-in" style="animation-delay:.1s">
+    <a routerLink="/offres" class="btn-primary animate-in" style="animation-delay:.1s">
       <i class="bi bi-search"></i> Nouvelles offres
     </a>
   </div>
@@ -60,11 +62,14 @@
       </div>
     } @else {
       <!-- Progress bar -->
-      <div class="trk-progress animate-in" style="animation-delay:.2s">
-        @if (counts().pending > 0) { <div class="tp-seg tp-amber" [style.width]="(counts().pending / counts().total * 100) + '%'"></div> }
-        @if (counts().reviewed > 0) { <div class="tp-seg tp-blue" [style.width]="(counts().reviewed / counts().total * 100) + '%'"></div> }
-        @if (counts().accepted > 0) { <div class="tp-seg tp-green" [style.width]="(counts().accepted / counts().total * 100) + '%'"></div> }
-        @if (counts().rejected > 0) { <div class="tp-seg tp-red" [style.width]="(counts().rejected / counts().total * 100) + '%'"></div> }
+      <div class="trk-progress-wrap animate-in" style="animation-delay:.2s">
+        <span class="eyebrow">Repartition</span>
+        <div class="trk-progress">
+          @if (counts().pending > 0) { <div class="tp-seg tp-amber" [style.width]="(counts().pending / counts().total * 100) + '%'"></div> }
+          @if (counts().reviewed > 0) { <div class="tp-seg tp-blue" [style.width]="(counts().reviewed / counts().total * 100) + '%'"></div> }
+          @if (counts().accepted > 0) { <div class="tp-seg tp-green" [style.width]="(counts().accepted / counts().total * 100) + '%'"></div> }
+          @if (counts().rejected > 0) { <div class="tp-seg tp-red" [style.width]="(counts().rejected / counts().total * 100) + '%'"></div> }
+        </div>
       </div>
 
       <!-- Timeline -->
@@ -77,10 +82,10 @@
             </div>
 
             <!-- Card -->
-            <div class="tl-card">
+            <div class="tl-card card">
               <!-- Stripe -->
               @if (app.jobOffer) {
-                <div class="tl-stripe" [style.background]="{'CDI':'var(--teal)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--green)'}[app.jobOffer.contractType] || 'var(--teal)'"></div>
+                <div class="tl-stripe" [style.background]="{'CDI':'var(--brand)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--purple)'}[app.jobOffer.contractType] || 'var(--brand)'"></div>
               }
 
               <div class="tl-body">
