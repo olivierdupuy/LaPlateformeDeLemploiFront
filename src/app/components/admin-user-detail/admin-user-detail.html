@@ -219,7 +219,8 @@
                       </td>
                       <td><span class="badge" [class]="statusBadge(a.status)">{{ statusLabel(a.status) }}</span></td>
                       <td class="u-mono aud-date">{{ a.appliedAt | date:'dd/MM/yy' }}</td>
-                      <td class="aud-track">
+                      <td>
+                    <div class="aud-track">
                         <!-- La date de consultation n'est enregistrée que
                              depuis sa mise en place : une candidature déjà
                              traitée avant peut ne pas en porter. On ne la
@@ -232,7 +233,8 @@
                           <span class="aud-muted">—</span>
                         }
                         @if (a.isArchived) { <span class="badge">Archivée</span> }
-                      </td>
+                    </div>
+                  </td>
                             <td>
                         <div class="aud-row-act">
                           <select class="aud-sel" [value]="a.status"

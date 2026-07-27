@@ -139,7 +139,8 @@
                   </a>
                 </td>
                 <td class="u-mono aap-date">{{ a.appliedAt | date:'dd/MM/yy' }}</td>
-                <td class="aap-track">
+                <td>
+                    <div class="aap-track">
                   <!-- La date de consultation n'existe que depuis sa mise
                        en place : un dossier traité avant n'en porte pas,
                        et « non lu » serait faux. -->
@@ -153,7 +154,8 @@
                     <span class="aap-unseen">—</span>
                   }
                   @if (a.isArchived) { <span class="badge">Archivée</span> }
-                </td>
+                    </div>
+                  </td>
                 <td>
                   <div class="aap-actions">
                     <a [routerLink]="['/admin/candidatures']" [queryParams]="{ offre: a.jobOfferId }"

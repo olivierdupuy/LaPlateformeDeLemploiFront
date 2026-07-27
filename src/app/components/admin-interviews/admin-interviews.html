@@ -124,10 +124,12 @@
                   <a [routerLink]="['/admin/offres']" [queryParams]="{ entreprise: i.company }"
                      class="ain-company">{{ i.company }}</a>
                 </td>
-                <td class="ain-when">
+                <td>
+                    <div class="ain-when">
                   <span class="u-mono">{{ i.proposedAt | date:'dd/MM/yy HH:mm' }}</span>
                   @if (i.duration) { <span class="ain-dur">{{ i.duration }} min</span> }
-                </td>
+                    </div>
+                  </td>
                 <td>
                   @if (i.type) {
                     <a class="tag" [routerLink]="['/admin/entretiens']" [queryParams]="{ type: i.type }">{{ i.type }}</a>
