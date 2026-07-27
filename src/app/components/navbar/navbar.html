@@ -1,73 +1,88 @@
-<nav [class.scrolled]="scrolled()">
+<nav [class.scrolled]="scrolled()" aria-label="Navigation principale">
   <div class="nav-inner container">
-    <!-- Logo -->
-    <a routerLink="/" class="logo">
-      <div class="logo-mark"><i class="bi bi-briefcase-fill"></i></div>
-      <div class="logo-text">
+    <!-- Marque -->
+    <a routerLink="/" class="logo" aria-label="La Plateforme de l'Emploi — accueil">
+      <span class="logo-mark"><i class="bi bi-briefcase-fill" aria-hidden="true"></i></span>
+      <span class="logo-text">
         <span class="logo-name">La Plateforme</span>
         <span class="logo-sub">de l'Emploi</span>
-      </div>
+      </span>
     </a>
 
-    <!-- Main links (toujours visibles) -->
-    <div class="nav-center" [class.open]="mobileOpen()">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-        <i class="bi bi-house-door"></i> {{ i18n.t('nav.home') }}
+    <!-- Liens principaux -->
+    <div class="nav-center" [class.open]="mobileOpen()" id="nav-menu">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobile()">
+        <i class="bi bi-house-door" aria-hidden="true"></i> {{ i18n.t('nav.home') }}
       </a>
-      <a routerLink="/offres" routerLinkActive="active">
-        <i class="bi bi-search-heart"></i> {{ i18n.t('nav.offers') }}
+      <a routerLink="/offres" routerLinkActive="active" (click)="closeMobile()">
+        <i class="bi bi-search" aria-hidden="true"></i> {{ i18n.t('nav.offers') }}
       </a>
-      <a routerLink="/parcourir" routerLinkActive="active">
-        <i class="bi bi-compass"></i> {{ i18n.t('nav.browse') }}
+      <a routerLink="/parcourir" routerLinkActive="active" (click)="closeMobile()">
+        <i class="bi bi-compass" aria-hidden="true"></i> {{ i18n.t('nav.browse') }}
       </a>
-      <a routerLink="/entreprises" routerLinkActive="active">
-        <i class="bi bi-buildings"></i> {{ i18n.t('nav.companies') }}
+      <a routerLink="/entreprises" routerLinkActive="active" (click)="closeMobile()">
+        <i class="bi bi-buildings" aria-hidden="true"></i> {{ i18n.t('nav.companies') }}
       </a>
-      <a routerLink="/salaires" routerLinkActive="active">
-        <i class="bi bi-cash-coin"></i> {{ i18n.t('nav.salaries') }}
+      <a routerLink="/salaires" routerLinkActive="active" (click)="closeMobile()">
+        <i class="bi bi-graph-up-arrow" aria-hidden="true"></i> {{ i18n.t('nav.salaries') }}
       </a>
 
-      <!-- CTA recruteur dans les liens principaux -->
       @if (auth.isRecruiter()) {
-        <a routerLink="/admin/nouvelle-offre" routerLinkActive="active" class="nav-publish">
-          <i class="bi bi-plus-lg"></i> {{ i18n.t('nav.publish') }}
+        <a routerLink="/admin/nouvelle-offre" routerLinkActive="active" class="nav-publish" (click)="closeMobile()">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i> {{ i18n.t('nav.publish') }}
         </a>
       }
     </div>
 
-    <!-- Right side -->
+    <!-- Actions -->
     <div class="nav-right">
-      <button class="lang-switch" (click)="i18n.toggle()" [title]="i18n.lang() === 'fr' ? 'Switch to English' : 'Passer en français'">
-        <i class="bi bi-translate"></i> {{ i18n.lang() === 'fr' ? 'FR' : 'EN' }}
+      <button
+        class="lang-switch"
+        (click)="i18n.toggle()"
+        [attr.aria-label]="i18n.lang() === 'fr' ? 'Switch to English' : 'Passer en français'">
+        <i class="bi bi-translate" aria-hidden="true"></i> {{ i18n.lang() === 'fr' ? 'FR' : 'EN' }}
       </button>
+
       @if (auth.isLoggedIn()) {
         <!-- Notifications -->
         <div class="notif-wrap">
-          <button class="icon-btn" (click)="toggleNotif($event)">
-            <i class="bi bi-bell"></i>
+          <button
+            class="icon-btn"
+            (click)="toggleNotif($event)"
+            [attr.aria-expanded]="notifOpen()"
+            aria-haspopup="true"
+            [attr.aria-label]="notifService.unreadCount() > 0
+              ? 'Notifications, ' + notifService.unreadCount() + ' non lues'
+              : 'Notifications'">
+            <i class="bi bi-bell" aria-hidden="true"></i>
             @if (notifService.unreadCount() > 0) {
-              <span class="count-badge red">{{ notifService.unreadCount() }}</span>
+              <span class="count-badge red" aria-hidden="true">{{ notifService.unreadCount() }}</span>
             }
           </button>
+
           @if (notifOpen()) {
             <div class="dropdown notif-dropdown">
               <div class="dd-header">
                 <strong>Notifications</strong>
                 @if (notifService.unreadCount() > 0) {
-                  <button class="dd-action" (click)="markAllRead()">Tout marquer lu</button>
+                  <button class="dd-action" (click)="markAllRead()">Tout marquer comme lu</button>
                 }
               </div>
               <div class="dd-scroll">
                 @for (n of notifService.notifications(); track n.id) {
                   <button class="notif-item" [class.unread]="!n.isRead" (click)="onNotifClick(n)">
-                    <div class="notif-icon"><i class="bi" [class]="getNotifIcon(n.type)"></i></div>
-                    <div class="notif-content">
+                    <span class="notif-icon"><i class="bi" [class]="getNotifIcon(n.type)" aria-hidden="true"></i></span>
+                    <span class="notif-content">
                       <span class="notif-msg">{{ n.message }}</span>
-                      <span class="notif-time">{{ n.createdAt | date:'dd/MM HH:mm' }}</span>
-                    </div>
+                      <span class="notif-time">{{ n.createdAt | date: 'dd/MM HH:mm' }}</span>
+                    </span>
+                    @if (!n.isRead) { <span class="notif-unread-dot" aria-hidden="true"></span> }
                   </button>
                 } @empty {
-                  <div class="dd-empty">Aucune notification</div>
+                  <div class="dd-empty">
+                    <i class="bi bi-bell-slash" aria-hidden="true"></i>
+                    <span>Rien de neuf pour l'instant.</span>
+                  </div>
                 }
               </div>
             </div>
@@ -75,160 +90,173 @@
         </div>
 
         <!-- Messagerie -->
-        <a routerLink="/messagerie" class="icon-btn" routerLinkActive="icon-active" title="Messagerie">
-          <i class="bi bi-chat-dots"></i>
+        <a
+          routerLink="/messagerie"
+          class="icon-btn"
+          routerLinkActive="icon-active"
+          [attr.aria-label]="messageService.unreadCount() > 0
+            ? 'Messagerie, ' + messageService.unreadCount() + ' messages non lus'
+            : 'Messagerie'">
+          <i class="bi bi-chat-dots" aria-hidden="true"></i>
           @if (messageService.unreadCount() > 0) {
-            <span class="count-badge teal">{{ messageService.unreadCount() }}</span>
+            <span class="count-badge citron" aria-hidden="true">{{ messageService.unreadCount() }}</span>
           }
         </a>
 
         <!-- Favoris -->
-        <a routerLink="/favoris" class="icon-btn" routerLinkActive="icon-active" title="Favoris">
-          <i class="bi bi-bookmark-heart"></i>
+        <a
+          routerLink="/favoris"
+          class="icon-btn"
+          routerLinkActive="icon-active"
+          [attr.aria-label]="bookmarkService.count() > 0
+            ? 'Favoris, ' + bookmarkService.count() + ' offres enregistrées'
+            : 'Favoris'">
+          <i class="bi bi-bookmark" aria-hidden="true"></i>
           @if (bookmarkService.count() > 0) {
-            <span class="count-badge teal">{{ bookmarkService.count() }}</span>
+            <span class="count-badge citron" aria-hidden="true">{{ bookmarkService.count() }}</span>
           }
         </a>
 
-        <!-- User menu dropdown -->
+        <!-- Compte -->
         <div class="user-menu-wrap">
-          <button class="user-trigger" (click)="toggleUserMenu($event)">
+          <button
+            class="user-trigger"
+            (click)="toggleUserMenu($event)"
+            [attr.aria-expanded]="userMenuOpen()"
+            aria-haspopup="true"
+            aria-label="Menu du compte">
             @if (auth.currentUser(); as u) {
               <span class="trigger-avatar">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
               <span class="trigger-name">{{ u.firstName }}</span>
-              <i class="bi bi-chevron-down trigger-chevron" [class.rotated]="userMenuOpen()"></i>
+              <i class="bi bi-chevron-down trigger-chevron" [class.rotated]="userMenuOpen()" aria-hidden="true"></i>
             }
           </button>
 
           @if (userMenuOpen()) {
             <div class="dropdown user-dropdown">
               @if (auth.currentUser(); as u) {
-                <!-- Header profil -->
                 <div class="dd-profile">
-                  <div class="dd-avatar">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</div>
-                  <div class="dd-user-info">
+                  <span class="dd-avatar">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+                  <span class="dd-user-info">
                     <strong>{{ u.firstName }} {{ u.lastName }}</strong>
                     <span class="dd-email">{{ u.email }}</span>
-                    <span class="dd-role" [class.role-candidate]="u.role==='Candidate'" [class.role-recruiter]="u.role==='Recruiter'" [class.role-admin]="u.role==='Admin'">
-                      {{ getRoleLabel() }}
-                    </span>
-                  </div>
+                  </span>
                 </div>
+                <span
+                  class="dd-role"
+                  [class.role-candidate]="u.role === 'Candidate'"
+                  [class.role-recruiter]="u.role === 'Recruiter'"
+                  [class.role-admin]="u.role === 'Admin'">
+                  {{ getRoleLabel() }}
+                </span>
 
                 <div class="dd-divider"></div>
 
-                <!-- Liens communs -->
                 <button class="dd-link" (click)="navigateAndClose('/profil')">
-                  <i class="bi bi-person"></i> Mon profil
+                  <i class="bi bi-person" aria-hidden="true"></i> Mon profil
                 </button>
                 <button class="dd-link" (click)="navigateAndClose('/favoris')">
-                  <i class="bi bi-bookmark-heart"></i> Mes favoris
+                  <i class="bi bi-bookmark" aria-hidden="true"></i> Mes favoris
                 </button>
 
-                <!-- ═══ Menu CANDIDAT ═══ -->
                 @if (u.role === 'Candidate') {
                   <div class="dd-divider"></div>
                   <div class="dd-section-label">Espace candidat</div>
                   <button class="dd-link" (click)="navigateAndClose('/mon-espace')">
-                    <i class="bi bi-speedometer2"></i> Mon tableau de bord
+                    <i class="bi bi-grid-1x2" aria-hidden="true"></i> Mon tableau de bord
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/mon-cv')">
-                    <i class="bi bi-file-earmark-person"></i> Mon CV
+                    <i class="bi bi-file-earmark-person" aria-hidden="true"></i> Mon CV
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/suivi')">
-                    <i class="bi bi-clipboard-check"></i> Mes candidatures
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/offres')">
-                    <i class="bi bi-search"></i> Rechercher un emploi
+                    <i class="bi bi-clipboard-check" aria-hidden="true"></i> Mes candidatures
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/recherches-sauvegardees')">
-                    <i class="bi bi-bookmark-star"></i> Recherches sauvegardees
+                    <i class="bi bi-bookmark-star" aria-hidden="true"></i> Recherches enregistrées
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/entretiens')">
-                    <i class="bi bi-calendar-event"></i> Mes entretiens
+                    <i class="bi bi-calendar-event" aria-hidden="true"></i> Mes entretiens
                   </button>
                 }
 
-                <!-- ═══ Menu RECRUTEUR ═══ -->
                 @if (u.role === 'Recruiter') {
                   <div class="dd-divider"></div>
                   <div class="dd-section-label">Espace recruteur</div>
                   <button class="dd-link" (click)="navigateAndClose('/espace-recruteur')">
-                    <i class="bi bi-speedometer2"></i> Tableau de bord
+                    <i class="bi bi-grid-1x2" aria-hidden="true"></i> Tableau de bord
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/mes-offres')">
-                    <i class="bi bi-collection"></i> Mes offres
+                    <i class="bi bi-collection" aria-hidden="true"></i> Mes offres
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/candidatures')">
-                    <i class="bi bi-people"></i> Candidatures recues
+                    <i class="bi bi-people" aria-hidden="true"></i> Candidatures reçues
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/nouvelle-offre')">
-                    <i class="bi bi-plus-circle"></i> Publier une offre
+                    <i class="bi bi-plus-circle" aria-hidden="true"></i> Publier une offre
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/candidats')">
-                    <i class="bi bi-person-lines-fill"></i> Vivier de candidats
+                    <i class="bi bi-person-lines-fill" aria-hidden="true"></i> Vivier de candidats
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/entretiens')">
-                    <i class="bi bi-calendar-event"></i> Entretiens
+                    <i class="bi bi-calendar-event" aria-hidden="true"></i> Entretiens
                   </button>
                 }
 
-                <!-- ═══ Menu ADMIN ═══ -->
                 @if (u.role === 'Admin') {
                   <div class="dd-divider"></div>
                   <div class="dd-section-label">Administration</div>
+                  <button class="dd-link" (click)="navigateAndClose('/admin/dashboard')">
+                    <i class="bi bi-grid-1x2" aria-hidden="true"></i> Tableau de bord
+                  </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/mes-offres')">
-                    <i class="bi bi-collection"></i> Toutes les offres
+                    <i class="bi bi-collection" aria-hidden="true"></i> Toutes les offres
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/candidatures')">
-                    <i class="bi bi-people"></i> Toutes les candidatures
+                    <i class="bi bi-people" aria-hidden="true"></i> Toutes les candidatures
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/nouvelle-offre')">
-                    <i class="bi bi-plus-circle"></i> Publier une offre
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/dashboard')">
-                    <i class="bi bi-graph-up"></i> Tableau de bord
+                    <i class="bi bi-plus-circle" aria-hidden="true"></i> Publier une offre
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/utilisateurs')">
-                    <i class="bi bi-shield-lock"></i> Gestion utilisateurs
+                    <i class="bi bi-shield-lock" aria-hidden="true"></i> Gestion des utilisateurs
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/statistiques')">
-                    <i class="bi bi-bar-chart-line"></i> Statistiques
+                    <i class="bi bi-bar-chart-line" aria-hidden="true"></i> Statistiques
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/moderation')">
-                    <i class="bi bi-check2-square"></i> Moderation
+                    <i class="bi bi-check2-square" aria-hidden="true"></i> Modération
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/annonces')">
-                    <i class="bi bi-megaphone"></i> Annonces &amp; Exports
+                    <i class="bi bi-megaphone" aria-hidden="true"></i> Annonces et exports
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/activite')">
-                    <i class="bi bi-clock-history"></i> Journal d'activite
+                    <i class="bi bi-clock-history" aria-hidden="true"></i> Journal d'activité
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/admin/parametres')">
-                    <i class="bi bi-gear"></i> Parametres
+                    <i class="bi bi-gear" aria-hidden="true"></i> Paramètres
                   </button>
                 }
 
                 <div class="dd-divider"></div>
                 <button class="dd-link dd-logout" (click)="logout()">
-                  <i class="bi bi-box-arrow-right"></i> Se deconnecter
+                  <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Se déconnecter
                 </button>
               }
             </div>
           }
         </div>
       } @else {
-        <!-- Non connecte -->
-        <a routerLink="/login" class="btn-login">
-          <i class="bi bi-box-arrow-in-right"></i> {{ i18n.t('nav.login') }}
-        </a>
-        <a routerLink="/register" class="btn-register">
-          {{ i18n.t('nav.register') }}
-        </a>
+        <a routerLink="/login" class="btn-login">{{ i18n.t('nav.login') }}</a>
+        <a routerLink="/register" class="btn-register">{{ i18n.t('nav.register') }}</a>
       }
 
-      <button class="mobile-toggle" (click)="toggleMobile()">
-        <i class="bi" [class.bi-list]="!mobileOpen()" [class.bi-x-lg]="mobileOpen()"></i>
+      <button
+        class="mobile-toggle"
+        (click)="toggleMobile()"
+        [attr.aria-expanded]="mobileOpen()"
+        aria-controls="nav-menu"
+        [attr.aria-label]="mobileOpen() ? 'Fermer le menu' : 'Ouvrir le menu'">
+        <i class="bi" [class.bi-list]="!mobileOpen()" [class.bi-x-lg]="mobileOpen()" aria-hidden="true"></i>
       </button>
     </div>
   </div>

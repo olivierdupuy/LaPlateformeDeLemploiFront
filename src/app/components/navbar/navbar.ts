@@ -42,6 +42,13 @@ export class Navbar implements OnInit, OnDestroy {
     if (!t.closest('.user-menu-wrap')) this.userMenuOpen.set(false);
   }
 
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.notifOpen.set(false);
+    this.userMenuOpen.set(false);
+    this.mobileOpen.set(false);
+  }
+
   ngOnInit() {
     if (this.auth.isLoggedIn()) {
       this.notifService.startPolling();
@@ -73,6 +80,8 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   toggleMobile() { this.mobileOpen.update((v) => !v); }
+
+  closeMobile() { this.mobileOpen.set(false); }
 
   toggleNotif(e: Event) {
     e.stopPropagation();

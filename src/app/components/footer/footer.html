@@ -1,112 +1,112 @@
-<!-- ═══ CTA BAND ═══ -->
-<div class="footer-cta">
+<!-- ═══ Bandeau recruteur ═══ -->
+<section class="footer-cta">
   <div class="container cta-inner">
     <div class="cta-text">
-      <h3>Vous recrutez ?</h3>
-      <p>Publiez votre offre gratuitement et trouvez le candidat ideal en quelques clics.</p>
+      <span class="eyebrow eyebrow--plum">Vous recrutez</span>
+      <h2>Votre prochaine recrue lit <span class="em em-plum">déjà</span> cette page</h2>
+      <p>Publiez une offre gratuitement et recevez vos premières candidatures dans la journée.</p>
     </div>
     <a routerLink="/admin/nouvelle-offre" class="cta-btn">
-      <i class="bi bi-plus-lg"></i> Publier une offre
+      Publier une offre <i class="bi bi-arrow-right" aria-hidden="true"></i>
     </a>
   </div>
-</div>
+</section>
 
-<!-- ═══ MAIN FOOTER ═══ -->
+<!-- ═══ Pied de page ═══ -->
 <footer>
   <div class="container">
-
-    <!-- Top section: brand + columns -->
     <div class="ft-grid">
-      <!-- Brand + newsletter -->
+      <!-- Marque + alerte -->
       <div class="ft-brand">
-        <div class="ft-logo">
-          <div class="ft-mark"><i class="bi bi-briefcase-fill"></i></div>
-          <div class="ft-logo-text">
+        <a routerLink="/" class="ft-logo" aria-label="La Plateforme de l'Emploi — accueil">
+          <span class="ft-mark"><i class="bi bi-briefcase-fill" aria-hidden="true"></i></span>
+          <span class="ft-logo-text">
             <span class="ft-name">La Plateforme</span>
             <span class="ft-sub">de l'Emploi</span>
-          </div>
-        </div>
+          </span>
+        </a>
         <p class="ft-tagline">
-          La plateforme de confiance pour connecter les talents avec les entreprises qui comptent.
+          Les offres d'emploi en France, rassemblées au même endroit et remises à jour chaque jour.
         </p>
 
-        <!-- Newsletter -->
         <div class="ft-newsletter">
-          <span class="nl-label">Recevez les dernieres offres</span>
+          <label class="nl-label" for="ft-email">Recevoir les nouvelles offres par email</label>
           <div class="nl-form">
-            <input #emailInput type="email" placeholder="Votre adresse email" />
-            <button (click)="subscribeNewsletter(emailInput)">
-              <i class="bi bi-arrow-right"></i>
+            <input #emailInput id="ft-email" type="email" autocomplete="email" placeholder="vous@exemple.fr" />
+            <button (click)="subscribeNewsletter(emailInput)" aria-label="S'inscrire aux alertes emploi">
+              <i class="bi bi-arrow-right" aria-hidden="true"></i>
             </button>
           </div>
+          <span class="nl-note">Une alerte par jour au maximum. Désinscription en un clic.</span>
         </div>
 
-        <!-- Social -->
         <div class="ft-social">
-          <a href="#" class="social-icon" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
-          <a href="#" class="social-icon" title="Twitter"><i class="bi bi-twitter-x"></i></a>
-          <a href="#" class="social-icon" title="GitHub"><i class="bi bi-github"></i></a>
-          <a [href]="'mailto:' + platform.contactEmail" class="social-icon" title="Email"><i class="bi bi-envelope-fill"></i></a>
+          <a href="#" class="social-icon" aria-label="LinkedIn"><i class="bi bi-linkedin" aria-hidden="true"></i></a>
+          <a href="#" class="social-icon" aria-label="X"><i class="bi bi-twitter-x" aria-hidden="true"></i></a>
+          <a href="#" class="social-icon" aria-label="GitHub"><i class="bi bi-github" aria-hidden="true"></i></a>
+          @if (platform.contactEmail) {
+            <a [href]="'mailto:' + platform.contactEmail" class="social-icon" aria-label="Nous écrire">
+              <i class="bi bi-envelope-fill" aria-hidden="true"></i>
+            </a>
+          }
         </div>
       </div>
 
-      <!-- Link columns -->
-      <div class="ft-col">
-        <h4>Plateforme</h4>
-        <a routerLink="/">Accueil</a>
+      <!-- Colonnes de liens -->
+      <nav class="ft-col" aria-label="Offres">
+        <h3>Offres</h3>
         <a routerLink="/offres">Toutes les offres</a>
-        <a routerLink="/parcourir">Parcourir par metier</a>
-        <a routerLink="/offres" [queryParams]="{contractType: 'CDI'}">Offres CDI</a>
-        <a routerLink="/offres" [queryParams]="{contractType: 'Stage'}">Stages</a>
-        <a routerLink="/offres" [queryParams]="{isRemote: true}">Offres en teletravail</a>
-      </div>
+        <a routerLink="/parcourir">Parcourir par métier</a>
+        <a routerLink="/offres" [queryParams]="{ contractType: 'CDI' }">Offres en CDI</a>
+        <a routerLink="/offres" [queryParams]="{ contractType: 'Stage' }">Stages</a>
+        <a routerLink="/offres" [queryParams]="{ isRemote: true }">Télétravail</a>
+        <a routerLink="/entreprises">Entreprises qui recrutent</a>
+      </nav>
 
-      <div class="ft-col">
-        <h4>Candidats</h4>
-        <a routerLink="/offres">Rechercher un emploi</a>
-        <a routerLink="/offres" [queryParams]="{category: 'Tech'}">Emplois Tech</a>
-        <a routerLink="/offres" [queryParams]="{category: 'Design'}">Emplois Design</a>
-        <a routerLink="/offres" [queryParams]="{category: 'Marketing'}">Emplois Marketing</a>
-        <a routerLink="/offres" [queryParams]="{category: 'Finance'}">Emplois Finance</a>
-      </div>
+      <nav class="ft-col" aria-label="Par secteur">
+        <h3>Par secteur</h3>
+        <a routerLink="/offres" [queryParams]="{ category: 'Tech' }">Tech et informatique</a>
+        <a routerLink="/offres" [queryParams]="{ category: 'Design' }">Design</a>
+        <a routerLink="/offres" [queryParams]="{ category: 'Marketing' }">Marketing</a>
+        <a routerLink="/offres" [queryParams]="{ category: 'Finance' }">Finance</a>
+        <a routerLink="/salaires">Salaires par métier</a>
+      </nav>
 
-      <div class="ft-col">
-        <h4>Recruteurs</h4>
-        <a routerLink="/admin/nouvelle-offre">Deposer une annonce</a>
-        <a routerLink="/admin/candidatures">Gerer les candidatures</a>
-        <a routerLink="/admin/nouvelle-offre">Offre premium</a>
-      </div>
+      <nav class="ft-col" aria-label="Recruteurs">
+        <h3>Recruteurs</h3>
+        <a routerLink="/admin/nouvelle-offre">Publier une offre</a>
+        <a routerLink="/admin/candidatures">Gérer les candidatures</a>
+        <a routerLink="/candidats">Vivier de candidats</a>
+      </nav>
 
-      <div class="ft-col">
-        <h4>Ressources</h4>
-        <a routerLink="/guide">Guide carriere</a>
-        <a routerLink="/guide/reussir-son-cv">Guide du CV</a>
-        <a routerLink="/guide/preparer-entretien">Conseils entretien</a>
-        <a routerLink="/guide/negocier-salaire">Negocier son salaire</a>
-        <a routerLink="/evenements">Evenements emploi</a>
-        @if (platform.contactEmail) {
-          <a [href]="'mailto:' + platform.contactEmail"><i class="bi bi-envelope"></i> {{ platform.contactEmail }}</a>
-        }
-      </div>
+      <nav class="ft-col" aria-label="Ressources">
+        <h3>Ressources</h3>
+        <a routerLink="/guide">Guide carrière</a>
+        <a routerLink="/guide/reussir-son-cv">Réussir son CV</a>
+        <a routerLink="/guide/preparer-entretien">Préparer un entretien</a>
+        <a routerLink="/guide/negocier-salaire">Négocier son salaire</a>
+        <a routerLink="/evenements">Événements emploi</a>
+      </nav>
     </div>
 
-    <!-- Divider -->
     <div class="ft-divider"></div>
 
-    <!-- Bottom bar -->
     <div class="ft-bottom">
       <div class="ft-bottom-left">
-        <span class="ft-copy">&copy; {{ year }} La Plateforme de l'Emploi. Tous droits reserves.</span>
+        <span class="ft-copy">&copy; {{ year }} La Plateforme de l'Emploi</span>
         <div class="ft-country">
-          <i class="bi bi-globe2"></i>
-          <select [value]="i18n.country()" (change)="i18n.setCountry($any($event.target).value)">
-            @for (c of i18n.countries; track c.code) { <option [value]="c.code">{{ c.flag }} {{ c.label }}</option> }
+          <i class="bi bi-globe2" aria-hidden="true"></i>
+          <label class="sr-only" for="ft-country">Pays</label>
+          <select id="ft-country" [value]="i18n.country()" (change)="i18n.setCountry($any($event.target).value)">
+            @for (c of i18n.countries; track c.code) {
+              <option [value]="c.code">{{ c.flag }} {{ c.label }}</option>
+            }
           </select>
         </div>
       </div>
       <div class="ft-legal">
-        <a href="#">Mentions legales</a>
-        <a href="#">Politique de confidentialite</a>
+        <a href="#">Mentions légales</a>
+        <a href="#">Confidentialité</a>
         <a href="#">CGU</a>
         <a href="#">Cookies</a>
       </div>

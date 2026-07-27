@@ -6,23 +6,43 @@ import { AdminService } from '../../services/admin.service';
   standalone: true,
   template: `
     @for (b of banners(); track b.id) {
-      <div class="site-banner" [class]="'banner-' + b.type">
+      <div class="site-banner" [class]="'banner-' + b.type" role="status">
         <div class="banner-content">
-          <i class="bi" [class]="iconFor(b.type)"></i>
-          <div><strong>{{ b.title }}</strong> {{ b.message }}</div>
+          <i class="bi" [class]="iconFor(b.type)" aria-hidden="true"></i>
+          <p><strong>{{ b.title }}</strong> {{ b.message }}</p>
         </div>
-        <button class="banner-close" (click)="dismiss(b.id)"><i class="bi bi-x-lg"></i></button>
+        <button class="banner-close" (click)="dismiss(b.id)" aria-label="Masquer ce message">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
       </div>
     }
   `,
   styles: [`
-    .site-banner { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 1.5rem; font-size: 0.82rem; font-weight: 500; gap: 1rem; }
-    .banner-content { display: flex; align-items: center; gap: 0.5rem; flex: 1; strong { margin-right: 0.3rem; } }
-    .banner-close { background: none; border: none; cursor: pointer; font-size: 0.85rem; opacity: 0.7; color: inherit; &:hover { opacity: 1; } }
-    .banner-info { background: #dbeafe; color: #1e40af; }
-    .banner-warning { background: #fef3c7; color: #92400e; }
-    .banner-success { background: #dcfce7; color: #166534; }
-    .banner-danger { background: #fee2e2; color: #991b1b; }
+    /* Bandeau d'information — au-dessus de la navbar prune,
+       assez sobre pour ne pas concurrencer la marque. */
+    .site-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem;
+      padding: 0.62rem clamp(1.1rem, 4vw, 2.25rem);
+      font-size: 0.83rem; line-height: 1.45;
+      border-bottom: 1px solid rgba(27, 15, 34, 0.08);
+    }
+    .banner-content { display: flex; align-items: center; gap: 0.55rem; flex: 1; min-width: 0; }
+    .banner-content i { font-size: 0.95rem; flex-shrink: 0; }
+    .banner-content strong { font-weight: 700; margin-right: 0.3rem; }
+    .banner-close {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; flex-shrink: 0;
+      border-radius: var(--r-xs); font-size: 0.78rem;
+      color: inherit; opacity: 0.6;
+      transition: opacity 0.18s, background 0.18s;
+    }
+    .banner-close:hover { opacity: 1; background: rgba(27, 15, 34, 0.08); }
+
+    .banner-info    { background: var(--blue-bg);  color: #23477f; }
+    .banner-warning { background: var(--amber-bg); color: #7d5002; }
+    .banner-success { background: var(--green-bg); color: #0b6b4a; }
+    .banner-danger  { background: var(--red-bg);   color: #9b2b34; }
   `],
 })
 export class SiteBanner implements OnInit {

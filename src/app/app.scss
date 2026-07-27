@@ -1,44 +1,69 @@
 main {
-  min-height: calc(100vh - 160px);
+  display: block;
+  min-height: calc(100vh - var(--nav-h) - 220px);
+  outline: none;
 }
 
+/* ═══ Page de maintenance ═══
+   Le bandeau prune occupe tout l'écran : l'app est fermée,
+   il ne reste que la marque. */
 .maintenance-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ink);
   padding: 2rem;
+  background: var(--plum-900);
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(107, 63, 196, 0.4), transparent 55%),
+    radial-gradient(circle at 84% 88%, rgba(232, 255, 99, 0.09), transparent 50%);
 }
 
 .maintenance-card {
+  max-width: 540px;
   text-align: center;
-  max-width: 480px;
-}
-
-.maintenance-icon {
-  width: 84px; height: 84px; border-radius: 50%;
-  background: rgba(199, 242, 77, 0.14);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; color: var(--spring);
-  margin: 0 auto 1.5rem;
-  animation: pulse-maint 2s ease-in-out infinite;
-}
-
-@keyframes pulse-maint {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.15rem;
+  animation: fadeUp 0.6s var(--ease-out) both;
 }
 
 .maintenance-card h1 {
-  font-size: 1.8rem; font-weight: 900; color: #fff;
-  letter-spacing: -0.03em; margin-bottom: 0.75rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 5.5vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: #fff;
 }
 
 .maintenance-card p {
-  font-size: 0.95rem; color: var(--slate-400); line-height: 1.6; margin-bottom: 1rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--on-plum-muted);
+  max-width: 44ch;
 }
 
-.maintenance-sub {
-  font-size: 0.78rem; color: var(--slate-500);
+/* Trois points qui respirent — assez pour signaler « ça tourne » */
+.maintenance-pulse {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+
+  span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--citron);
+    animation: maint-breathe 1.4s ease-in-out infinite;
+
+    &:nth-child(2) { animation-delay: 0.18s; }
+    &:nth-child(3) { animation-delay: 0.36s; }
+  }
+}
+
+@keyframes maint-breathe {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
 }
