@@ -186,6 +186,8 @@
 }
 
 // ── Illustration : la mascotte fait face au discours ──
+// L'image a un fond opaque : on l'encadre proprement plutôt que
+// de la poser en découpe sur le bleu.
 .hero-art {
   display: flex;
   align-items: center;
@@ -194,21 +196,12 @@
 
   img {
     width: 100%;
-    max-width: 420px;
+    max-width: 460px;
     height: auto;
-    // Halo doux pour detacher le dessin du bleu profond
-    filter: drop-shadow(0 26px 44px rgba(7, 30, 69, 0.55));
-    animation: hero-float 6s ease-in-out infinite;
+    border-radius: var(--r-xl);
+    border: 1px solid rgba(232, 239, 250, 0.14);
+    box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7);
   }
-}
-
-@keyframes hero-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-art img { animation: none; }
 }
 
 // ═══ Dernières offres ═══
@@ -352,7 +345,7 @@
 @media (max-width: 1080px) {
   .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
   .hero h1 { max-width: 18ch; }
-  .hero-art { order: -1; img { max-width: 300px; } }
+  .hero-art { order: -1; img { max-width: 340px; } }
 }
 
 @media (max-width: 780px) {
@@ -372,5 +365,5 @@
 
 @media (max-width: 480px) {
   .hero h1 { font-size: 2.2rem; }
-  .hero-art img { max-width: 240px; }
+  .hero-art img { max-width: 280px; }
 }
