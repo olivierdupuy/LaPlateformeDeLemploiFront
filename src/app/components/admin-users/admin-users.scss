@@ -2,7 +2,7 @@
 //  ADMIN USERS — Clean SaaS
 // ═══════════════════════════════════
 
-.users-page { padding: 6.5rem 0 5rem; }
+.users-page { padding: calc(var(--nav-h) + 2.25rem) 0 5rem; }
 
 // ── Header ──
 .page-top {
@@ -171,7 +171,7 @@ tbody {
 
 // ── Responsive ──
 @media (max-width: 768px) {
-  .users-page { padding: 5.5rem 0 3.5rem; }
+  .users-page { padding: calc(var(--nav-h) + 1.25rem) 0 3.5rem; }
 
   .page-stats { width: 100%; }
   .stat { flex: 1; }

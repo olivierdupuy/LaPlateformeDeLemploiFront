@@ -6,7 +6,7 @@
 .cv-hero {
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  padding: 7rem 0 2.5rem;
+  padding: calc(var(--nav-h) + 2.75rem) 0 2.5rem;
 }
 
 .cvh-inner {
@@ -357,7 +357,7 @@
 }
 
 @media (max-width: 768px) {
-  .cv-hero { padding: 6.5rem 0 2rem; }
+  .cv-hero { padding: calc(var(--nav-h) + 2.25rem) 0 2rem; }
   .cvh-inner { flex-direction: column; align-items: flex-start; }
   .cvh-actions { width: 100%; }
   .cvh-btn { flex: 1; justify-content: center; }

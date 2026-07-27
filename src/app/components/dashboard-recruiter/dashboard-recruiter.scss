@@ -6,7 +6,7 @@
 .dr-hero {
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  padding: 6.5rem 0 2.25rem;
+  padding: calc(var(--nav-h) + 2.25rem) 0 2.25rem;
   position: relative;
   overflow: hidden;
 
@@ -271,7 +271,7 @@
 }
 
 @media (max-width: 768px) {
-  .dr-hero { padding: 5.5rem 0 1.75rem; }
+  .dr-hero { padding: calc(var(--nav-h) + 1.25rem) 0 1.75rem; }
   .drh-inner { flex-direction: column; align-items: flex-start; }
   .drh-actions {
     width: 100%;

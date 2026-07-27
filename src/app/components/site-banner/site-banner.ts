@@ -25,7 +25,7 @@ import { AdminService } from '../../services/admin.service';
       gap: 1rem;
       padding: 0.62rem clamp(1.1rem, 4vw, 2.25rem);
       font-size: 0.83rem; line-height: 1.45;
-      border-bottom: 1px solid rgba(27, 15, 34, 0.08);
+      border-bottom: 1px solid rgba(12, 27, 51, 0.08);
     }
     .banner-content { display: flex; align-items: center; gap: 0.55rem; flex: 1; min-width: 0; }
     .banner-content i { font-size: 0.95rem; flex-shrink: 0; }
@@ -37,7 +37,7 @@ import { AdminService } from '../../services/admin.service';
       color: inherit; opacity: 0.6;
       transition: opacity 0.18s, background 0.18s;
     }
-    .banner-close:hover { opacity: 1; background: rgba(27, 15, 34, 0.08); }
+    .banner-close:hover { opacity: 1; background: rgba(12, 27, 51, 0.08); }
 
     .banner-info    { background: var(--blue-bg);  color: #23477f; }
     .banner-warning { background: var(--amber-bg); color: #7d5002; }

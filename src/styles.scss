@@ -350,7 +350,7 @@ h3, h4, h5, h6 {
   .crumbs {
     color: var(--on-plum-muted);
     a { color: var(--on-plum-muted); &:hover { color: var(--citron); } }
-    .sep { color: rgba(239, 234, 243, 0.3); }
+    .sep { color: rgba(232, 239, 250, 0.3); }
     span[aria-current] { color: #fff; }
   }
 }
@@ -594,7 +594,7 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   .error { font-size: 0.78rem; color: var(--red); font-weight: 500; }
   &.has-error input, &.has-error select, &.has-error textarea {
     border-color: var(--red);
-    &:focus { box-shadow: 0 0 0 3px rgba(207, 58, 70, 0.18); }
+    &:focus { box-shadow: 0 0 0 3px rgba(228, 43, 47, 0.18); }
   }
 }
 
@@ -805,7 +805,7 @@ table.data {
 /* ═══════════════ Modales ═══════════════ */
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(21, 12, 27, 0.5);
+  background: rgba(7, 30, 69, 0.5);
   backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex; align-items: center; justify-content: center;
@@ -838,7 +838,7 @@ table.data {
 
 /* Tiroir latéral */
 .drawer-overlay {
-  position: fixed; inset: 0; background: rgba(21, 12, 27, 0.4);
+  position: fixed; inset: 0; background: rgba(7, 30, 69, 0.4);
   backdrop-filter: blur(3px); z-index: 900; animation: fadeIn 0.2s ease both;
 }
 .drawer {

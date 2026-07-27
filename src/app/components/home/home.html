@@ -70,50 +70,10 @@
       </dl>
     </div>
 
-    <!-- Le contenu clair perce le bandeau sombre -->
-    <aside class="hero-feed" aria-label="Offres publiées récemment">
-      <div class="feed-head">
-        <span class="feed-live"><span class="live-dot" aria-hidden="true"></span> Publiées récemment</span>
-        <a routerLink="/offres" class="feed-all">Tout voir</a>
-      </div>
-
-      @if (latestJobs().length) {
-        <ul class="feed-list">
-          @for (job of latestJobs().slice(0, 4); track job.id) {
-            <li>
-              <a [routerLink]="['/offres', job.id]" class="feed-item">
-                <span class="feed-av" [style.background]="avatarBg(job.company)">
-                  <span [style.color]="avatarFg(job.company)">{{ job.company.charAt(0) }}</span>
-                </span>
-                <span class="feed-body">
-                  <span class="feed-title">{{ job.title }}</span>
-                  <span class="feed-meta">
-                    {{ job.company }} · {{ job.location }}
-                    @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
-                  </span>
-                </span>
-                <span class="feed-side">
-                  @if (job.salary) { <span class="feed-salary">{{ job.salary }}</span> }
-                  <span class="feed-time">{{ getTimeAgo(job.createdAt) }}</span>
-                </span>
-              </a>
-            </li>
-          }
-        </ul>
-      } @else {
-        <ul class="feed-list">
-          @for (n of [1, 2, 3, 4]; track n) {
-            <li class="feed-item feed-item--loading" aria-hidden="true">
-              <span class="skeleton feed-av"></span>
-              <span class="feed-body">
-                <span class="skeleton sk-line" style="width: 72%"></span>
-                <span class="skeleton sk-line" style="width: 45%; margin-top: 8px; height: 9px"></span>
-              </span>
-            </li>
-          }
-        </ul>
-      }
-    </aside>
+    <!-- La mascotte, en grand, face au discours -->
+    <div class="hero-art">
+      <img src="/images/2-detoure.png" alt="" width="359" height="416" fetchpriority="high" />
+    </div>
   </div>
 </section>
 

@@ -28,7 +28,7 @@ import { Component, signal } from '@angular/core';
       position: fixed; left: 1rem; right: 1rem; bottom: 1rem; z-index: 900;
       max-width: 940px; margin: 0 auto;
       background: var(--plum-900); color: #fff;
-      border: 1px solid rgba(239, 234, 243, 0.12);
+      border: 1px solid rgba(232, 239, 250, 0.12);
       border-radius: var(--r-lg);
       box-shadow: var(--shadow-xl);
       animation: ccup 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -56,9 +56,9 @@ import { Component, signal } from '@angular/core';
     }
     .cc-refuse {
       background: transparent; color: #fff;
-      border: 1px solid rgba(239, 234, 243, 0.24);
+      border: 1px solid rgba(232, 239, 250, 0.24);
     }
-    .cc-refuse:hover { background: rgba(239, 234, 243, 0.09); border-color: rgba(239, 234, 243, 0.4); }
+    .cc-refuse:hover { background: rgba(232, 239, 250, 0.09); border-color: rgba(232, 239, 250, 0.4); }
     .cc-accept { background: var(--citron); color: var(--citron-ink); font-weight: 700; }
     .cc-accept:hover { background: var(--citron-600); transform: translateY(-1px); }
 

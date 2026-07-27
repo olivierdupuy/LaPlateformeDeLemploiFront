@@ -16,7 +16,7 @@
     position: absolute;
     top: -30%; left: -10%;
     width: 70%; height: 140%;
-    background: radial-gradient(circle, rgba(107, 63, 196, 0.32), transparent 62%);
+    background: radial-gradient(circle, rgba(46, 116, 224, 0.32), transparent 62%);
     pointer-events: none;
   }
 }
@@ -24,7 +24,7 @@
 .hero-grid {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   gap: clamp(2.5rem, 5vw, 5rem);
   align-items: start;
 }
@@ -57,7 +57,7 @@
   margin-top: 1.15rem;
   padding: 0.7rem 0.95rem;
   border-left: 2px solid var(--citron);
-  background: rgba(232, 255, 99, 0.07);
+  background: rgba(240, 161, 27, 0.07);
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
   font-size: 0.88rem;
   color: var(--on-plum);
@@ -132,7 +132,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: #7d7288;
+  color: #7f92ad;
   flex-shrink: 0;
 }
 
@@ -143,8 +143,8 @@
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--on-plum);
-  background: rgba(239, 234, 243, 0.07);
-  border: 1px solid rgba(239, 234, 243, 0.13);
+  background: rgba(232, 239, 250, 0.07);
+  border: 1px solid rgba(232, 239, 250, 0.13);
   border-radius: var(--r-full);
   transition: color var(--t), background var(--t), border-color var(--t);
   &:hover { color: var(--citron-ink); background: var(--citron); border-color: var(--citron); }
@@ -158,7 +158,7 @@
   gap: clamp(1.5rem, 3.5vw, 3rem);
   margin-top: clamp(2.25rem, 4vw, 3rem);
   padding-top: 1.6rem;
-  border-top: 1px solid rgba(239, 234, 243, 0.12);
+  border-top: 1px solid rgba(232, 239, 250, 0.12);
 }
 
 .hstat {
@@ -172,7 +172,7 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.13em;
-    color: #7d7288;
+    color: #7f92ad;
   }
 
   dd {
@@ -185,118 +185,30 @@
   }
 }
 
-// ── Fil des offres : le clair perce le sombre ──
-.hero-feed {
-  background: var(--canvas);
-  border-radius: var(--r-lg);
-  box-shadow: 0 26px 60px -22px rgba(0, 0, 0, 0.7);
-  overflow: hidden;
+// ── Illustration : la mascotte fait face au discours ──
+.hero-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   animation: fadeUp 0.6s var(--ease-out) 0.12s both;
+
+  img {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    // Halo doux pour detacher le dessin du bleu profond
+    filter: drop-shadow(0 26px 44px rgba(7, 30, 69, 0.55));
+    animation: hero-float 6s ease-in-out infinite;
+  }
 }
 
-.feed-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 1.15rem;
-  border-bottom: 1px solid var(--line);
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-.feed-live {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-family: var(--font-mono);
-  font-size: 0.55rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
-  color: var(--muted);
-}
-
-.live-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 0 3px rgba(15, 138, 95, 0.16);
-  animation: live-blink 2.2s ease-in-out infinite;
-}
-@keyframes live-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-
-.feed-all {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--violet);
-  &:hover { text-decoration: underline; }
-}
-
-.feed-list { list-style: none; }
-
-.feed-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1.15rem;
-  border-bottom: 1px solid var(--line);
-  transition: background var(--t);
-  &:hover { background: var(--violet-tint); }
-}
-.feed-list li:last-child .feed-item { border-bottom: none; }
-.feed-item--loading { pointer-events: none; }
-
-.feed-av {
-  width: 34px; height: 34px;
-  border-radius: var(--r-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.85rem; font-weight: 700;
-  flex-shrink: 0;
-}
-
-.feed-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.16rem; }
-
-.feed-title {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--ink);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.feed-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.76rem;
-  color: var(--muted);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.feed-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.12rem;
-  flex-shrink: 0;
-  text-align: right;
-}
-
-.feed-salary {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-}
-
-.feed-time {
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.06em;
-  color: var(--faint);
+@media (prefers-reduced-motion: reduce) {
+  .hero-art img { animation: none; }
 }
 
 // ═══ Dernières offres ═══
@@ -440,7 +352,7 @@
 @media (max-width: 1080px) {
   .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
   .hero h1 { max-width: 18ch; }
-  .hero-feed { max-width: 560px; }
+  .hero-art { order: -1; img { max-width: 300px; } }
 }
 
 @media (max-width: 780px) {
@@ -460,5 +372,5 @@
 
 @media (max-width: 480px) {
   .hero h1 { font-size: 2.2rem; }
-  .feed-side { display: none; }
+  .hero-art img { max-width: 240px; }
 }

@@ -3,7 +3,7 @@
 // ═══════════════════════════════════
 
 .mod-page {
-  padding: 7rem 0 5rem;
+  padding: calc(var(--nav-h) + 2.75rem) 0 5rem;
   background: var(--paper);
   min-height: 100vh;
 }
@@ -237,7 +237,7 @@
 
 // ── Responsive ──
 @media (max-width: 640px) {
-  .mod-page { padding: 5.5rem 0 3.5rem; }
+  .mod-page { padding: calc(var(--nav-h) + 1.25rem) 0 3.5rem; }
   .oc-top { flex-direction: column; }
   .oc-badges { order: -1; }
   .oc-actions button,

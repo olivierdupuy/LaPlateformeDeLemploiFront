@@ -6,7 +6,7 @@
 .jf-hero {
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  padding: 6.5rem 0 2.25rem;
+  padding: calc(var(--nav-h) + 2.25rem) 0 2.25rem;
   position: relative;
   overflow: hidden;
 
@@ -251,7 +251,7 @@
 
 // ── Responsive ──
 @media (max-width: 768px) {
-  .jf-hero { padding: 5.5rem 0 1.75rem; }
+  .jf-hero { padding: calc(var(--nav-h) + 1.25rem) 0 1.75rem; }
   .form-row { grid-template-columns: 1fr; }
   .span-2 { grid-column: span 1; }
   .step-label { display: none; }
