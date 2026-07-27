@@ -80,6 +80,39 @@ const FRENCH_CITIES: Record<string, [number, number]> = {
   'region parisienne': [48.8566, 2.3522],
 };
 
+/**
+ * Outre-mer, indexe par code departement.
+ *
+ * Le nom seul ne suffit pas : Saint-Denis designe une commune de
+ * Seine-Saint-Denis et le chef-lieu de La Reunion, Saint-Pierre en
+ * designe plusieurs. Les libelles France Travail portent le code du
+ * departement — c'est lui qui tranche, on ne le jette donc pas.
+ */
+const OUTRE_MER: Record<string, [number, number]> = {
+  '971-pointe-a-pitre': [16.2412, -61.5340],
+  '971-basse-terre': [15.9958, -61.7292],
+  '971-les abymes': [16.2718, -61.5057],
+  '972-fort-de-france': [14.6161, -61.0588],
+  '972-le lamentin': [14.6097, -60.9994],
+  '973-cayenne': [4.9224, -52.3135],
+  '973-saint-laurent-du-maroni': [5.5031, -54.0289],
+  '973-kourou': [5.1594, -52.6503],
+  '974-saint-denis': [-20.8823, 55.4504],
+  '974-saint-pierre': [-21.3393, 55.4781],
+  '974-le tampon': [-21.2783, 55.5153],
+  '974-saint-paul': [-21.0096, 55.2707],
+  '976-mamoudzou': [-12.7806, 45.2278],
+};
+
+/** Chef-lieu par defaut, quand la commune outre-mer n'est pas listee. */
+const CHEFS_LIEUX_OUTRE_MER: Record<string, [number, number]> = {
+  '971': [16.2412, -61.5340],
+  '972': [14.6161, -61.0588],
+  '973': [4.9224, -52.3135],
+  '974': [-20.8823, 55.4504],
+  '976': [-12.7806, 45.2278],
+};
+
 @Component({
   selector: 'app-admin-stats',
   imports: [DecimalPipe, ConsoleShell, RouterLink],
@@ -420,20 +453,66 @@ export class AdminStats implements OnInit, OnDestroy {
     return group;
   }
 
+  /**
+   * Retrouve les coordonn\u00e9es d'un lieu.
+   *
+   * Les offres import\u00e9es de France Travail portent un libell\u00e9 de la forme
+   * \u00ab 87 - LIMOGES \u00bb : un code d\u00e9partement, un tiret, la commune. Le code
+   * est retir\u00e9 avant toute comparaison, sinon rien ne correspond.
+   *
+   * La recherche approchante est volontairement stricte. La version
+   * pr\u00e9c\u00e9dente acceptait n'importe quelle sous-cha\u00eene : \u00ab Beaupr\u00e9au \u00bb
+   * contient \u00ab pau \u00bb et atterrissait dans les Pyr\u00e9n\u00e9es. On n'accepte
+   * d\u00e9sormais qu'un mot entier, et d'au moins quatre lettres.
+   */
   private findCity(name: string): [number, number] | null {
-    const normalized = name.toLowerCase().trim()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/\s+/g, '-');
-    // Direct match
-    if (FRENCH_CITIES[normalized]) return FRENCH_CITIES[normalized];
-    // Try without dashes
-    const noDash = normalized.replace(/-/g, ' ');
-    for (const [key, coords] of Object.entries(FRENCH_CITIES)) {
-      if (key.replace(/-/g, ' ') === noDash) return coords;
+    const brut = String(name ?? '');
+
+    // Le code departement en tete sert d'abord a lever les homonymies
+    // outre-mer, avant d'etre retire pour la recherche metropolitaine.
+    const code = brut.match(/^\s*(\d{3})\s*-\s*/)?.[1];
+
+    const nettoye = brut
+      // \u00ab 87 - \u00bb, \u00ab 2A - \u00bb, \u00ab 973 - \u00bb : le code departement en tete
+      .replace(/^\s*\d{2,3}\s*-\s*/, '')
+      .replace(/^\s*2[AB]\s*-\s*/i, '')
+      // \u00ab Paris 15e \u00bb, \u00ab Lyon 3eme \u00bb : l'arrondissement ne change pas la ville
+      .replace(/\s+\d{1,2}\s*(e|er|eme|\u00e8me)\b/i, '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
+
+    const enTirets = nettoye.replace(/[\s']+/g, '-');
+
+    if (code) {
+      const precis = OUTRE_MER[`${code}-${enTirets}`] ?? OUTRE_MER[`${code}-${nettoye}`];
+      if (precis) return precis;
+      // Commune non listee : le chef-lieu situe correctement le territoire,
+      // ce qui vaut mieux que de projeter la Guyane sur la metropole.
+      const chefLieu = CHEFS_LIEUX_OUTRE_MER[code];
+      if (chefLieu) return chefLieu;
     }
-    // Partial match
-    for (const [key, coords] of Object.entries(FRENCH_CITIES)) {
-      if (key.includes(normalized) || normalized.includes(key)) return coords;
+
+    if (FRENCH_CITIES[enTirets]) return FRENCH_CITIES[enTirets];
+
+    // Egalite une fois les tirets ramenes a des espaces : \u00ab le-havre \u00bb
+    // et \u00ab le havre \u00bb designent la meme ville.
+    const enEspaces = enTirets.replace(/-/g, ' ');
+    for (const [cle, coords] of Object.entries(FRENCH_CITIES)) {
+      if (cle.replace(/-/g, ' ') === enEspaces) return coords;
+    }
+
+    // Dernier recours : la ville apparait comme mot entier dans le libelle.
+    const mots = new Set(enEspaces.split(' ').filter(Boolean));
+    for (const [cle, coords] of Object.entries(FRENCH_CITIES)) {
+      const cleEspaces = cle.replace(/-/g, ' ');
+      if (cleEspaces.length < 4) continue;
+      if (cleEspaces.includes(' ')) {
+        if (enEspaces.includes(cleEspaces)) return coords;
+      } else if (mots.has(cleEspaces)) {
+        return coords;
+      }
     }
     return null;
   }
