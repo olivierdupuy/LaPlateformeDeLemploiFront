@@ -230,9 +230,13 @@
     padding: clamp(1.5rem, 3vw, 2.1rem) 0;
   }
 
-  // Le conteneur du site est calibre pour 1650 px pleine largeur ;
-  // ici il vit dans une colonne, on resserre les marges.
+  // Un panneau d'administration se lit en pleine largeur : le conteneur
+  // du site, calibre et centre sur 1650 px, perdrait de la place dans
+  // une colonne deja reduite par la barre laterale.
   ::ng-deep .container {
+    max-width: none;
+    width: 100%;
+    margin: 0;
     padding-left: clamp(1.1rem, 2.5vw, 2rem);
     padding-right: clamp(1.1rem, 2.5vw, 2rem);
   }

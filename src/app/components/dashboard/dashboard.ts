@@ -284,41 +284,26 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     const colors = [TEAL, TEAL_400, NAVY_800, AMBER, BLUE, GREEN, ORANGE];
     const total = data.reduce((s, v) => s + v, 0);
 
+    // Une aire polaire etait illisible ici : le CDI ecrase tout (133
+    // contre 1 a 6), la surface des autres types devenait invisible.
+    // Une barre horizontale supporte cet ecart d'echelle.
     const chart = new Chart(ctx, {
-      type: 'polarArea',
+      type: 'bar',
       data: {
         labels,
         datasets: [{
           data,
-          backgroundColor: colors.slice(0, data.length).map(c => c + '33'),
-          borderColor: colors.slice(0, data.length),
-          borderWidth: 2,
+          backgroundColor: colors.slice(0, data.length),
+          borderRadius: 5,
+          maxBarThickness: 26,
         }],
       },
       options: {
+        indexAxis: 'y' as const,
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'right',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle',
-              padding: 14,
-              font: { ...this.baseFont(), weight: 500 as const },
-              color: NAVY_800,
-              generateLabels: (chart) => {
-                const ds = chart.data.datasets[0];
-                return chart.data.labels!.map((label, i) => ({
-                  text: `${label}  (${(ds.data as number[])[i]})`,
-                  fillStyle: (ds.borderColor as string[])[i],
-                  strokeStyle: 'transparent',
-                  pointStyle: 'circle' as const,
-                  index: i,
-                }));
-              }
-            }
-          },
+          legend: { display: false },
           tooltip: {
             backgroundColor: NAVY_800,
             titleFont: this.baseFont(),
@@ -327,17 +312,23 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
             cornerRadius: 8,
             callbacks: {
               label: (ctx) => {
-                const pct = total ? Math.round((ctx.parsed.r / total) * 100) : 0;
-                return ` ${ctx.label}: ${ctx.parsed.r} (${pct}%)`;
+                const v = (ctx.parsed.x ?? 0) as number;
+                const pct = total ? Math.round((v / total) * 100) : 0;
+                return ` ${v} offre${v > 1 ? 's' : ''} (${pct}%)`;
               }
             }
           }
         },
         scales: {
-          r: {
-            ticks: { display: false },
+          x: {
+            beginAtZero: true,
+            ticks: { font: this.baseFont(), color: SLATE400, precision: 0 },
             grid: { color: 'rgba(0,0,0,0.04)' },
-          }
+          },
+          y: {
+            ticks: { font: { ...this.baseFont(), weight: 500 as const }, color: NAVY_800 },
+            grid: { display: false },
+          },
         },
         animation: { duration: 900, easing: 'easeOutQuart' },
       }

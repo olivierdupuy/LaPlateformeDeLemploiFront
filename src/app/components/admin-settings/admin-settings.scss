@@ -8,7 +8,6 @@
 .settings-card {
   padding: 0;
   overflow: hidden;
-  max-width: 860px;
   &:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--line); }
 }
 
@@ -19,6 +18,8 @@
   display: flex;
   align-items: center;
   gap: 1.1rem;
+  // En pleine largeur, le libelle ne doit pas s'etirer indefiniment.
+  .set-text { max-width: 78ch; }
   padding: 1.2rem 1.6rem;
   border-bottom: 1px solid var(--line);
   transition: background var(--t) var(--ease);
