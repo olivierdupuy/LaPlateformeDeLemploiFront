@@ -121,16 +121,16 @@ footer {
     flex: 1;
     min-width: 0;
     padding: 0.66rem 0.85rem;
-    background: rgba(232, 239, 250, 0.08);
-    border: 1px solid rgba(232, 239, 250, 0.18);
+    background: rgba(244, 241, 222, 0.08);
+    border: 1px solid rgba(244, 241, 222, 0.18);
     border-radius: var(--r-sm);
     color: #fff;
     font-size: 0.85rem;
     outline: none;
     transition: border-color var(--t), background var(--t);
 
-    &::placeholder { color: #7f92ad; }
-    &:focus { border-color: var(--ambre); background: rgba(232, 239, 250, 0.12); }
+    &::placeholder { color: var(--on-dark-muted); }
+    &:focus { border-color: var(--ambre); background: rgba(244, 241, 222, 0.12); }
   }
 
   button {
@@ -150,7 +150,7 @@ footer {
   display: block;
   margin-top: 0.55rem;
   font-size: 0.72rem;
-  color: #7f92ad;
+  color: var(--on-dark-muted);
 }
 
 // ── Réseaux ──
@@ -160,8 +160,8 @@ footer {
   width: 36px; height: 36px;
   border-radius: var(--r-sm);
   display: flex; align-items: center; justify-content: center;
-  background: rgba(232, 239, 250, 0.07);
-  border: 1px solid rgba(232, 239, 250, 0.12);
+  background: rgba(244, 241, 222, 0.07);
+  border: 1px solid rgba(244, 241, 222, 0.12);
   color: var(--on-plum-muted);
   font-size: 0.95rem;
   transition: color var(--t), background var(--t), border-color var(--t), transform var(--t);
@@ -200,7 +200,7 @@ footer {
 // ── Bas de page ──
 .ft-divider {
   height: 1px;
-  background: rgba(232, 239, 250, 0.12);
+  background: rgba(244, 241, 222, 0.12);
   margin: clamp(2.25rem, 5vw, 3.25rem) 0 1.5rem;
 }
 
@@ -219,13 +219,13 @@ footer {
   flex-wrap: wrap;
 }
 
-.ft-copy { font-size: 0.78rem; color: #7f92ad; }
+.ft-copy { font-size: 0.78rem; color: var(--on-dark-muted); }
 
 .ft-country {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: #7f92ad;
+  color: var(--on-dark-muted);
   i { font-size: 0.85rem; }
 
   select {
@@ -248,7 +248,7 @@ footer {
 
   a {
     font-size: 0.78rem;
-    color: #7f92ad;
+    color: var(--on-dark-muted);
     transition: color var(--t);
     &:hover { color: var(--ambre); }
   }

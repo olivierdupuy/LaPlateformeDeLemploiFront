@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +7,7 @@ import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-admin-activity',
-  imports: [DatePipe, FormsModule, ConsoleShell],
+  imports: [DatePipe, FormsModule, ConsoleShell, RouterLink],
   templateUrl: './admin-activity.html',
   styleUrl: './admin-activity.scss',
 })

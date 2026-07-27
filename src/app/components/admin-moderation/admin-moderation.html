@@ -153,9 +153,14 @@
               <div class="oc-info">
                 <h3>{{ o.title }}</h3>
                 <span class="oc-meta">
-                  <span class="oc-company">{{ o.company }}</span>
+                  <!-- Moderer une offre demande souvent de voir les
+                       autres offres du meme annonceur. -->
+                  <a class="oc-company oc-company--link" [routerLink]="['/admin/offres']"
+                     [queryParams]="{ entreprise: o.company }">{{ o.company }}</a>
                   <span class="oc-sep">·</span>{{ o.location }}
-                  <span class="oc-sep">·</span><span class="tag">{{ o.contractType }}</span>
+                  <span class="oc-sep">·</span>
+                  <a class="tag" [routerLink]="['/admin/offres']"
+                     [queryParams]="{ contrat: o.contractType }">{{ o.contractType }}</a>
                 </span>
               </div>
               <div class="oc-badges">
@@ -175,6 +180,10 @@
             <div class="oc-foot">
               <span class="oc-stat"><i class="bi bi-calendar3"></i> {{ o.createdAt | date:'dd/MM/yyyy' }}</span>
               <span class="oc-stat"><i class="bi bi-eye"></i> {{ o.viewCount }} vues</span>
+              <a class="oc-stat oc-stat--link" [routerLink]="['/admin/candidatures']"
+                 [queryParams]="{ offre: o.id }">
+                <i class="bi bi-people"></i> Candidatures reçues
+              </a>
             </div>
 
             @if (o.moderationNote) {

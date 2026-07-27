@@ -1,0 +1,95 @@
+:host { display: block; }
+
+.pg {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.9rem 0.2rem 0;
+}
+
+.pg-range {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.pg-of {
+  font-family: var(--font);
+  color: var(--muted);
+}
+
+.pg-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0 auto;
+}
+
+.pg-btn,
+.pg-num {
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  transition: border-color var(--t), background var(--t), color var(--t);
+
+  &:hover:not(:disabled) { border-color: var(--ciel); color: var(--bleu-600); }
+
+  &:disabled { opacity: 0.4; cursor: default; }
+}
+
+.pg-num {
+  font-variant-numeric: tabular-nums;
+
+  // La page courante se repere d'un coup d'oeil : c'est le seul bouton
+  // plein de la serie.
+  &.is-active {
+    background: var(--bleu-600);
+    border-color: var(--bleu-600);
+    color: #fff;
+    &:hover { color: #fff; }
+  }
+}
+
+.pg-gap {
+  width: 20px;
+  text-align: center;
+  color: var(--faint);
+}
+
+.pg-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  span {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  select {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+  }
+}
+
+@media (max-width: 700px) {
+  .pg-nav { margin: 0; order: 3; width: 100%; justify-content: center; }
+}

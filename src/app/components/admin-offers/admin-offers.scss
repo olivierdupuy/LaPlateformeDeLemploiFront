@@ -1,0 +1,219 @@
+.aof-page {
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0 4rem;
+}
+
+.mod-count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+// ── Compteurs : chaque tuile est un filtre ──
+.aof-counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
+}
+
+.aofc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  transition: border-color var(--t), box-shadow var(--t);
+
+  &:hover { border-color: var(--ciel); box-shadow: var(--shadow-xs); }
+
+  &.is-active { border-color: var(--bleu-600); }
+
+  // Une valeur sans filtre associe ne doit pas se donner l'air cliquable
+  &--static { cursor: default; &:hover { border-color: var(--line); box-shadow: none; } }
+}
+
+.aofc-val {
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.aofc-green { color: var(--green); }
+.aofc-amber { color: var(--amber); }
+.aofc-red   { color: var(--red); }
+.aofc-blue  { color: var(--blue); }
+
+.aofc-lbl {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+// ── Recherche et tri ──
+.aof-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.aof-search {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+
+  i {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.6rem 0.9rem 0.6rem 2.3rem;
+    font-size: 0.88rem;
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    transition: border-color var(--t);
+    &:focus { border-color: var(--bleu-600); outline: none; }
+  }
+}
+
+.aof-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  span {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  select {
+    padding: 0.55rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+  }
+}
+
+// ── Tableau ──
+.aof-offer {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.aof-av {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.aof-offer__txt {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.aof-title {
+  font-weight: 700;
+  color: var(--ink);
+  &:hover { color: var(--bleu-600); }
+}
+
+.aof-company {
+  font-size: 0.78rem;
+  color: var(--muted);
+  &:hover { color: var(--bleu-600); text-decoration: underline; }
+}
+
+.aof-loc {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.aof-date {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.aof-actions {
+  display: flex;
+  gap: 0.2rem;
+  justify-content: flex-end;
+}
+
+.aof-act {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs);
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition: color var(--t), background var(--t);
+  &:hover { color: var(--bleu-600); background: var(--bleu-100); }
+}
+
+// Un tag devient un filtre : il faut qu'il reagisse comme un lien
+a.tag:hover { border-color: var(--ciel); color: var(--bleu-900); }
+
+// ── Chargement d'une nouvelle page ──
+// Le tableau precedent reste lisible mais recule : remplacer la liste par
+// un spinner ferait clignoter la page a chaque changement de critere.
+.table-wrap.is-busy {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s var(--ease-out);
+}
+
+.aof-busy {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  margin-top: -6.5px;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--bleu-600);
+  border-radius: 50%;
+  animation: aof-spin 0.7s linear infinite;
+}
+
+@keyframes aof-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .aof-busy { animation-duration: 2s; }
+}

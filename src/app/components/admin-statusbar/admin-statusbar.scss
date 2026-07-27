@@ -1,0 +1,137 @@
+// ═══════════════════════════════════════════════
+//  BARRE D'ÉTAT — bandeau bas du panneau
+//  Registre technique : petit, monospace, discret.
+// ═══════════════════════════════════════════════
+
+:host {
+  display: block;
+}
+
+.sb {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 100%;
+  // Une barre d'etat de hauteur variable ferait sauter la reserve que le
+  // contenu lui laisse : elle defile plutot que de passer a la ligne.
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  padding: 0 clamp(0.8rem, 2vw, 1.4rem);
+  font-size: 0.74rem;
+  color: var(--on-dark-muted);
+  background: var(--bleu-900);
+  border-top: 1px solid rgba(244, 241, 222, 0.1);
+}
+
+.sb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+
+  i { font-size: 0.72rem; }
+  .u-mono { color: #fff; font-weight: 500; }
+}
+
+.sb-link {
+  color: var(--on-dark-muted);
+  border-radius: var(--r-xs);
+  padding: 0.15rem 0.35rem;
+  margin: 0 -0.35rem;
+  transition: color var(--t), background var(--t);
+  &:hover { color: #fff; background: rgba(244, 241, 222, 0.08); }
+}
+
+.sb-sep {
+  width: 1px;
+  height: 12px;
+  background: rgba(244, 241, 222, 0.15);
+}
+
+.sb-muted { color: var(--on-dark-muted); }
+
+.sb-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: auto;
+  padding-left: 0.55rem;
+}
+
+// ── Pastille d'état ──
+.sb-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--muted);
+}
+
+.sb-dot--online { background: var(--green); }
+
+// L'état du tuyau se lit d'abord à la couleur, le texte confirme.
+.sb-hub[data-state='online'] {
+  .sb-dot {
+    background: var(--green);
+    // Le halo ne bat que si la connexion est vivante : une pastille
+    // immobile signalerait le contraire.
+    animation: sb-pulse 2.4s ease-out infinite;
+  }
+  .sb-label { color: #fff; }
+}
+
+.sb-hub[data-state='connecting'] .sb-dot,
+.sb-hub[data-state='reconnecting'] .sb-dot {
+  background: var(--ambre);
+  animation: sb-blink 1s steps(2, start) infinite;
+}
+
+.sb-hub[data-state='offline'] {
+  .sb-dot { background: var(--rouge); }
+  .sb-label { color: var(--rouge); }
+}
+
+.sb-alert {
+  color: var(--ambre);
+  .u-mono { color: var(--ambre); }
+  &:hover { color: #fff; .u-mono { color: #fff; } }
+}
+
+.sb-env {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.12rem 0.4rem;
+  border: 1px solid rgba(244, 241, 222, 0.2);
+  border-radius: var(--r-full);
+}
+
+.sb-clock {
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes sb-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(18, 133, 94, 0.55); }
+  70%  { box-shadow: 0 0 0 6px rgba(18, 133, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(18, 133, 94, 0); }
+}
+
+@keyframes sb-blink {
+  to { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-dot { animation: none !important; }
+}
+
+// Sur petit écran l'hôte de l'API n'apporte rien au regard : il cède la
+// place à ce qui bouge, l'état du temps réel et l'heure.
+@media (max-width: 720px) {
+  .sb { font-size: 0.7rem; gap: 0.4rem; padding: 0 0.8rem; }
+  .sb-right .sb-item:first-child,
+  .sb-right .sb-item:first-child + .sb-sep { display: none; }
+}

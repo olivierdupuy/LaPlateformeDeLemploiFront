@@ -162,7 +162,7 @@
 
 .alerts-bar {
   display: flex; align-items: center; gap: 0.9rem; padding: 0.9rem 1.35rem;
-  background: var(--amber-bg); border: 1px solid #f0d8ac; border-radius: var(--r-lg);
+  background: var(--amber-bg); border: 1px solid var(--line-strong); border-radius: var(--r-lg);
   > i { color: var(--amber); font-size: 1.15rem; flex-shrink: 0; }
 }
 .alerts-text {

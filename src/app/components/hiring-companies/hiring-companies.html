@@ -1,0 +1,165 @@
+<app-console-shell space="candidat">
+  <div head>
+    <h1>Entreprises qui <span class="em">recrutent</span></h1>
+    <p class="console-head__sub">
+      Ces entreprises embauchent régulièrement dans votre métier, même sans offre publiée.
+    </p>
+  </div>
+  <div actions>
+    @if (total() > 0) {
+      <span class="hc-count u-mono">{{ total() }} entreprise{{ total() > 1 ? 's' : '' }}</span>
+    }
+  </div>
+</app-console-shell>
+
+<section class="hc-page">
+  <div class="container">
+
+    <!-- Provenance : ce n'est pas notre donnée, et cela explique ce qu'elle vaut -->
+    <div class="hc-source">
+      <i class="bi bi-broadcast" aria-hidden="true"></i>
+      <span>
+        Classement <strong>La Bonne Boite</strong> de France Travail, établi sur l'historique
+        d'embauche des entreprises — pas sur leurs annonces.
+      </span>
+    </div>
+
+    <!-- Recherche -->
+    <div class="hc-form">
+      <label class="hc-field hc-field--grow">
+        <span>Métier recherché</span>
+        <input type="text" [(ngModel)]="metier" (keydown.enter)="rechercher()"
+               placeholder="Développeur web, aide-soignant, chef de projet…"
+               aria-label="Métier recherché" />
+      </label>
+
+      <label class="hc-field">
+        <span>Ville</span>
+        <input type="text" [(ngModel)]="ville" (keydown.enter)="rechercher()"
+               placeholder="Lille, Paris…" aria-label="Ville" />
+      </label>
+
+      <label class="hc-field hc-field--narrow">
+        <span>Département</span>
+        <input type="text" inputmode="numeric" maxlength="3" [(ngModel)]="departement"
+               (keydown.enter)="rechercher()" placeholder="59" aria-label="Code département" />
+      </label>
+
+      <label class="hc-field hc-field--narrow">
+        <span>Rayon</span>
+        <select [(ngModel)]="distance" (ngModelChange)="rechercher()" aria-label="Rayon de recherche">
+          <option [value]="10">10 km</option>
+          <option [value]="30">30 km</option>
+          <option [value]="50">50 km</option>
+          <option [value]="100">100 km</option>
+        </select>
+      </label>
+
+      <button class="btn-primary hc-go" (click)="rechercher()" [disabled]="loading()">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        {{ loading() ? 'Recherche…' : 'Rechercher' }}
+      </button>
+    </div>
+
+    <!-- Métier retenu : la traduction faite par ROMEO doit être visible et corrigeable -->
+    @if (suggestions().length > 1) {
+      <div class="hc-romes">
+        <span class="hc-romes__label">Métier retenu</span>
+        @for (m of suggestions(); track m.codeRome) {
+          <button class="chip" [class.is-active]="romeChoisi()?.codeRome === m.codeRome"
+                  (click)="choisirMetier(m)" [title]="'Code ROME ' + m.codeRome">
+            {{ m.libelleRome }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (erreur(); as message) {
+      <div class="empty-box">
+        <i class="bi bi-cloud-slash" aria-hidden="true"></i>
+        <h3>Recherche impossible</h3>
+        <p>{{ message }}</p>
+      </div>
+    } @else if (demarrage()) {
+      <div class="empty-box">
+        <i class="bi bi-buildings" aria-hidden="true"></i>
+        <h3>Trouvez le marché caché</h3>
+        <p>
+          Indiquez votre métier et votre ville : nous listons les entreprises qui embauchent
+          dans ce métier, y compris celles qui ne publient jamais d'annonce.
+        </p>
+        <a routerLink="/mon-profil" class="btn-ghost">Compléter mon profil</a>
+      </div>
+    } @else if (villeNonReconnue()) {
+      <div class="empty-box">
+        <i class="bi bi-geo-alt" aria-hidden="true"></i>
+        <h3>Commune non reconnue</h3>
+        <p>
+          France Travail n'a pas identifié « {{ ville }} ». Indiquez plutôt le numéro de
+          département : la recherche y est aussi plus complète.
+        </p>
+      </div>
+    } @else if (!entreprises().length) {
+      <div class="empty-box">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <h3>Aucune entreprise trouvée</h3>
+        <p>
+          Aucune entreprise n'est référencée pour ce métier ici. Essayez le département,
+          ou un intitulé plus courant — « développeur » plutôt que « étudiant en informatique ».
+        </p>
+      </div>
+    } @else {
+      <div class="hc-grid">
+        @for (e of entreprises(); track e.id) {
+          <article class="hc-card card">
+            <div class="hc-card__top">
+              <span class="hc-logo">{{ e.company_name.charAt(0) }}</span>
+              <div class="hc-card__id">
+                <h3>{{ e.company_name }}</h3>
+                @if (e.naf_label) { <span class="hc-secteur">{{ e.naf_label }}</span> }
+              </div>
+              @if (e.is_high_potential) {
+                <span class="badge badge-red" title="Parmi les plus gros recruteurs de ce métier">
+                  <i class="bi bi-star-fill" aria-hidden="true"></i> Fort potentiel
+                </span>
+              }
+            </div>
+
+            <div class="hc-card__meta">
+              @if (e.city) {
+                <span><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ e.city }}
+                  @if (e.postcode) { ({{ e.postcode }}) }
+                </span>
+              }
+              @if (effectif(e); as taille) {
+                <span><i class="bi bi-people" aria-hidden="true"></i> {{ taille }}</span>
+              }
+              @if (contactable(e)) {
+                <span class="hc-open" title="Cette entreprise accepte d'être contactée">
+                  <i class="bi bi-envelope-check" aria-hidden="true"></i> Ouverte au contact
+                </span>
+              }
+            </div>
+
+            <div class="hc-card__actions">
+              <a [href]="ficheUrl(e)" target="_blank" rel="noopener" class="btn-primary hc-btn">
+                <i class="bi bi-send" aria-hidden="true"></i> Candidater spontanément
+              </a>
+              <a [routerLink]="['/offres']" [queryParams]="{ search: e.company_name }"
+                 class="btn-ghost hc-btn">
+                Ses offres
+              </a>
+            </div>
+          </article>
+        }
+      </div>
+
+      <p class="hc-note">
+        La candidature spontanée se fait sur la fiche France Travail de l'entreprise :
+        c'est ce qui protège ces employeurs du démarchage de masse.
+      </p>
+    }
+  </div>
+</section>

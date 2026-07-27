@@ -153,6 +153,30 @@
   }
 }
 
+// Le graphique de tendances mene a trois listes : les liens se serrent
+// derriere un separateur discret pour rester lisibles a cote du titre.
+.drill-link--multi {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  a {
+    position: relative;
+    color: inherit;
+    &:hover { color: var(--bleu-900); }
+
+    & + a::before {
+      content: '';
+      position: absolute;
+      left: -0.3rem;
+      top: 0.15em;
+      bottom: 0.15em;
+      width: 1px;
+      background: var(--line-strong);
+    }
+  }
+}
+
 .chart-ico {
   width: 30px;
   height: 30px;

@@ -1,0 +1,173 @@
+<app-console-shell space="admin">
+  <div head>
+    <h1>Toutes les <span class="em">offres</span></h1>
+    <p class="console-head__sub">Le catalogue complet, quel que soit son statut de modération.</p>
+  </div>
+  <div actions>
+    <span class="mod-count u-mono">{{ q.total() }} offre{{ q.total() > 1 ? 's' : '' }}</span>
+  </div>
+</app-console-shell>
+
+<section class="aof-page">
+  <div class="container">
+
+    <!-- Provenance du filtrage : d'où vient cette liste -->
+    @if (activeFilters().length) {
+      <div class="filter-bar animate-in">
+        <span class="filter-bar__from">Filtré sur</span>
+        @for (f of activeFilters(); track f.key) {
+          <span class="fchip">
+            <span class="fchip__key">{{ f.label }}</span>{{ f.value }}
+            <button class="fchip__x" (click)="q.setParam(f.key, null)"
+                    [attr.aria-label]="'Retirer le filtre ' + f.label">
+              <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+          </span>
+        }
+        <button class="filter-bar__clear" (click)="q.clearAll()">Tout effacer</button>
+      </div>
+    }
+
+    <!-- Compteurs : portent sur l'ensemble filtré, pas sur la page -->
+    <div class="aof-counters animate-in" style="animation-delay:.05s">
+      <button class="aofc" [class.is-active]="!activeFilters().length" (click)="q.clearAll()">
+        <span class="aofc-val u-mono">{{ q.facets().total }}</span>
+        <span class="aofc-lbl">Total</span>
+      </button>
+      <button class="aofc" (click)="q.setParam('statut', 'Approved')">
+        <span class="aofc-val u-mono aofc-green">{{ q.facets().approved }}</span>
+        <span class="aofc-lbl">Approuvées</span>
+      </button>
+      <button class="aofc" (click)="q.setParam('statut', 'Pending')">
+        <span class="aofc-val u-mono aofc-amber">{{ q.facets().pending }}</span>
+        <span class="aofc-lbl">En attente</span>
+      </button>
+      <button class="aofc" (click)="q.setParam('statut', 'Rejected')">
+        <span class="aofc-val u-mono aofc-red">{{ q.facets().rejected }}</span>
+        <span class="aofc-lbl">Rejetées</span>
+      </button>
+      <button class="aofc" (click)="q.setParam('teletravail', '1')">
+        <span class="aofc-val u-mono aofc-blue">{{ q.facets().remote }}</span>
+        <span class="aofc-lbl">Télétravail</span>
+      </button>
+      <div class="aofc aofc--static">
+        <span class="aofc-val u-mono">{{ q.facets().views }}</span>
+        <span class="aofc-lbl">Vues cumulées</span>
+      </div>
+    </div>
+
+    <!-- Recherche et tri -->
+    <div class="aof-tools animate-in" style="animation-delay:.1s">
+      <div class="aof-search">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input type="search" [ngModel]="search" (ngModelChange)="search = $event"
+               placeholder="Titre, entreprise ou lieu…" aria-label="Rechercher dans les offres" />
+        @if (q.loading()) { <span class="aof-busy" aria-hidden="true"></span> }
+      </div>
+      <label class="aof-sort">
+        <span>Trier par</span>
+        <select [ngModel]="sort" (ngModelChange)="sort = $event" aria-label="Trier les offres">
+          <option value="recent">Plus récentes</option>
+          <option value="views">Plus vues</option>
+          <option value="title">Titre</option>
+          <option value="company">Entreprise</option>
+        </select>
+      </label>
+    </div>
+
+    @if (q.failed()) {
+      <div class="empty-box animate-in">
+        <i class="bi bi-exclamation-triangle"></i>
+        <h3>Chargement impossible</h3>
+        <p>La liste des offres n'a pas pu être récupérée. Réessayez dans un instant.</p>
+      </div>
+    } @else if (q.loading() && !q.items().length) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (!q.items().length) {
+      <div class="empty-box animate-in">
+        <i class="bi bi-inbox"></i>
+        <h3>Aucune offre</h3>
+        <p>Aucune offre ne correspond à ces critères.</p>
+        @if (activeFilters().length) {
+          <button class="btn-ghost" (click)="q.clearAll()">Effacer les filtres</button>
+        }
+      </div>
+    } @else {
+      <div class="table-wrap animate-in" [class.is-busy]="q.loading()" style="animation-delay:.15s">
+        <table class="data">
+          <thead>
+            <tr>
+              <th>Offre</th>
+              <th>Catégorie</th>
+              <th>Contrat</th>
+              <th>Lieu</th>
+              <th>Statut</th>
+              <th class="ta-r">Vues</th>
+              <th>Publiée</th>
+              <th><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (o of q.items(); track o.id) {
+              <tr>
+                <td>
+                  <div class="aof-offer">
+                    <span class="aof-av" [style.background]="companyColor(o.company).bg">
+                      <span [style.color]="companyColor(o.company).fg">{{ o.company.charAt(0) }}</span>
+                    </span>
+                    <span class="aof-offer__txt">
+                      <a [routerLink]="['/offres', o.id]" class="aof-title">{{ o.title }}</a>
+                      <!-- L'entreprise renvoie a ses autres offres : c'est
+                           la question qui suit toujours une ligne du tableau. -->
+                      <a class="aof-company" [routerLink]="['/admin/offres']"
+                         [queryParams]="{ entreprise: o.company }">{{ o.company }}</a>
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  <a class="tag" [routerLink]="['/admin/offres']" [queryParams]="{ categorie: o.category }">{{ o.category }}</a>
+                </td>
+                <td>
+                  <a class="tag" [routerLink]="['/admin/offres']" [queryParams]="{ contrat: o.contractType }">{{ o.contractType }}</a>
+                </td>
+                <td class="aof-loc">
+                  {{ o.location }}
+                  @if (o.isRemote) { <span class="badge badge-blue">Télétravail</span> }
+                </td>
+                <td>
+                  <span class="badge"
+                    [class.badge-green]="o.moderationStatus === 'Approved'"
+                    [class.badge-red]="o.moderationStatus === 'Rejected'"
+                    [class.badge-yellow]="(o.moderationStatus || 'Pending') === 'Pending'">
+                    {{ moderationLabel(o.moderationStatus) }}
+                  </span>
+                </td>
+                <td class="ta-r u-mono">{{ o.viewCount || 0 }}</td>
+                <td class="u-mono aof-date">{{ o.createdAt | date:'dd/MM/yy' }}</td>
+                <td>
+                  <div class="aof-actions">
+                    <a [routerLink]="['/admin/candidatures']" [queryParams]="{ offre: o.id }"
+                       class="aof-act" title="Candidatures reçues sur cette offre">
+                      <i class="bi bi-people" aria-hidden="true"></i>
+                    </a>
+                    <a [routerLink]="['/admin/moderation']" class="aof-act" title="Modérer">
+                      <i class="bi bi-check2-square" aria-hidden="true"></i>
+                    </a>
+                    <a [routerLink]="['/offres', o.id]" class="aof-act" title="Voir l'offre publiée">
+                      <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <app-pager
+        [page]="q.page()" [pageCount]="q.pageCount()" [range]="q.range()"
+        [total]="q.total()" [pageSize]="q.pageSize()" label="offres"
+        (pageChange)="q.setPage($event)" (pageSizeChange)="q.setPageSize($event)" />
+    }
+  </div>
+</section>

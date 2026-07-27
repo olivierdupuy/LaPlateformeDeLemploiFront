@@ -26,20 +26,22 @@ export function getContractBadgeClass(type: string): string {
 /**
  * Pastilles d'initiales (entreprises, candidats).
  *
- * L'ancienne version balayait les 360° de la roue chromatique : on
- * obtenait des pastilles vertes ou roses en pleine identité bleue.
- * On tire désormais dans une palette fermée, dérivée de la mascotte —
- * assez de variété pour distinguer deux cartes voisines, sans sortir
- * de la charte.
+ * Une première version balayait les 360° de la roue chromatique et
+ * produisait des pastilles vertes ou roses au milieu de la charte. On
+ * tire désormais dans une palette fermée.
+ *
+ * Avec trois couleurs seulement, la variété vient de l'intensité plutôt
+ * que de la teinte : six degrés d'ardoise et deux de terracotta suffisent
+ * à distinguer deux cartes voisines sans jamais sortir de la gamme.
  */
 const AVATAR_PALETTE: ReadonlyArray<{ bg: string; fg: string }> = [
-  { bg: '#e4eefd', fg: '#13489f' }, // bleu roi
-  { bg: '#e7eef8', fg: '#33445f' }, // ardoise
-  { bg: '#fdf1d9', fg: '#8a5804' }, // ambre
-  { bg: '#dff1fa', fg: '#12688c' }, // cyan
-  { bg: '#fde8e8', fg: '#a91a1e' }, // rouge
-  { bg: '#e3f5ed', fg: '#0b6b4a' }, // vert
-  { bg: '#e9e6f9', fg: '#4b3fa8' }, // indigo
+  { bg: '#e7e8ee', fg: '#3d405b' }, // ardoise claire
+  { bg: '#cbcdd9', fg: '#2c2e44' }, // ardoise moyenne
+  { bg: '#f9e5de', fg: '#a44e30' }, // terracotta clair
+  { bg: '#ebe7d2', fg: '#55587a' }, // crème sombre
+  { bg: '#d8dae4', fg: '#343750' }, // ardoise pâle
+  { bg: '#f2d9cf', fg: '#c8623f' }, // terracotta pâle
+  { bg: '#dedbc8', fg: '#4a4e6d' }, // crème grisée
 ];
 
 export function companyColor(name: string): { bg: string; fg: string } {

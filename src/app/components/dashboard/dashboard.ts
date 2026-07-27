@@ -1,35 +1,47 @@
 import { Component, OnInit, inject, signal, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { JobOfferService } from '../../services/job-offer';
 import { JobStats, DetailedStats } from '../../models/job-offer.model';
+import { Router, RouterLink } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { drilldown, to } from '../../utils/chart-drilldown';
 
-// App palette — Clean SaaS identity
-const TEAL     = '#1657c4'; // brand (evergreen)
-const TEAL_400 = '#5b96ec'; // brand-400
-const TEAL_50  = 'rgba(22, 87, 196, 0.07)'; // brand-tint
-const NAVY_800 = '#0c1b33'; // ink
-const NAVY_700 = '#33445f'; // ink-soft
-const AMBER    = '#b57408';
-const GREEN    = '#12855e';
-const RED      = '#e42b2f';
-const BLUE     = '#93bcf4';
-const SLATE400 = '#5a6b85'; // muted
-const ORANGE   = '#e07a20';
+// Palette : creme, terracotta, ardoise.
+// Une rampe d'ardoise porte l'ordre des series ; le terracotta reste
+// reserve au negatif, sinon il perdrait sa valeur de signal.
+const ARDOISE     = '#3d405b';
+const ARDOISE_900 = '#2c2e44';
+const ARDOISE_600 = '#4a4e6d';
+const ARDOISE_500 = '#5d6285';
+const ARDOISE_400 = '#8085a3';
+const ARDOISE_300 = '#a8abc1';
+const ARDOISE_200 = '#cbcdd9';
+const ARDOISE_50  = 'rgba(61, 64, 91, 0.08)';
+const TERRE       = '#e07a5f';
+const TERRE_700   = '#a44e30';
+const CREME       = '#f4f1de';
+const GRIS        = '#6f7391';
 
-const STATUS_COLORS: Record<string, string> = { Pending: AMBER, Reviewed: BLUE, Accepted: GREEN, Rejected: RED };
+// Alias conserves pour ne pas reecrire chaque graphique
+const TEAL = ARDOISE, TEAL_400 = ARDOISE_400, TEAL_50 = ARDOISE_50;
+const NAVY_800 = ARDOISE, NAVY_700 = ARDOISE_500;
+const AMBER = TERRE_700, GREEN = ARDOISE, RED = TERRE, BLUE = ARDOISE_400;
+const SLATE400 = GRIS, ORANGE = TERRE_700;
+
+const STATUS_COLORS: Record<string, string> = { Pending: ARDOISE_200, Reviewed: ARDOISE_400, Accepted: ARDOISE, Rejected: TERRE };
 const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' };
 
-const CATEGORY_PALETTE = [TEAL, NAVY_800, AMBER, BLUE, GREEN, ORANGE, TEAL_400, NAVY_700, RED, SLATE400];
+const CATEGORY_PALETTE = [ARDOISE, ARDOISE_900, ARDOISE_500, ARDOISE_400, ARDOISE_300, TERRE, TERRE_700, ARDOISE_200, GRIS, ARDOISE_600];
 
 @Component({
   selector: 'app-dashboard',
-  imports: [ConsoleShell],
+  imports: [ConsoleShell, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private jobService = inject(JobOfferService);
+  private router = inject(Router);
 
   stats = signal<JobStats>({ totalOffers: 0, totalApplications: 0, totalCompanies: 0, remoteOffers: 0 });
   detailed = signal<DetailedStats | null>(null);
@@ -109,6 +121,11 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
+        // Le libelle affiche est deja la valeur attendue par le filtre,
+        // mais on passe par la donnee source : elle ne depend pas de la
+        // mise en forme du graphique.
+        ...drilldown(this.router, (i) =>
+          to(['/admin/offres'], { categorie: d.offersByCategory[i].label })),
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -154,7 +171,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
           data,
           backgroundColor: colors,
           borderWidth: 3,
-          borderColor: '#ffffff',
+          borderColor: CREME,
           hoverOffset: 6,
         }],
       },
@@ -162,6 +179,10 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         cutout: '68%',
+        // Le libelle est traduit pour l'affichage ; le filtre attend le
+        // statut brut, qu'on relit dans la donnee source.
+        ...drilldown(this.router, (i) =>
+          to(['/admin/candidatures'], { statut: d.appsByStatus[i].label })),
         plugins: {
           legend: {
             position: 'right',
@@ -209,7 +230,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
           c.textAlign = 'center';
           c.textBaseline = 'middle';
           c.font = "700 1.6rem 'Bricolage Grotesque', sans-serif";
-          c.fillStyle = NAVY_800;
+          c.fillStyle = ARDOISE;
           c.fillText(String(total), cx, cy - 8);
           c.font = "500 0.72rem 'DM Mono', monospace";
           c.fillStyle = SLATE400;
@@ -247,6 +268,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
+        ...drilldown(this.router, (i) =>
+          to(['/admin/offres'], { entreprise: d.topCompanies[i].label })),
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -302,6 +325,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         indexAxis: 'y' as const,
         responsive: true,
         maintainAspectRatio: false,
+        ...drilldown(this.router, (i) =>
+          to(['/admin/offres'], { contrat: d.offersByContract[i].label })),
         plugins: {
           legend: { display: false },
           tooltip: {

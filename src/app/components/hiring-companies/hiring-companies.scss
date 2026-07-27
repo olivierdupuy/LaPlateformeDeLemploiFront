@@ -1,0 +1,182 @@
+.hc-page {
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0 4rem;
+}
+
+.hc-count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+// ── Provenance ──
+.hc-source {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.2rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+
+  i { color: var(--rouge); margin-top: 0.15rem; flex-shrink: 0; }
+}
+
+// ── Recherche ──
+.hc-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.hc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 160px;
+
+  &--grow { flex: 1; min-width: 260px; }
+  &--narrow { min-width: 110px; }
+
+  > span {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  input, select {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    transition: border-color var(--t);
+    &:focus { border-color: var(--bleu-600); outline: none; }
+  }
+}
+
+.hc-go { height: 42px; }
+
+// ── Métier retenu ──
+// La traduction de l'intitule en metier ROME est une interpretation :
+// elle doit se voir, et se corriger d'un clic.
+.hc-romes {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.4rem;
+}
+
+.hc-romes__label {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-right: 0.15rem;
+}
+
+// ── Résultats ──
+.hc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 0.9rem;
+}
+
+.hc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.15rem 1.25rem;
+}
+
+.hc-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.hc-logo {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--bleu-700);
+  background: var(--bleu-100);
+}
+
+.hc-card__id {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+}
+
+.hc-secteur {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.hc-card__meta {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--muted);
+
+  i { margin-right: 0.25rem; }
+}
+
+.hc-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+}
+
+.hc-btn {
+  flex: 1;
+  min-width: 130px;
+  justify-content: center;
+  font-size: 0.82rem;
+  padding: 0.5rem 0.7rem;
+}
+
+.hc-note {
+  margin-top: 1.4rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  max-width: 70ch;
+}
+
+// Une entreprise « ouverte au contact » est la seule qu'on peut demarcher :
+// l'information appartient a la ligne de faits, pas aux decorations.
+.hc-open {
+  color: var(--bleu-700);
+  font-weight: 600;
+}

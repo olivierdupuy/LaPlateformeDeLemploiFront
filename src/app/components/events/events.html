@@ -17,10 +17,23 @@
 
 <section class="ev-page">
   <div class="container">
-    <div class="tabs ev-tabs animate-in" role="tablist" aria-label="Période">
-      <button class="tab" role="tab" [class.is-active]="!past()" [attr.aria-selected]="!past()" (click)="setPast(false)">À venir</button>
-      <button class="tab" role="tab" [class.is-active]="past()" [attr.aria-selected]="past()" (click)="setPast(true)">Passés</button>
+    <div class="tabs ev-tabs animate-in" role="tablist" aria-label="Source et période">
+      <button class="tab" role="tab" [class.is-active]="source() === 'nous' && !past()"
+              [attr.aria-selected]="source() === 'nous' && !past()"
+              (click)="source.set('nous'); setPast(false)">À venir</button>
+      <button class="tab" role="tab" [class.is-active]="source() === 'nous' && past()"
+              [attr.aria-selected]="source() === 'nous' && past()"
+              (click)="source.set('nous'); setPast(true)">Passés</button>
+      <button class="tab" role="tab" [class.is-active]="source() === 'francetravail'"
+              [attr.aria-selected]="source() === 'francetravail'"
+              (click)="source.set('francetravail')">
+        <i class="bi bi-broadcast" aria-hidden="true"></i> France Travail
+      </button>
     </div>
+
+    @if (source() === 'francetravail') {
+      <app-ft-events />
+    } @else {
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
@@ -66,6 +79,7 @@
         }
       </div>
     }
+      }
   </div>
 </section>
 

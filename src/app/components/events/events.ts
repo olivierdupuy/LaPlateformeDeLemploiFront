@@ -4,11 +4,12 @@ import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { EventService, JobEvent } from '../../services/event.service';
+import { FtEvents } from '../ft-events/ft-events';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-events',
-  imports: [FormsModule, DatePipe, RouterLink],
+  imports: [FormsModule, DatePipe, RouterLink, FtEvents],
   templateUrl: './events.html',
   styleUrl: './events.scss',
 })
@@ -20,6 +21,13 @@ export class Events implements OnInit {
   events = signal<JobEvent[]>([]);
   loading = signal(true);
   past = signal(false);
+
+  /**
+   * Deux sources cohabitent : nos evenements et ceux de France Travail.
+   * Les melanger serait trompeur — on ne modere pas les seconds — donc
+   * un onglet les separe.
+   */
+  source = signal<'nous' | 'francetravail'>('nous');
 
   modalOpen = signal(false);
   submitting = signal(false);

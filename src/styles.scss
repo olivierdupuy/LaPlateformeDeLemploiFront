@@ -2,65 +2,80 @@
 
 /* ═══════════════════════════════════════════════════════════
    LA PLATEFORME DE L'EMPLOI
-   Palette et typographie derivees de la mascotte :
-   bleu roi du casque et des baskets, rouge du reperage,
-   ambre du dossier, blanc de l'ecran.
+   Palette : creme, terracotta, ardoise.
+
+     #f4f1de  creme      — le sol, la couleur qu'on voit le plus
+     #e07a5f  terracotta — l'accent, rare et donc efficace
+     #3d405b  ardoise    — la structure : texte, chrome, appuis
+
+   Le fond n'est plus blanc mais creme : c'est lui qui donne le ton, et
+   les surfaces posees dessus sont d'un blanc legerement rechauffe pour
+   ne pas trancher. Le terracotta ne sert qu'a designer — mot en
+   evidence, etat actif, refus — car repandu partout il cesserait
+   d'attirer l'oeil.
+
+   Les noms --bleu-* et --rouge-* sont conserves : trente-sept
+   composants s'y referent, et ce sont des roles (structure, accent) que
+   les nouvelles teintes reprennent telles quelles.
+
    Display Fredoka (la fonte du logo) · UI Nunito Sans · Data DM Mono
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Bleu roi (marque) — casquette, chaussures, wordmark ── */
-  --bleu-950: #071e45;
-  --bleu-900: #0a2a5e;   /* chrome sombre : pied de page, bandeaux */
-  --bleu-800: #0f3d87;
-  --bleu-700: #13489f;
-  --bleu-600: #1657c4;   /* couleur de marque */
-  --bleu-500: #2e74e0;
-  --bleu-400: #5b96ec;
-  --bleu-300: #93bcf4;
-  --bleu-200: #c3dbfa;
-  --bleu-100: #e4eefd;
-  --bleu-tint: rgba(22, 87, 196, 0.07);
-  --bleu-ring: rgba(22, 87, 196, 0.24);
+  /* ── Ardoise (structure) — texte, chrome sombre, appuis ── */
+  --bleu-950: #24263a;
+  --bleu-900: #2c2e44;   /* chrome sombre : barre laterale, pied de page */
+  --bleu-800: #343750;
+  --bleu-700: #3d405b;   /* ardoise de reference */
+  --bleu-600: #4a4e6d;   /* couleur de marque */
+  --bleu-500: #5d6285;
+  --bleu-400: #8085a3;
+  --bleu-300: #a8abc1;
+  --bleu-200: #cbcdd9;
+  --bleu-100: #e7e8ee;
+  --bleu-tint: rgba(61, 64, 91, 0.06);
+  --bleu-ring: rgba(61, 64, 91, 0.24);
 
-  /* ── Rouge (accent) — epingle de carte, « de l'emploi » ── */
-  --rouge: #e42b2f;
-  --rouge-600: #c81f24;
-  --rouge-700: #a91a1e;
-  --rouge-100: #fde8e8;
+  /* ── Terracotta (accent, negatif) ── */
+  --rouge: #e07a5f;
+  --rouge-600: #c8623f;
+  --rouge-700: #a44e30;
+  --rouge-100: #f9e5de;
 
-  /* ── Ambre (tertiaire) — le dossier de candidature ── */
-  --ambre: #f0a11b;
-  --ambre-600: #d18709;
-  --ambre-100: #fdf1d9;
+  /* L'ambre se fond dans le terracotta, dont il n'etait qu'une nuance. */
+  --ambre: var(--rouge);
+  --ambre-600: var(--rouge-600);
+  --ambre-100: var(--rouge-100);
 
-  /* ── Ciel — le verre de la loupe ── */
-  --ciel: #bbd9f7;
+  --ciel: #d6d3c0;
 
-  /* ── Neutres froids — l'ecran et les gants ── */
-  --canvas: #ffffff;
-  --nuage: #f4f7fc;      /* surface alternee */
-  --nuage-2: #e7eef8;
-  --nuage-3: #d9e3f2;
+  /* ── Neutres chauds — la creme et ses degres ── */
+  --canvas: #fffdf7;     /* surfaces posees sur la creme */
+  --nuage: #f4f1de;      /* creme : le sol */
+  --nuage-2: #ebe7d2;
+  --nuage-3: #ddd8c2;
 
-  --ink: #0c1b33;
-  --ink-soft: #33445f;
-  --muted: #5a6b85;
-  --faint: #8e9cb2;
-  --on-dark: #e8effa;
-  --on-dark-muted: #9fb2cd;
+  --ink: #3d405b;
+  --ink-soft: #55587a;
+  --muted: #6f7391;
+  --faint: #9a9db4;
+  --on-dark: #f4f1de;
+  --on-dark-muted: #a8abc1;
 
-  --line: #dde5f1;
-  --line-strong: #c6d2e4;
-  --line-dark: rgba(232, 239, 250, 0.16);
+  --line: #e3dfcb;
+  --line-strong: #d0cbb4;
+  --line-dark: rgba(244, 241, 222, 0.16);
 
-  /* ── Statuts semantiques ── */
-  --green: #12855e;  --green-bg: #e3f5ed;
-  --red: var(--rouge); --red-bg: var(--rouge-100);
-  --amber: #b57408;  --amber-bg: var(--ambre-100);
-  --blue: var(--bleu-600); --blue-bg: var(--bleu-100);
-  --purple: #6b47c9; --purple-bg: #ece6fa;
-  --orange: #e07a20; --orange-light: #fdefe0;
+  /* ── Statuts ──
+     Trois teintes seulement : l'echelle se lit au remplissage. Contour
+     pour l'attente, aplat clair pour l'intermediaire, ardoise pleine
+     pour l'aboutissement, terracotta pour le refus. */
+  --green: var(--bleu-700);   --green-bg: var(--bleu-100);
+  --red: var(--rouge);        --red-bg: var(--rouge-100);
+  --amber: var(--rouge-700);  --amber-bg: var(--rouge-100);
+  --blue: var(--bleu-500);    --blue-bg: var(--bleu-100);
+  --purple: var(--bleu-700);  --purple-bg: var(--bleu-100);
+  --orange: var(--rouge-600); --orange-light: var(--rouge-100);
 
   /* ── Alias de compatibilite (anciens noms → nouvelles valeurs) ── */
   --brand: var(--bleu-600);
@@ -105,8 +120,8 @@
   --plum-900: var(--bleu-900);
   --plum-800: var(--bleu-800);
   --plum-700: var(--bleu-700);
-  --plum-600: #1c5fb0;
-  --plum-500: #3b7ac6;
+  --plum-600: var(--bleu-600);
+  --plum-500: var(--bleu-500);
 
   --on-plum: var(--on-dark);
   --on-plum-muted: var(--on-dark-muted);
@@ -141,14 +156,16 @@
   --border: var(--line);
   --border-hover: var(--line-strong);
 
-  /* ── Ombres (teintees bleu) ── */
-  --shadow-xs: 0 1px 2px rgba(12, 27, 51, 0.05);
-  --shadow-sm: 0 1px 2px rgba(12, 27, 51, 0.05), 0 2px 6px rgba(12, 27, 51, 0.04);
-  --shadow-md: 0 2px 4px rgba(12, 27, 51, 0.05), 0 8px 20px -6px rgba(12, 27, 51, 0.1);
-  --shadow-lg: 0 4px 8px rgba(12, 27, 51, 0.05), 0 18px 36px -12px rgba(12, 27, 51, 0.15);
-  --shadow-xl: 0 8px 16px rgba(12, 27, 51, 0.07), 0 32px 60px -16px rgba(12, 27, 51, 0.22);
-  --shadow-brand: 0 8px 22px -6px rgba(22, 87, 196, 0.42);
-  --shadow-citron: 0 8px 22px -8px rgba(228, 43, 47, 0.5);
+  /* ── Ombres (teintees ardoise) ──
+     Une ombre grise sur un fond creme le ternit : elles portent donc la
+     teinte de l'ardoise, qui reste dans la meme famille chaude. */
+  --shadow-xs: 0 1px 2px rgba(61, 64, 91, 0.06);
+  --shadow-sm: 0 1px 2px rgba(61, 64, 91, 0.06), 0 2px 6px rgba(61, 64, 91, 0.05);
+  --shadow-md: 0 2px 4px rgba(61, 64, 91, 0.06), 0 8px 20px -6px rgba(61, 64, 91, 0.12);
+  --shadow-lg: 0 4px 8px rgba(61, 64, 91, 0.06), 0 18px 36px -12px rgba(61, 64, 91, 0.16);
+  --shadow-xl: 0 8px 16px rgba(61, 64, 91, 0.08), 0 32px 60px -16px rgba(61, 64, 91, 0.24);
+  --shadow-brand: 0 8px 22px -6px rgba(61, 64, 91, 0.38);
+  --shadow-citron: 0 8px 22px -8px rgba(224, 122, 95, 0.5);
 
   /* ── Rayons — plutot ronds, comme la mascotte ── */
   --r-xs: 6px;
@@ -200,7 +217,7 @@ body {
   font-size: 15px;
   line-height: 1.6;
   color: var(--ink);
-  background: var(--bone);
+  background: var(--nuage);
   overflow-x: hidden;
   letter-spacing: -0.005em;
 }
@@ -278,6 +295,8 @@ h3, h4, h5, h6 {
 .eyebrow--bare::before { display: none; }
 
 .u-mono { font-family: var(--font-mono); letter-spacing: -0.02em; }
+/* Les nombres d'un tableau se comparent alignés à droite. */
+.ta-r { text-align: right; }
 .u-muted { color: var(--muted); }
 .u-num { font-family: var(--font-mono); font-weight: 500; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
 
@@ -456,7 +475,7 @@ h3, h4, h5, h6 {
    manque de contraste : blanc + rouge eclairci. */
 .brand-lockup--dark .brand-lockup__word {
   b { color: #fff; }
-  span { color: #ff8a8d; }
+  span { color: var(--rouge); }
 }
 
 /* Lien de retour (pages de détail) */
@@ -590,9 +609,9 @@ h3, h4, h5, h6 {
   @extend %btn-base;
   background: var(--red);
   color: #fff;
-  &:hover { background: #b02b36; transform: translateY(-1px); }
+  &:hover { background: var(--rouge-600); transform: translateY(-1px); }
 }
-.btn-green { @extend %btn-base; background: var(--green); color: #fff; &:hover { background: #0c7350; } }
+.btn-green { @extend %btn-base; background: var(--green); color: #fff; &:hover { background: var(--bleu-800); } }
 
 .btn-sm { padding: 0.46rem 0.85rem; font-size: 0.81rem; i { font-size: 0.9rem; } }
 .btn-lg { padding: 0.9rem 1.7rem; font-size: 0.95rem; }
@@ -695,15 +714,27 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   border-radius: var(--r-full);
   white-space: nowrap;
 }
-.badge-green, .badge-coral { background: var(--green-bg); color: #0b6b4a; }
-.badge-blue, .badge-indigo { background: var(--blue-bg); color: var(--blue); }
-.badge-red, .badge-urgent { background: var(--red-bg); color: var(--red); }
-.badge-yellow { background: var(--amber-bg); color: var(--amber); }
-.badge-purple, .badge-easy { background: var(--violet-100); color: var(--violet-700); }
-.badge-star { background: var(--citron-soft); color: var(--citron-ink); }
-.badge-fill { background: var(--violet); color: #fff; }
-.badge-sponsored { background: var(--brume-2); color: var(--muted); }
-.badge-plum { background: var(--plum-800); color: var(--on-plum); }
+/* L'echelle des etats se lit au remplissage plutot qu'a la teinte :
+   contour discret pour l'attente, aplat clair pour l'intermediaire,
+   ardoise pleine pour l'aboutissement, terracotta pour le refus. */
+.badge-green, .badge-coral {
+  background: var(--bleu-700); color: var(--nuage);
+}
+.badge-blue, .badge-indigo {
+  background: var(--bleu-100); color: var(--bleu-700);
+}
+.badge-red, .badge-urgent {
+  background: var(--rouge); color: #fff;
+}
+.badge-yellow {
+  background: var(--canvas); color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+.badge-purple, .badge-easy { background: var(--bleu-100); color: var(--bleu-700); }
+.badge-star { background: var(--rouge-100); color: var(--rouge-700); }
+.badge-fill { background: var(--bleu-700); color: var(--nuage); }
+.badge-sponsored { background: var(--nuage-2); color: var(--muted); }
+.badge-plum { background: var(--bleu-800); color: var(--on-dark); }
 
 .tag {
   display: inline-block;
@@ -795,6 +826,58 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
     &:hover { color: var(--ink); }
     &.is-active { background: var(--canvas); color: var(--ink); box-shadow: var(--shadow-xs); }
   }
+}
+
+/* ═══════════════ Forage : jetons de filtre ═══════════════ */
+/* Une liste ouverte depuis un graphique doit dire pourquoi elle est
+   filtrée. Les jetons portent le critère et le défont un par un. */
+.filter-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+.filter-bar__from {
+  font-family: var(--font-mono); font-size: 0.58rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted);
+}
+.fchip {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.35rem 0.45rem 0.35rem 0.75rem;
+  font-size: 0.8rem; font-weight: 600; color: var(--bleu-900);
+  background: var(--bleu-100);
+  border: 1px solid var(--ciel);
+  border-radius: var(--r-full);
+}
+.fchip__key {
+  font-family: var(--font-mono); font-size: 0.56rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.65;
+}
+.fchip__x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  font-size: 0.62rem; color: var(--bleu-900);
+  transition: background var(--t), color var(--t);
+  &:hover { background: var(--rouge); color: #fff; }
+}
+.filter-bar__clear {
+  font-size: 0.78rem; font-weight: 600; color: var(--muted);
+  text-decoration: underline; text-underline-offset: 3px;
+  &:hover { color: var(--rouge); }
+}
+
+/* Équivalent clavier du clic sur un graphique : un canevas n'est pas
+   atteignable au clavier, chaque forage a donc son lien dans l'en-tête. */
+.drill-link {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.76rem; font-weight: 600; color: var(--bleu-600);
+  white-space: nowrap;
+  transition: color var(--t);
+  i { font-size: 0.7rem; transition: transform var(--t); }
+  &:hover { color: var(--bleu-900); i { transform: translateX(2px); } }
+}
+.drill-hint {
+  display: block; margin-top: 0.5rem;
+  font-size: 0.72rem; color: var(--muted);
 }
 
 /* ═══════════════ Sections ═══════════════ */
@@ -949,8 +1032,8 @@ table.data {
   .toast-progress { height: 3px !important; }
 
   &.toast-success { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--citron) !important; .toast-progress { background: var(--citron) !important; } }
-  &.toast-error   { background: var(--plum-900) !important; color: #fff !important; border-left-color: #f2707c !important; .toast-progress { background: #f2707c !important; } }
-  &.toast-warning { background: var(--plum-900) !important; color: #fff !important; border-left-color: #f0b429 !important; .toast-progress { background: #f0b429 !important; } }
+  &.toast-error   { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--rouge) !important; .toast-progress { background: var(--rouge) !important; } }
+  &.toast-warning { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--rouge-600) !important; .toast-progress { background: var(--rouge-600) !important; } }
   &.toast-info    { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--violet-300) !important; .toast-progress { background: var(--violet-300) !important; } }
 }
 

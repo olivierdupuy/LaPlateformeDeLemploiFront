@@ -53,14 +53,28 @@
               </div>
               <div class="tl-body card">
                 <div class="tl-head">
-                  <strong class="tl-user">{{ log.userName }}</strong>
+                  <!-- L'auteur d'une action mene a sa fiche : c'est la
+                       premiere question que pose une ligne de journal. -->
+                  <a class="tl-user" [routerLink]="['/admin/utilisateurs']"
+                     [queryParams]="{ q: log.userName }">{{ log.userName }}</a>
                   <span class="badge tl-action-badge">{{ log.action }}</span>
                   <span class="tl-time u-mono">{{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
                 <p class="tl-detail">{{ log.details }}</p>
-                @if (log.ipAddress) {
-                  <span class="tl-ip u-mono"><i class="bi bi-globe2"></i> {{ log.ipAddress }}</span>
-                }
+                <div class="tl-foot">
+                  @if (log.entityType === 'JobOffer' && log.entityId) {
+                    <a class="tl-entity" [routerLink]="['/offres', log.entityId]">
+                      <i class="bi bi-briefcase"></i> Voir l'offre concernée
+                    </a>
+                  } @else if (log.entityType === 'Application') {
+                    <a class="tl-entity" [routerLink]="['/admin/candidatures']">
+                      <i class="bi bi-file-earmark-text"></i> Voir les candidatures
+                    </a>
+                  }
+                  @if (log.ipAddress) {
+                    <span class="tl-ip u-mono"><i class="bi bi-globe2"></i> {{ log.ipAddress }}</span>
+                  }
+                </div>
               </div>
             </div>
           }

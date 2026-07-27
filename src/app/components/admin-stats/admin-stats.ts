@@ -1,29 +1,39 @@
 import { Component, OnInit, OnDestroy, inject, signal, ElementRef, ViewChild } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { JobOfferService } from '../../services/job-offer';
 import Chart from 'chart.js/auto';
 import * as L from 'leaflet';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { drilldown, to } from '../../utils/chart-drilldown';
+import { toIsoDay } from '../../utils/day-filter';
 
-// ── Palette app (identité Clean SaaS) ──
-const TEAL = '#1657c4';        // brand evergreen
-const TEAL_400 = '#5b96ec';    // brand-400
-const TEAL_600 = '#0f3d87';    // brand-700
-const TEAL_50 = 'rgba(22,87,196,0.10)';
-const NAVY_950 = '#071e45';
-const NAVY_900 = '#0c1b33';    // ink
-const NAVY_800 = '#0f3d87';
-const NAVY_700 = '#33445f';
-const AMBER = '#b57408';
-const GREEN = '#12855e';
-const RED = '#e42b2f';
-const BLUE = '#93bcf4';
-const ORANGE = '#e07a20';
-const SLATE400 = '#8e9cb2';     // faint
-const SLATE200 = '#dde5f1';     // line
+// ── Palette : creme, terracotta, ardoise ──
+// La rampe d'ardoise porte l'ordre ; le terracotta signale le negatif.
+const ARDOISE = '#3d405b';
+const ARDOISE_900 = '#2c2e44';
+const ARDOISE_800 = '#343750';
+const ARDOISE_600 = '#4a4e6d';
+const ARDOISE_500 = '#5d6285';
+const ARDOISE_400 = '#8085a3';
+const ARDOISE_300 = '#a8abc1';
+const ARDOISE_200 = '#cbcdd9';
+const ARDOISE_50 = 'rgba(61, 64, 91, 0.10)';
+const TERRE = '#e07a5f';
+const TERRE_600 = '#c8623f';
+const TERRE_700 = '#a44e30';
+const CREME = '#f4f1de';
+const GRIS = '#6f7391';
+const LIGNE = '#e3dfcb';
 
-const MULTI = [TEAL, NAVY_800, AMBER, BLUE, GREEN, ORANGE, TEAL_400, RED, NAVY_700, SLATE400, TEAL_600, '#6b47c9', '#f0a11b'];
-const STATUS_COLORS: Record<string, string> = { Pending: AMBER, Reviewed: BLUE, Accepted: GREEN, Rejected: RED };
+// Alias conserves pour ne pas reecrire les dix-sept graphiques
+const TEAL = ARDOISE, TEAL_400 = ARDOISE_400, TEAL_600 = ARDOISE_600, TEAL_50 = ARDOISE_50;
+const NAVY_950 = '#24263a', NAVY_900 = ARDOISE, NAVY_800 = ARDOISE_800, NAVY_700 = ARDOISE_500;
+const AMBER = TERRE_700, GREEN = ARDOISE, RED = TERRE, BLUE = ARDOISE_400, ORANGE = TERRE_600;
+const SLATE400 = '#9a9db4', SLATE200 = LIGNE;
+
+const MULTI = [ARDOISE, ARDOISE_900, ARDOISE_500, ARDOISE_400, ARDOISE_300, TERRE, TERRE_700, ARDOISE_200, GRIS, ARDOISE_600, ARDOISE_800, TERRE_600, '#c3c5d2'];
+const STATUS_COLORS: Record<string, string> = { Pending: ARDOISE_200, Reviewed: ARDOISE_400, Accepted: ARDOISE, Rejected: TERRE };
 const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' };
 
 // Coordonnées des principales villes françaises
@@ -72,12 +82,13 @@ const FRENCH_CITIES: Record<string, [number, number]> = {
 
 @Component({
   selector: 'app-admin-stats',
-  imports: [DecimalPipe, ConsoleShell],
+  imports: [DecimalPipe, ConsoleShell, RouterLink],
   templateUrl: './admin-stats.html',
   styleUrl: './admin-stats.scss',
 })
 export class AdminStats implements OnInit, OnDestroy {
   private jobService = inject(JobOfferService);
+  private router = inject(Router);
 
   data = signal<any>(null);
   loading = signal(true);
@@ -184,6 +195,13 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        // Trois series superposees : la destination depend de la courbe
+        // cliquee, pas seulement du jour.
+        ...drilldown(this.router, (i, label, dataset) => {
+          const jour = toIsoDay(String(labels[i] ?? label));
+          const route = ['/admin/offres', '/admin/candidatures', '/admin/utilisateurs'][dataset];
+          return route ? to([route], { jour }) : null;
+        }, { nearest: true }),
         plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', font: this.font(11, 500), color: NAVY_800, padding: 16 } }, tooltip: this.tooltipStyle() },
         scales: {
           x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 0 } },
@@ -207,6 +225,8 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) =>
+          to(['/admin/utilisateurs'], { jour: toIsoDay(d.registrationsByDay[i].label) })),
         plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
         scales: {
           x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 45 } },
@@ -353,6 +373,8 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) =>
+          to(['/admin/offres'], { jour: toIsoDay(d.offersByDay[i].label) })),
         plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
         scales: {
           x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 45 } },
@@ -372,10 +394,11 @@ export class AdminStats implements OnInit, OnDestroy {
       type: 'doughnut',
       data: {
         labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: MULTI.slice(0, items.length), borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }],
+        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: MULTI.slice(0, items.length), borderWidth: 2, borderColor: CREME, hoverOffset: 6 }],
       },
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '60%',
+        ...drilldown(this.router, (i) => to(['/admin/offres'], { categorie: items[i].label })),
         plugins: {
           legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: this.font(11, 500), color: NAVY_800 } },
           tooltip: this.tooltipStyle(),
@@ -398,6 +421,7 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) => to(['/admin/offres'], { contrat: items[i].label })),
         plugins: { legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: this.font(11, 500), color: NAVY_800 } }, tooltip: this.tooltipStyle() },
         scales: { r: { ticks: { display: false }, grid: { color: SLATE200 } } },
         animation: { duration: 800, easing: 'easeOutQuart' },
@@ -419,6 +443,7 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) => to(['/admin/offres'], { experience: items[i].label })),
         plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
         scales: {
           x: { grid: { display: false }, ticks: { font: this.font(11, 600), color: NAVY_800 } },
@@ -447,6 +472,7 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) => to(['/admin/offres'], { lieu: items[i].label })),
         plugins: { legend: { display: false }, tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => `${ctx.parsed.x} offre${ctx.parsed.x > 1 ? 's' : ''}` } } },
         scales: {
           x: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
@@ -474,6 +500,9 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        // Les deux series (min et max) portent la meme categorie : la
+        // destination ne depend donc pas de la courbe cliquee.
+        ...drilldown(this.router, (i) => to(['/admin/offres'], { categorie: items[i].label })),
         plugins: {
           legend: { labels: { usePointStyle: true, pointStyle: 'circle', font: this.font(11, 500), color: NAVY_800, padding: 16 } },
           tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${(ctx.parsed.y / 1000).toFixed(0)}k EUR/an` } },
@@ -504,6 +533,7 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) => to(['/admin/offres'], { entreprise: items[i].label })),
         plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
         scales: {
           x: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
@@ -524,10 +554,12 @@ export class AdminStats implements OnInit, OnDestroy {
       type: 'doughnut',
       data: {
         labels: items.map((i: any) => STATUS_LABELS[i.label] || i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: items.map((i: any) => STATUS_COLORS[i.label] || SLATE400), borderWidth: 3, borderColor: '#fff', hoverOffset: 6 }],
+        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: items.map((i: any) => STATUS_COLORS[i.label] || SLATE400), borderWidth: 3, borderColor: CREME, hoverOffset: 6 }],
       },
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '65%',
+        // Le libelle affiche est traduit ; le filtre veut le statut brut.
+        ...drilldown(this.router, (i) => to(['/admin/candidatures'], { statut: items[i].label })),
         plugins: {
           legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: this.font(11, 500), color: NAVY_800 } },
           tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => { const pct = total ? Math.round(ctx.parsed / total * 100) : 0; return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`; } } },
@@ -567,6 +599,8 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) =>
+          to(['/admin/candidatures'], { jour: toIsoDay(d.appsByDay[i].label) })),
         plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
         scales: {
           x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 45 } },
@@ -587,10 +621,11 @@ export class AdminStats implements OnInit, OnDestroy {
       type: 'pie',
       data: {
         labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: MULTI.slice(0, items.length), borderWidth: 2, borderColor: '#fff' }],
+        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: MULTI.slice(0, items.length), borderWidth: 2, borderColor: CREME }],
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) => to(['/admin/candidatures'], { source: items[i].label })),
         plugins: {
           legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: this.font(11, 500), color: NAVY_800 } },
           tooltip: this.tooltipStyle(),
@@ -614,6 +649,9 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        // Un taux de conversion faible appelle l'inspection des offres de
+        // cette entreprise : c'est la ou se voit ce qui bloque.
+        ...drilldown(this.router, (i) => to(['/admin/offres'], { entreprise: items[i].label })),
         plugins: { legend: { display: false }, tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => ` Conversion: ${ctx.parsed.x}%` } } },
         scales: {
           x: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, callback: (v: any) => v + '%' } },
@@ -638,6 +676,14 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        // Le libelle est un titre tronque par le serveur ; on retire les
+        // points de suspension et on cherche sur le prefixe restant, que
+        // la recherche de l'explorateur traite en « contient ».
+        ...drilldown(this.router, (i) =>
+          to(['/admin/offres'], {
+            entreprise: items[i].company,
+            q: String(items[i].label).replace(/\.\.\.$/, ''),
+          })),
         plugins: { legend: { display: false }, tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => ` ${ctx.parsed.x} vues — ${items[ctx.dataIndex].company}` } } },
         scales: {
           x: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400 } },
@@ -658,10 +704,11 @@ export class AdminStats implements OnInit, OnDestroy {
       type: 'doughnut',
       data: {
         labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: [TEAL, BLUE, AMBER, NAVY_800], borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }],
+        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: [TEAL, BLUE, AMBER, NAVY_800], borderWidth: 2, borderColor: CREME, hoverOffset: 6 }],
       },
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '55%',
+        ...drilldown(this.router, (i) => to(['/admin/entretiens'], { type: items[i].label })),
         plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: this.font(11, 500), color: NAVY_800 } }, tooltip: this.tooltipStyle() },
         animation: { duration: 800, easing: 'easeOutQuart' },
       },
@@ -674,7 +721,7 @@ export class AdminStats implements OnInit, OnDestroy {
   private buildInterviewStatus(d: any) {
     const items = d.interviewsByStatus || [];
     if (!items.length) return;
-    const colors: Record<string, string> = { Proposed: AMBER, Accepted: GREEN, Completed: TEAL, Cancelled: RED };
+    const colors: Record<string, string> = { Proposed: ARDOISE_200, Accepted: ARDOISE_400, Completed: ARDOISE, Cancelled: TERRE };
     this.charts.push(new Chart(this.interviewStatusCanvas.nativeElement, {
       type: 'bar',
       data: {
@@ -683,6 +730,7 @@ export class AdminStats implements OnInit, OnDestroy {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        ...drilldown(this.router, (i) => to(['/admin/entretiens'], { statut: items[i].label })),
         plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
         scales: {
           x: { grid: { display: false }, ticks: { font: this.font(11, 600), color: NAVY_800 } },
@@ -696,6 +744,11 @@ export class AdminStats implements OnInit, OnDestroy {
   // ════════════════════════════════════════
   //  18. MESSAGES PAR JOUR
   // ════════════════════════════════════════
+  // Seul graphique du panneau sans forage : sa destination naturelle
+  // serait la liste des messages echanges, c'est-a-dire une page ou
+  // l'administration lirait les conversations privees des utilisateurs.
+  // Ouvrir cet acces est une decision qui revient a l'exploitant, pas un
+  // effet de bord de « rendre les graphiques cliquables ».
   private buildMessagesDay(d: any) {
     const items = d.messagesByDay || [];
     if (!items.length) return;

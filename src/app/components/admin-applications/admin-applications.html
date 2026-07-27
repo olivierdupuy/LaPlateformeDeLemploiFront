@@ -1,0 +1,182 @@
+<app-console-shell space="admin">
+  <div head>
+    <h1>Toutes les <span class="em">candidatures</span></h1>
+    <p class="console-head__sub">Le flux complet des candidatures déposées sur la plateforme.</p>
+  </div>
+  <div actions>
+    <span class="mod-count u-mono">{{ q.total() }} candidature{{ q.total() > 1 ? 's' : '' }}</span>
+  </div>
+</app-console-shell>
+
+<section class="aap-page">
+  <div class="container">
+
+    @if (activeFilters().length) {
+      <div class="filter-bar animate-in">
+        <span class="filter-bar__from">Filtré sur</span>
+        @for (f of activeFilters(); track f.key) {
+          <span class="fchip">
+            <span class="fchip__key">{{ f.label }}</span>{{ f.value }}
+            <button class="fchip__x" (click)="q.setParam(f.key, null)"
+                    [attr.aria-label]="'Retirer le filtre ' + f.label">
+              <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+          </span>
+        }
+        <button class="filter-bar__clear" (click)="q.clearAll()">Tout effacer</button>
+      </div>
+    }
+
+    <div class="aap-counters animate-in" style="animation-delay:.05s">
+      <button class="aapc" (click)="q.clearAll()">
+        <span class="aapc-val u-mono">{{ q.facets().total }}</span>
+        <span class="aapc-lbl">Total</span>
+      </button>
+      <button class="aapc" (click)="q.setParam('statut', 'Pending')">
+        <span class="aapc-val u-mono aapc-amber">{{ q.facets().pending }}</span>
+        <span class="aapc-lbl">En attente</span>
+      </button>
+      <button class="aapc" (click)="q.setParam('statut', 'Reviewed')">
+        <span class="aapc-val u-mono aapc-blue">{{ q.facets().reviewed }}</span>
+        <span class="aapc-lbl">Examinées</span>
+      </button>
+      <button class="aapc" (click)="q.setParam('statut', 'Accepted')">
+        <span class="aapc-val u-mono aapc-green">{{ q.facets().accepted }}</span>
+        <span class="aapc-lbl">Acceptées</span>
+      </button>
+      <button class="aapc" (click)="q.setParam('statut', 'Rejected')">
+        <span class="aapc-val u-mono aapc-red">{{ q.facets().rejected }}</span>
+        <span class="aapc-lbl">Refusées</span>
+      </button>
+      <div class="aapc aapc--static">
+        <span class="aapc-val u-mono">{{ handled() }}%</span>
+        <span class="aapc-lbl">Traitées</span>
+      </div>
+    </div>
+
+    <div class="aap-tools animate-in" style="animation-delay:.1s">
+      <div class="aap-search">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input type="search" [ngModel]="search" (ngModelChange)="search = $event"
+               placeholder="Candidat, e-mail, offre ou entreprise…"
+               aria-label="Rechercher dans les candidatures" />
+        @if (q.loading()) { <span class="aap-busy" aria-hidden="true"></span> }
+      </div>
+      <label class="aap-sort">
+        <span>Trier par</span>
+        <select [ngModel]="sort" (ngModelChange)="sort = $event" aria-label="Trier les candidatures">
+          <option value="recent">Plus récentes</option>
+          <option value="candidate">Candidat</option>
+          <option value="company">Entreprise</option>
+          <option value="status">Statut</option>
+        </select>
+      </label>
+    </div>
+
+    @if (q.failed()) {
+      <div class="empty-box animate-in">
+        <i class="bi bi-exclamation-triangle"></i>
+        <h3>Chargement impossible</h3>
+        <p>La liste des candidatures n'a pas pu être récupérée. Réessayez dans un instant.</p>
+      </div>
+    } @else if (q.loading() && !q.items().length) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (!q.items().length) {
+      <div class="empty-box animate-in">
+        <i class="bi bi-people"></i>
+        <h3>Aucune candidature</h3>
+        <p>Aucune candidature ne correspond à ces critères.</p>
+        @if (activeFilters().length) {
+          <button class="btn-ghost" (click)="q.clearAll()">Effacer les filtres</button>
+        }
+      </div>
+    } @else {
+      <div class="table-wrap animate-in" [class.is-busy]="q.loading()" style="animation-delay:.15s">
+        <table class="data">
+          <thead>
+            <tr>
+              <th>Candidat</th>
+              <th>Offre visée</th>
+              <th>Entreprise</th>
+              <th>Statut</th>
+              <th>Déposée</th>
+              <th>Suivi</th>
+              <th><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of q.items(); track a.id) {
+              <tr>
+                <td>
+                  <div class="aap-cand">
+                    <span class="aap-av" [style.background]="companyColor(a.fullName).bg">
+                      <span [style.color]="companyColor(a.fullName).fg">{{ a.fullName.charAt(0) }}</span>
+                    </span>
+                    <span class="aap-cand__txt">
+                      <strong>{{ a.fullName }}</strong>
+                      <span class="aap-mail">{{ a.email }}</span>
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  @if (a.jobTitle) {
+                    <a [routerLink]="['/offres', a.jobOfferId]" class="aap-job">{{ a.jobTitle }}</a>
+                  } @else {
+                    <span class="aap-gone">Offre supprimée</span>
+                  }
+                </td>
+                <td>
+                  @if (a.company; as c) {
+                    <!-- Rebond vers le catalogue : toutes les offres de
+                         cette entreprise, l'angle mort d'une ligne isolee. -->
+                    <a [routerLink]="['/admin/offres']" [queryParams]="{ entreprise: c }" class="aap-company">{{ c }}</a>
+                  } @else { <span class="aap-gone">—</span> }
+                </td>
+                <td>
+                  <a class="badge" [class]="statusBadge(a.status)"
+                     [routerLink]="['/admin/candidatures']" [queryParams]="{ statut: a.status }">
+                    {{ statusLabel(a.status) }}
+                  </a>
+                </td>
+                <td class="u-mono aap-date">{{ a.appliedAt | date:'dd/MM/yy' }}</td>
+                <td class="aap-track">
+                  <!-- La date de consultation n'existe que depuis sa mise
+                       en place : un dossier traité avant n'en porte pas,
+                       et « non lu » serait faux. -->
+                  @if (a.reviewedAt) {
+                    <span class="aap-seen" [title]="'Consultée le ' + (a.reviewedAt | date:'dd/MM/yy à HH:mm')">
+                      <i class="bi bi-eye-fill" aria-hidden="true"></i> Consultée
+                    </span>
+                  } @else if (a.status === 'Pending') {
+                    <span class="aap-unseen"><i class="bi bi-eye-slash" aria-hidden="true"></i> Non lue</span>
+                  } @else {
+                    <span class="aap-unseen">—</span>
+                  }
+                  @if (a.isArchived) { <span class="badge">Archivée</span> }
+                </td>
+                <td>
+                  <div class="aap-actions">
+                    <a [routerLink]="['/admin/candidatures']" [queryParams]="{ offre: a.jobOfferId }"
+                       class="aap-act" title="Les autres candidatures sur cette offre">
+                      <i class="bi bi-diagram-2" aria-hidden="true"></i>
+                    </a>
+                    @if (a.resumeUrl) {
+                      <a [href]="a.resumeUrl" target="_blank" rel="noopener" class="aap-act" title="Ouvrir le CV">
+                        <i class="bi bi-file-earmark-person" aria-hidden="true"></i>
+                      </a>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <app-pager
+        [page]="q.page()" [pageCount]="q.pageCount()" [range]="q.range()"
+        [total]="q.total()" [pageSize]="q.pageSize()" label="candidatures"
+        (pageChange)="q.setPage($event)" (pageSizeChange)="q.setPageSize($event)" />
+    }
+  </div>
+</section>

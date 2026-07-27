@@ -76,6 +76,11 @@
         </div>
       </div>
 
+      <p class="drill-hint animate-in" style="animation-delay:.08s">
+        <i class="bi bi-hand-index-thumb" aria-hidden="true"></i>
+        Cliquez sur un segment d'un graphique pour ouvrir la liste correspondante.
+      </p>
+
       <!-- ═══ SECTION : ACTIVITE GLOBALE ═══ -->
       <div class="sec-head animate-in" style="animation-delay:.1s">
         <span class="sec-ico"><i class="bi bi-activity"></i></span>
@@ -84,7 +89,16 @@
       </div>
       <div class="chart-row">
         <div class="chart-card card chart-full animate-in" style="animation-delay:.12s">
-          <div class="chart-head"><h3>Tendances — offres, candidatures, inscriptions</h3></div>
+          <div class="chart-head">
+            <h3>Tendances — offres, candidatures, inscriptions</h3>
+            <!-- Trois courbes, donc trois destinations : le lien unique
+                 des autres cartes ne suffirait pas ici. -->
+            <span class="drill-link drill-link--multi">
+              <a routerLink="/admin/offres">Offres</a>
+              <a routerLink="/admin/candidatures">Candidatures</a>
+              <a routerLink="/admin/utilisateurs">Inscriptions</a>
+            </span>
+          </div>
           <div class="chart-box chart-lg"><canvas #activityChart></canvas></div>
         </div>
       </div>
@@ -96,7 +110,7 @@
       </div>
       <div class="chart-row">
         <div class="chart-card card animate-in" style="animation-delay:.17s">
-          <div class="chart-head"><h3>Inscriptions par jour</h3></div>
+          <div class="chart-head"><h3>Inscriptions par jour</h3><a routerLink="/admin/utilisateurs" class="drill-link">Utilisateurs <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #registrationsChart></canvas></div>
         </div>
       </div>
@@ -127,41 +141,41 @@
       </div>
       <div class="chart-row">
         <div class="chart-card card animate-in" style="animation-delay:.24s">
-          <div class="chart-head"><h3>Publications par jour</h3></div>
+          <div class="chart-head"><h3>Publications par jour</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #offersDayChart></canvas></div>
         </div>
         <div class="chart-card card animate-in" style="animation-delay:.26s">
-          <div class="chart-head"><h3>Répartition par catégorie</h3></div>
+          <div class="chart-head"><h3>Répartition par catégorie</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #categoryChart></canvas></div>
         </div>
       </div>
       <div class="chart-row">
         <div class="chart-card card animate-in" style="animation-delay:.28s">
-          <div class="chart-head"><h3>Types de contrat</h3></div>
+          <div class="chart-head"><h3>Types de contrat</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #contractChart></canvas></div>
         </div>
         <div class="chart-card card animate-in" style="animation-delay:.3s">
-          <div class="chart-head"><h3>Niveau d'expérience requis</h3></div>
+          <div class="chart-head"><h3>Niveau d'expérience requis</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #experienceChart></canvas></div>
         </div>
       </div>
       <div class="chart-row">
         <div class="chart-card card animate-in" style="animation-delay:.32s">
-          <div class="chart-head"><span class="chart-ico"><i class="bi bi-geo-alt-fill"></i></span><h3>Géographie des offres par ville</h3></div>
+          <div class="chart-head"><span class="chart-ico"><i class="bi bi-geo-alt-fill"></i></span><h3>Géographie des offres par ville</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-tall"><canvas #locationsChart></canvas></div>
         </div>
         <div class="chart-card card animate-in" style="animation-delay:.34s">
-          <div class="chart-head"><span class="chart-ico"><i class="bi bi-currency-euro"></i></span><h3>Salaires moyens par catégorie</h3></div>
+          <div class="chart-head"><span class="chart-ico"><i class="bi bi-currency-euro"></i></span><h3>Salaires moyens par catégorie</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-tall"><canvas #salaryChart></canvas></div>
         </div>
       </div>
       <div class="chart-row">
         <div class="chart-card card animate-in" style="animation-delay:.36s">
-          <div class="chart-head"><h3>Top entreprises qui recrutent</h3></div>
+          <div class="chart-head"><h3>Top entreprises qui recrutent</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #topCompaniesChart></canvas></div>
         </div>
         <div class="chart-card card animate-in" style="animation-delay:.38s">
-          <div class="chart-head"><span class="chart-ico"><i class="bi bi-fire"></i></span><h3>Top offres les plus consultées</h3></div>
+          <div class="chart-head"><span class="chart-ico"><i class="bi bi-fire"></i></span><h3>Top offres les plus consultées</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-tall"><canvas #topViewedChart></canvas></div>
         </div>
       </div>
@@ -173,21 +187,21 @@
       </div>
       <div class="chart-row">
         <div class="chart-card card animate-in" style="animation-delay:.42s">
-          <div class="chart-head"><h3>Répartition par statut</h3></div>
+          <div class="chart-head"><h3>Répartition par statut</h3><a routerLink="/admin/candidatures" class="drill-link">Toutes les candidatures <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #statusChart></canvas></div>
         </div>
         <div class="chart-card card animate-in" style="animation-delay:.44s">
-          <div class="chart-head"><h3>Candidatures par jour</h3></div>
+          <div class="chart-head"><h3>Candidatures par jour</h3><a routerLink="/admin/candidatures" class="drill-link">Toutes les candidatures <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #appsDayChart></canvas></div>
         </div>
       </div>
       <div class="chart-row">
         <div class="chart-card card animate-in" style="animation-delay:.46s">
-          <div class="chart-head"><h3>Source des candidatures</h3></div>
+          <div class="chart-head"><h3>Source des candidatures</h3><a routerLink="/admin/candidatures" class="drill-link">Toutes les candidatures <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #sourceChart></canvas></div>
         </div>
         <div class="chart-card card animate-in" style="animation-delay:.48s">
-          <div class="chart-head"><span class="chart-ico"><i class="bi bi-funnel-fill"></i></span><h3>Taux de conversion par entreprise</h3></div>
+          <div class="chart-head"><span class="chart-ico"><i class="bi bi-funnel-fill"></i></span><h3>Taux de conversion par entreprise</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-md"><canvas #conversionChart></canvas></div>
         </div>
       </div>
@@ -199,11 +213,11 @@
       </div>
       <div class="chart-row chart-row-3">
         <div class="chart-card card animate-in" style="animation-delay:.52s">
-          <div class="chart-head"><h3>Entretiens par type</h3></div>
+          <div class="chart-head"><h3>Entretiens par type</h3><a routerLink="/admin/entretiens" class="drill-link">Tous les entretiens <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-sm"><canvas #interviewTypeChart></canvas></div>
         </div>
         <div class="chart-card card animate-in" style="animation-delay:.54s">
-          <div class="chart-head"><h3>Entretiens par statut</h3></div>
+          <div class="chart-head"><h3>Entretiens par statut</h3><a routerLink="/admin/entretiens" class="drill-link">Tous les entretiens <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
           <div class="chart-box chart-sm"><canvas #interviewStatusChart></canvas></div>
         </div>
         <div class="chart-card card animate-in" style="animation-delay:.56s">

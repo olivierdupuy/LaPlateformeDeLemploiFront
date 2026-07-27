@@ -185,9 +185,9 @@ a.trk-title:hover { color: var(--bleu-700); }
   white-space: nowrap;
   i { font-size: 0.7rem; }
 }
-.st-pending  { background: var(--ambre-100); color: #8a5804; }
+.st-pending  { background: var(--ambre-100); color: var(--rouge-700); }
 .st-reviewed { background: var(--bleu-100);  color: var(--bleu-700); }
-.st-accepted { background: var(--green-bg);  color: #0b6b4a; }
+.st-accepted { background: var(--green-bg);  color: var(--bleu-700); }
 .st-rejected { background: var(--rouge-100); color: var(--rouge-700); }
 
 // ── Adaptatif ──

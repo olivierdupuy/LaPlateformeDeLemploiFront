@@ -188,7 +188,7 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: #7f92ad;
+  color: var(--on-dark-muted);
   flex-shrink: 0;
 }
 
@@ -199,8 +199,8 @@
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--on-plum);
-  background: rgba(232, 239, 250, 0.07);
-  border: 1px solid rgba(232, 239, 250, 0.13);
+  background: rgba(244, 241, 222, 0.07);
+  border: 1px solid rgba(244, 241, 222, 0.13);
   border-radius: var(--r-full);
   transition: color var(--t), background var(--t), border-color var(--t);
   &:hover { color: var(--citron-ink); background: var(--citron); border-color: var(--citron); }
@@ -214,7 +214,7 @@
   gap: clamp(1.5rem, 3.5vw, 3rem);
   margin-top: clamp(2.25rem, 4vw, 3rem);
   padding-top: 1.6rem;
-  border-top: 1px solid rgba(232, 239, 250, 0.12);
+  border-top: 1px solid rgba(244, 241, 222, 0.12);
 }
 
 .hstat {
@@ -228,7 +228,7 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.13em;
-    color: #7f92ad;
+    color: var(--on-dark-muted);
   }
 
   dd {

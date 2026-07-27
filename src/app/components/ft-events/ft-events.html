@@ -1,0 +1,202 @@
+<!-- Provenance : la donnée n'est pas la nôtre, il faut le dire -->
+<div class="fte-source">
+  <i class="bi bi-broadcast" aria-hidden="true"></i>
+  <span>
+    Événements publiés par <strong>France Travail</strong> et son réseau, en direct.
+    @if (total() > 0) {
+      <span class="fte-count u-mono">{{ total() }} à venir</span>
+    }
+  </span>
+</div>
+
+<!-- Filtres -->
+<div class="fte-filters">
+  <label class="fte-field">
+    <span>Département</span>
+    <input type="text" inputmode="numeric" maxlength="3" placeholder="75, 2A, 974…"
+           [ngModel]="dept" (ngModelChange)="dept = $event" aria-label="Code département" />
+  </label>
+
+  <label class="fte-field">
+    <span>Type</span>
+    <select [ngModel]="type" (ngModelChange)="type = $event" aria-label="Type d'événement">
+      <option value="">Tous les types</option>
+      @for (t of types; track t.code) { <option [value]="t.code">{{ t.label }}</option> }
+    </select>
+  </label>
+
+  <label class="fte-field">
+    <span>Secteur</span>
+    <select [ngModel]="secteur" (ngModelChange)="secteur = $event" aria-label="Secteur d'activité">
+      <option value="">Tous les secteurs</option>
+      @for (s of secteurs; track s.code) { <option [value]="s.code">{{ s.label }}</option> }
+    </select>
+  </label>
+
+  <label class="fte-field">
+    <span>Format</span>
+    <select [ngModel]="modalite" (ngModelChange)="modalite = $event" aria-label="Format">
+      <option value="">Tous les formats</option>
+      <option value="ENPHY">Sur place</option>
+      <option value="ADIST">À distance</option>
+    </select>
+  </label>
+
+  @if (aDesFiltres()) {
+    <button class="fte-clear" (click)="effacer()">Effacer</button>
+  }
+</div>
+
+@if (loading()) {
+  <div class="empty-box"><div class="spinner"></div></div>
+} @else if (indisponible(); as message) {
+  <div class="empty-box">
+    <i class="bi bi-cloud-slash" aria-hidden="true"></i>
+    <h3>Événements indisponibles</h3>
+    <p>{{ message }}</p>
+  </div>
+} @else if (!evenements().length) {
+  <div class="empty-box">
+    <i class="bi bi-calendar-x" aria-hidden="true"></i>
+    <h3>Aucun événement</h3>
+    <p>Rien ne correspond à ces critères. Élargissez la recherche ou changez de département.</p>
+    @if (aDesFiltres()) {
+      <button class="btn-ghost" (click)="effacer()">Effacer les filtres</button>
+    }
+  </div>
+} @else {
+  @for (groupe of parJour(); track groupe.jour) {
+    <section class="fte-day">
+      <h3 class="fte-day__title">
+        <span class="fte-day__date">{{ groupe.jour | date:'EEEE d MMMM' }}</span>
+        <span class="fte-day__count u-mono">{{ groupe.items.length }}</span>
+      </h3>
+
+      <div class="fte-grid">
+        @for (e of groupe.items; track e.id) {
+          <article class="fte-card card" (click)="ouvrir(e)" tabindex="0"
+                   (keydown.enter)="ouvrir(e)" role="button">
+            <div class="fte-card__top">
+              <span class="fte-ico"><i class="bi" [class]="typeIcon(e.type)" aria-hidden="true"></i></span>
+              <div class="fte-card__head">
+                <h4>{{ e.titre }}</h4>
+                <span class="fte-meta">
+                  @if (e.type) { <span class="tag">{{ e.type }}</span> }
+                  @if (aDistance(e)) {
+                    <span class="badge badge-blue">À distance</span>
+                  } @else if (e.ville) {
+                    <span class="fte-ville"><i class="bi bi-geo-alt"></i> {{ e.ville }}</span>
+                  }
+                </span>
+              </div>
+            </div>
+
+            @if (e.description) {
+              <p class="fte-desc">{{ e.description }}</p>
+            }
+
+            <div class="fte-card__foot">
+              @if (e.heureDebut) {
+                <span><i class="bi bi-clock"></i> {{ heure(e, 'debut') }}
+                  @if (e.heureFin) { – {{ heure(e, 'fin') }} }
+                </span>
+              }
+              @if (placesRestantes(e); as places) {
+                <span class="fte-places"><i class="bi bi-person-check"></i> {{ places }} place{{ places > 1 ? 's' : '' }}</span>
+              }
+              @if (e.libelleOrganisateurPrincipal) {
+                <span class="fte-orga">{{ e.libelleOrganisateurPrincipal }}</span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+}
+
+<!-- Détail : un panneau plutôt qu'une page, pour ne pas perdre la liste -->
+@if (selection(); as e) {
+  <div class="fte-scrim" (click)="fermer()"></div>
+  <aside class="fte-panel" role="dialog" aria-modal="true" [attr.aria-label]="e.titre">
+    <header class="fte-panel__head">
+      <span class="fte-ico"><i class="bi" [class]="typeIcon(e.type)" aria-hidden="true"></i></span>
+      <div>
+        <h3>{{ e.titre }}</h3>
+        <span class="fte-panel__when">
+          {{ e.dateEvenement | date:'EEEE d MMMM yyyy' }}
+          @if (e.heureDebut) { · {{ heure(e, 'debut') }}
+            @if (e.heureFin) { – {{ heure(e, 'fin') }} }
+          }
+        </span>
+      </div>
+      <button class="fte-close" (click)="fermer()" aria-label="Fermer">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <div class="fte-panel__body">
+      @if (e.description) {
+        <p class="fte-panel__desc">{{ e.description }}</p>
+      }
+
+      @if (e.deroulement) {
+        <section><h4>Déroulement</h4><p>{{ e.deroulement }}</p></section>
+      }
+
+      @if (e.benefices?.length) {
+        <section>
+          <h4>Ce que vous en retirez</h4>
+          <ul class="fte-list">
+            @for (b of e.benefices; track b) { <li>{{ b }}</li> }
+          </ul>
+        </section>
+      }
+
+      @if (e.publics?.length) {
+        <section>
+          <h4>Public concerné</h4>
+          <div class="fte-tags">
+            @for (p of e.publics; track p) { <span class="tag">{{ p }}</span> }
+          </div>
+        </section>
+      }
+
+      @if (e.objectifs?.length) {
+        <section>
+          <h4>Objectifs</h4>
+          <div class="fte-tags">
+            @for (o of e.objectifs; track o) { <span class="tag">{{ o }}</span> }
+          </div>
+        </section>
+      }
+
+      <section>
+        <h4>Où</h4>
+        <p>
+          @if (aDistance(e)) { En ligne — le lien est communiqué à l'inscription. }
+          @else { {{ e.ville }} @if (e.codePostal) { ({{ e.codePostal }}) } }
+        </p>
+        @if (e.libelleEtablissement) { <p class="fte-sub">{{ e.libelleEtablissement }}</p> }
+      </section>
+
+      @if (e.operations?.length) {
+        <section>
+          <h4>Opération nationale</h4>
+          <div class="fte-tags">
+            @for (o of e.operations; track o) { <span class="badge badge-blue">{{ o }}</span> }
+          </div>
+        </section>
+      }
+    </div>
+
+    <footer class="fte-panel__foot">
+      @if (e.urlDetailEvenement) {
+        <a [href]="e.urlDetailEvenement" target="_blank" rel="noopener" class="btn-primary">
+          <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> S'inscrire sur France Travail
+        </a>
+      }
+      <button class="btn-ghost" (click)="fermer()">Fermer</button>
+    </footer>
+  </aside>
+}

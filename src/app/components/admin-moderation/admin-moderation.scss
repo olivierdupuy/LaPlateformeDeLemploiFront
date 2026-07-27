@@ -231,3 +231,17 @@
 }
 
 .rev-stars { display: inline-flex; gap: 1px; color: var(--spring-600); i { font-size: 0.72rem; } }
+
+// ── Liens croisés ──
+.oc-company--link:hover {
+  color: var(--bleu-600);
+  text-decoration: underline;
+}
+
+.oc-stat--link {
+  color: var(--bleu-600);
+  font-weight: 600;
+  &:hover { color: var(--bleu-900); text-decoration: underline; }
+}
+
+a.tag:hover { border-color: var(--ciel); color: var(--bleu-900); }

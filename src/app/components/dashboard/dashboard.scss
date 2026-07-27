@@ -19,7 +19,21 @@
   gap: 1rem;
   padding: 1.4rem 1.5rem 1.4rem 1.65rem;
   overflow: hidden;
+  color: inherit;
   &:hover { transform: translateY(-3px); }
+  // La fleche ne se montre qu'au survol : quatre fleches permanentes
+  // alourdiraient une rangee qu'on lit d'abord pour ses chiffres.
+  &:hover .sc-go, &:focus-visible .sc-go { opacity: 1; transform: translateX(0); }
+}
+
+.sc-go {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity var(--t), transform var(--t);
 }
 
 .sc-icon {

@@ -10,7 +10,7 @@
   top: var(--nav-h);
   z-index: 45;
   background: var(--plum-900);
-  border-bottom: 1px solid rgba(232, 239, 250, 0.12);
+  border-bottom: 1px solid rgba(244, 241, 222, 0.12);
 
   :focus-visible { outline-color: var(--ambre); }
 }
@@ -40,7 +40,7 @@
   width: 1px;
   height: 18px;
   margin: 0 0.6rem 0 0.2rem;
-  background: rgba(232, 239, 250, 0.18);
+  background: rgba(244, 241, 222, 0.18);
 }
 
 .console-nav a {

@@ -22,6 +22,11 @@ import { AdminUsers } from './components/admin-users/admin-users';
 import { AdminStats } from './components/admin-stats/admin-stats';
 import { AdminActivity } from './components/admin-activity/admin-activity';
 import { AdminModeration } from './components/admin-moderation/admin-moderation';
+import { AdminOffers } from './components/admin-offers/admin-offers';
+import { AdminApplications } from './components/admin-applications/admin-applications';
+import { AdminInterviews } from './components/admin-interviews/admin-interviews';
+import { AdminUserDetail } from './components/admin-user-detail/admin-user-detail';
+import { HiringCompanies } from './components/hiring-companies/hiring-companies';
 import { AdminAnnouncements } from './components/admin-announcements/admin-announcements';
 import { AdminSettings } from './components/admin-settings/admin-settings';
 import { MyOffers } from './components/my-offers/my-offers';
@@ -56,6 +61,7 @@ export const routes: Routes = [
   // adresse reste valide et ouvre le bon onglet.
   { path: 'favoris', component: TrackApplications, data: { tab: 'saved' } },
   { path: 'profil', component: Profile, canActivate: [authGuard] },
+  { path: 'entreprises-qui-recrutent', component: HiringCompanies, canActivate: [authGuard] },
   { path: 'recherches-sauvegardees', component: SavedSearches, canActivate: [authGuard] },
   { path: 'entretiens', component: Interviews, canActivate: [authGuard] },
   { path: 'messagerie', component: Inbox, canActivate: [authGuard] },
@@ -92,8 +98,12 @@ export const routes: Routes = [
       { path: '', redirectTo: 'tableau-de-bord', pathMatch: 'full' },
       { path: 'tableau-de-bord', component: Dashboard },
       { path: 'statistiques', component: AdminStats },
+      { path: 'offres', component: AdminOffers },
+      { path: 'candidatures', component: AdminApplications },
+      { path: 'entretiens', component: AdminInterviews },
       { path: 'moderation', component: AdminModeration },
       { path: 'utilisateurs', component: AdminUsers },
+      { path: 'utilisateurs/:id', component: AdminUserDetail },
       { path: 'annonces', component: AdminAnnouncements },
       { path: 'activite', component: AdminActivity },
       { path: 'parametres', component: AdminSettings },

@@ -1,0 +1,40 @@
+@if (total() > 0) {
+  <nav class="pg" role="navigation" aria-label="Pagination">
+    <span class="pg-range u-mono">
+      {{ range().from }}–{{ range().to }} <span class="pg-of">sur</span> {{ total() }}
+      <span class="pg-of">{{ label() }}</span>
+    </span>
+
+    @if (pageCount() > 1) {
+      <div class="pg-nav">
+        <button class="pg-btn" (click)="go(page() - 1)" [disabled]="page() <= 1"
+                aria-label="Page précédente">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+
+        @for (p of pages(); track $index) {
+          @if (p === null) {
+            <span class="pg-gap" aria-hidden="true">…</span>
+          } @else {
+            <button class="pg-num u-mono" [class.is-active]="p === page()" (click)="go(p)"
+                    [attr.aria-current]="p === page() ? 'page' : null"
+                    [attr.aria-label]="'Page ' + p">{{ p }}</button>
+          }
+        }
+
+        <button class="pg-btn" (click)="go(page() + 1)" [disabled]="page() >= pageCount()"
+                aria-label="Page suivante">
+          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    }
+
+    <label class="pg-size">
+      <span>Par page</span>
+      <select [value]="pageSize()" (change)="pageSizeChange.emit(+$any($event.target).value)"
+              aria-label="Nombre de lignes par page">
+        @for (s of sizes; track s) { <option [value]="s">{{ s }}</option> }
+      </select>
+    </label>
+  </nav>
+}

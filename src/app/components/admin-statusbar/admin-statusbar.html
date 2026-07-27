@@ -1,0 +1,49 @@
+<div class="sb" role="status" aria-live="polite">
+
+  <!-- ═══ Temps réel ═══ -->
+  <span class="sb-item sb-hub" [attr.data-state]="hub.state()">
+    <span class="sb-dot" aria-hidden="true"></span>
+    <span class="sb-label">{{ stateLabel() }}</span>
+  </span>
+
+  <span class="sb-sep" aria-hidden="true"></span>
+
+  <span class="sb-item" [title]="hub.eventCount() + ' événements reçus depuis l\'ouverture du panneau'">
+    <i class="bi bi-broadcast-pin" aria-hidden="true"></i>
+    <span class="u-mono">{{ hub.eventCount() }}</span>
+    <span class="sb-label">événement{{ hub.eventCount() > 1 ? 's' : '' }}</span>
+    @if (sinceLastEvent(); as ago) {
+      <span class="sb-muted">· dernier il y a {{ ago }}</span>
+    }
+  </span>
+
+  <span class="sb-sep" aria-hidden="true"></span>
+
+  <a class="sb-item sb-link" routerLink="/admin/utilisateurs">
+    <span class="sb-dot sb-dot--online" aria-hidden="true"></span>
+    <span class="u-mono">{{ onlineUsers() }}</span>
+    <span class="sb-label">en ligne</span>
+  </a>
+
+  <!-- ═══ À traiter ═══ -->
+  @if (pendingOffers() > 0) {
+    <span class="sb-sep" aria-hidden="true"></span>
+    <a class="sb-item sb-link sb-alert" routerLink="/admin/moderation">
+      <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+      <span class="u-mono">{{ pendingOffers() }}</span>
+      <span class="sb-label">offre{{ pendingOffers() > 1 ? 's' : '' }} à modérer</span>
+    </a>
+  }
+
+  <!-- ═══ Contexte technique ═══ -->
+  <span class="sb-right">
+    <span class="sb-item sb-muted" [title]="'API : ' + apiHost">
+      <i class="bi bi-hdd-network" aria-hidden="true"></i>
+      {{ apiHost }}
+    </span>
+    <span class="sb-sep" aria-hidden="true"></span>
+    <span class="sb-item sb-env">{{ environmentLabel }}</span>
+    <span class="sb-sep" aria-hidden="true"></span>
+    <span class="sb-item u-mono sb-clock">{{ clock() }}</span>
+  </span>
+</div>

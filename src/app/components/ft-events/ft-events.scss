@@ -1,0 +1,318 @@
+:host { display: block; }
+
+// ── Provenance ──
+// La donnée vient d'ailleurs : le dire évite de s'attribuer un contenu
+// qu'on ne maîtrise pas, et explique pourquoi il change tout seul.
+.fte-source {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1rem;
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+
+  i { color: var(--rouge); }
+}
+
+.fte-count {
+  margin-left: 0.35rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.72rem;
+  color: var(--bleu-700);
+  background: var(--bleu-100);
+  border-radius: var(--r-full);
+}
+
+// ── Filtres ──
+.fte-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.6rem;
+}
+
+.fte-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  min-width: 150px;
+
+  > span {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  input, select {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    transition: border-color var(--t);
+    &:focus { border-color: var(--bleu-600); outline: none; }
+  }
+}
+
+.fte-clear {
+  padding: 0.5rem 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  &:hover { color: var(--rouge); }
+}
+
+// ── Journées ──
+.fte-day { margin-bottom: 2rem; }
+
+.fte-day__title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.fte-day__date {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-transform: capitalize;
+}
+
+.fte-day__count {
+  font-size: 0.7rem;
+  color: var(--muted);
+  padding: 0.1rem 0.45rem;
+  background: var(--nuage-2);
+  border-radius: var(--r-full);
+}
+
+.fte-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 0.9rem;
+}
+
+// ── Carte ──
+.fte-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.1rem 1.2rem;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid var(--bleu-600); outline-offset: 2px; }
+}
+
+.fte-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.fte-ico {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  font-size: 0.95rem;
+  color: var(--bleu-700);
+  background: var(--bleu-100);
+}
+
+.fte-card__head {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+}
+
+.fte-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.fte-ville i { margin-right: 0.2rem; }
+
+// Trois lignes suffisent a decider d'ouvrir : au-dela, la grille perd son
+// alignement et la lecture devient un pave.
+.fte-desc {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fte-card__foot {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.76rem;
+  color: var(--muted);
+
+  i { margin-right: 0.2rem; }
+}
+
+.fte-places { color: var(--bleu-700); font-weight: 600; }
+
+.fte-orga {
+  margin-left: auto;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Panneau de détail ──
+// Un tiroir plutôt qu'une page : on garde la liste derrière soi, et le
+// retour ne coûte pas un aller-retour réseau.
+.fte-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(61, 64, 91, 0.45);
+  animation: fte-fade 0.2s var(--ease-out);
+}
+
+.fte-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 91;
+  width: min(520px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+  box-shadow: var(--shadow-xl);
+  animation: fte-slide 0.28s var(--ease-out);
+}
+
+.fte-panel__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 1.2rem 1.3rem;
+  border-bottom: 1px solid var(--line);
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+}
+
+.fte-panel__when {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.fte-close {
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  &:hover { background: var(--nuage-2); color: var(--ink); }
+}
+
+.fte-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem 1.3rem;
+
+  section { margin-bottom: 1.3rem; }
+
+  h4 {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  p { font-size: 0.88rem; line-height: 1.6; color: var(--ink-soft); }
+}
+
+.fte-panel__desc { white-space: pre-line; }
+
+.fte-sub { font-size: 0.82rem; color: var(--muted); }
+
+.fte-list {
+  padding-left: 1.1rem;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+  li { list-style: disc; }
+}
+
+.fte-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.fte-panel__foot {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.3rem;
+  border-top: 1px solid var(--line);
+}
+
+@keyframes fte-fade { from { opacity: 0; } }
+@keyframes fte-slide { from { transform: translateX(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fte-scrim, .fte-panel { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .fte-panel { width: 100vw; }
+}

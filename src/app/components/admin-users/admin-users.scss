@@ -203,3 +203,196 @@ tbody {
   border: none;
   background: transparent;
 }
+
+// ── Recherche et filtres par rôle ──
+.users-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.users-search {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+
+  i {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.6rem 0.9rem 0.6rem 2.3rem;
+    font-size: 0.88rem;
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    transition: border-color var(--t);
+    &:focus { border-color: var(--bleu-600); outline: none; }
+  }
+}
+
+.users-roles {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+
+  // Le compteur accompagne le libelle sans lui voler la vedette
+  .u-mono {
+    margin-left: 0.15rem;
+    font-size: 0.76rem;
+    opacity: 0.7;
+  }
+}
+
+// ── Liens croises ──
+.sub-link:hover {
+  color: var(--bleu-600);
+  text-decoration: underline;
+}
+
+.user-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--bleu-600);
+  white-space: nowrap;
+
+  i { font-size: 0.78rem; }
+  &:hover { color: var(--bleu-900); text-decoration: underline; }
+}
+
+// La cellule d'identité est devenue le lien vers la fiche complète
+a.user-cell {
+  color: inherit;
+  .user-info strong { transition: color var(--t); }
+  &:hover {
+    .user-info strong { color: var(--bleu-600); }
+    .user-go { opacity: 1; transform: translateX(0); }
+  }
+}
+
+.user-go {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--faint);
+  opacity: 0;
+  transform: translateX(-3px);
+  transition: opacity var(--t), transform var(--t);
+}
+
+// ═══ Bandeau temps réel ═══
+// La présence n'a de sens que si le tuyau est ouvert : le bandeau le dit
+// plutôt que de laisser croire à une liste vivante qui ne l'est pas.
+.rt {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--canvas);
+}
+
+.rt-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--muted);
+}
+
+.rt-txt { color: var(--ink-soft); font-weight: 600; }
+.rt-sub { color: var(--muted); font-weight: 400; }
+
+.rt[data-state='online'] {
+  border-color: var(--green-bg);
+  .rt-dot { background: var(--green); animation: rt-pulse 2.4s ease-out infinite; }
+}
+
+.rt[data-state='connecting'] .rt-dot,
+.rt[data-state='reconnecting'] .rt-dot {
+  background: var(--amber);
+  animation: rt-blink 1s steps(2, start) infinite;
+}
+
+.rt[data-state='offline'] {
+  border-color: var(--amber-bg);
+  background: var(--amber-bg);
+  .rt-dot { background: var(--red); }
+}
+
+.rt-refresh {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bleu-600);
+  i { font-size: 0.78rem; }
+  &:hover:not(:disabled) { color: var(--bleu-900); }
+  &:disabled { opacity: 0.5; }
+}
+
+@keyframes rt-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(18, 133, 94, 0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(18, 133, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(18, 133, 94, 0); }
+}
+
+@keyframes rt-blink { to { opacity: 0.35; } }
+
+// Une ligne dont la présence vient de changer se signale une fois : sans
+// ce repère, un point qui s'allume ailleurs dans la page passe inaperçu.
+tbody tr.just-changed {
+  animation: rt-flash 2s var(--ease-out);
+}
+
+@keyframes rt-flash {
+  0%   { background: var(--bleu-100); }
+  100% { background: transparent; }
+}
+
+.stat--live .online-dot { transition: background var(--t); }
+.stat--live:not(.is-live) .online-dot { background: var(--muted); }
+
+// ═══ Chargement d'une page ═══
+.tbl-wrap.is-busy {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s var(--ease-out);
+}
+
+.users-busy {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  margin-top: -6.5px;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--bleu-600);
+  border-radius: 50%;
+  animation: users-spin 0.7s linear infinite;
+}
+
+@keyframes users-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rt-dot, tbody tr.just-changed { animation: none !important; }
+  .users-busy { animation-duration: 2s; }
+}

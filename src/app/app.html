@@ -21,4 +21,9 @@
     <app-footer />
   }
 }
-<app-cookie-consent />
+<!-- Le bandeau de consentement s'adresse aux visiteurs du site. Dans le
+     panneau d'administration, derrière une authentification, il n'ajoute
+     rien et recouvre la barre d'état. -->
+@if (!isAdminArea()) {
+  <app-cookie-consent />
+}

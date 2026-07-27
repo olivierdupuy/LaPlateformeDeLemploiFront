@@ -46,6 +46,46 @@ export class AdminService {
     return this.http.patch(`${this.api}/moderation/${id}/feature`, {});
   }
 
+  // ── Explorateurs pagines ──
+  // Le filtrage, le tri et la decoupe se font sur le serveur : la reponse
+  // ne porte que la page demandee, plus les facettes de l'en-tete.
+  private paged<T>(path: string, params: Record<string, string>): Observable<T> {
+    let p = new HttpParams();
+    for (const [k, v] of Object.entries(params)) if (v) p = p.set(k, v);
+    return this.http.get<T>(`${this.api}/${path}`, { params: p });
+  }
+
+  listOffers(params: Record<string, string>): Observable<any> {
+    return this.paged('offers', params);
+  }
+
+  listApplications(params: Record<string, string>): Observable<any> {
+    return this.paged('applications', params);
+  }
+
+  listInterviews(params: Record<string, string>): Observable<any> {
+    return this.paged('interviews', params);
+  }
+
+  listUsers(params: Record<string, string>): Observable<any> {
+    return this.paged('users', params);
+  }
+
+  // ── Dossier d'un utilisateur ──
+  // Le panneau ouvre une fiche a onglets : tout arrive en une reponse
+  // plutot qu'en sept appels declenches par la navigation entre onglets.
+  getUserDossier(id: string): Observable<any> {
+    return this.http.get<any>(`${this.api}/users/${id}/dossier`);
+  }
+
+  updateUser(id: string, data: Record<string, unknown>): Observable<any> {
+    return this.http.put(`${this.api}/users/${id}`, data);
+  }
+
+  setUserPassword(id: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.api}/users/${id}/password`, { newPassword });
+  }
+
   // Announcements
   getAnnouncements(): Observable<any[]> {
     return this.http.get<any[]>(`${this.api}/announcements`);

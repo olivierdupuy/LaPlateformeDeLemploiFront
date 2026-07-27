@@ -266,7 +266,7 @@ nav {
   border-radius: var(--r-full);
   text-transform: uppercase; letter-spacing: 0.08em;
   &.role-candidate { background: var(--bleu-100); color: var(--bleu-700); }
-  &.role-recruiter { background: var(--ambre-100); color: #8a5804; }
+  &.role-recruiter { background: var(--ambre-100); color: var(--rouge-700); }
   &.role-admin { background: var(--rouge-100); color: var(--rouge-700); }
 }
 

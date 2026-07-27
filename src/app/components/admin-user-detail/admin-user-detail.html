@@ -1,0 +1,502 @@
+<app-console-shell space="admin">
+  <div head>
+    <a routerLink="/admin/utilisateurs" class="back-link">
+      <i class="bi bi-arrow-left" aria-hidden="true"></i> Utilisateurs
+    </a>
+    @if (user(); as u) {
+      <h1>{{ u.firstName }} <span class="em">{{ u.lastName }}</span></h1>
+      <p class="console-head__sub">{{ u.title || roleLabel(u.role) }} · Inscrit le {{ u.createdAt | date:'dd MMMM yyyy' }}</p>
+    } @else {
+      <h1>Fiche <span class="em">utilisateur</span></h1>
+    }
+  </div>
+</app-console-shell>
+
+<section class="aud-page">
+  <div class="container">
+
+    @if (loading()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (!user()) {
+      <div class="empty-box">
+        <i class="bi bi-person-x"></i>
+        <h3>Compte introuvable</h3>
+        <p>Ce compte a peut-être été supprimé.</p>
+        <a routerLink="/admin/utilisateurs" class="btn-primary">Retour à la liste</a>
+      </div>
+    } @else {
+
+      <!-- ═══ IDENTITÉ ═══ -->
+      <header class="aud-id card animate-in">
+        <span class="aud-av" [style.background]="companyColor(user().firstName).bg">
+          @if (user().avatarUrl) {
+            <img [src]="user().avatarUrl" alt="" />
+          } @else {
+            <span [style.color]="companyColor(user().firstName).fg">
+              {{ user().firstName.charAt(0) }}{{ user().lastName.charAt(0) }}
+            </span>
+          }
+        </span>
+
+        <div class="aud-id__main">
+          <div class="aud-id__line">
+            <h2>{{ user().firstName }} {{ user().lastName }}</h2>
+            <span class="badge" [class.badge-red]="user().role === 'Admin'"
+                  [class.badge-indigo]="user().role === 'Recruiter'"
+                  [class.badge-green]="user().role === 'Candidate'">{{ roleLabel(user().role) }}</span>
+            @if (!user().isActive) { <span class="badge badge-red">Suspendu</span> }
+            @if (user().isSearchable) { <span class="badge badge-blue">Visible des recruteurs</span> }
+          </div>
+          <div class="aud-id__meta">
+            <a [href]="'mailto:' + user().email"><i class="bi bi-envelope"></i> {{ user().email }}</a>
+            @if (user().phoneNumber) { <span><i class="bi bi-telephone"></i> {{ user().phoneNumber }}</span> }
+            @if (user().city) { <span><i class="bi bi-geo-alt"></i> {{ user().city }}</span> }
+            @if (user().linkedInUrl) {
+              <a [href]="user().linkedInUrl" target="_blank" rel="noopener"><i class="bi bi-linkedin"></i> LinkedIn</a>
+            }
+            @if (user().portfolioUrl) {
+              <a [href]="user().portfolioUrl" target="_blank" rel="noopener"><i class="bi bi-globe"></i> Portfolio</a>
+            }
+            @if (user().resumeUrl) {
+              <a [href]="user().resumeUrl" target="_blank" rel="noopener"><i class="bi bi-file-earmark-person"></i> CV</a>
+            }
+          </div>
+        </div>
+
+        <!-- Le résumé répond avant qu'on ouvre un onglet -->
+        <div class="aud-summary">
+          <span class="auds"><b class="u-mono">{{ summary().total }}</b><i>candidatures</i></span>
+          <span class="auds"><b class="u-mono">{{ summary().interviews }}</b><i>entretiens</i></span>
+          <span class="auds"><b class="u-mono">{{ summary().alerts }}</b><i>alertes</i></span>
+          <span class="auds"><b class="u-mono">{{ summary().successRate }}%</b><i>acceptation</i></span>
+        </div>
+      </header>
+
+      <!-- ═══ ONGLETS ═══ -->
+      <div class="tabs aud-tabs animate-in" style="animation-delay:.06s" role="tablist">
+        @for (t of tabs; track t.key) {
+          <button class="tab" [class.is-active]="activeTab() === t.key" (click)="setTab(t.key)"
+                  role="tab" [attr.aria-selected]="activeTab() === t.key">
+            <i class="bi" [class]="t.icon" aria-hidden="true"></i> {{ t.label }}
+            @if (t.key !== 'profil' && t.key !== 'compte') {
+              <span class="tab-n u-mono">{{ $any(counts())[t.key] }}</span>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- ═══ PROFIL ═══ -->
+      @if (activeTab() === 'profil') {
+        <div class="aud-panel animate-in">
+          <div class="aud-form">
+
+            <fieldset class="aud-set card">
+              <legend>Identité</legend>
+              <div class="aud-grid">
+                <label class="fld"><span>Prénom</span>
+                  <input type="text" [ngModel]="field('firstName')" (ngModelChange)="setField('firstName', $event)" />
+                </label>
+                <label class="fld"><span>Nom</span>
+                  <input type="text" [ngModel]="field('lastName')" (ngModelChange)="setField('lastName', $event)" />
+                </label>
+                <label class="fld"><span>Adresse e-mail</span>
+                  <input type="email" [ngModel]="field('email')" (ngModelChange)="setField('email', $event)" />
+                  <small>Sert aussi d'identifiant de connexion.</small>
+                </label>
+                <label class="fld"><span>Téléphone</span>
+                  <input type="tel" [ngModel]="field('phoneNumber')" (ngModelChange)="setField('phoneNumber', $event)" />
+                </label>
+                <label class="fld"><span>Ville</span>
+                  <input type="text" [ngModel]="field('city')" (ngModelChange)="setField('city', $event)" />
+                </label>
+                <label class="fld"><span>Photo (URL)</span>
+                  <input type="url" [ngModel]="field('avatarUrl')" (ngModelChange)="setField('avatarUrl', $event)" />
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="aud-set card">
+              <legend>Parcours</legend>
+              <div class="aud-grid">
+                <label class="fld fld--wide"><span>Intitulé du poste</span>
+                  <input type="text" [ngModel]="field('title')" (ngModelChange)="setField('title', $event)"
+                         placeholder="Poste occupé ou recherché" />
+                </label>
+                <label class="fld"><span>Années d'expérience</span>
+                  <input type="number" min="0" max="60" [ngModel]="field('experienceYears')"
+                         (ngModelChange)="setField('experienceYears', $event)" />
+                </label>
+                <label class="fld"><span>Formation</span>
+                  <input type="text" [ngModel]="field('education')" (ngModelChange)="setField('education', $event)" />
+                </label>
+                <label class="fld fld--wide"><span>Compétences</span>
+                  <input type="text" [ngModel]="field('skills')" (ngModelChange)="setField('skills', $event)"
+                         placeholder="Angular, SQL, gestion de projet…" />
+                  <small>Séparées par des virgules.</small>
+                  @if (skillList().length) {
+                    <span class="fld-tags">
+                      @for (s of skillList(); track s) { <span class="tag">{{ s }}</span> }
+                    </span>
+                  }
+                </label>
+                <label class="fld fld--wide"><span>Présentation</span>
+                  <textarea rows="4" [ngModel]="field('bio')" (ngModelChange)="setField('bio', $event)"></textarea>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="aud-set card">
+              <legend>Liens et documents</legend>
+              <div class="aud-grid">
+                <label class="fld"><span>LinkedIn</span>
+                  <input type="url" [ngModel]="field('linkedInUrl')" (ngModelChange)="setField('linkedInUrl', $event)" />
+                </label>
+                <label class="fld"><span>Portfolio</span>
+                  <input type="url" [ngModel]="field('portfolioUrl')" (ngModelChange)="setField('portfolioUrl', $event)" />
+                </label>
+                <label class="fld fld--wide"><span>CV (URL)</span>
+                  <input type="url" [ngModel]="field('resumeUrl')" (ngModelChange)="setField('resumeUrl', $event)" />
+                </label>
+                @if (user().role === 'Recruiter') {
+                  <label class="fld fld--wide"><span>Entreprise</span>
+                    <input type="text" [ngModel]="field('company')" (ngModelChange)="setField('company', $event)" />
+                  </label>
+                }
+              </div>
+            </fieldset>
+
+            <fieldset class="aud-set card">
+              <legend>Visibilité</legend>
+              <label class="aud-switch">
+                <input type="checkbox" [ngModel]="field('isSearchable')"
+                       (ngModelChange)="setField('isSearchable', $event)" />
+                <span class="aud-switch__txt">
+                  <b>Profil visible des recruteurs</b>
+                  <small>Le profil apparaît dans la CVthèque et peut être contacté directement.</small>
+                </span>
+              </label>
+            </fieldset>
+          </div>
+
+          <!-- La barre d'enregistrement ne s'affiche qu'en cas de modification -->
+          @if (isDirty()) {
+            <div class="aud-savebar">
+              <span><i class="bi bi-pencil-square" aria-hidden="true"></i> Modifications non enregistrées</span>
+              <div class="aud-savebar__act">
+                <button class="btn-ghost" (click)="cancel()">Annuler</button>
+                <button class="btn-primary" (click)="save()" [disabled]="saving()">
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                  {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ CANDIDATURES ═══ -->
+      @if (activeTab() === 'candidatures') {
+        <div class="aud-panel animate-in">
+          @if (!applications().length) {
+            <div class="empty-box card">
+              <i class="bi bi-file-earmark-text"></i>
+              <h3>Aucune candidature</h3>
+              <p>Ce compte n'a encore postulé à aucune offre.</p>
+            </div>
+          } @else {
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr><th>Offre</th><th>Entreprise</th><th>Statut</th><th>Déposée</th><th>Suivi</th><th></th></tr>
+                </thead>
+                <tbody>
+                  @for (a of applications(); track a.id) {
+                    <tr>
+                      <td><a [routerLink]="['/offres', a.jobOfferId]" class="aud-link">{{ a.jobTitle }}</a></td>
+                      <td>
+                        <a [routerLink]="['/admin/offres']" [queryParams]="{ entreprise: a.company }"
+                           class="aud-sub">{{ a.company }}</a>
+                      </td>
+                      <td><span class="badge" [class]="statusBadge(a.status)">{{ statusLabel(a.status) }}</span></td>
+                      <td class="u-mono aud-date">{{ a.appliedAt | date:'dd/MM/yy' }}</td>
+                      <td class="aud-track">
+                        <!-- La date de consultation n'est enregistrée que
+                             depuis sa mise en place : une candidature déjà
+                             traitée avant peut ne pas en porter. On ne la
+                             dit alors ni lue ni non lue. -->
+                        @if (a.reviewedAt) {
+                          <span class="aud-seen"><i class="bi bi-eye-fill"></i> Consultée</span>
+                        } @else if (a.status === 'Pending') {
+                          <span class="aud-muted"><i class="bi bi-eye-slash"></i> Non lue</span>
+                        } @else {
+                          <span class="aud-muted">—</span>
+                        }
+                        @if (a.isArchived) { <span class="badge">Archivée</span> }
+                      </td>
+                      <td>
+                        <a [routerLink]="['/admin/candidatures']" [queryParams]="{ offre: a.jobOfferId }"
+                           class="aud-act" title="Toutes les candidatures sur cette offre">
+                          <i class="bi bi-diagram-2"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ ALERTES / RECHERCHES ═══ -->
+      @if (activeTab() === 'recherches') {
+        <div class="aud-panel animate-in">
+          @if (!savedSearches().length) {
+            <div class="empty-box card">
+              <i class="bi bi-bell"></i>
+              <h3>Aucune recherche enregistrée</h3>
+              <p>Les alertes créées par ce compte apparaîtront ici.</p>
+            </div>
+          } @else {
+            <div class="aud-cards">
+              @for (s of savedSearches(); track s.id) {
+                <article class="aud-card card">
+                  <div class="aud-card__head">
+                    <h4>{{ s.label || s.query || 'Recherche sans nom' }}</h4>
+                    @if (s.alertEnabled) {
+                      <span class="badge badge-green"><i class="bi bi-bell-fill"></i> Alerte active</span>
+                    } @else {
+                      <span class="badge">Alerte désactivée</span>
+                    }
+                  </div>
+                  <div class="aud-crit">
+                    @if (s.query) { <span class="tag">« {{ s.query }} »</span> }
+                    @if (s.category) { <span class="tag">{{ s.category }}</span> }
+                    @if (s.contractType) { <span class="tag">{{ s.contractType }}</span> }
+                    @if (s.location) { <span class="tag">{{ s.location }}</span> }
+                    @if (s.isRemote) { <span class="tag">Télétravail</span> }
+                  </div>
+                  <div class="aud-card__foot">
+                    <span><i class="bi bi-calendar3"></i> Créée le {{ s.createdAt | date:'dd/MM/yyyy' }}</span>
+                    @if (s.lastAlertAt) {
+                      <span><i class="bi bi-send"></i> Dernier envoi {{ s.lastAlertAt | date:'dd/MM/yy' }}</span>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ ENTRETIENS ═══ -->
+      @if (activeTab() === 'entretiens') {
+        <div class="aud-panel animate-in">
+          @if (!interviews().length) {
+            <div class="empty-box card">
+              <i class="bi bi-calendar-event"></i>
+              <h3>Aucun entretien</h3>
+              <p>Aucun entretien n'a été planifié avec cette personne.</p>
+            </div>
+          } @else {
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr><th>Date</th><th>Poste</th><th>Entreprise</th><th>Type</th><th>Statut</th><th>Intervieweur</th></tr>
+                </thead>
+                <tbody>
+                  @for (i of interviews(); track i.id) {
+                    <tr>
+                      <td class="u-mono aud-date">{{ i.proposedAt | date:'dd/MM/yy HH:mm' }}</td>
+                      <td>{{ i.jobTitle }}</td>
+                      <td>
+                        <a [routerLink]="['/admin/offres']" [queryParams]="{ entreprise: i.company }"
+                           class="aud-sub">{{ i.company }}</a>
+                      </td>
+                      <td>@if (i.type) { <span class="tag">{{ i.type }}</span> } @else { — }</td>
+                      <td><span class="badge" [class]="statusBadge(i.status)">{{ statusLabel(i.status) }}</span></td>
+                      <td class="aud-sub">{{ i.interviewerName || '—' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ CV ═══ -->
+      @if (activeTab() === 'cv') {
+        <div class="aud-panel animate-in">
+          @if (!cv().length) {
+            <div class="empty-box card">
+              <i class="bi bi-file-person"></i>
+              <h3>CV non renseigné</h3>
+              <p>Ce compte n'a pas encore rempli son CV en ligne.</p>
+              @if (user().resumeUrl) {
+                <a [href]="user().resumeUrl" target="_blank" rel="noopener" class="btn-primary">
+                  <i class="bi bi-file-earmark-person"></i> Ouvrir le CV téléversé
+                </a>
+              }
+            </div>
+          } @else {
+            @for (sec of cvSections; track sec.key) {
+              @if (cvOf(sec.key).length) {
+                <section class="aud-cv">
+                  <h3 class="aud-cv__title">{{ sec.label }}</h3>
+                  <div class="aud-cv__list">
+                    @for (item of cvOf(sec.key); track item.id) {
+                      <article class="aud-cv__item card">
+                        <div class="aud-cv__head">
+                          <strong>{{ item.title || '—' }}</strong>
+                          @if (item.level) { <span class="tag">{{ item.level }}</span> }
+                        </div>
+                        @if (item.organization || item.location) {
+                          <span class="aud-sub">
+                            {{ item.organization }}@if (item.organization && item.location) { <span> · </span> }{{ item.location }}
+                          </span>
+                        }
+                        @if (item.startDate) {
+                          <span class="aud-cv__dates u-mono">
+                            {{ item.startDate | date:'MM/yyyy' }} —
+                            {{ item.endDate ? (item.endDate | date:'MM/yyyy') : "aujourd'hui" }}
+                          </span>
+                        }
+                        @if (item.description) { <p class="aud-cv__desc">{{ item.description }}</p> }
+                      </article>
+                    }
+                  </div>
+                </section>
+              }
+            }
+          }
+        </div>
+      }
+
+      <!-- ═══ NOTES ═══ -->
+      @if (activeTab() === 'notes') {
+        <div class="aud-panel animate-in">
+          @if (!notes().length) {
+            <div class="empty-box card">
+              <i class="bi bi-sticky"></i>
+              <h3>Aucune note</h3>
+              <p>Les notes que cette personne prend sur les offres apparaîtront ici.</p>
+            </div>
+          } @else {
+            <div class="aud-cards">
+              @for (n of notes(); track n.id) {
+                <article class="aud-card card">
+                  <div class="aud-card__head">
+                    <h4><a [routerLink]="['/offres', n.jobOfferId]" class="aud-link">{{ n.jobTitle }}</a></h4>
+                    <span class="aud-sub">{{ n.company }}</span>
+                  </div>
+                  <p class="aud-note">{{ n.content }}</p>
+                  <div class="aud-card__foot">
+                    <span><i class="bi bi-pencil"></i> Modifiée le {{ n.updatedAt | date:'dd/MM/yyyy' }}</span>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ JOURNAL ═══ -->
+      @if (activeTab() === 'journal') {
+        <div class="aud-panel animate-in">
+          @if (!activity().length) {
+            <div class="empty-box card">
+              <i class="bi bi-clock-history"></i>
+              <h3>Aucune activité enregistrée</h3>
+              <p>Les actions de ce compte apparaîtront ici.</p>
+            </div>
+          } @else {
+            <div class="table-wrap">
+              <table class="data">
+                <thead><tr><th>Date</th><th>Action</th><th>Détail</th><th>Adresse IP</th></tr></thead>
+                <tbody>
+                  @for (l of activity(); track l.id) {
+                    <tr>
+                      <td class="u-mono aud-date">{{ l.createdAt | date:'dd/MM/yy HH:mm' }}</td>
+                      <td><span class="badge">{{ l.action }}</span></td>
+                      <td class="aud-sub">{{ l.details }}</td>
+                      <td class="u-mono aud-sub">{{ l.ipAddress || '—' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ COMPTE ═══ -->
+      @if (activeTab() === 'compte') {
+        <div class="aud-panel animate-in">
+          <div class="aud-form">
+
+            <fieldset class="aud-set card">
+              <legend>Rôle</legend>
+              <p class="aud-hint">
+                Les rôles sont exclusifs : un administrateur n'a ni espace candidat ni espace recruteur.
+              </p>
+              <div class="aud-roles">
+                @for (r of ['Candidate', 'Recruiter', 'Admin']; track r) {
+                  <button class="chip" [class.is-active]="user().role === r" (click)="changeRole(r)">
+                    {{ roleLabel(r) }}
+                  </button>
+                }
+              </div>
+            </fieldset>
+
+            <fieldset class="aud-set card">
+              <legend>Accès</legend>
+              <div class="aud-danger">
+                <div class="aud-danger__txt">
+                  <b>{{ user().isActive ? 'Compte actif' : 'Compte suspendu' }}</b>
+                  <small>
+                    {{ user().isActive
+                      ? 'La personne peut se connecter et utiliser la plateforme.'
+                      : 'La connexion est bloquée. Les données sont conservées.' }}
+                  </small>
+                </div>
+                <button class="btn-ghost" [class.aud-btn-danger]="user().isActive" (click)="toggleActive()">
+                  <i class="bi" [class.bi-slash-circle]="user().isActive" [class.bi-check-circle]="!user().isActive"></i>
+                  {{ user().isActive ? 'Suspendre' : 'Réactiver' }}
+                </button>
+              </div>
+            </fieldset>
+
+            <fieldset class="aud-set card">
+              <legend>Mot de passe</legend>
+              <p class="aud-hint">
+                À utiliser quand la personne n'a plus accès à sa boîte mail. Transmettez-le
+                par un autre canal et demandez-lui de le changer à la première connexion.
+              </p>
+              <div class="aud-pwd">
+                <input type="text" [(ngModel)]="newPassword" placeholder="Nouveau mot de passe"
+                       aria-label="Nouveau mot de passe" autocomplete="off" />
+                <button class="btn-primary" (click)="resetPassword()">
+                  <i class="bi bi-key"></i> Réinitialiser
+                </button>
+              </div>
+            </fieldset>
+
+            <fieldset class="aud-set card">
+              <legend>Informations techniques</legend>
+              <dl class="aud-tech">
+                <dt>Identifiant</dt><dd class="u-mono">{{ user().id }}</dd>
+                <dt>Inscription</dt><dd class="u-mono">{{ user().createdAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+                <dt>E-mail confirmé</dt><dd>{{ user().emailConfirmed ? 'Oui' : 'Non' }}</dd>
+              </dl>
+              <p class="aud-hint">
+                Les offres mises en favori sont enregistrées dans le navigateur de la personne :
+                elles ne sont pas consultables depuis l'administration.
+              </p>
+            </fieldset>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</section>
