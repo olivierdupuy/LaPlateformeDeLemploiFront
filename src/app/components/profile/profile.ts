@@ -8,10 +8,11 @@ import { ToastrService } from 'ngx-toastr';
 import { companyColor } from '../../utils/job.utils';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-profile',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, ConsoleShell],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })

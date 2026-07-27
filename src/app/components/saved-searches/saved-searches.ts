@@ -5,10 +5,11 @@ import { ToastrService } from 'ngx-toastr';
 import { SavedSearchService } from '../../services/saved-search.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { SavedSearch } from '../../models/job-offer.model';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-saved-searches',
-  imports: [DatePipe],
+  imports: [DatePipe, ConsoleShell],
   templateUrl: './saved-searches.html',
   styleUrl: './saved-searches.scss',
 })

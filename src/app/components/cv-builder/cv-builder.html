@@ -1,12 +1,9 @@
-<!-- ═══ HERO ═══ -->
-<section class="cv-hero">
-  <div class="container cvh-inner">
-    <div class="cvh-left animate-in">
-      <span class="eyebrow">Mon profil</span>
-      <h1>Mon <span class="em">CV</span> en ligne</h1>
-      <p>Construisez votre CV section par section, ou importez-le depuis un fichier.</p>
-    </div>
-    <div class="cvh-actions animate-in" style="animation-delay:.1s">
+<app-console-shell space="candidat">
+  <div head>
+    <h1>Mon <span class="em">CV</span> en ligne</h1>
+    <p class="console-head__sub">Construisez votre CV section par section, ou importez-le depuis un fichier.</p>
+  </div>
+  <div actions>
       <button class="btn-secondary cvh-btn" (click)="previewOpen.set(!previewOpen())">
         <i class="bi" [class.bi-eye]="!previewOpen()" [class.bi-eye-slash]="previewOpen()"></i>
         {{ previewOpen() ? 'Masquer' : 'Apercu' }}
@@ -22,9 +19,8 @@
         }
         <input type="file" accept=".pdf,.docx,.doc" (change)="onFileSelected($event)" hidden [disabled]="parsingFile()" />
       </label>
-    </div>
   </div>
-</section>
+</app-console-shell>
 
 <!-- ═══ MAIN ═══ -->
 <section class="cv-main">

@@ -3,28 +3,6 @@
 // ═══════════════════════════════════
 
 // ── Hero ──
-.msg-hero {
-  padding: 2.25rem 0 1.75rem;
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
-}
-
-.mh-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-
-  h1 {
-    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-    letter-spacing: -0.03em;
-  }
-  p {
-    font-size: 0.95rem;
-    color: var(--muted);
-    max-width: 52ch;
-  }
-}
-
 // ── Content ──
 .msg-content { padding: 2.25rem 0 4rem; }
 
@@ -545,5 +523,4 @@
 }
 
 @media (max-width: 768px) {
-  .msg-hero { padding: 1.25rem 0 1.5rem; }
 }

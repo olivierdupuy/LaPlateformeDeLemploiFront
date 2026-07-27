@@ -7,10 +7,11 @@ import { ApplicationService } from '../../services/application';
 import { AuthService } from '../../services/auth.service';
 import { SignalRService } from '../../services/signalr.service';
 import { Conversation, ChatMessage } from '../../models/auth.model';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-inbox',
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule, ConsoleShell],
   templateUrl: './inbox.html',
   styleUrl: './inbox.scss',
 })

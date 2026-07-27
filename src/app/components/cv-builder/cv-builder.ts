@@ -7,10 +7,11 @@ import { AuthService } from '../../services/auth.service';
 import { CvSection, CvSectionCreate, SectionType, SECTION_TYPES, SECTION_CONFIG } from '../../models/cv.model';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-cv-builder',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, ConsoleShell],
   templateUrl: './cv-builder.html',
   styleUrl: './cv-builder.scss',
 })

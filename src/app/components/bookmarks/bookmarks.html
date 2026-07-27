@@ -1,19 +1,17 @@
-<!-- ═══ HEADER ═══ -->
-<section class="fav-hero">
-  <div class="container fh-inner">
-    <div class="fh-left animate-in">
-      <span class="eyebrow">Espace candidat</span>
-      <h1>Mes <span class="em">favoris</span></h1>
-      <p class="fh-count">
-        <span class="u-mono fh-num">{{ jobs().length }}</span>
-        offre{{ jobs().length > 1 ? 's' : '' }} sauvegardee{{ jobs().length > 1 ? 's' : '' }}
-      </p>
-    </div>
+<app-console-shell space="candidat">
+  <div head>
+    <h1>Mes <span class="em">favoris</span></h1>
+    <p class="console-head__sub">
+      <span class="u-mono fh-num">{{ jobs().length }}</span>
+      offre{{ jobs().length > 1 ? 's' : '' }} mise{{ jobs().length > 1 ? 's' : '' }} de côté.
+    </p>
+  </div>
+  <div actions>
     <a routerLink="/offres" class="btn-secondary fh-link animate-in" style="animation-delay:.08s">
       <i class="bi bi-search"></i> Explorer les offres
     </a>
   </div>
-</section>
+</app-console-shell>
 
 <!-- ═══ CONTENT ═══ -->
 <section class="fav-content">

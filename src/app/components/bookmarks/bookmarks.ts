@@ -4,10 +4,11 @@ import { JobOfferService } from '../../services/job-offer';
 import { BookmarkService } from '../../services/bookmark.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-bookmarks',
-  imports: [RouterLink],
+  imports: [RouterLink, ConsoleShell],
   templateUrl: './bookmarks.html',
   styleUrl: './bookmarks.scss',
 })

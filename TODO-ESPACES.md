@@ -53,9 +53,11 @@ lui dit où il en est. Le recruteur, lui, a désormais sa console.
 
 ### P0 — structure
 
-- [ ] **Console candidat** : sous-navigation persistante, comme celle du
-      recruteur (`ConsoleShell` accepte déjà un espace, il manque le jeu de
-      liens candidat et le retrait de la garde `isRecruiter`).
+- [x] ✅ **Console candidat** — sous-navigation persistante sur les sept pages
+      de l'espace (tableau de bord, candidatures, favoris, entretiens,
+      recherches, CV, profil, messagerie). `ConsoleShell` choisit l'espace
+      selon le rôle : les pages partagées (Entretiens, Messagerie, Profil)
+      n'ont rien à déclarer.
 - [ ] **Regrouper en une page « Mes candidatures »** à onglets comptés :
       *Enregistrées · Envoyées · Entretiens · Archivées*. Aujourd'hui
       `/favoris`, `/suivi` et `/entretiens` sont trois pages sans lien entre
@@ -102,8 +104,8 @@ Entretiens). Restent des écarts de **profondeur**, pas de navigation.
 
 ### P0 — pipeline et statuts
 
-- [ ] **Messagerie dans la sous-navigation** : c'est un onglet de premier rang
-      chez Indeed, chez nous elle est reléguée au menu de l'avatar.
+- [x] ✅ **Messagerie dans la sous-navigation** du recruteur — onglet de
+      premier rang, comme chez Indeed.
 - [ ] **Pipeline à six statuts**. Nous en avons quatre (`Pending`, `Reviewed`,
       `Accepted`, `Rejected`). Manquent :
       - **Contactée** — entre « examinée » et « acceptée », l'état réel de la

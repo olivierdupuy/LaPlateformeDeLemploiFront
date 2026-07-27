@@ -7,10 +7,11 @@ import { AuthService } from '../../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { Application } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-track-applications',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, ConsoleShell],
   templateUrl: './track-applications.html',
   styleUrl: './track-applications.scss',
 })

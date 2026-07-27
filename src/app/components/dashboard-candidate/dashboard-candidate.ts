@@ -6,10 +6,11 @@ import { CandidateFeaturesService } from '../../services/candidate-features.serv
 import { AuthService } from '../../services/auth.service';
 import { BookmarkService } from '../../services/bookmark.service';
 import Chart from 'chart.js/auto';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-dashboard-candidate',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, ConsoleShell],
   templateUrl: './dashboard-candidate.html',
   styleUrl: './dashboard-candidate.scss',
 })

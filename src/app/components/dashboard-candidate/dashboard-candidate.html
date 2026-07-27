@@ -1,24 +1,16 @@
-<!-- ═══ HERO HEADER ═══ -->
-<section class="dc-hero">
-  <div class="container dch-inner">
+<app-console-shell space="candidat">
+  <div head>
     @if (auth.currentUser(); as u) {
-      <div class="dch-left animate-in">
-        <div class="dch-avatar">
-          <span>{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
-        </div>
-        <div class="dch-heading">
-          <span class="eyebrow">Espace candidat</span>
-          <h1>Bonjour, <span class="em">{{ u.firstName }}</span></h1>
-          <p>Voici un résumé de votre activité sur la plateforme</p>
-        </div>
-      </div>
+      <h1>Bonjour, <span class="em">{{ u.firstName }}</span></h1>
+      <p class="console-head__sub">Voici un résumé de votre activité sur la plateforme.</p>
     }
-    <div class="dch-actions animate-in" style="animation-delay:.1s">
-      <a routerLink="/mon-cv" class="btn-secondary"><i class="bi bi-file-earmark-person"></i> Mon CV</a>
-      <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Chercher un emploi</a>
-    </div>
   </div>
-</section>
+  <div actions>
+    <a routerLink="/offres" class="btn-primary">
+      <i class="bi bi-search" aria-hidden="true"></i> Chercher un emploi
+    </a>
+  </div>
+</app-console-shell>
 
 @if (loading()) {
   <div class="empty-box"><div class="spinner"></div></div>
