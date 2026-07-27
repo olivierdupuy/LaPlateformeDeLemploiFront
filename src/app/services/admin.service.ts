@@ -71,6 +71,38 @@ export class AdminService {
     return this.paged('users', params);
   }
 
+  // ── Pieces du dossier ──
+  // Les onglets sont des listes : on enregistre ligne par ligne, au
+  // geste, plutot que par un bouton global qui laisserait croire a un
+  // etat d'ensemble a valider.
+  majCandidature(id: number, data: Record<string, unknown>): Observable<any> {
+    return this.http.patch(`${this.api}/applications/${id}`, data);
+  }
+  supprimerCandidature(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/applications/${id}`);
+  }
+  majRecherche(id: number, data: Record<string, unknown>): Observable<any> {
+    return this.http.patch(`${this.api}/saved-searches/${id}`, data);
+  }
+  supprimerRecherche(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/saved-searches/${id}`);
+  }
+  majEntretien(id: number, data: Record<string, unknown>): Observable<any> {
+    return this.http.patch(`${this.api}/interviews/${id}`, data);
+  }
+  supprimerEntretien(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/interviews/${id}`);
+  }
+  supprimerNote(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/job-notes/${id}`);
+  }
+  majSectionCv(id: number, data: Record<string, unknown>): Observable<any> {
+    return this.http.patch(`${this.api}/cv-sections/${id}`, data);
+  }
+  supprimerSectionCv(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/cv-sections/${id}`);
+  }
+
   // ── Dossier d'un utilisateur ──
   // Le panneau ouvre une fiche a onglets : tout arrive en une reponse
   // plutot qu'en sept appels declenches par la navigation entre onglets.

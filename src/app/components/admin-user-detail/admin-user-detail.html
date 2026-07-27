@@ -233,11 +233,31 @@
                         }
                         @if (a.isArchived) { <span class="badge">Archivée</span> }
                       </td>
-                      <td>
-                        <a [routerLink]="['/admin/candidatures']" [queryParams]="{ offre: a.jobOfferId }"
-                           class="aud-act" title="Toutes les candidatures sur cette offre">
-                          <i class="bi bi-diagram-2"></i>
-                        </a>
+                            <td>
+                        <div class="aud-row-act">
+                          <select class="aud-sel" [value]="a.status"
+                                  [disabled]="enCours() === 'c' + a.id"
+                                  (change)="changerStatutCandidature(a, $any($event.target).value)"
+                                  aria-label="Statut de la candidature">
+                            <option value="Pending">En attente</option>
+                            <option value="Reviewed">Examinée</option>
+                            <option value="Accepted">Acceptée</option>
+                            <option value="Rejected">Refusée</option>
+                          </select>
+                          <button class="aud-act" (click)="basculerArchivage(a)"
+                                  [disabled]="enCours() === 'c' + a.id"
+                                  [title]="a.isArchived ? 'Réactiver' : 'Archiver'">
+                            <i class="bi" [class.bi-archive]="!a.isArchived" [class.bi-arrow-counterclockwise]="a.isArchived"></i>
+                          </button>
+                          <a [routerLink]="['/admin/candidatures']" [queryParams]="{ offre: a.jobOfferId }"
+                             class="aud-act" title="Toutes les candidatures sur cette offre">
+                            <i class="bi bi-diagram-2"></i>
+                          </a>
+                          <button class="aud-act aud-act--danger" (click)="supprimerCandidature(a)"
+                                  [disabled]="enCours() === 'c' + a.id" title="Supprimer">
+                            <i class="bi bi-trash3"></i>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   }
@@ -281,6 +301,17 @@
                     @if (s.lastAlertAt) {
                       <span><i class="bi bi-send"></i> Dernier envoi {{ s.lastAlertAt | date:'dd/MM/yy' }}</span>
                     }
+                    <span class="aud-row-act aud-row-act--end">
+                      <button class="aud-act" (click)="basculerAlerte(s)"
+                              [disabled]="enCours() === 'r' + s.id"
+                              [title]="s.alertEnabled ? 'Désactiver les alertes' : 'Activer les alertes'">
+                        <i class="bi" [class.bi-bell-slash]="s.alertEnabled" [class.bi-bell]="!s.alertEnabled"></i>
+                      </button>
+                      <button class="aud-act aud-act--danger" (click)="supprimerRecherche(s)"
+                              [disabled]="enCours() === 'r' + s.id" title="Supprimer">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </span>
                   </div>
                 </article>
               }
@@ -302,7 +333,7 @@
             <div class="table-wrap">
               <table class="data">
                 <thead>
-                  <tr><th>Date</th><th>Poste</th><th>Entreprise</th><th>Type</th><th>Statut</th><th>Intervieweur</th></tr>
+                  <tr><th>Date</th><th>Poste</th><th>Entreprise</th><th>Type</th><th>Statut</th><th>Intervieweur</th><th><span class="sr-only">Actions</span></th></tr>
                 </thead>
                 <tbody>
                   @for (i of interviews(); track i.id) {
@@ -316,6 +347,23 @@
                       <td>@if (i.type) { <span class="tag">{{ i.type }}</span> } @else { — }</td>
                       <td><span class="badge" [class]="statusBadge(i.status)">{{ statusLabel(i.status) }}</span></td>
                       <td class="aud-sub">{{ i.interviewerName || '—' }}</td>
+                      <td>
+                        <div class="aud-row-act">
+                          <select class="aud-sel" [value]="i.status"
+                                  [disabled]="enCours() === 'e' + i.id"
+                                  (change)="changerStatutEntretien(i, $any($event.target).value)"
+                                  aria-label="Statut de l'entretien">
+                            <option value="Proposed">Proposé</option>
+                            <option value="Accepted">Accepté</option>
+                            <option value="Completed">Terminé</option>
+                            <option value="Cancelled">Annulé</option>
+                          </select>
+                          <button class="aud-act aud-act--danger" (click)="supprimerEntretien(i)"
+                                  [disabled]="enCours() === 'e' + i.id" title="Supprimer">
+                            <i class="bi bi-trash3"></i>
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   }
                 </tbody>
@@ -363,6 +411,12 @@
                           </span>
                         }
                         @if (item.description) { <p class="aud-cv__desc">{{ item.description }}</p> }
+                        <span class="aud-row-act aud-row-act--end">
+                          <button class="aud-act aud-act--danger" (click)="supprimerSectionCv(item)"
+                                  [disabled]="enCours() === 'v' + item.id" title="Supprimer cet élément">
+                            <i class="bi bi-trash3"></i>
+                          </button>
+                        </span>
                       </article>
                     }
                   </div>
@@ -393,6 +447,12 @@
                   <p class="aud-note">{{ n.content }}</p>
                   <div class="aud-card__foot">
                     <span><i class="bi bi-pencil"></i> Modifiée le {{ n.updatedAt | date:'dd/MM/yyyy' }}</span>
+                    <span class="aud-row-act aud-row-act--end">
+                      <button class="aud-act aud-act--danger" (click)="supprimerNote(n)"
+                              [disabled]="enCours() === 'n' + n.id" title="Supprimer la note">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </span>
                   </div>
                 </article>
               }

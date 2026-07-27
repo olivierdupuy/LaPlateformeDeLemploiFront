@@ -239,6 +239,75 @@ export class AdminUserDetail implements OnInit {
     });
   }
 
+  // ═══ Pieces du dossier ═══
+  // Chaque ligne s'enregistre a son propre geste. Un bouton unique par
+  // onglet laisserait croire a un etat d'ensemble a valider, alors qu'il
+  // s'agit d'enregistrements independants.
+
+  /** Ligne en cours d'ecriture, pour neutraliser ses commandes. */
+  enCours = signal<string | null>(null);
+
+  private ecrire(cle: string, appel: any, message: string) {
+    this.enCours.set(cle);
+    appel.subscribe({
+      next: () => {
+        this.toastr.success(message);
+        this.enCours.set(null);
+        this.load();
+      },
+      error: (e: any) => {
+        this.toastr.error(e?.error?.message ?? "L'enregistrement a échoué");
+        this.enCours.set(null);
+      },
+    });
+  }
+
+  changerStatutCandidature(a: any, statut: string) {
+    if (statut === a.status) return;
+    this.ecrire(`c${a.id}`, this.admin.majCandidature(a.id, { statut }), 'Statut enregistré');
+  }
+
+  basculerArchivage(a: any) {
+    this.ecrire(`c${a.id}`, this.admin.majCandidature(a.id, { archivee: !a.isArchived }),
+                a.isArchived ? 'Candidature réactivée' : 'Candidature archivée');
+  }
+
+  supprimerCandidature(a: any) {
+    // Une candidature effacee ne se retrouve pas : on demande confirmation.
+    if (!confirm(`Supprimer définitivement la candidature de ${a.fullName} ?`)) return;
+    this.ecrire(`c${a.id}`, this.admin.supprimerCandidature(a.id), 'Candidature supprimée');
+  }
+
+  basculerAlerte(s: any) {
+    this.ecrire(`r${s.id}`, this.admin.majRecherche(s.id, { alerteActive: !s.alertEnabled }),
+                s.alertEnabled ? 'Alerte désactivée' : 'Alerte activée');
+  }
+
+  supprimerRecherche(s: any) {
+    if (!confirm('Supprimer cette recherche enregistrée ?')) return;
+    this.ecrire(`r${s.id}`, this.admin.supprimerRecherche(s.id), 'Recherche supprimée');
+  }
+
+  changerStatutEntretien(i: any, statut: string) {
+    if (statut === i.status) return;
+    this.ecrire(`e${i.id}`, this.admin.majEntretien(i.id, { statut }), 'Statut enregistré');
+  }
+
+  supprimerEntretien(i: any) {
+    if (!confirm('Supprimer cet entretien ?')) return;
+    this.ecrire(`e${i.id}`, this.admin.supprimerEntretien(i.id), 'Entretien supprimé');
+  }
+
+  supprimerNote(n: any) {
+    if (!confirm('Supprimer cette note ?')) return;
+    this.ecrire(`n${n.id}`, this.admin.supprimerNote(n.id), 'Note supprimée');
+  }
+
+  supprimerSectionCv(c: any) {
+    if (!confirm('Supprimer cet élément du CV ?')) return;
+    this.ecrire(`v${c.id}`, this.admin.supprimerSectionCv(c.id), 'Élément supprimé');
+  }
+
   resetPassword() {
     if (this.newPassword.trim().length < 6) {
       this.toastr.error('Le mot de passe doit faire au moins 6 caractères');
