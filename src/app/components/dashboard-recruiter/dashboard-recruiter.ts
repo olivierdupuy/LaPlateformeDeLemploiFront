@@ -57,7 +57,7 @@ export class DashboardRecruiter implements OnInit {
     }
 
     if (d.candidaturesParStatut?.length) {
-      const colors: Record<string, string> = { 'En attente': '#b57408', 'Examinees': '#93bcf4', 'Acceptees': '#12855e', 'Refusees': '#e42b2f' };
+      const colors: Record<string, string> = { 'En attente': '#b57408', 'Examinées': '#93bcf4', 'Acceptées': '#12855e', 'Refusées': '#e42b2f' };
       const total = d.candidaturesParStatut.reduce((s: number, i: any) => s + i.value, 0);
       this.charts.push(new Chart(this.statusCanvas.nativeElement, {
         type: 'doughnut',
@@ -89,6 +89,6 @@ export class DashboardRecruiter implements OnInit {
   }
 
   statusColor(label: string): string {
-    return { 'En attente': 'var(--amber)', 'Examinees': 'var(--blue)', 'Acceptees': 'var(--green)', 'Refusees': 'var(--red)' }[label] || 'var(--slate-400)';
+    return { 'En attente': 'var(--amber)', 'Examinées': 'var(--blue)', 'Acceptées': 'var(--green)', 'Refusées': 'var(--red)' }[label] || 'var(--slate-400)';
   }
 }

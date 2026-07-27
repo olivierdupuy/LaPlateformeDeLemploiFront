@@ -6,7 +6,7 @@
 .rs-hero {
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  padding: calc(var(--nav-h) + 2.25rem) 0 2.5rem;
+  padding: 2.25rem 0 2.5rem;
 }
 
 .rsh-inner {
@@ -243,7 +243,7 @@
 
 // ── Responsive ──
 @media (max-width: 768px) {
-  .rs-hero { padding: calc(var(--nav-h) + 1.25rem) 0 2rem; }
+  .rs-hero { padding: 1.25rem 0 2rem; }
   .rsh-inner { flex-direction: column; align-items: flex-start; }
   .rsh-cta { width: 100%; }
   .rs-grid { grid-template-columns: 1fr; }

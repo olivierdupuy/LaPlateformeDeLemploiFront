@@ -49,7 +49,7 @@ export class TrackApplications implements OnInit {
   }
 
   getStatusLabel(status: string): string {
-    return { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' }[status] || status;
+    return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[status] || status;
   }
 
   getStatusIcon(status: string): string {

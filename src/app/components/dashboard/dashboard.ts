@@ -17,7 +17,7 @@ const SLATE400 = '#5a6b85'; // muted
 const ORANGE   = '#e07a20';
 
 const STATUS_COLORS: Record<string, string> = { Pending: AMBER, Reviewed: BLUE, Accepted: GREEN, Rejected: RED };
-const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' };
+const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' };
 
 const CATEGORY_PALETTE = [TEAL, NAVY_800, AMBER, BLUE, GREEN, ORANGE, TEAL_400, NAVY_700, RED, SLATE400];
 

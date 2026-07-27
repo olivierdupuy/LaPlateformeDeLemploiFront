@@ -1,6 +1,9 @@
+// La navbar est fixe : <main> porte le decalage une seule fois,
+// pour toutes les pages. Chaque page ne gere plus que sa respiration.
 main {
   display: block;
-  min-height: calc(100vh - var(--nav-h) - 220px);
+  padding-top: var(--nav-h);
+  min-height: calc(100vh - 220px);
   outline: none;
 }
 

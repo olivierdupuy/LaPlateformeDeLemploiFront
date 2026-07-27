@@ -3,7 +3,7 @@
 // ═══════════════════════════════════
 
 .stats-page {
-  padding: calc(var(--nav-h) + 2.25rem) 0 5rem;
+  padding: 2.25rem 0 5rem;
   background: var(--paper);
   min-height: 100vh;
 }
@@ -305,7 +305,7 @@
   .chart-row-3 { grid-template-columns: 1fr; }
 }
 @media (max-width: 620px) {
-  .stats-page { padding: calc(var(--nav-h) + 1.25rem) 0 3.5rem; }
+  .stats-page { padding: 1.25rem 0 3.5rem; }
   .kpi-grid { grid-template-columns: 1fr; }
   .chart-card { padding: 1.35rem 1.25rem 1.4rem; }
   .chart-lg { height: 260px; }

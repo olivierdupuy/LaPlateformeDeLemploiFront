@@ -6,7 +6,7 @@
 
 .hero {
   position: relative;
-  padding: calc(var(--nav-h) + clamp(2.5rem, 5vw, 4rem)) 0 clamp(3rem, 6vw, 4.5rem);
+  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 4.5rem);
   background: var(--plum-900);
   overflow: hidden;
 

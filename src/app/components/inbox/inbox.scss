@@ -4,7 +4,7 @@
 
 // ── Hero ──
 .msg-hero {
-  padding: calc(var(--nav-h) + 2.25rem) 0 1.75rem;
+  padding: 2.25rem 0 1.75rem;
   background: var(--paper);
   border-bottom: 1px solid var(--line);
 }
@@ -545,5 +545,5 @@
 }
 
 @media (max-width: 768px) {
-  .msg-hero { padding: calc(var(--nav-h) + 1.25rem) 0 1.5rem; }
+  .msg-hero { padding: 1.25rem 0 1.5rem; }
 }

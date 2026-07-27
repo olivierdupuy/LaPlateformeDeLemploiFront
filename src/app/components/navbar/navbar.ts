@@ -66,7 +66,7 @@ export class Navbar implements OnInit, OnDestroy {
           this.toastr.info(`${data.candidateName} a postule a "${data.jobTitle}"`, 'Nouvelle candidature');
         }),
         this.signalR.applicationStatusChanged$.subscribe((data) => {
-          const labels: Record<string, string> = { Pending: 'en attente', Reviewed: 'examinee', Accepted: 'acceptee', Rejected: 'refusee' };
+          const labels: Record<string, string> = { Pending: 'en attente', Reviewed: 'examinée', Accepted: 'acceptée', Rejected: 'refusée' };
           this.toastr.info(`Votre candidature pour "${data.jobTitle}" est ${labels[data.status] || data.status}`, 'Statut modifie');
         })
       );

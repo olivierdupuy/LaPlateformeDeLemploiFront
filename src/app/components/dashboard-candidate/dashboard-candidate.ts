@@ -59,7 +59,7 @@ export class DashboardCandidate implements OnInit {
     this.charts = [];
 
     if (this.statusCanvas && a.statusBreakdown?.length) {
-      const labels: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' };
+      const labels: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' };
       const colors: Record<string, string> = { Pending: '#b57408', Reviewed: '#93bcf4', Accepted: '#12855e', Rejected: '#e42b2f' };
       this.charts.push(new Chart(this.statusCanvas.nativeElement, {
         type: 'doughnut',
@@ -91,7 +91,7 @@ export class DashboardCandidate implements OnInit {
   }
 
   statusColor(label: string): string {
-    return { 'En attente': 'var(--amber)', 'Examinees': 'var(--blue)', 'Acceptees': 'var(--green)', 'Refusees': 'var(--red)' }[label] || 'var(--slate-400)';
+    return { 'En attente': 'var(--amber)', 'Examinées': 'var(--blue)', 'Acceptées': 'var(--green)', 'Refusées': 'var(--red)' }[label] || 'var(--slate-400)';
   }
 
   statusIcon(status: string): string {
@@ -99,7 +99,7 @@ export class DashboardCandidate implements OnInit {
   }
 
   statusLabel(status: string): string {
-    return { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' }[status] || status;
+    return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[status] || status;
   }
 
   statusClass(status: string): string {

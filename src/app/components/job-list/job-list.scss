@@ -6,7 +6,7 @@
 .search-hero {
   position: relative;
   // Pas de marge basse : la barre de filtres claire vient s'y appuyer.
-  padding: calc(var(--nav-h) + clamp(1.75rem, 3.5vw, 2.75rem)) 0 clamp(1.5rem, 2.5vw, 2rem);
+  padding: clamp(1.75rem, 3.5vw, 2.75rem) 0 clamp(1.5rem, 2.5vw, 2rem);
   background: var(--plum-900);
   overflow: hidden;
 

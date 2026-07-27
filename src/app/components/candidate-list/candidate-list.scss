@@ -6,7 +6,7 @@
 .cv-hero {
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  padding: calc(var(--nav-h) + 2.75rem) 0 2.5rem;
+  padding: 2.75rem 0 2.5rem;
   position: relative;
   overflow: hidden;
 
@@ -390,7 +390,7 @@
 }
 
 @media (max-width: 768px) {
-  .cv-hero { padding: calc(var(--nav-h) + 2.25rem) 0 2rem; }
+  .cv-hero { padding: 2.25rem 0 2rem; }
   .cvh-search { max-width: 100%; }
   .cvh-filter-grid { grid-template-columns: 1fr; max-width: 100%; }
   .cv-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }

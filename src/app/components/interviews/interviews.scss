@@ -6,7 +6,7 @@
 .iv-hero {
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  padding: calc(var(--nav-h) + 2.25rem) 0 2.75rem;
+  padding: 2.25rem 0 2.75rem;
   position: relative;
   overflow: hidden;
 
@@ -388,7 +388,7 @@
 
 // ── Responsive ──
 @media (max-width: 768px) {
-  .iv-hero { padding: calc(var(--nav-h) + 1.5rem) 0 1.75rem; }
+  .iv-hero { padding: 1.5rem 0 1.75rem; }
   .ivh-inner { flex-direction: column; align-items: flex-start; }
   .ivh-counters { width: 100%; justify-content: space-between; }
   .ivhc { flex: 1; padding: 0.75rem 0.5rem; }

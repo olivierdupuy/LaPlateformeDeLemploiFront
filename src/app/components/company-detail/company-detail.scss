@@ -3,7 +3,7 @@
 // ═══════════════════════════════════
 
 .cd-page {
-  padding: calc(var(--nav-h) + 2.75rem) 0 4.5rem;
+  padding: 2.75rem 0 4.5rem;
   background:
     radial-gradient(1000px 340px at 50% -140px, var(--brand-tint), transparent 70%),
     var(--canvas);
@@ -163,7 +163,7 @@
 
 // ── Responsive ──
 @media (max-width: 768px) {
-  .cd-page { padding: calc(var(--nav-h) + 1.25rem) 0 3.5rem; }
+  .cd-page { padding: 1.25rem 0 3.5rem; }
   .cd-header { gap: 1rem; }
   .cd-avatar { width: 60px; height: 60px; span { font-size: 1.45rem; } }
   .cd-grid { grid-template-columns: 1fr; }

@@ -23,7 +23,7 @@ const SLATE200 = '#dde5f1';     // line
 
 const MULTI = [TEAL, NAVY_800, AMBER, BLUE, GREEN, ORANGE, TEAL_400, RED, NAVY_700, SLATE400, TEAL_600, '#6b47c9', '#f0a11b'];
 const STATUS_COLORS: Record<string, string> = { Pending: AMBER, Reviewed: BLUE, Accepted: GREEN, Rejected: RED };
-const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' };
+const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' };
 
 // Coordonnées des principales villes françaises
 const FRENCH_CITIES: Record<string, [number, number]> = {

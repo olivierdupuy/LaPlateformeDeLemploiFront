@@ -6,7 +6,7 @@
 .mo-hero {
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  padding: calc(var(--nav-h) + 2.25rem) 0 2rem;
+  padding: 2.25rem 0 2rem;
 }
 
 .moh-inner {
@@ -340,7 +340,7 @@
 
 // ── Responsive ──
 @media (max-width: 768px) {
-  .mo-hero { padding: calc(var(--nav-h) + 1.25rem) 0 1.75rem; }
+  .mo-hero { padding: 1.25rem 0 1.75rem; }
   .moh-inner { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
   .moh-actions { width: 100%; .btn-primary { width: 100%; } }
   .mo-grid { grid-template-columns: 1fr; }

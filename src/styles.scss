@@ -319,7 +319,7 @@ h3, h4, h5, h6 {
    Partagé par les pages publiques pour un rythme identique partout. */
 .page-hero {
   position: relative;
-  padding: calc(var(--nav-h) + clamp(1.6rem, 3.2vw, 2.6rem)) 0 clamp(1.6rem, 2.8vw, 2.4rem);
+  padding: clamp(1.6rem, 3.2vw, 2.6rem) 0 clamp(1.6rem, 2.8vw, 2.4rem);
   background: var(--plum-900);
   overflow: hidden;
 

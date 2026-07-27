@@ -63,7 +63,7 @@ export class Applications implements OnInit {
   }
 
   getStatusBadgeClass(s: string): string { return { Pending: 'st-amber', Reviewed: 'st-blue', Accepted: 'st-green', Rejected: 'st-red' }[s] || ''; }
-  getStatusLabel(s: string): string { return { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' }[s] || s; }
+  getStatusLabel(s: string): string { return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[s] || s; }
   getStatusIcon(s: string): string { return { Pending: 'bi-clock', Reviewed: 'bi-eye-fill', Accepted: 'bi-check-circle-fill', Rejected: 'bi-x-circle-fill' }[s] || 'bi-circle'; }
 
   updateStatus(app: Application, status: string) {

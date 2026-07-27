@@ -2,7 +2,7 @@
 //  DASHBOARD — Clean SaaS analytics
 // ═══════════════════════════════════
 
-.dash-page { padding: calc(var(--nav-h) + 2.25rem) 0 4rem; background: var(--paper); min-height: 100vh; }
+.dash-page { padding: 2.25rem 0 4rem; background: var(--paper); min-height: 100vh; }
 
 // ── Header ──
 .dash-head { margin-bottom: 2.25rem; }
@@ -124,7 +124,7 @@
 }
 
 @media (max-width: 620px) {
-  .dash-page { padding: calc(var(--nav-h) + 1.25rem) 0 3rem; }
+  .dash-page { padding: 1.25rem 0 3rem; }
   .stat-cards { grid-template-columns: 1fr; }
   .chart-card { padding: 1.4rem 1.35rem 1.5rem; }
   .chart-h-bar    { height: 260px; }
