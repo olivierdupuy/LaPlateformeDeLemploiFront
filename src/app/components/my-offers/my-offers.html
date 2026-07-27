@@ -74,7 +74,7 @@
       <div class="mo-empty animate-in">
         <div class="moe-circle"><i class="bi bi-briefcase"></i></div>
         <h3>Aucune offre publiée</h3>
-        <p>Publiez votre premiere offre pour commencer a recevoir des candidatures.</p>
+        <p>Publiez votre première offre pour commencer a recevoir des candidatures.</p>
         <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
       </div>
     } @else {
@@ -98,7 +98,7 @@
                   @if (o.moderationStatus === 'Pending') {
                     <span class="oc-tag oc-pending"><i class="bi bi-hourglass-split"></i> En attente</span>
                   } @else if (o.moderationStatus === 'Rejected') {
-                    <span class="oc-tag oc-rejected"><i class="bi bi-x-octagon-fill"></i> Rejetee</span>
+                    <span class="oc-tag oc-rejected"><i class="bi bi-x-octagon-fill"></i> Rejetée</span>
                   } @else if (o.isActive) {
                     <span class="oc-tag oc-active"><i class="bi bi-check-circle-fill"></i> Active</span>
                   } @else {

@@ -50,7 +50,7 @@
         </div>
 
         <div class="set-actions">
-          <span class="set-hint u-mono">Les modifications s'appliquent immediatement apres sauvegarde.</span>
+          <span class="set-hint u-mono">Les modifications s'appliquent immediatement après sauvegarde.</span>
           <button (click)="save()" class="btn-primary" [disabled]="saving()">
             @if (saving()) { <span class="sp"></span> } @else { <i class="bi bi-check-lg"></i> }
             {{ saving() ? 'Sauvegarde...' : 'Sauvegarder' }}

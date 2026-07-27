@@ -73,7 +73,7 @@
               </div>
             } @empty {
               <button class="sec-empty" (click)="openAdd(type)">
-                <i class="bi bi-plus-circle"></i> Ajouter un element
+                <i class="bi bi-plus-circle"></i> Ajouter un élément
               </button>
             }
           </div>
@@ -172,7 +172,7 @@
     <div class="modal-content ai-modal" (click)="$event.stopPropagation()">
       <div class="em-head">
         <div class="em-icon ai-gradient"><i class="bi bi-stars"></i></div>
-        <div><h2>{{ aiModalTitle() }}</h2><span class="em-sub">Selectionnez les sections a integrer</span></div>
+        <div><h2>{{ aiModalTitle() }}</h2><span class="em-sub">Sélectionnez les sections a integrer</span></div>
         <button class="em-close" (click)="aiOpen.set(false)"><i class="bi bi-x-lg"></i></button>
       </div>
       <div class="ai-list">
