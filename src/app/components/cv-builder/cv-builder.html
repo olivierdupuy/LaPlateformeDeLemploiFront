@@ -12,7 +12,7 @@
         {{ previewOpen() ? 'Masquer' : 'Apercu' }}
       </button>
       <button class="btn-secondary cvh-btn cvh-pdf" (click)="exportPdf()">
-        <i class="bi bi-file-earmark-pdf"></i> Telecharger PDF
+        <i class="bi bi-file-earmark-pdf"></i> Télécharger PDF
       </button>
       <label class="btn-primary cvh-btn cvh-import" [class.loading]="parsingFile()">
         @if (parsingFile()) {
@@ -152,9 +152,9 @@
           <div class="form-group"><label>Niveau</label>
             <select [(ngModel)]="editForm.level" name="level">
               @if (editForm.sectionType === 'Langue') {
-                <option value="">Selectionner</option><option>Natif</option><option>Courant</option><option>Avance (C1)</option><option>Intermediaire (B2)</option><option>Debutant (A1-A2)</option>
+                <option value="">Sélectionner</option><option>Natif</option><option>Courant</option><option>Avance (C1)</option><option>Intermediaire (B2)</option><option>Debutant (A1-A2)</option>
               } @else {
-                <option value="">Selectionner</option><option>Expert</option><option>Avance</option><option>Intermediaire</option><option>Debutant</option>
+                <option value="">Sélectionner</option><option>Expert</option><option>Avance</option><option>Intermediaire</option><option>Debutant</option>
               }
             </select>
           </div>

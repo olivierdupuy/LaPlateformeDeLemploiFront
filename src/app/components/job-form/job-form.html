@@ -57,7 +57,7 @@
               <div class="form-group"><label>Type de contrat</label>
                 <select [(ngModel)]="form.contractType" name="contractType">@for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }</select>
               </div>
-              <div class="form-group"><label>Categorie</label>
+              <div class="form-group"><label>Catégorie</label>
                 <select [(ngModel)]="form.category" name="category">@for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }</select>
               </div>
             </div>
@@ -81,20 +81,20 @@
             <span class="ed-pill">02</span>
             <div>
               <h2>Details et avantages</h2>
-              <p>Precisez la remuneration, les competences et les avantages.</p>
+              <p>Précisez la remuneration, les compétences et les avantages.</p>
             </div>
           </div>
           <div class="jfc-body">
             <div class="form-row">
               <div class="form-group"><label>Remuneration (texte)</label><input type="text" placeholder="ex: 45K - 55K EUR" [(ngModel)]="form.salary" name="salary" /></div>
-              <div class="form-group"><label>Competences (virgules)</label><input type="text" placeholder="Angular, .NET, TypeScript" [(ngModel)]="form.tags" name="tags" /></div>
+              <div class="form-group"><label>Compétences (virgules)</label><input type="text" placeholder="Angular, .NET, TypeScript" [(ngModel)]="form.tags" name="tags" /></div>
             </div>
             <div class="form-row">
               <div class="form-group"><label>Salaire minimum (EUR/an)</label><input type="number" placeholder="35000" [(ngModel)]="form.minSalary" name="minSalary" /></div>
               <div class="form-group"><label>Salaire maximum (EUR/an)</label><input type="number" placeholder="50000" [(ngModel)]="form.maxSalary" name="maxSalary" /></div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label>Niveau d'experience</label>
+              <div class="form-group"><label>Niveau d'expérience</label>
                 <select [(ngModel)]="form.experienceRequired" name="experienceRequired">
                   <option value="">Non specifie</option>
                   @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
@@ -128,7 +128,7 @@
             </div>
           </div>
           <div class="jfc-actions">
-            <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Precedent</button>
+            <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Précédent</button>
             <button type="button" class="btn-primary" (click)="nextStep()">Suivant <i class="bi bi-arrow-right"></i></button>
           </div>
         </div>
@@ -150,7 +150,7 @@
               <div class="moderation-notice">
                 <i class="bi bi-shield-check"></i>
                 <div>
-                  <strong>Moderation active</strong>
+                  <strong>Modération active</strong>
                   <p>Votre offre sera soumise a validation par un administrateur avant d'etre visible par les candidats. Vous serez notifie une fois l'offre approuvee.</p>
                 </div>
               </div>
@@ -160,7 +160,7 @@
               <label class="opt-card" [class.active]="form.isRemote">
                 <input type="checkbox" [(ngModel)]="form.isRemote" name="isRemote" />
                 <div class="opt-icon"><i class="bi bi-wifi"></i></div>
-                <div class="opt-text"><strong>Teletravail</strong><span>Le poste est ouvert au teletravail</span></div>
+                <div class="opt-text"><strong>Télétravail</strong><span>Le poste est ouvert au télétravail</span></div>
                 <i class="bi bi-check-lg opt-check"></i>
               </label>
               <label class="opt-card" [class.active]="form.isUrgent">
@@ -225,15 +225,15 @@
                 <div class="res-item"><span class="res-label">Entreprise</span><span class="res-val">{{ form.company || '—' }}</span></div>
                 <div class="res-item"><span class="res-label">Lieu</span><span class="res-val">{{ form.location || '—' }}</span></div>
                 <div class="res-item"><span class="res-label">Contrat</span><span class="res-val">{{ form.contractType }}</span></div>
-                <div class="res-item"><span class="res-label">Categorie</span><span class="res-val">{{ form.category }}</span></div>
+                <div class="res-item"><span class="res-label">Catégorie</span><span class="res-val">{{ form.category }}</span></div>
                 @if (form.salary) { <div class="res-item"><span class="res-label">Salaire</span><span class="res-val res-teal">{{ form.salary }}</span></div> }
-                @if (form.experienceRequired) { <div class="res-item"><span class="res-label">Experience</span><span class="res-val">{{ form.experienceRequired }}</span></div> }
+                @if (form.experienceRequired) { <div class="res-item"><span class="res-label">Expérience</span><span class="res-val">{{ form.experienceRequired }}</span></div> }
                 @if (form.educationLevel) { <div class="res-item"><span class="res-label">Formation</span><span class="res-val">{{ form.educationLevel }}</span></div> }
               </div>
             </div>
           </div>
           <div class="jfc-actions">
-            <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Precedent</button>
+            <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Précédent</button>
             <button type="submit" class="btn-primary btn-publish" [disabled]="submitting">
               @if (submitting) { <span class="sp"></span> } @else { <i class="bi" [class.bi-send]="showModerationNotice" [class.bi-check-lg]="!showModerationNotice"></i> }
               {{ isEdit()

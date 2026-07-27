@@ -148,11 +148,11 @@
           <div class="form-group"><label>Entreprise</label><input type="text" placeholder="Votre entreprise" [(ngModel)]="profileForm.company" name="company" /></div>
           <div class="form-group"><label>Bio</label><textarea placeholder="Decrivez-vous en quelques lignes..." [(ngModel)]="profileForm.bio" name="bio" rows="3"></textarea></div>
 
-          <div class="form-group"><label>Competences (separees par virgules)</label><input type="text" placeholder="Angular, TypeScript, .NET..." [(ngModel)]="profileForm.skills" name="skills" /></div>
+          <div class="form-group"><label>Compétences (separees par virgules)</label><input type="text" placeholder="Angular, TypeScript, .NET..." [(ngModel)]="profileForm.skills" name="skills" /></div>
 
           <div class="form-row">
-            <div class="form-group"><label>Annees d'experience</label><input type="number" placeholder="0" [(ngModel)]="profileForm.experienceYears" name="experienceYears" /></div>
-            <div class="form-group"><label>Formation / Diplome</label><input type="text" placeholder="ex: Master Informatique" [(ngModel)]="profileForm.education" name="education" /></div>
+            <div class="form-group"><label>Annees d'expérience</label><input type="number" placeholder="0" [(ngModel)]="profileForm.experienceYears" name="experienceYears" /></div>
+            <div class="form-group"><label>Formation / Diplôme</label><input type="text" placeholder="ex: Master Informatique" [(ngModel)]="profileForm.education" name="education" /></div>
           </div>
           <div class="form-row">
             <div class="form-group"><label>LinkedIn</label><input type="url" placeholder="https://linkedin.com/in/..." [(ngModel)]="profileForm.linkedInUrl" name="linkedInUrl" /></div>
@@ -196,7 +196,7 @@
               <h4>Aucun CV televerse</h4>
               <p>Televersez votre CV au format PDF (max 5 Mo). Il sera automatiquement joint a vos candidatures.</p>
               <label class="btn-primary cv-upload-btn" [class.loading]="uploadingCv">
-                @if (uploadingCv) { <span class="sp"></span> Telechargement... } @else { <i class="bi bi-upload"></i> Telecharger mon CV }
+                @if (uploadingCv) { <span class="sp"></span> Telechargement... } @else { <i class="bi bi-upload"></i> Télécharger mon CV }
                 <input type="file" accept=".pdf" (change)="onCvFileSelected($event)" hidden />
               </label>
             </div>
@@ -228,7 +228,7 @@
         <div class="pm-head">
           <span class="ed-pill">{{ u.role === 'Candidate' ? '03' : '02' }}</span>
           <div class="pm-head-text">
-            <h2>Securite</h2>
+            <h2>Sécurité</h2>
             <p>Modifiez votre mot de passe pour proteger votre compte.</p>
           </div>
         </div>

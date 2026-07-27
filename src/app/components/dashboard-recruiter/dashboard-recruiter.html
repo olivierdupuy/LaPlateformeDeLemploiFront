@@ -46,7 +46,7 @@
           <span class="st-extra">{{ d.enAttente }} en attente</span>
         </div>
         <span class="st-val">{{ d.totalCandidatures }}</span>
-        <span class="st-lbl">Candidatures recues</span>
+        <span class="st-lbl">Candidatures reçues</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.totalCandidatures > 0 ? '100%' : '0%'" style="background:var(--blue)"></div></div>
       </div>
 
@@ -55,7 +55,7 @@
           <div class="st-icon ic-green"><i class="bi bi-calendar-event-fill"></i></div>
         </div>
         <span class="st-val">{{ d.entretiensPlanifies }}</span>
-        <span class="st-lbl">Entretiens planifies</span>
+        <span class="st-lbl">Entretiens planifiés</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.entretiensPlanifies > 0 ? '60%' : '0%'" style="background:var(--green)"></div></div>
       </div>
 
@@ -94,13 +94,13 @@
       <!-- Repartition par statut -->
       <div class="dr-card card animate-in" style="animation-delay:.3s">
         <div class="drc-head">
-          <h2 class="section-title"><span class="ed-pill">02</span> Repartition par statut</h2>
+          <h2 class="section-title"><span class="ed-pill">02</span> Répartition par statut</h2>
         </div>
         <div class="drc-body">
           @if (d.totalCandidatures > 0) {
             <div class="chart-container chart-doughnut"><canvas #statusChart></canvas></div>
           } @else {
-            <div class="drc-empty"><i class="bi bi-pie-chart"></i><p>Aucune donnee</p></div>
+            <div class="drc-empty"><i class="bi bi-pie-chart"></i><p>Aucune donnée</p></div>
           }
         </div>
       </div>
@@ -138,7 +138,7 @@
           </a>
           <a routerLink="/admin/nouvelle-offre" class="qn">
             <div class="qn-icon ic-brand"><i class="bi bi-plus-circle"></i></div>
-            <div class="qn-text"><strong>Publier une offre</strong><span>Creer une nouvelle annonce</span></div>
+            <div class="qn-text"><strong>Publier une offre</strong><span>Créer une nouvelle annonce</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
           <a routerLink="/profil" class="qn">

@@ -31,17 +31,17 @@
         <div class="thc-div"></div>
         <div class="thc">
           <span class="thc-val thc-blue">{{ counts().reviewed }}</span>
-          <span class="thc-lbl">Examinees</span>
+          <span class="thc-lbl">Examinées</span>
         </div>
         <div class="thc-div"></div>
         <div class="thc">
           <span class="thc-val thc-green">{{ counts().accepted }}</span>
-          <span class="thc-lbl">Acceptees</span>
+          <span class="thc-lbl">Acceptées</span>
         </div>
         <div class="thc-div"></div>
         <div class="thc">
           <span class="thc-val thc-red">{{ counts().rejected }}</span>
-          <span class="thc-lbl">Refusees</span>
+          <span class="thc-lbl">Refusées</span>
         </div>
       </div>
     </div>
@@ -63,7 +63,7 @@
     } @else {
       <!-- Progress bar -->
       <div class="trk-progress-wrap animate-in" style="animation-delay:.2s">
-        <span class="eyebrow">Repartition</span>
+        <span class="eyebrow">Répartition</span>
         <div class="trk-progress">
           @if (counts().pending > 0) { <div class="tp-seg tp-amber" [style.width]="(counts().pending / counts().total * 100) + '%'"></div> }
           @if (counts().reviewed > 0) { <div class="tp-seg tp-blue" [style.width]="(counts().reviewed / counts().total * 100) + '%'"></div> }

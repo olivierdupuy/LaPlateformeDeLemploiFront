@@ -136,8 +136,8 @@ export class Profile implements OnInit {
       text: 'Voulez-vous analyser ce PDF pour remplir automatiquement les sections de votre CV en ligne ?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#0e5c43',
-      cancelButtonColor: '#6c6e63',
+      confirmButtonColor: '#1657c4',
+      cancelButtonColor: '#5a6b85',
       confirmButtonText: 'Analyser',
       cancelButtonText: 'Non merci',
     });
@@ -177,8 +177,8 @@ export class Profile implements OnInit {
       text: 'Cette action est irreversible.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#c6362f',
-      cancelButtonColor: '#6c6e63',
+      confirmButtonColor: '#e42b2f',
+      cancelButtonColor: '#5a6b85',
       confirmButtonText: 'Supprimer',
       cancelButtonText: 'Annuler',
     });

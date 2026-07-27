@@ -135,7 +135,7 @@ export class JobDetail implements OnInit {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18, attribution: '&copy; OpenStreetMap',
     }).addTo(map);
-    L.circleMarker([lat, lng], { radius: 11, color: '#0e5c43', weight: 3, fillColor: '#16c47f', fillOpacity: 0.5 }).addTo(map);
+    L.circleMarker([lat, lng], { radius: 11, color: '#1657c4', weight: 3, fillColor: '#2e74e0', fillOpacity: 0.5 }).addTo(map);
     setTimeout(() => map.invalidateSize(), 200);
   }
 
@@ -170,7 +170,7 @@ export class JobDetail implements OnInit {
       icon: 'success',
       title: 'Candidature envoyee !',
       text: 'Votre candidature a ete transmise avec succes.',
-      confirmButtonColor: '#0e5c43',
+      confirmButtonColor: '#1657c4',
       confirmButtonText: 'Parfait',
     });
   }
@@ -225,8 +225,8 @@ export class JobDetail implements OnInit {
       text: 'Cette action est irreversible.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#c6362f',
-      cancelButtonColor: '#6c6e63',
+      confirmButtonColor: '#e42b2f',
+      cancelButtonColor: '#5a6b85',
       confirmButtonText: 'Oui, supprimer',
       cancelButtonText: 'Annuler',
     });

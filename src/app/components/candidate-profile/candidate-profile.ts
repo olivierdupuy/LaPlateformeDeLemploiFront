@@ -35,7 +35,7 @@ export class CandidateProfile implements OnInit {
 
   avatarColor(): { bg: string; fg: string } {
     const c = this.candidate();
-    if (!c) return { bg: '#f0f0ea', fg: '#6c6e63' };
+    if (!c) return { bg: '#e7eef8', fg: '#5a6b85' };
     const hue = (c.firstName.charCodeAt(0) * 7 + (c.firstName.charCodeAt(1) || 0) * 13) % 360;
     return { bg: `hsl(${hue}, 45%, 92%)`, fg: `hsl(${hue}, 55%, 35%)` };
   }

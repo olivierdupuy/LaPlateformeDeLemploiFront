@@ -77,7 +77,7 @@ export class CvBuilder implements OnInit {
   }
 
   async deleteSection(id: number) {
-    const res = await Swal.fire({ title: 'Supprimer cette section ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#c6362f', confirmButtonText: 'Supprimer', cancelButtonText: 'Annuler' });
+    const res = await Swal.fire({ title: 'Supprimer cette section ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#e42b2f', confirmButtonText: 'Supprimer', cancelButtonText: 'Annuler' });
     if (res.isConfirmed) {
       this.cvService.delete(id).subscribe({ next: () => { this.load(); this.toastr.success('Supprimee'); } });
     }

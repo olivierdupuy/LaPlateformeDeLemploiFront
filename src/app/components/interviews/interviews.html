@@ -35,7 +35,7 @@
     } @else if (interviews().length === 0) {
       <div class="iv-empty animate-in">
         <div class="ive-circle"><i class="bi bi-calendar-event"></i></div>
-        <h3>Aucun entretien planifie</h3>
+        <h3>Aucun entretien planifié</h3>
         <p>{{ isCandidate() ? 'Vos entretiens apparaitront ici lorsqu\'un recruteur en planifiera un pour vous.' : 'Planifiez un entretien depuis la page candidatures pour une candidature acceptee.' }}</p>
         @if (isRecruiter()) {
           <a routerLink="/admin/candidatures" class="btn-primary"><i class="bi bi-people"></i> Voir les candidatures</a>
@@ -118,7 +118,7 @@
                   @if (iv.status === 'Negotiating') {
                     <div class="negotiate-info">
                       <i class="bi bi-chat-left-dots-fill"></i>
-                      <span>Creneaux proposes — en attente de reponse du recruteur</span>
+                      <span>Creneaux proposes — en attente de réponse du recruteur</span>
                     </div>
                     @if (isRecruiter()) {
                       <div class="ivc-actions">

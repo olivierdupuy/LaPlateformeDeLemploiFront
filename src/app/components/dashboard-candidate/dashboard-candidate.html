@@ -9,7 +9,7 @@
         <div class="dch-heading">
           <span class="eyebrow">Espace candidat</span>
           <h1>Bonjour, <span class="em">{{ u.firstName }}</span></h1>
-          <p>Voici un resume de votre activite sur la plateforme</p>
+          <p>Voici un résumé de votre activité sur la plateforme</p>
         </div>
       </div>
     }
@@ -34,7 +34,7 @@
           <div class="st-icon ic-teal"><i class="bi bi-send-fill"></i></div>
           <span class="st-val u-mono">{{ d.totalCandidatures }}</span>
         </div>
-        <span class="st-lbl">Candidatures envoyees</span>
+        <span class="st-lbl">Candidatures envoyées</span>
         <div class="st-bar"><div class="st-bar-fill" style="width:100%; background: var(--brand);"></div></div>
       </div>
 
@@ -44,7 +44,7 @@
           <div class="st-icon ic-green"><i class="bi bi-check-circle-fill"></i></div>
           <span class="st-val u-mono">{{ d.acceptees }}</span>
         </div>
-        <span class="st-lbl">Acceptees</span>
+        <span class="st-lbl">Acceptées</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.totalCandidatures > 0 ? (d.acceptees / d.totalCandidatures * 100) + '%' : '0%'" style="background: var(--green);"></div></div>
       </div>
 
@@ -54,7 +54,7 @@
           <div class="st-icon ic-blue"><i class="bi bi-calendar-event-fill"></i></div>
           <span class="st-val u-mono">{{ d.entretiens }}</span>
         </div>
-        <span class="st-lbl">Entretiens planifies</span>
+        <span class="st-lbl">Entretiens planifiés</span>
         <div class="st-bar"><div class="st-bar-fill" [style.width]="d.entretiens > 0 ? '60%' : '0%'" style="background: var(--blue);"></div></div>
       </div>
 
@@ -94,7 +94,7 @@
     <div class="container">
       <div class="dc-card animate-in" style="animation-delay:.25s">
         <div class="dc-card-head">
-          <h2><i class="bi bi-stars"></i> Offres recommandees pour vous</h2>
+          <h2><i class="bi bi-stars"></i> Offres recommandées pour vous</h2>
           <a routerLink="/offres" class="link-teal">Toutes les offres <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="dc-card-body">
@@ -129,14 +129,14 @@
       @if (analytics(); as a) {
         <div class="dc-analytics animate-in" style="animation-delay:.23s">
           <div class="ana-kpi">
-            <div class="ak card"><span class="ak-val u-mono">{{ a.responseRate }}%</span><span class="ak-lbl">Taux de reponse</span></div>
+            <div class="ak card"><span class="ak-val u-mono">{{ a.responseRate }}%</span><span class="ak-lbl">Taux de réponse</span></div>
             <div class="ak card"><span class="ak-val u-mono">{{ a.conversionRate }}%</span><span class="ak-lbl">Taux d'acceptation</span></div>
             <div class="ak card"><span class="ak-val u-mono">{{ a.interviewCount }}</span><span class="ak-lbl">Entretiens</span></div>
             <div class="ak card"><span class="ak-val u-mono">{{ a.total }}</span><span class="ak-lbl">Candidatures</span></div>
           </div>
           <div class="ana-charts">
             <div class="ana-chart-box">
-              <h4>Repartition par statut</h4>
+              <h4>Répartition par statut</h4>
               <div class="ana-chart-wrap"><canvas #statusChart></canvas></div>
             </div>
             <div class="ana-chart-box">
@@ -179,7 +179,7 @@
       <!-- Dernieres candidatures -->
       <div class="dc-card animate-in" style="animation-delay:.3s">
         <div class="dc-card-head">
-          <h2><span class="ed-pill">02</span> Activite recente</h2>
+          <h2><span class="ed-pill">02</span> Activité recente</h2>
           <a routerLink="/suivi" class="link-teal">Tout voir <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="dc-card-body">
@@ -222,7 +222,7 @@
           </a>
           <a routerLink="/mon-cv" class="qn-item">
             <div class="qn-icon ic-blue"><i class="bi bi-file-earmark-person"></i></div>
-            <div class="qn-text"><strong>Mon CV en ligne</strong><span>Editer mon CV</span></div>
+            <div class="qn-text"><strong>Mon CV en ligne</strong><span>Éditer mon CV</span></div>
             <i class="bi bi-chevron-right qn-arrow"></i>
           </a>
           <a routerLink="/favoris" class="qn-item">

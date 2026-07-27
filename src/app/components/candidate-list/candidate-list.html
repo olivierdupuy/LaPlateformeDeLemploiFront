@@ -20,7 +20,7 @@
         @if (showFilters) {
           <div class="cvh-filter-grid animate-in">
             <div class="form-group">
-              <label>Competences</label>
+              <label>Compétences</label>
               <input type="text" placeholder="ex: Angular, Python" [(ngModel)]="skills" (keyup.enter)="loadCandidates()" />
             </div>
             <div class="form-group">
@@ -28,19 +28,19 @@
               <input type="text" placeholder="ex: Lyon" [(ngModel)]="city" (keyup.enter)="loadCandidates()" />
             </div>
             <div class="form-group">
-              <label>Experience min.</label>
+              <label>Expérience min.</label>
               <input type="number" placeholder="ans" [(ngModel)]="minExperience" />
             </div>
             <div class="form-group">
-              <label>Experience max.</label>
+              <label>Expérience max.</label>
               <input type="number" placeholder="ans" [(ngModel)]="maxExperience" />
             </div>
             <div class="form-group cvh-filter-sort">
               <label>Trier par</label>
               <select [(ngModel)]="sort">
                 <option value="">Tri par defaut</option>
-                <option value="experience_desc">Experience decroissante</option>
-                <option value="experience_asc">Experience croissante</option>
+                <option value="experience_desc">Expérience decroissante</option>
+                <option value="experience_asc">Expérience croissante</option>
                 <option value="name">Nom A-Z</option>
               </select>
             </div>

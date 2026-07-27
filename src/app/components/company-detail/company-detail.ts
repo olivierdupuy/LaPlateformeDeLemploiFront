@@ -122,7 +122,7 @@ export class CompanyDetail implements OnInit {
       type: 'bar',
       data: {
         labels: years.map(String),
-        datasets: [{ data: avgs, backgroundColor: '#0e5c43', borderRadius: 6, maxBarThickness: 46 }],
+        datasets: [{ data: avgs, backgroundColor: '#1657c4', borderRadius: 6, maxBarThickness: 46 }],
       },
       options: {
         responsive: true, maintainAspectRatio: false,

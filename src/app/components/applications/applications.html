@@ -167,7 +167,7 @@
       <!-- ═══ KANBAN VIEW ═══ -->
       @if (viewMode() === 'kanban') {
         <div class="kanban animate-in" style="animation-delay:.1s">
-          @for (col of [{status:'Pending',label:'En attente',items:kanbanPending(),cls:'kb-amber'},{status:'Reviewed',label:'Examinees',items:kanbanReviewed(),cls:'kb-blue'},{status:'Accepted',label:'Acceptees',items:kanbanAccepted(),cls:'kb-green'},{status:'Rejected',label:'Refusees',items:kanbanRejected(),cls:'kb-red'}]; track col.status) {
+          @for (col of [{status:'Pending',label:'En attente',items:kanbanPending(),cls:'kb-amber'},{status:'Reviewed',label:'Examinées',items:kanbanReviewed(),cls:'kb-blue'},{status:'Accepted',label:'Acceptées',items:kanbanAccepted(),cls:'kb-green'},{status:'Rejected',label:'Refusées',items:kanbanRejected(),cls:'kb-red'}]; track col.status) {
             <div class="kb-col" [class]="col.cls" (dragover)="onDragOver($event)" (drop)="onDrop($event, col.status)">
               <div class="kb-header">
                 <span class="kb-title">{{ col.label }}</span>

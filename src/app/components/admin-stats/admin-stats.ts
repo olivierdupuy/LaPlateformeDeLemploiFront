@@ -5,23 +5,23 @@ import Chart from 'chart.js/auto';
 import * as L from 'leaflet';
 
 // ── Palette app (identité Clean SaaS) ──
-const TEAL = '#0e5c43';        // brand evergreen
-const TEAL_400 = '#3e9a78';    // brand-400
-const TEAL_600 = '#0a4834';    // brand-700
-const TEAL_50 = 'rgba(14,92,67,0.10)';
-const NAVY_950 = '#0b0c08';
-const NAVY_900 = '#14150f';    // ink
-const NAVY_800 = '#23241c';
-const NAVY_700 = '#3a3b31';
-const AMBER = '#b4690e';
-const GREEN = '#0e9f6e';
-const RED = '#c6362f';
-const BLUE = '#2563a8';
-const ORANGE = '#e06a34';
-const SLATE400 = '#9b9d90';     // faint
-const SLATE200 = '#e7e7df';     // line
+const TEAL = '#1657c4';        // brand evergreen
+const TEAL_400 = '#5b96ec';    // brand-400
+const TEAL_600 = '#0f3d87';    // brand-700
+const TEAL_50 = 'rgba(22,87,196,0.10)';
+const NAVY_950 = '#071e45';
+const NAVY_900 = '#0c1b33';    // ink
+const NAVY_800 = '#0f3d87';
+const NAVY_700 = '#33445f';
+const AMBER = '#b57408';
+const GREEN = '#12855e';
+const RED = '#e42b2f';
+const BLUE = '#93bcf4';
+const ORANGE = '#e07a20';
+const SLATE400 = '#8e9cb2';     // faint
+const SLATE200 = '#dde5f1';     // line
 
-const MULTI = [TEAL, NAVY_800, AMBER, BLUE, GREEN, ORANGE, TEAL_400, RED, NAVY_700, SLATE400, TEAL_600, '#6d51c9', '#b2df34'];
+const MULTI = [TEAL, NAVY_800, AMBER, BLUE, GREEN, ORANGE, TEAL_400, RED, NAVY_700, SLATE400, TEAL_600, '#6b47c9', '#f0a11b'];
 const STATUS_COLORS: Record<string, string> = { Pending: AMBER, Reviewed: BLUE, Accepted: GREEN, Rejected: RED };
 const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' };
 
@@ -123,7 +123,7 @@ export class AdminStats implements OnInit, OnDestroy {
   }
 
   private font(size = 11, weight: 'normal' | 'bold' | 500 | 600 | 700 = 500) {
-    return { family: "'Space Grotesk', sans-serif", size, weight: weight as any };
+    return { family: "'DM Mono', sans-serif", size, weight: weight as any };
   }
 
   private tooltipStyle() {
@@ -295,7 +295,7 @@ export class AdminStats implements OnInit, OnDestroy {
       });
 
       circle.bindPopup(
-        `<div style="font-family:'Space Grotesk',sans-serif;text-align:center;padding:4px">` +
+        `<div style="font-family:'DM Mono',sans-serif;text-align:center;padding:4px">` +
         `<strong style="font-size:14px;color:${NAVY_800}">${item.label}</strong><br>` +
         `<span style="font-size:22px;font-weight:800;color:${color}">${item.value}</span><br>` +
         `<span style="font-size:11px;color:${SLATE400}">${noun}${item.value > 1 ? 's' : ''}</span></div>`,
@@ -541,9 +541,9 @@ export class AdminStats implements OnInit, OnDestroy {
           const cy = (chartArea.top + chartArea.bottom) / 2;
           c.save();
           c.textAlign = 'center'; c.textBaseline = 'middle';
-          c.font = "700 1.4rem 'Space Grotesk', sans-serif"; c.fillStyle = NAVY_900;
+          c.font = "700 1.4rem 'DM Mono', sans-serif"; c.fillStyle = NAVY_900;
           c.fillText(String(total), cx, cy - 7);
-          c.font = "500 0.7rem 'Space Grotesk', sans-serif"; c.fillStyle = SLATE400;
+          c.font = "500 0.7rem 'DM Mono', sans-serif"; c.fillStyle = SLATE400;
           c.fillText('Total', cx, cy + 13);
           c.restore();
         }

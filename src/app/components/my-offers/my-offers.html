@@ -42,7 +42,7 @@
         </button>
         <div class="mohs-div"></div>
         <button class="mohs" [class.active]="filter() === 'expired'" (click)="filter.set(filter() === 'expired' ? 'all' : 'expired')">
-          <span class="mohs-val mohs-red">{{ counts().expired }}</span><span class="mohs-lbl">Expirees</span>
+          <span class="mohs-val mohs-red">{{ counts().expired }}</span><span class="mohs-lbl">Expirées</span>
         </button>
         @if (counts().pending > 0) {
           <div class="mohs-div"></div>
@@ -73,7 +73,7 @@
     } @else if (offers().length === 0) {
       <div class="mo-empty animate-in">
         <div class="moe-circle"><i class="bi bi-briefcase"></i></div>
-        <h3>Aucune offre publiee</h3>
+        <h3>Aucune offre publiée</h3>
         <p>Publiez votre premiere offre pour commencer a recevoir des candidatures.</p>
         <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
       </div>
@@ -102,7 +102,7 @@
                   } @else if (o.isActive) {
                     <span class="oc-tag oc-active"><i class="bi bi-check-circle-fill"></i> Active</span>
                   } @else {
-                    <span class="oc-tag oc-inactive"><i class="bi bi-x-circle-fill"></i> Expiree</span>
+                    <span class="oc-tag oc-inactive"><i class="bi bi-x-circle-fill"></i> Expirée</span>
                   }
                   @if (o.isFeatured) {
                     <span class="oc-featured"><i class="bi bi-star-fill"></i></span>
@@ -126,7 +126,7 @@
                   <span class="badge" [class]="getContractBadgeClass(o.contractType)">{{ o.contractType }}</span>
                 </div>
                 @if (o.isRemote) {
-                  <div class="oc-stat"><span class="remote-pill">Teletravail</span></div>
+                  <div class="oc-stat"><span class="remote-pill">Télétravail</span></div>
                 }
                 @if (o.isUrgent) {
                   <div class="oc-stat"><span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span></div>
@@ -150,11 +150,11 @@
               <!-- Footer: dates + actions -->
               <div class="oc-footer">
                 <div class="oc-dates">
-                  <span><i class="bi bi-calendar3"></i> Publiee le {{ o.createdAt | date:'dd/MM/yyyy' }}</span>
+                  <span><i class="bi bi-calendar3"></i> Publiée le {{ o.createdAt | date:'dd/MM/yyyy' }}</span>
                   @if (getDaysLeft(o.expiresAt); as d) {
                     @if (d > 7) { <span class="oc-exp oc-exp-ok"><i class="bi bi-clock"></i> Expire dans {{ d }} jours</span> }
                     @else if (d > 0) { <span class="oc-exp oc-exp-warn"><i class="bi bi-clock"></i> Expire dans {{ d }} jours</span> }
-                    @else { <span class="oc-exp oc-exp-red"><i class="bi bi-clock"></i> Expiree</span> }
+                    @else { <span class="oc-exp oc-exp-red"><i class="bi bi-clock"></i> Expirée</span> }
                   }
                 </div>
                 <div class="oc-actions" (click)="$event.stopPropagation(); $event.preventDefault()">

@@ -4,17 +4,17 @@ import { JobStats, DetailedStats } from '../../models/job-offer.model';
 import Chart from 'chart.js/auto';
 
 // App palette — Clean SaaS identity
-const TEAL     = '#0e5c43'; // brand (evergreen)
-const TEAL_400 = '#3e9a78'; // brand-400
-const TEAL_50  = 'rgba(14, 92, 67, 0.06)'; // brand-tint
-const NAVY_800 = '#14150f'; // ink
-const NAVY_700 = '#3f4139'; // ink-soft
-const AMBER    = '#b4690e';
-const GREEN    = '#0e9f6e';
-const RED      = '#c6362f';
-const BLUE     = '#2563a8';
-const SLATE400 = '#6c6e63'; // muted
-const ORANGE   = '#e06a34';
+const TEAL     = '#1657c4'; // brand (evergreen)
+const TEAL_400 = '#5b96ec'; // brand-400
+const TEAL_50  = 'rgba(22, 87, 196, 0.07)'; // brand-tint
+const NAVY_800 = '#0c1b33'; // ink
+const NAVY_700 = '#33445f'; // ink-soft
+const AMBER    = '#b57408';
+const GREEN    = '#12855e';
+const RED      = '#e42b2f';
+const BLUE     = '#93bcf4';
+const SLATE400 = '#5a6b85'; // muted
+const ORANGE   = '#e07a20';
 
 const STATUS_COLORS: Record<string, string> = { Pending: AMBER, Reviewed: BLUE, Accepted: GREEN, Rejected: RED };
 const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinee', Accepted: 'Acceptee', Rejected: 'Refusee' };
@@ -83,7 +83,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private baseFont() {
-    return { family: "'Space Grotesk', ui-monospace, monospace", size: 12, weight: 500 as const };
+    return { family: "'DM Mono', ui-monospace, monospace", size: 12, weight: 500 as const };
   }
 
   private buildCategoryChart(d: DetailedStats) {
@@ -210,7 +210,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
           c.font = "700 1.6rem 'Bricolage Grotesque', sans-serif";
           c.fillStyle = NAVY_800;
           c.fillText(String(total), cx, cy - 8);
-          c.font = "500 0.72rem 'Space Grotesk', monospace";
+          c.font = "500 0.72rem 'DM Mono', monospace";
           c.fillStyle = SLATE400;
           c.fillText('Total', cx, cy + 14);
           c.restore();
