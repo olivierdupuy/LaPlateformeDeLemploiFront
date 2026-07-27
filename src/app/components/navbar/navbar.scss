@@ -1,25 +1,24 @@
 // ═══════════════════════════════════════════════
-//  NAVBAR — le bandeau prune
-//  Chrome sombre en haut, contenu clair en dessous.
+//  NAVBAR
+//  La mascotte est dessinee pour un fond clair
+//  (bleu cerne de blanc) : le bandeau passe en blanc.
 // ═══════════════════════════════════════════════
 
 nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  background: rgba(27, 15, 34, 0.9);
-  backdrop-filter: blur(18px) saturate(1.5);
-  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
   border-bottom: 1px solid transparent;
   transition: background var(--t), border-color var(--t), box-shadow var(--t);
 
   &.scrolled {
-    background: rgba(27, 15, 34, 0.97);
-    border-bottom-color: rgba(239, 234, 243, 0.1);
-    box-shadow: 0 10px 30px -12px rgba(21, 12, 27, 0.6);
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom-color: var(--line);
+    box-shadow: 0 6px 24px -12px rgba(12, 27, 51, 0.28);
   }
-
-  :focus-visible { outline-color: var(--citron); }
 }
 
 .nav-inner {
@@ -31,6 +30,10 @@ nav {
 }
 
 // ── Marque ──
+// Le PNG est un logo vertical : dans une barre horizontale, son
+// texte integre devient illisible. On garde donc le personnage a
+// grande taille et on recompose le mot-symbole en Fredoka, qui
+// reprend le lettrage du logo. Proportions du dessin inchangees.
 .logo {
   display: flex;
   align-items: center;
@@ -38,33 +41,40 @@ nav {
   flex-shrink: 0;
 }
 
-.logo-mark {
-  width: 34px; height: 34px;
-  border-radius: 9px;
-  background: var(--citron);
-  color: var(--plum-900);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.9rem;
+// Fenetre sur la partie « personnage » du PNG (les 72 % du haut)
+.logo-mascotte {
+  --m-h: calc(var(--nav-h) - 22px);
+  display: block;
+  height: var(--m-h);
+  width: calc(var(--m-h) * 1.27);
+  overflow: hidden;
   flex-shrink: 0;
-  transition: transform var(--t) var(--ease-spring);
-}
-.logo:hover .logo-mark { transform: rotate(-7deg) scale(1.06); }
 
-.logo-text { display: flex; flex-direction: column; line-height: 1.1; }
-.logo-name {
-  font-family: var(--font-display);
-  font-size: 1.02rem;
-  font-weight: 400;
-  color: #fff;
-  letter-spacing: -0.02em;
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform var(--t) var(--ease-spring);
+    transform-origin: top center;
+  }
 }
-.logo-sub {
-  font-family: var(--font-mono);
-  font-size: 0.53rem;
-  font-weight: 400;
-  color: var(--citron);
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
+.logo:hover .logo-mascotte img { transform: scale(1.07) rotate(-2deg); }
+
+.logo-word {
+  display: flex;
+  flex-direction: column;
+  line-height: 0.94;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.logo-word__top {
+  font-size: calc(var(--nav-h) * 0.235);
+  color: var(--bleu-600);
+}
+.logo-word__bottom {
+  font-size: calc(var(--nav-h) * 0.185);
+  color: var(--rouge);
 }
 
 // ── Liens centraux ──
@@ -77,25 +87,24 @@ nav {
     position: relative;
     display: inline-flex; align-items: center; gap: 0.42rem;
     padding: 0.5rem 0.78rem;
-    font-size: 0.86rem; font-weight: 500;
-    color: var(--on-plum-muted);
+    font-size: 0.88rem; font-weight: 600;
+    color: var(--muted);
     border-radius: var(--r-sm);
     transition: color var(--t), background var(--t);
-    i { font-size: 0.95rem; opacity: 0.85; }
+    i { font-size: 0.95rem; opacity: 0.9; }
 
-    &:hover { color: #fff; background: rgba(239, 234, 243, 0.07); }
+    &:hover { color: var(--bleu-700); background: var(--bleu-tint); }
 
-    // L'état actif est marqué par un filet citron, pas par un aplat
+    // L'etat actif est souligne en rouge, comme « de l'emploi » du logo
     &.active {
-      color: #fff;
-      font-weight: 600;
+      color: var(--bleu-700);
       i { opacity: 1; }
       &::after {
         content: '';
         position: absolute;
-        left: 0.78rem; right: 0.78rem; bottom: 0.16rem;
-        height: 2px;
-        background: var(--citron);
+        left: 0.78rem; right: 0.78rem; bottom: 0.14rem;
+        height: 2.5px;
+        background: var(--rouge);
         border-radius: 2px;
       }
     }
@@ -103,12 +112,12 @@ nav {
 
   .nav-publish {
     margin-left: 0.45rem;
-    background: var(--citron);
-    color: var(--citron-ink);
+    background: var(--bleu-600);
+    color: #fff;
     font-weight: 700;
-    &:hover { background: var(--citron-600); color: var(--citron-ink); }
+    &:hover { background: var(--bleu-700); color: #fff; }
     &.active {
-      background: var(--citron-600); color: var(--citron-ink);
+      background: var(--bleu-700); color: #fff;
       &::after { display: none; }
     }
   }
@@ -127,11 +136,11 @@ nav {
   padding: 0.42rem 0.6rem;
   border-radius: var(--r-sm);
   font-family: var(--font-mono);
-  font-size: 0.62rem; font-weight: 400;
-  letter-spacing: 0.06em;
-  color: var(--on-plum-muted);
+  font-size: 0.68rem; font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--muted);
   transition: color var(--t), background var(--t);
-  &:hover { color: #fff; background: rgba(239, 234, 243, 0.07); }
+  &:hover { color: var(--bleu-700); background: var(--bleu-tint); }
   i { font-size: 0.85rem; }
 }
 
@@ -140,55 +149,55 @@ nav {
   width: 38px; height: 38px;
   border-radius: var(--r-sm);
   font-size: 1.08rem;
-  color: var(--on-plum-muted);
+  color: var(--muted);
   position: relative;
   transition: color var(--t), background var(--t);
-  &:hover { background: rgba(239, 234, 243, 0.07); color: #fff; }
-  &.icon-active { color: var(--citron); background: rgba(232, 255, 99, 0.1); }
+  &:hover { background: var(--bleu-tint); color: var(--bleu-700); }
+  &.icon-active { color: var(--bleu-600); background: var(--bleu-100); }
 }
 
 .count-badge {
   position: absolute; top: 3px; right: 3px;
-  min-width: 16px; height: 16px; padding: 0 4px;
+  min-width: 17px; height: 17px; padding: 0 4px;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-mono);
-  font-size: 0.5rem; font-weight: 600;
+  font-size: 0.56rem; font-weight: 500;
   border-radius: var(--r-full);
   line-height: 1;
-  border: 2px solid var(--plum-900);
-  &.red { background: #f2707c; color: var(--plum-900); }
-  &.citron, &.teal { background: var(--citron); color: var(--citron-ink); }
+  border: 2px solid var(--canvas);
+  &.red { background: var(--rouge); color: #fff; }
+  &.citron, &.teal { background: var(--bleu-600); color: #fff; }
 }
 
-// ── Déclencheur du compte ──
+// ── Declencheur du compte ──
 .user-menu-wrap { position: relative; }
 
 .user-trigger {
   display: flex; align-items: center; gap: 0.45rem;
   padding: 0.24rem 0.62rem 0.24rem 0.26rem;
-  border: 1px solid rgba(239, 234, 243, 0.16);
+  border: 1px solid var(--line-strong);
   border-radius: var(--r-full);
-  background: rgba(239, 234, 243, 0.05);
+  background: var(--canvas);
   transition: border-color var(--t), background var(--t);
-  &:hover { border-color: rgba(232, 255, 99, 0.45); background: rgba(239, 234, 243, 0.1); }
+  &:hover { border-color: var(--bleu-300); background: var(--bleu-tint); }
 }
 
 .trigger-avatar {
   width: 28px; height: 28px; border-radius: 50%;
-  background: var(--citron); color: var(--citron-ink);
+  background: var(--bleu-600); color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-mono);
-  font-size: 0.58rem; font-weight: 600;
+  font-size: 0.62rem; font-weight: 500;
   flex-shrink: 0;
 }
-.trigger-name { font-size: 0.84rem; font-weight: 600; color: #fff; }
+.trigger-name { font-size: 0.86rem; font-weight: 700; color: var(--ink); }
 .trigger-chevron {
-  font-size: 0.65rem; color: var(--on-plum-muted);
+  font-size: 0.65rem; color: var(--faint);
   transition: transform 0.2s var(--ease);
   &.rotated { transform: rotate(180deg); }
 }
 
-// ── Menus déroulants (clairs, pour la lisibilité des listes) ──
+// ── Menus deroulants ──
 .dropdown {
   position: absolute;
   top: calc(100% + 10px);
@@ -212,11 +221,11 @@ nav {
   gap: 1rem;
   padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--line);
-  strong { font-size: 0.88rem; font-weight: 700; }
+  strong { font-size: 0.9rem; font-weight: 800; }
 }
 
 .dd-action {
-  font-size: 0.72rem; font-weight: 600; color: var(--violet);
+  font-size: 0.74rem; font-weight: 700; color: var(--bleu-600);
   &:hover { text-decoration: underline; }
 }
 
@@ -225,8 +234,8 @@ nav {
 .dd-empty {
   display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
   padding: 2.4rem 1.5rem;
-  font-size: 0.83rem; color: var(--muted); text-align: center;
-  i { font-size: 1.4rem; color: var(--violet-300); }
+  font-size: 0.85rem; color: var(--muted); text-align: center;
+  i { font-size: 1.4rem; color: var(--bleu-300); }
 }
 
 // ── Notifications ──
@@ -237,35 +246,35 @@ nav {
   display: flex; align-items: flex-start; gap: 0.7rem;
   padding: 0.8rem 1rem;
   width: 100%; text-align: left;
-  border-bottom: 1px solid var(--brume);
+  border-bottom: 1px solid var(--nuage);
   transition: background var(--t);
   position: relative;
-  &:hover { background: var(--brume); }
-  &.unread { background: var(--violet-tint); }
+  &:hover { background: var(--nuage); }
+  &.unread { background: var(--bleu-tint); }
   &:last-child { border-bottom: none; }
 }
 
 .notif-icon {
   width: 30px; height: 30px; border-radius: 50%;
-  background: var(--violet-100); color: var(--violet);
+  background: var(--bleu-100); color: var(--bleu-600);
   display: flex; align-items: center; justify-content: center;
   font-size: 0.8rem; flex-shrink: 0;
 }
 
 .notif-content { flex: 1; min-width: 0; }
-.notif-msg { display: block; font-size: 0.82rem; line-height: 1.45; color: var(--ink); }
+.notif-msg { display: block; font-size: 0.84rem; line-height: 1.45; color: var(--ink); }
 .notif-time {
   display: block; margin-top: 0.18rem;
-  font-family: var(--font-mono); font-size: 0.58rem;
-  letter-spacing: 0.04em; color: var(--faint);
+  font-family: var(--font-mono); font-size: 0.62rem;
+  color: var(--faint);
 }
 .notif-unread-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--violet); flex-shrink: 0; margin-top: 0.45rem;
+  background: var(--rouge); flex-shrink: 0; margin-top: 0.45rem;
 }
 
 // ── Menu du compte ──
-.user-dropdown { width: 290px; padding: 0.4rem 0; }
+.user-dropdown { width: 292px; padding: 0.4rem 0; }
 
 .dd-profile {
   display: flex; align-items: center; gap: 0.7rem;
@@ -274,19 +283,19 @@ nav {
 
 .dd-avatar {
   width: 40px; height: 40px; border-radius: 50%;
-  background: var(--violet); color: #fff;
+  background: var(--bleu-600); color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-mono);
-  font-size: 0.74rem; font-weight: 600;
+  font-size: 0.78rem; font-weight: 500;
   flex-shrink: 0;
 }
 
 .dd-user-info {
   flex: 1; min-width: 0;
   display: flex; flex-direction: column;
-  strong { font-size: 0.88rem; font-weight: 700; }
+  strong { font-size: 0.9rem; font-weight: 800; }
   .dd-email {
-    font-size: 0.74rem; color: var(--muted);
+    font-size: 0.76rem; color: var(--muted);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 }
@@ -295,13 +304,13 @@ nav {
   display: inline-block;
   margin: 0 1rem 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.55rem; font-weight: 500;
-  padding: 0.16rem 0.5rem;
+  font-size: 0.6rem; font-weight: 500;
+  padding: 0.16rem 0.55rem;
   border-radius: var(--r-full);
-  text-transform: uppercase; letter-spacing: 0.1em;
-  &.role-candidate { background: var(--violet-100); color: var(--violet-700); }
-  &.role-recruiter { background: var(--blue-bg); color: var(--blue); }
-  &.role-admin { background: var(--red-bg); color: var(--red); }
+  text-transform: uppercase; letter-spacing: 0.08em;
+  &.role-candidate { background: var(--bleu-100); color: var(--bleu-700); }
+  &.role-recruiter { background: var(--ambre-100); color: #8a5804; }
+  &.role-admin { background: var(--rouge-100); color: var(--rouge-700); }
 }
 
 .dd-divider { height: 1px; background: var(--line); margin: 0.35rem 0; }
@@ -309,16 +318,16 @@ nav {
 .dd-section-label {
   padding: 0.45rem 1rem 0.25rem;
   font-family: var(--font-mono);
-  font-size: 0.55rem; font-weight: 500;
+  font-size: 0.6rem; font-weight: 500;
   color: var(--faint);
-  text-transform: uppercase; letter-spacing: 0.13em;
+  text-transform: uppercase; letter-spacing: 0.1em;
 }
 
 .dd-link {
   display: flex; align-items: center; gap: 0.65rem;
   width: 100%;
   padding: 0.55rem 1rem;
-  font-size: 0.85rem; font-weight: 500;
+  font-size: 0.87rem; font-weight: 600;
   color: var(--ink-soft);
   text-align: left;
   transition: color var(--t), background var(--t);
@@ -326,12 +335,12 @@ nav {
     font-size: 0.95rem; width: 18px; text-align: center;
     color: var(--faint); transition: color var(--t);
   }
-  &:hover { background: var(--violet-tint); color: var(--violet-700); i { color: var(--violet); } }
+  &:hover { background: var(--bleu-tint); color: var(--bleu-700); i { color: var(--bleu-600); } }
 
   &.dd-logout {
-    color: var(--red);
-    i { color: var(--red); }
-    &:hover { background: var(--red-bg); color: var(--red); i { color: var(--red); } }
+    color: var(--rouge);
+    i { color: var(--rouge); }
+    &:hover { background: var(--rouge-100); color: var(--rouge-700); i { color: var(--rouge-700); } }
   }
 }
 
@@ -339,21 +348,21 @@ nav {
 .btn-login {
   display: inline-flex; align-items: center;
   padding: 0.5rem 0.85rem;
-  font-size: 0.85rem; font-weight: 600;
-  color: var(--on-plum-muted);
+  font-size: 0.87rem; font-weight: 700;
+  color: var(--ink-soft);
   border-radius: var(--r-sm);
   transition: color var(--t), background var(--t);
-  &:hover { color: #fff; background: rgba(239, 234, 243, 0.08); }
+  &:hover { color: var(--bleu-700); background: var(--bleu-tint); }
 }
 
 .btn-register {
   display: inline-flex; align-items: center;
-  padding: 0.52rem 1.05rem;
-  font-size: 0.85rem; font-weight: 700;
-  background: var(--citron); color: var(--citron-ink);
+  padding: 0.55rem 1.15rem;
+  font-size: 0.87rem; font-weight: 700;
+  background: var(--bleu-600); color: #fff;
   border-radius: var(--r-sm);
   transition: background var(--t), box-shadow var(--t), transform var(--t);
-  &:hover { background: var(--citron-600); box-shadow: var(--shadow-citron); transform: translateY(-1px); }
+  &:hover { background: var(--bleu-700); box-shadow: var(--shadow-brand); transform: translateY(-1px); }
   &:active { transform: translateY(0); }
 }
 
@@ -362,13 +371,13 @@ nav {
   display: none;
   align-items: center; justify-content: center;
   width: 38px; height: 38px;
-  font-size: 1.3rem; color: #fff;
+  font-size: 1.3rem; color: var(--ink);
   border-radius: var(--r-sm);
   transition: background var(--t);
-  &:hover { background: rgba(239, 234, 243, 0.08); }
+  &:hover { background: var(--bleu-tint); }
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1040px) {
   .mobile-toggle { display: flex; }
   .trigger-name { display: none; }
   .lang-switch { display: none; }
@@ -381,9 +390,9 @@ nav {
     align-items: stretch;
     gap: 0.15rem;
     padding: 0.6rem 0.75rem 0.9rem;
-    background: var(--plum-900);
-    border-bottom: 1px solid rgba(239, 234, 243, 0.1);
-    box-shadow: 0 18px 36px -14px rgba(21, 12, 27, 0.7);
+    background: var(--canvas);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
     max-height: calc(100vh - var(--nav-h));
     overflow-y: auto;
 
@@ -392,7 +401,7 @@ nav {
     a {
       width: 100%;
       padding: 0.8rem 0.85rem;
-      font-size: 0.92rem;
+      font-size: 0.95rem;
       &.active::after { left: 0.85rem; right: auto; width: 18px; bottom: 0.5rem; }
     }
     .nav-publish { margin: 0.4rem 0 0; justify-content: center; }
@@ -404,5 +413,4 @@ nav {
 
 @media (max-width: 480px) {
   .notif-dropdown { right: -96px; }
-  .logo-sub { display: none; }
 }

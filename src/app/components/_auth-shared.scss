@@ -46,7 +46,7 @@
   top: -70px;
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(107, 63, 196, 0.45), transparent 70%);
+  background: radial-gradient(circle, rgba(46, 116, 224, 0.5), transparent 70%);
   pointer-events: none;
 }
 
@@ -54,40 +54,13 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
   width: fit-content;
-}
-.auth-brand__mark {
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  border-radius: 10px;
-  background: var(--citron);
-  color: var(--plum-900);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
-}
-.auth-brand__text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.12;
-}
-.auth-brand__name {
-  font-family: var(--font-display);
-  font-size: 1.02rem;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  color: #fff;
-}
-.auth-brand__sub {
-  font-family: var(--font-mono);
-  font-size: 0.53rem;
-  font-weight: 400;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--citron);
+
+  img {
+    height: 112px;
+    width: auto;
+    object-fit: contain;
+  }
 }
 
 .auth-aside__body {
@@ -113,7 +86,7 @@
     content: '';
     width: 16px;
     height: 2px;
-    background: var(--citron);
+    background: var(--ambre);
     border-radius: 2px;
   }
 }
@@ -154,8 +127,8 @@
       width: 18px;
       height: 18px;
       border-radius: var(--r-full);
-      background: rgba(232, 255, 99, 0.16);
-      color: var(--citron);
+      background: rgba(240, 161, 27, 0.18);
+      color: var(--ambre);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -358,4 +331,4 @@
 }
 
 // Le focus doit rester visible sur le panneau prune
-.auth-aside :focus-visible { outline-color: var(--citron); }
+.auth-aside :focus-visible { outline-color: var(--ambre); }

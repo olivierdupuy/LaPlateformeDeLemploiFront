@@ -1,141 +1,174 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400..900;1,6..12,400..900&family=DM+Mono:wght@400;500&display=swap');
 
 /* ═══════════════════════════════════════════════════════════
-   LA PLATEFORME DE L'EMPLOI — « Prune électrique »
-   Chrome prune profonde · Violet électrique · Citron rare
-   Display Instrument Serif · UI Instrument Sans · Data Martian Mono
+   LA PLATEFORME DE L'EMPLOI
+   Palette et typographie derivees de la mascotte :
+   bleu roi du casque et des baskets, rouge du reperage,
+   ambre du dossier, blanc de l'ecran.
+   Display Fredoka (la fonte du logo) · UI Nunito Sans · Data DM Mono
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Prune (chrome sombre — navbar, footer, bandeaux) ── */
-  --plum-950: #150c1b;
-  --plum-900: #1b0f22;
-  --plum-800: #241629;
-  --plum-700: #33203b;
-  --plum-600: #472f53;
-  --plum-500: #5f4569;
+  /* ── Bleu roi (marque) — casquette, chaussures, wordmark ── */
+  --bleu-950: #071e45;
+  --bleu-900: #0a2a5e;   /* chrome sombre : pied de page, bandeaux */
+  --bleu-800: #0f3d87;
+  --bleu-700: #13489f;
+  --bleu-600: #1657c4;   /* couleur de marque */
+  --bleu-500: #2e74e0;
+  --bleu-400: #5b96ec;
+  --bleu-300: #93bcf4;
+  --bleu-200: #c3dbfa;
+  --bleu-100: #e4eefd;
+  --bleu-tint: rgba(22, 87, 196, 0.07);
+  --bleu-ring: rgba(22, 87, 196, 0.24);
 
-  /* ── Violet électrique (marque, actions) ── */
-  --violet-800: #3b1f77;
-  --violet-700: #4a2a8f;
-  --violet-600: #5a32aa;
-  --violet: #6b3fc4;
-  --violet-400: #8d69d9;
-  --violet-300: #a98be8;
-  --violet-200: #cdbaf3;
-  --violet-100: #ede6fa;
-  --violet-tint: rgba(107, 63, 196, 0.07);
-  --violet-ring: rgba(107, 63, 196, 0.22);
+  /* ── Rouge (accent) — epingle de carte, « de l'emploi » ── */
+  --rouge: #e42b2f;
+  --rouge-600: #c81f24;
+  --rouge-700: #a91a1e;
+  --rouge-100: #fde8e8;
 
-  /* ── Citron (accent rare : CTA, état actif sur prune) ── */
-  --citron: #e8ff63;
-  --citron-600: #d4ee3c;
-  --citron-700: #b5cf1e;
-  --citron-soft: #f5ffc4;
-  --citron-ink: #3d4708; // texte lisible sur citron
+  /* ── Ambre (tertiaire) — le dossier de candidature ── */
+  --ambre: #f0a11b;
+  --ambre-600: #d18709;
+  --ambre-100: #fdf1d9;
 
-  /* ── Neutres ── */
-  --bone: #fbfaf9;   // canvas principal
-  --brume: #f2eef5;  // surface alternée (teintée prune)
-  --brume-2: #e9e3ee;
+  /* ── Ciel — le verre de la loupe ── */
+  --ciel: #bbd9f7;
+
+  /* ── Neutres froids — l'ecran et les gants ── */
   --canvas: #ffffff;
+  --nuage: #f4f7fc;      /* surface alternee */
+  --nuage-2: #e7eef8;
+  --nuage-3: #d9e3f2;
 
-  --ink: #1b0f22;
-  --ink-soft: #4a4152;
-  --muted: #6e6478;
-  --faint: #9a92a3;
-  --on-plum: #efeaf3;       // texte principal sur prune
-  --on-plum-muted: #a99fb4; // texte secondaire sur prune
+  --ink: #0c1b33;
+  --ink-soft: #33445f;
+  --muted: #5a6b85;
+  --faint: #8e9cb2;
+  --on-dark: #e8effa;
+  --on-dark-muted: #9fb2cd;
 
-  --line: #e7e2ec;
-  --line-strong: #d6cfde;
-  --line-plum: rgba(239, 234, 243, 0.14); // hairline sur fond prune
+  --line: #dde5f1;
+  --line-strong: #c6d2e4;
+  --line-dark: rgba(232, 239, 250, 0.16);
 
-  /* ── Statuts sémantiques ── */
-  --green: #0f8a5f;  --green-bg: #e2f4ec;
-  --red: #cf3a46;    --red-bg: #fbe8ea;
-  --amber: #b07103;  --amber-bg: #fbf0dc;
-  --blue: #3062b8;   --blue-bg: #e8effa;
-  --purple: var(--violet); --purple-bg: var(--violet-100);
-  --orange: #db6a2c; --orange-light: #fcede2;
+  /* ── Statuts semantiques ── */
+  --green: #12855e;  --green-bg: #e3f5ed;
+  --red: var(--rouge); --red-bg: var(--rouge-100);
+  --amber: #b57408;  --amber-bg: var(--ambre-100);
+  --blue: var(--bleu-600); --blue-bg: var(--bleu-100);
+  --purple: #6b47c9; --purple-bg: #ece6fa;
+  --orange: #e07a20; --orange-light: #fdefe0;
 
-  /* ── Alias de compatibilité (anciens noms → nouvelles valeurs) ──
-     Permet aux pages pas encore refondues de rester cohérentes. */
-  --brand: var(--violet);
-  --brand-700: var(--violet-600);
-  --brand-800: var(--violet-700);
-  --brand-400: var(--violet-400);
-  --brand-300: var(--violet-300);
-  --brand-100: var(--violet-100);
-  --brand-tint: var(--violet-tint);
-  --brand-ring: var(--violet-ring);
+  /* ── Alias de compatibilite (anciens noms → nouvelles valeurs) ── */
+  --brand: var(--bleu-600);
+  --brand-700: var(--bleu-700);
+  --brand-800: var(--bleu-800);
+  --brand-400: var(--bleu-400);
+  --brand-300: var(--bleu-300);
+  --brand-100: var(--bleu-100);
+  --brand-tint: var(--bleu-tint);
+  --brand-ring: var(--bleu-ring);
 
-  --teal: var(--violet);
-  --teal-600: var(--violet-600);
-  --teal-400: var(--violet-400);
-  --teal-50: var(--violet-100);
-  --teal-glow: var(--violet-tint);
-  --teal-ring: var(--violet-ring);
+  --violet-800: var(--bleu-800);
+  --violet-700: var(--bleu-700);
+  --violet-600: var(--bleu-700);
+  --violet: var(--bleu-600);
+  --violet-400: var(--bleu-400);
+  --violet-300: var(--bleu-300);
+  --violet-200: var(--bleu-200);
+  --violet-100: var(--bleu-100);
+  --violet-tint: var(--bleu-tint);
+  --violet-ring: var(--bleu-ring);
 
-  --spring: var(--citron);
-  --spring-600: var(--citron-600);
-  --spring-soft: var(--citron-soft);
+  --teal: var(--bleu-600);
+  --teal-600: var(--bleu-700);
+  --teal-400: var(--bleu-400);
+  --teal-50: var(--bleu-100);
+  --teal-glow: var(--bleu-tint);
+  --teal-ring: var(--bleu-ring);
 
-  --paper: var(--brume);
-  --paper-2: var(--brume-2);
-  --paper-3: #ded5e4;
+  /* L'accent vif n'est plus le citron mais le rouge de la mascotte.
+     Le texte pose dessus passe donc en blanc. */
+  --citron: var(--rouge);
+  --citron-600: var(--rouge-600);
+  --citron-700: var(--rouge-700);
+  --citron-soft: var(--rouge-100);
+  --citron-ink: #ffffff;
+  --spring: var(--rouge);
+  --spring-600: var(--rouge-600);
+  --spring-soft: var(--rouge-100);
 
-  --navy-950: var(--plum-950);
-  --navy-900: var(--plum-900);
-  --navy-800: var(--plum-800);
-  --navy-700: var(--plum-700);
-  --navy-600: var(--plum-600);
+  --plum-950: var(--bleu-950);
+  --plum-900: var(--bleu-900);
+  --plum-800: var(--bleu-800);
+  --plum-700: var(--bleu-700);
+  --plum-600: #1c5fb0;
+  --plum-500: #3b7ac6;
 
-  --slate-50: var(--brume);
-  --slate-100: var(--brume-2);
+  --on-plum: var(--on-dark);
+  --on-plum-muted: var(--on-dark-muted);
+  --line-plum: var(--line-dark);
+
+  --bone: var(--canvas);
+  --brume: var(--nuage);
+  --brume-2: var(--nuage-2);
+  --paper: var(--nuage);
+  --paper-2: var(--nuage-2);
+  --paper-3: var(--nuage-3);
+
+  --navy-950: var(--bleu-950);
+  --navy-900: var(--bleu-900);
+  --navy-800: var(--bleu-800);
+  --navy-700: var(--bleu-700);
+  --navy-600: var(--ink-soft);
+
+  --slate-50: var(--nuage);
+  --slate-100: var(--nuage-2);
   --slate-200: var(--line);
   --slate-300: var(--line-strong);
   --slate-400: var(--faint);
   --slate-500: var(--muted);
   --slate-600: var(--ink-soft);
 
-  --bg: var(--bone);
-  --bg-subtle: var(--brume);
+  --bg: var(--canvas);
+  --bg-subtle: var(--nuage);
   --text: var(--ink);
   --text-secondary: var(--ink-soft);
   --text-muted: var(--muted);
   --border: var(--line);
   --border-hover: var(--line-strong);
 
-  /* ── Ombres (teintées prune) ── */
-  --shadow-xs: 0 1px 2px rgba(27, 15, 34, 0.05);
-  --shadow-sm: 0 1px 2px rgba(27, 15, 34, 0.05), 0 2px 6px rgba(27, 15, 34, 0.04);
-  --shadow-md: 0 2px 4px rgba(27, 15, 34, 0.05), 0 8px 20px -6px rgba(27, 15, 34, 0.09);
-  --shadow-lg: 0 4px 8px rgba(27, 15, 34, 0.05), 0 18px 36px -12px rgba(27, 15, 34, 0.14);
-  --shadow-xl: 0 8px 16px rgba(27, 15, 34, 0.07), 0 32px 60px -16px rgba(27, 15, 34, 0.2);
-  --shadow-brand: 0 8px 22px -6px rgba(107, 63, 196, 0.4);
-  --shadow-citron: 0 8px 22px -8px rgba(212, 238, 60, 0.65);
+  /* ── Ombres (teintees bleu) ── */
+  --shadow-xs: 0 1px 2px rgba(12, 27, 51, 0.05);
+  --shadow-sm: 0 1px 2px rgba(12, 27, 51, 0.05), 0 2px 6px rgba(12, 27, 51, 0.04);
+  --shadow-md: 0 2px 4px rgba(12, 27, 51, 0.05), 0 8px 20px -6px rgba(12, 27, 51, 0.1);
+  --shadow-lg: 0 4px 8px rgba(12, 27, 51, 0.05), 0 18px 36px -12px rgba(12, 27, 51, 0.15);
+  --shadow-xl: 0 8px 16px rgba(12, 27, 51, 0.07), 0 32px 60px -16px rgba(12, 27, 51, 0.22);
+  --shadow-brand: 0 8px 22px -6px rgba(22, 87, 196, 0.42);
+  --shadow-citron: 0 8px 22px -8px rgba(228, 43, 47, 0.5);
 
-  /* ── Rayons ── */
-  --r-xs: 5px;
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --r-xl: 22px;
-  --r-2xl: 30px;
+  /* ── Rayons — plutot ronds, comme la mascotte ── */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-2xl: 32px;
   --r-full: 9999px;
 
   /* ── Typographie ── */
-  --font: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-mono: 'Martian Mono', ui-monospace, 'SF Mono', monospace;
+  --font: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Fredoka', 'Nunito Sans', sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SF Mono', monospace;
 
   /* ── Gabarit ── */
   --max-width: 1650px;
   --max-wide: 1650px;
-  --max-text: 68ch; // largeur de lecture — uniquement pour le texte courant
-
-  --nav-h: 68px;
+  --max-text: 68ch;
+  --nav-h: 96px;
 
   /* ── Mouvement ── */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -144,10 +177,10 @@
   --t: 0.18s;
 
   /* ── Accents par type de contrat ── */
-  --stripe-cdi: var(--violet);
-  --stripe-cdd: var(--amber);
-  --stripe-stage: var(--blue);
-  --stripe-freelance: var(--red);
+  --stripe-cdi: var(--bleu-600);
+  --stripe-cdd: var(--ambre);
+  --stripe-stage: var(--bleu-400);
+  --stripe-freelance: var(--rouge);
   --stripe-alternance: var(--green);
 }
 
@@ -176,7 +209,7 @@ a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
 input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 img { max-width: 100%; display: block; }
-::selection { background: var(--violet); color: #fff; }
+::selection { background: var(--bleu-600); color: #fff; }
 
 :focus-visible {
   outline: 2px solid var(--violet);
@@ -193,32 +226,33 @@ img { max-width: 100%; display: block; }
 
 h1, h2 {
   font-family: var(--font-display);
-  font-weight: 400;
-  line-height: 1.04;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
   color: var(--ink);
 }
 
 h3, h4, h5, h6 {
   font-family: var(--font);
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.25;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.012em;
   color: var(--ink);
 }
 
-/* Un seul mot en serif italique — la respiration dans un titre */
+/* Le logo pose « La plateforme » en bleu et « de l'emploi » en rouge.
+   L'accentuation d'un titre reprend exactement ce couple. */
 .em {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 400;
-  color: var(--violet);
+  font-family: inherit;
+  font-weight: inherit;
+  color: var(--rouge);
 }
-.em-plum { color: var(--citron); }
+/* Sur le bleu profond, le rouge ne passe pas : l'ambre du dossier prend le relais. */
+.em-plum, .em-dark { color: var(--ambre); }
 
-.display-xl { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.6rem, 6.5vw, 5rem); line-height: 0.98; letter-spacing: -0.03em; }
-.display-lg { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.1rem, 4.5vw, 3.3rem); line-height: 1.02; letter-spacing: -0.025em; }
-.display-md { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.7rem, 3.2vw, 2.4rem); line-height: 1.08; letter-spacing: -0.02em; }
+.display-xl { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.5rem, 6vw, 4.6rem); line-height: 1.02; letter-spacing: -0.02em; }
+.display-lg { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.06; letter-spacing: -0.015em; }
+.display-md { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.65rem, 3.2vw, 2.3rem); line-height: 1.1; letter-spacing: -0.012em; }
 
 /* Étiquette utilitaire (Martian Mono, toujours petite et espacée) */
 .eyebrow {
@@ -226,9 +260,9 @@ h3, h4, h5, h6 {
   align-items: center;
   gap: 0.55rem;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 500;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -236,11 +270,11 @@ h3, h4, h5, h6 {
   content: '';
   width: 16px;
   height: 2px;
-  background: var(--violet);
+  background: var(--rouge);
   border-radius: 2px;
   flex-shrink: 0;
 }
-.eyebrow--plum { color: var(--on-plum-muted); &::before { background: var(--citron); } }
+.eyebrow--plum, .eyebrow--dark { color: var(--on-dark-muted); &::before { background: var(--ambre); } }
 .eyebrow--bare::before { display: none; }
 
 .u-mono { font-family: var(--font-mono); letter-spacing: -0.02em; }
@@ -294,7 +328,7 @@ h3, h4, h5, h6 {
     position: absolute;
     top: -40%; left: -6%;
     width: 55%; height: 180%;
-    background: radial-gradient(circle, rgba(107, 63, 196, 0.3), transparent 62%);
+    background: radial-gradient(circle, rgba(46, 116, 224, 0.34), transparent 62%);
     pointer-events: none;
   }
 
@@ -694,9 +728,9 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
 }
 .section-title {
   display: flex; align-items: center; gap: 0.6rem;
-  font-family: var(--font-display); font-weight: 400;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  letter-spacing: -0.02em; line-height: 1.1;
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  letter-spacing: -0.012em; line-height: 1.15;
 }
 .section-sub { font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; max-width: 60ch; }
 

@@ -5,8 +5,8 @@
 // ── Bandeau recruteur ──
 // Citron plein : le seul aplat vif de la page, il ferme le parcours.
 .footer-cta {
-  background: var(--citron);
-  color: var(--citron-ink);
+  background: var(--bleu-100);
+  color: var(--bleu-900);
   margin-top: 4rem;
 }
 
@@ -25,24 +25,25 @@
   max-width: 62ch;
 
   .eyebrow {
-    color: rgba(61, 71, 8, 0.72);
-    &::before { background: var(--plum-900); }
+    color: var(--bleu-700);
+    &::before { background: var(--rouge); }
   }
 
   h2 {
     margin-top: 0.7rem;
-    font-size: clamp(1.65rem, 3.2vw, 2.7rem);
-    line-height: 1.05;
-    color: var(--plum-900);
+    font-size: clamp(1.6rem, 3vw, 2.5rem);
+    line-height: 1.1;
+    color: var(--bleu-900);
     max-width: 30ch;
   }
 
-  .em-plum { color: var(--plum-900); font-style: italic; }
+  .em-plum { color: var(--rouge); }
 
   p {
     margin-top: 0.7rem;
     font-size: 0.95rem;
-    color: rgba(61, 71, 8, 0.82);
+    color: var(--bleu-800);
+    opacity: 0.85;
     max-width: 46ch;
   }
 }
@@ -53,7 +54,7 @@
   gap: 0.6rem;
   flex-shrink: 0;
   padding: 0.95rem 1.7rem;
-  background: var(--plum-900);
+  background: var(--rouge);
   color: #fff;
   font-size: 0.95rem;
   font-weight: 600;
@@ -62,9 +63,9 @@
   i { transition: transform var(--t); }
 
   &:hover {
-    background: var(--plum-800);
+    background: var(--rouge-600);
     transform: translateY(-2px);
-    box-shadow: 0 12px 26px -10px rgba(21, 12, 27, 0.5);
+    box-shadow: 0 12px 26px -10px rgba(228, 43, 47, 0.55);
     i { transform: translateX(3px); }
   }
   &:active { transform: translateY(0); }
@@ -77,7 +78,7 @@ footer {
   padding: clamp(3rem, 6vw, 4.5rem) 0 1.75rem;
   font-size: 0.875rem;
 
-  :focus-visible { outline-color: var(--citron); }
+  :focus-visible { outline-color: var(--ambre); }
 }
 
 .ft-grid {
@@ -92,31 +93,13 @@ footer {
 .ft-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-}
+  margin-bottom: 1.15rem;
 
-.ft-mark {
-  width: 34px; height: 34px;
-  border-radius: 9px;
-  background: var(--citron);
-  color: var(--plum-900);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.ft-logo-text { display: flex; flex-direction: column; line-height: 1.1; }
-.ft-name {
-  font-family: var(--font-display);
-  font-size: 1.02rem; font-weight: 400;
-  color: #fff; letter-spacing: -0.02em;
-}
-.ft-sub {
-  font-family: var(--font-mono);
-  font-size: 0.53rem; font-weight: 400;
-  color: var(--citron);
-  text-transform: uppercase; letter-spacing: 0.18em;
+  img {
+    height: 108px;
+    width: auto;
+    object-fit: contain;
+  }
 }
 
 .ft-tagline {
@@ -145,28 +128,28 @@ footer {
     flex: 1;
     min-width: 0;
     padding: 0.66rem 0.85rem;
-    background: rgba(239, 234, 243, 0.07);
-    border: 1px solid rgba(239, 234, 243, 0.16);
+    background: rgba(232, 239, 250, 0.08);
+    border: 1px solid rgba(232, 239, 250, 0.18);
     border-radius: var(--r-sm);
     color: #fff;
     font-size: 0.85rem;
     outline: none;
     transition: border-color var(--t), background var(--t);
 
-    &::placeholder { color: #7d7288; }
-    &:focus { border-color: var(--citron); background: rgba(239, 234, 243, 0.1); }
+    &::placeholder { color: #7f92ad; }
+    &:focus { border-color: var(--ambre); background: rgba(232, 239, 250, 0.12); }
   }
 
   button {
     flex-shrink: 0;
     width: 42px;
     display: flex; align-items: center; justify-content: center;
-    background: var(--citron);
-    color: var(--citron-ink);
+    background: var(--rouge);
+    color: #fff;
     border-radius: var(--r-sm);
     font-size: 1rem;
     transition: background var(--t), transform var(--t);
-    &:hover { background: var(--citron-600); transform: translateX(2px); }
+    &:hover { background: var(--rouge-600); transform: translateX(2px); }
   }
 }
 
@@ -174,7 +157,7 @@ footer {
   display: block;
   margin-top: 0.55rem;
   font-size: 0.72rem;
-  color: #7d7288;
+  color: #7f92ad;
 }
 
 // ── Réseaux ──
@@ -184,16 +167,16 @@ footer {
   width: 36px; height: 36px;
   border-radius: var(--r-sm);
   display: flex; align-items: center; justify-content: center;
-  background: rgba(239, 234, 243, 0.06);
-  border: 1px solid rgba(239, 234, 243, 0.1);
+  background: rgba(232, 239, 250, 0.07);
+  border: 1px solid rgba(232, 239, 250, 0.12);
   color: var(--on-plum-muted);
   font-size: 0.95rem;
   transition: color var(--t), background var(--t), border-color var(--t), transform var(--t);
 
   &:hover {
-    color: var(--citron-ink);
-    background: var(--citron);
-    border-color: var(--citron);
+    color: #fff;
+    background: var(--rouge);
+    border-color: var(--rouge);
     transform: translateY(-2px);
   }
 }
@@ -217,14 +200,14 @@ footer {
     font-size: 0.86rem;
     width: fit-content;
     transition: color var(--t), transform var(--t);
-    &:hover { color: var(--citron); transform: translateX(3px); }
+    &:hover { color: var(--ambre); transform: translateX(3px); }
   }
 }
 
 // ── Bas de page ──
 .ft-divider {
   height: 1px;
-  background: rgba(239, 234, 243, 0.1);
+  background: rgba(232, 239, 250, 0.12);
   margin: clamp(2.25rem, 5vw, 3.25rem) 0 1.5rem;
 }
 
@@ -243,13 +226,13 @@ footer {
   flex-wrap: wrap;
 }
 
-.ft-copy { font-size: 0.78rem; color: #7d7288; }
+.ft-copy { font-size: 0.78rem; color: #7f92ad; }
 
 .ft-country {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: #7d7288;
+  color: #7f92ad;
   i { font-size: 0.85rem; }
 
   select {
@@ -261,7 +244,7 @@ footer {
     outline: none;
     padding: 0.2rem 0.1rem;
     option { background: var(--plum-800); color: var(--on-plum); }
-    &:hover { color: var(--citron); }
+    &:hover { color: var(--ambre); }
   }
 }
 
@@ -272,9 +255,9 @@ footer {
 
   a {
     font-size: 0.78rem;
-    color: #7d7288;
+    color: #7f92ad;
     transition: color var(--t);
-    &:hover { color: var(--citron); }
+    &:hover { color: var(--ambre); }
   }
 }
 
