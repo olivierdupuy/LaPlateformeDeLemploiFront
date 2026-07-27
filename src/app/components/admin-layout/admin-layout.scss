@@ -1,0 +1,264 @@
+// ═══════════════════════════════════════════════
+//  PANNEAU D'ADMINISTRATION — barre latérale fixe
+//  Même palette que le site, gabarit d'outil.
+// ═══════════════════════════════════════════════
+
+:host {
+  --adm-side: 264px;
+  display: block;
+}
+
+.adm {
+  display: flex;
+  min-height: 100vh;
+  background: var(--nuage);
+}
+
+// ── Barre latérale ──
+.adm-side {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--adm-side);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--bleu-900);
+  border-right: 1px solid rgba(232, 239, 250, 0.1);
+
+  :focus-visible { outline-color: var(--ambre); }
+}
+
+.adm-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1.15rem 1.15rem 1rem;
+  border-bottom: 1px solid rgba(232, 239, 250, 0.1);
+
+  img { width: 38px; height: 38px; flex-shrink: 0; }
+}
+
+.adm-brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+
+  b {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+  }
+  span {
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ambre);
+  }
+}
+
+// ── Navigation ──
+.adm-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.9rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.62rem 0.8rem;
+    border-radius: var(--r-sm);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--on-dark-muted);
+    transition: color var(--t), background var(--t);
+
+    i { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+
+    &:hover { color: #fff; background: rgba(232, 239, 250, 0.07); }
+
+    // Section active : filet rouge, comme partout ailleurs
+    &.is-active {
+      color: #fff;
+      background: rgba(232, 239, 250, 0.1);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: -0.7rem;
+        top: 0.45rem;
+        bottom: 0.45rem;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--rouge);
+      }
+    }
+  }
+}
+
+// ── Pied de la barre ──
+.adm-side__foot {
+  padding: 0.8rem 0.7rem 1rem;
+  border-top: 1px solid rgba(232, 239, 250, 0.1);
+}
+
+.adm-back {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 0.6rem;
+  border-radius: var(--r-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--on-dark-muted);
+  transition: color var(--t), background var(--t);
+  i { font-size: 0.85rem; }
+  &:hover { color: var(--ambre); background: rgba(232, 239, 250, 0.07); }
+}
+
+.adm-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: var(--r-sm);
+  background: rgba(232, 239, 250, 0.06);
+}
+
+.adm-user__av {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--bleu-600);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+}
+
+.adm-user__id {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+
+  strong {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  span {
+    font-size: 0.7rem;
+    color: #7f92ad;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+}
+
+.adm-user__out {
+  flex-shrink: 0;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-xs);
+  color: var(--on-dark-muted);
+  transition: color var(--t), background var(--t);
+  &:hover { color: #fff; background: var(--rouge); }
+}
+
+// ── Contenu ──
+.adm-main {
+  flex: 1;
+  min-width: 0;
+  margin-left: var(--adm-side);
+  display: flex;
+  flex-direction: column;
+}
+
+.adm-topbar {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.adm-burger {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  font-size: 1.25rem;
+  color: var(--ink);
+  &:hover { background: var(--bleu-tint); }
+}
+
+.adm-topbar__tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.adm-content {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+
+  // Les pages reutilisent l'en-tete de la coquille de console. Sans la
+  // navbar publique au-dessus, il lui faut son propre fond et son air.
+  ::ng-deep .console-head {
+    background: var(--canvas);
+    border-bottom: 1px solid var(--line);
+    padding: clamp(1.5rem, 3vw, 2.1rem) 0;
+  }
+
+  // Le conteneur du site est calibre pour 1650 px pleine largeur ;
+  // ici il vit dans une colonne, on resserre les marges.
+  ::ng-deep .container {
+    padding-left: clamp(1.1rem, 2.5vw, 2rem);
+    padding-right: clamp(1.1rem, 2.5vw, 2rem);
+  }
+}
+
+// Le voile ne sert que sur petit ecran
+.adm-scrim { display: none; }
+
+// ── Adaptatif ──
+@media (max-width: 1024px) {
+  .adm-side {
+    transform: translateX(-100%);
+    transition: transform 0.28s var(--ease-out);
+    box-shadow: 8px 0 32px -12px rgba(7, 30, 69, 0.6);
+  }
+  .adm.nav-open .adm-side { transform: translateX(0); }
+
+  .adm-main { margin-left: 0; }
+  .adm-topbar { display: flex; }
+
+  .adm.nav-open .adm-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgba(7, 30, 69, 0.5);
+    border: none;
+  }
+}

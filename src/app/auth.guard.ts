@@ -25,6 +25,10 @@ export const recruiterGuard: CanActivateFn = () => {
   if (!auth.isLoggedIn()) {
     toastr.warning('Veuillez vous connecter');
     router.navigate(['/login']);
+  } else if (auth.isAdmin()) {
+    // Un administrateur n'a rien a faire dans l'espace recruteur :
+    // on le renvoie vers sa console.
+    router.navigate(['/admin']);
   } else {
     toastr.error('Accès réservé aux recruteurs');
     router.navigate(['/']);

@@ -8,12 +8,17 @@
     </div>
   </div>
 } @else {
-  <a class="skip-link" href="#contenu">Aller au contenu</a>
-  <app-site-banner />
-  <app-navbar />
-  <main id="contenu" tabindex="-1">
+  @if (isAdminArea()) {
+    <!-- Le panneau d'administration porte sa propre coquille. -->
     <router-outlet />
-  </main>
-  <app-footer />
+  } @else {
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <app-site-banner />
+    <app-navbar />
+    <main id="contenu" tabindex="-1">
+      <router-outlet />
+    </main>
+    <app-footer />
+  }
 }
 <app-cookie-consent />

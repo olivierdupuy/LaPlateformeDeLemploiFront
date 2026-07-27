@@ -36,7 +36,7 @@
         <h3>Aucun entretien planifié</h3>
         <p>{{ isCandidate() ? 'Vos entretiens apparaîtront ici lorsqu\'un recruteur en planifiera un pour vous.' : 'Planifiez un entretien depuis la page candidatures pour une candidature acceptée.' }}</p>
         @if (isRecruiter()) {
-          <a routerLink="/admin/candidatures" class="btn-primary"><i class="bi bi-people"></i> Voir les candidatures</a>
+          <a routerLink="/recruteur/candidatures" class="btn-primary"><i class="bi bi-people"></i> Voir les candidatures</a>
         }
       </div>
     } @else {

@@ -75,7 +75,7 @@ export class Interviews implements OnInit {
   }
 
   isCandidate(): boolean { return this.auth.currentUser()?.role === 'Candidate'; }
-  isRecruiter(): boolean { return this.auth.currentUser()?.role === 'Recruiter' || this.auth.currentUser()?.role === 'Admin'; }
+  isRecruiter(): boolean { return this.auth.currentUser()?.role === 'Recruiter'; }
 
   startPropose(id: number) { this.proposingId.set(id); this.proposedSlots = ['', '', '']; this.proposeMessage = ''; }
   cancelPropose() { this.proposingId.set(null); }

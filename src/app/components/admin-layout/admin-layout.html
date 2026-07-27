@@ -1,0 +1,64 @@
+<div class="adm" [class.nav-open]="navOpen()">
+
+  <!-- ═══ BARRE LATÉRALE ═══ -->
+  <aside class="adm-side" aria-label="Navigation de l'administration">
+    <a routerLink="/admin" class="adm-brand" (click)="closeNav()">
+      <img src="/images/logo-lpde.svg" alt="" width="64" height="64" />
+      <span class="adm-brand__text">
+        <b>La plateforme</b>
+        <span>Administration</span>
+      </span>
+    </a>
+
+    <nav class="adm-nav">
+      @for (l of links; track l.path) {
+        <a
+          [routerLink]="l.path"
+          routerLinkActive="is-active"
+          #rla="routerLinkActive"
+          [attr.aria-current]="rla.isActive ? 'page' : null"
+          (click)="closeNav()">
+          <i class="bi" [class]="l.icon" aria-hidden="true"></i>
+          <span>{{ l.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="adm-side__foot">
+      <a routerLink="/" class="adm-back" (click)="closeNav()">
+        <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Voir le site
+      </a>
+
+      @if (auth.currentUser(); as u) {
+        <div class="adm-user">
+          <span class="adm-user__av">{{ initials() }}</span>
+          <span class="adm-user__id">
+            <strong>{{ u.firstName }} {{ u.lastName }}</strong>
+            <span>{{ u.email }}</span>
+          </span>
+          <button class="adm-user__out" (click)="logout()" aria-label="Se déconnecter">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      }
+    </div>
+  </aside>
+
+  <!-- Voile de fermeture sur petit écran -->
+  <button class="adm-scrim" (click)="closeNav()" tabindex="-1" aria-hidden="true"></button>
+
+  <!-- ═══ CONTENU ═══ -->
+  <div class="adm-main">
+    <header class="adm-topbar">
+      <button class="adm-burger" (click)="toggleNav()"
+              [attr.aria-expanded]="navOpen()" aria-label="Ouvrir la navigation">
+        <i class="bi" [class.bi-list]="!navOpen()" [class.bi-x-lg]="navOpen()" aria-hidden="true"></i>
+      </button>
+      <span class="adm-topbar__tag">Administration</span>
+    </header>
+
+    <main class="adm-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

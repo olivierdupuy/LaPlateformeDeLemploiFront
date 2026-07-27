@@ -6,7 +6,7 @@
     }
   </div>
   <div actions>
-    <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Publier une offre</a>
+    <a routerLink="/recruteur/offres/nouvelle" class="btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Publier une offre</a>
   </div>
 </app-console-shell>
 
@@ -70,7 +70,7 @@
       <div class="dr-card card animate-in" style="animation-delay:.25s">
         <div class="drc-head">
           <h2 class="section-title"><span class="ed-pill">01</span> Candidatures par offre</h2>
-          <a routerLink="/admin/candidatures" class="link-teal">Tout voir <i class="bi bi-arrow-right"></i></a>
+          <a routerLink="/recruteur/candidatures" class="link-teal">Tout voir <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="drc-body">
           @if (d.candidaturesParOffre.length > 0) {
@@ -102,7 +102,7 @@
         <div class="drc-head"><h2 class="section-title">À traiter</h2></div>
         <div class="drc-body qnav">
           @if (d.enAttente > 0) {
-            <a routerLink="/admin/candidatures" class="qn qn-todo">
+            <a routerLink="/recruteur/candidatures" class="qn qn-todo">
               <span class="qn-icon ic-amber"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
               <span class="qn-text">
                 <strong>{{ d.enAttente }} candidature{{ d.enAttente > 1 ? 's' : '' }} en attente</strong>
@@ -132,7 +132,7 @@
             </a>
           }
           @if (d.offresActives === 0) {
-            <a routerLink="/admin/nouvelle-offre" class="qn qn-todo">
+            <a routerLink="/recruteur/offres/nouvelle" class="qn qn-todo">
               <span class="qn-icon ic-brand"><i class="bi bi-plus-circle" aria-hidden="true"></i></span>
               <span class="qn-text">
                 <strong>Aucune offre en ligne</strong>

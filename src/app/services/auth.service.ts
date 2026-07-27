@@ -26,7 +26,10 @@ export class AuthService {
   currentUser = signal<UserDto | null>(this.loadUser());
   isLoggedIn = computed(() => !!this.currentUser());
   isAdmin = computed(() => this.currentUser()?.role === 'Admin');
-  isRecruiter = computed(() => this.currentUser()?.role === 'Recruiter' || this.currentUser()?.role === 'Admin');
+  // Les roles sont exclusifs : un administrateur administre, il ne
+  // publie pas d'offres et ne postule pas.
+  isRecruiter = computed(() => this.currentUser()?.role === 'Recruiter');
+  isCandidate = computed(() => this.currentUser()?.role === 'Candidate');
 
   get token(): string | null {
     return localStorage.getItem(TOKEN_KEY);

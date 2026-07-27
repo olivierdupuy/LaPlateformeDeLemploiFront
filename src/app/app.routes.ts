@@ -31,6 +31,7 @@ import { CandidateProfile } from './components/candidate-profile/candidate-profi
 import { Interviews } from './components/interviews/interviews';
 import { Inbox } from './components/inbox/inbox';
 import { CvBuilder } from './components/cv-builder/cv-builder';
+import { AdminLayout } from './components/admin-layout/admin-layout';
 import { authGuard, recruiterGuard, adminGuard } from './auth.guard';
 
 export const routes: Routes = [
@@ -66,20 +67,38 @@ export const routes: Routes = [
   { path: 'mon-espace', component: DashboardCandidate, canActivate: [authGuard] },
   { path: 'espace-recruteur', component: DashboardRecruiter, canActivate: [recruiterGuard] },
 
-  // Recruiter + Admin
-  { path: 'admin/nouvelle-offre', component: JobForm, canActivate: [recruiterGuard] },
-  { path: 'admin/modifier-offre/:id', component: JobForm, canActivate: [recruiterGuard] },
-  { path: 'admin/candidatures', component: Applications, canActivate: [recruiterGuard] },
-  { path: 'admin/dashboard', component: Dashboard, canActivate: [adminGuard] },
-  { path: 'admin/mes-offres', component: MyOffers, canActivate: [recruiterGuard] },
+  // ── Espace recruteur ──
+  // Ces pages vivaient sous /admin/, ce qui melangeait deux metiers.
+  { path: 'recruteur/offres', component: MyOffers, canActivate: [recruiterGuard] },
+  { path: 'recruteur/offres/nouvelle', component: JobForm, canActivate: [recruiterGuard] },
+  { path: 'recruteur/offres/:id/modifier', component: JobForm, canActivate: [recruiterGuard] },
+  { path: 'recruteur/candidatures', component: Applications, canActivate: [recruiterGuard] },
 
-  // Admin only
-  { path: 'admin/utilisateurs', component: AdminUsers, canActivate: [adminGuard] },
-  { path: 'admin/statistiques', component: AdminStats, canActivate: [adminGuard] },
-  { path: 'admin/activite', component: AdminActivity, canActivate: [adminGuard] },
-  { path: 'admin/moderation', component: AdminModeration, canActivate: [adminGuard] },
-  { path: 'admin/annonces', component: AdminAnnouncements, canActivate: [adminGuard] },
-  { path: 'admin/parametres', component: AdminSettings, canActivate: [adminGuard] },
+  // Anciennes adresses recruteur, conservees pour ne casser aucun lien.
+  // Declarees avant le parent 'admin', qui capterait sinon ces chemins.
+  { path: 'admin/mes-offres', redirectTo: 'recruteur/offres', pathMatch: 'full' },
+  { path: 'admin/nouvelle-offre', redirectTo: 'recruteur/offres/nouvelle', pathMatch: 'full' },
+  { path: 'admin/modifier-offre/:id', redirectTo: 'recruteur/offres/:id/modifier' },
+  { path: 'admin/candidatures', redirectTo: 'recruteur/candidatures', pathMatch: 'full' },
+  { path: 'admin/dashboard', redirectTo: 'admin/tableau-de-bord', pathMatch: 'full' },
+
+  // ── Panneau d'administration ──
+  // Gabarit dedie (barre laterale, sans la navbar publique).
+  {
+    path: 'admin',
+    component: AdminLayout,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', redirectTo: 'tableau-de-bord', pathMatch: 'full' },
+      { path: 'tableau-de-bord', component: Dashboard },
+      { path: 'statistiques', component: AdminStats },
+      { path: 'moderation', component: AdminModeration },
+      { path: 'utilisateurs', component: AdminUsers },
+      { path: 'annonces', component: AdminAnnouncements },
+      { path: 'activite', component: AdminActivity },
+      { path: 'parametres', component: AdminSettings },
+    ],
+  },
 
   { path: '**', redirectTo: '' },
 ];

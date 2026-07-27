@@ -29,28 +29,17 @@ const RECRUITER: ConsoleSpace = {
   label: 'Espace recruteur',
   links: [
     { path: '/espace-recruteur', label: 'Tableau de bord', icon: 'bi-grid-1x2', exact: true },
-    { path: '/admin/mes-offres', label: 'Mes offres', icon: 'bi-collection' },
-    { path: '/admin/candidatures', label: 'Candidatures', icon: 'bi-people' },
+    { path: '/recruteur/offres', label: 'Mes offres', icon: 'bi-collection' },
+    { path: '/recruteur/candidatures', label: 'Candidatures', icon: 'bi-people' },
     { path: '/candidats', label: 'Vivier', icon: 'bi-person-lines-fill' },
     { path: '/entretiens', label: 'Entretiens', icon: 'bi-calendar-event' },
     { path: '/messagerie', label: 'Messagerie', icon: 'bi-chat-dots' },
   ],
 };
 
-const ADMIN: ConsoleSpace = {
-  label: 'Administration',
-  links: [
-    { path: '/admin/dashboard', label: 'Tableau de bord', icon: 'bi-grid-1x2' },
-    { path: '/admin/mes-offres', label: 'Offres', icon: 'bi-collection' },
-    { path: '/admin/candidatures', label: 'Candidatures', icon: 'bi-people' },
-    { path: '/admin/moderation', label: 'Modération', icon: 'bi-check2-square' },
-    { path: '/admin/utilisateurs', label: 'Utilisateurs', icon: 'bi-shield-lock' },
-    { path: '/admin/statistiques', label: 'Statistiques', icon: 'bi-bar-chart-line' },
-    { path: '/admin/annonces', label: 'Annonces', icon: 'bi-megaphone' },
-    { path: '/admin/activite', label: 'Activité', icon: 'bi-clock-history' },
-    { path: '/admin/parametres', label: 'Paramètres', icon: 'bi-gear' },
-  ],
-};
+// Le panneau d'administration a sa propre barre laterale : la coquille
+// n'y sert qu'a poser l'en-tete de page.
+const ADMIN: ConsoleSpace = { label: 'Administration', links: [] };
 
 const EMPTY: ConsoleSpace = { label: '', links: [] };
 

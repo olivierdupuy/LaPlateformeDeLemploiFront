@@ -107,7 +107,7 @@ export class JobForm implements OnInit {
               title: 'Modifications enregistrees',
               text: 'Votre offre a ete renvoyee en moderation. Elle sera visible apres validation par un administrateur.',
               confirmButtonColor: '#1657c4',
-            }).then(() => this.router.navigate(['/admin/mes-offres']));
+            }).then(() => this.router.navigate(['/recruteur/offres']));
           } else {
             this.toastr.success('Offre mise à jour');
             this.router.navigate(['/offres', this.jobId]);
@@ -126,7 +126,7 @@ export class JobForm implements OnInit {
               html: '<p>Votre offre a bien ete envoyee.</p><p>Elle sera <strong>visible par les candidats</strong> une fois validee par un administrateur.</p><p style="margin-top:8px;font-size:13px;color:#6c6e63">Vous serez notifie lorsque votre offre sera approuvee.</p>',
               confirmButtonColor: '#1657c4',
               confirmButtonText: 'Compris',
-            }).then(() => this.router.navigate(['/admin/mes-offres']));
+            }).then(() => this.router.navigate(['/recruteur/offres']));
           } else {
             Swal.fire({
               icon: 'success',

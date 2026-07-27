@@ -27,7 +27,7 @@
       </a>
 
       @if (auth.isRecruiter()) {
-        <a routerLink="/admin/nouvelle-offre" routerLinkActive="active" class="nav-publish" (click)="closeMobile()">
+        <a routerLink="/recruteur/offres/nouvelle" routerLinkActive="active" class="nav-publish" (click)="closeMobile()">
           <i class="bi bi-plus-lg" aria-hidden="true"></i> {{ i18n.t('nav.publish') }}
         </a>
       }
@@ -154,9 +154,11 @@
                 <button class="dd-link" (click)="navigateAndClose('/profil')">
                   <i class="bi bi-person" aria-hidden="true"></i> Mon profil
                 </button>
-                <button class="dd-link" (click)="navigateAndClose('/favoris')">
-                  <i class="bi bi-bookmark" aria-hidden="true"></i> Mes favoris
-                </button>
+                @if (u.role === 'Candidate') {
+                  <button class="dd-link" (click)="navigateAndClose('/favoris')">
+                    <i class="bi bi-bookmark" aria-hidden="true"></i> Mes favoris
+                  </button>
+                }
 
                 @if (u.role === 'Candidate') {
                   <div class="dd-divider"></div>
@@ -184,13 +186,13 @@
                   <button class="dd-link" (click)="navigateAndClose('/espace-recruteur')">
                     <i class="bi bi-grid-1x2" aria-hidden="true"></i> Tableau de bord
                   </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/mes-offres')">
+                  <button class="dd-link" (click)="navigateAndClose('/recruteur/offres')">
                     <i class="bi bi-collection" aria-hidden="true"></i> Mes offres
                   </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/candidatures')">
+                  <button class="dd-link" (click)="navigateAndClose('/recruteur/candidatures')">
                     <i class="bi bi-people" aria-hidden="true"></i> Candidatures reçues
                   </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/nouvelle-offre')">
+                  <button class="dd-link" (click)="navigateAndClose('/recruteur/offres/nouvelle')">
                     <i class="bi bi-plus-circle" aria-hidden="true"></i> Publier une offre
                   </button>
                   <button class="dd-link" (click)="navigateAndClose('/candidats')">
@@ -203,36 +205,8 @@
 
                 @if (u.role === 'Admin') {
                   <div class="dd-divider"></div>
-                  <div class="dd-section-label">Administration</div>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/dashboard')">
-                    <i class="bi bi-grid-1x2" aria-hidden="true"></i> Tableau de bord
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/mes-offres')">
-                    <i class="bi bi-collection" aria-hidden="true"></i> Toutes les offres
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/candidatures')">
-                    <i class="bi bi-people" aria-hidden="true"></i> Toutes les candidatures
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/nouvelle-offre')">
-                    <i class="bi bi-plus-circle" aria-hidden="true"></i> Publier une offre
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/utilisateurs')">
-                    <i class="bi bi-shield-lock" aria-hidden="true"></i> Gestion des utilisateurs
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/statistiques')">
-                    <i class="bi bi-bar-chart-line" aria-hidden="true"></i> Statistiques
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/moderation')">
-                    <i class="bi bi-check2-square" aria-hidden="true"></i> Modération
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/annonces')">
-                    <i class="bi bi-megaphone" aria-hidden="true"></i> Annonces et exports
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/activite')">
-                    <i class="bi bi-clock-history" aria-hidden="true"></i> Journal d'activité
-                  </button>
-                  <button class="dd-link" (click)="navigateAndClose('/admin/parametres')">
-                    <i class="bi bi-gear" aria-hidden="true"></i> Paramètres
+                  <button class="dd-link" (click)="navigateAndClose('/admin')">
+                    <i class="bi bi-sliders" aria-hidden="true"></i> Panneau d'administration
                   </button>
                 }
 

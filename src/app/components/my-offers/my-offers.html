@@ -4,7 +4,7 @@
     <p class="console-head__sub">Gérez, renouvelez et suivez les performances de vos offres.</p>
   </div>
   <div actions>
-    <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Publier une offre</a>
+    <a routerLink="/recruteur/offres/nouvelle" class="btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Publier une offre</a>
   </div>
 </app-console-shell>
 
@@ -74,7 +74,7 @@
         <div class="moe-circle"><i class="bi bi-briefcase"></i></div>
         <h3>Aucune offre publiée</h3>
         <p>Publiez votre première offre pour commencer a recevoir des candidatures.</p>
-        <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
+        <a routerLink="/recruteur/offres/nouvelle" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
       </div>
     } @else {
       <div class="mo-info animate-in" style="animation-delay:.06s">
@@ -162,7 +162,7 @@
                     <i class="bi" [class.bi-star]="!o.isFeatured" [class.bi-star-fill]="o.isFeatured"></i>
                     {{ o.isFeatured ? 'Sponsorisée' : 'Sponsoriser' }}
                   </button>
-                  <a [routerLink]="['/admin/modifier-offre', o.id]" class="oc-btn" (click)="$event.stopPropagation()"><i class="bi bi-pencil"></i> Modifier</a>
+                  <a [routerLink]="['/recruteur/offres', o.id]" class="oc-btn" (click)="$event.stopPropagation()"><i class="bi bi-pencil"></i> Modifier</a>
                   <button class="oc-btn" (click)="duplicate(o, $event)"><i class="bi bi-copy"></i> Dupliquer</button>
                   @if (!o.isActive && o.moderationStatus !== 'Pending') {
                     <button class="oc-btn oc-btn-renew" (click)="renew(o, $event)"><i class="bi bi-arrow-repeat"></i> Renouveler</button>
