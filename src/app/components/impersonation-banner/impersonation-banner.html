@@ -1,0 +1,22 @@
+@if (emprunt(); as e) {
+  <div class="imp" [class.imp--expire]="expire()" role="alert">
+    <span class="imp-ico" aria-hidden="true"><i class="bi bi-incognito"></i></span>
+
+    <span class="imp-txt">
+      Vous agissez en tant que <strong>{{ e.compte }}</strong>
+      <span class="imp-sub">— session ouverte par {{ e.parNom }}</span>
+    </span>
+
+    @if (restant(); as r) {
+      <span class="imp-temps u-mono" [title]="'Fin automatique de la prise en main'">
+        <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+        {{ expire() ? 'session expirée' : r }}
+      </span>
+    }
+
+    <button class="imp-retour" (click)="revenir()" [disabled]="sortieEnCours()">
+      <i class="bi bi-box-arrow-left" aria-hidden="true"></i>
+      {{ sortieEnCours() ? 'Retour…' : 'Revenir à mon compte' }}
+    </button>
+  </div>
+}

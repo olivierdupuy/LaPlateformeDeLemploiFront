@@ -1118,3 +1118,17 @@ table.data {
   .modal-content { padding: 1.4rem; }
   .section-head, .page-head { align-items: flex-start; }
 }
+
+/* ═══════════════ Prise en main de compte ═══════════════ */
+/* Le bandeau d'emprunt occupe le haut de la page. La navbar et la barre
+   laterale de l'administration sont en position fixe : sans decalage,
+   elles passeraient dessous et le bandeau les recouvrirait. */
+:root { --imp-h: 44px; }
+
+body:has(app-impersonation-banner .imp) {
+  app-navbar nav { top: var(--imp-h); }
+  main { padding-top: calc(var(--nav-h) + var(--imp-h)); }
+
+  .adm-side,
+  .adm-topbar { top: var(--imp-h); }
+}

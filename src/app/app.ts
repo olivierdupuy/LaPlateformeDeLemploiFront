@@ -4,6 +4,7 @@ import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
 import { SiteBanner } from './components/site-banner/site-banner';
 import { CookieConsent } from './components/cookie-consent/cookie-consent';
+import { ImpersonationBanner } from './components/impersonation-banner/impersonation-banner';
 import { PlatformService } from './services/platform.service';
 import { AuthService } from './services/auth.service';
 import { SignalRService } from './services/signalr.service';
@@ -12,7 +13,7 @@ import { filter, map, startWith } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, Footer, SiteBanner, CookieConsent],
+  imports: [RouterOutlet, Navbar, Footer, SiteBanner, CookieConsent, ImpersonationBanner],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

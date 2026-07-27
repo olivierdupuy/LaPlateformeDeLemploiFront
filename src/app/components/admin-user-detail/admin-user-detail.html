@@ -529,6 +529,27 @@
               </div>
             </fieldset>
 
+            @if (user().role !== 'Admin') {
+              <fieldset class="aud-set card">
+                <legend>Prise en main</legend>
+                <p class="aud-hint">
+                  Ouvre une session sous l'identité de cette personne, pendant 30 minutes,
+                  pour reproduire un problème qu'elle décrit. Vos actions restent
+                  enregistrées au journal sous votre propre nom, et un bandeau rappelle
+                  en permanence que vous n'êtes pas sur votre compte.
+                </p>
+                <div class="aud-danger">
+                  <div class="aud-danger__txt">
+                    <b>Agir en tant que {{ user().firstName }} {{ user().lastName }}</b>
+                    <small>Vous quitterez l'administration le temps de la session.</small>
+                  </div>
+                  <button class="btn-ghost" (click)="prendreEnMain()" [disabled]="saving()">
+                    <i class="bi bi-incognito" aria-hidden="true"></i> Prendre la main
+                  </button>
+                </div>
+              </fieldset>
+            }
+
             <fieldset class="aud-set card">
               <legend>Mot de passe</legend>
               <p class="aud-hint">

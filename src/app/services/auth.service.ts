@@ -16,6 +16,20 @@ import { environment } from '../../environments/environment';
 
 const TOKEN_KEY = 'lpde_token';
 const USER_KEY = 'lpde_user';
+/**
+ * Emprunt en cours. Conserve a part du jeton, et persiste : un
+ * rechargement de page ne doit pas faire oublier qu'on agit sous une
+ * autre identite — c'est precisement ce qu'il ne faut jamais oublier.
+ */
+const EMPRUNT_KEY = 'lpde_emprunt';
+
+export interface EmpruntEnCours {
+  /** L'administrateur reel, celui a qui rendre la main. */
+  parNom: string;
+  /** Le compte emprunte, rappele dans le bandeau. */
+  compte: string;
+  expireA: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,6 +40,9 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
 
   currentUser = signal<UserDto | null>(this.loadUser());
+
+  /** Non nul tant que l'administrateur agit sous une autre identite. */
+  emprunt = signal<EmpruntEnCours | null>(this.chargerEmprunt());
   isLoggedIn = computed(() => !!this.currentUser());
   isAdmin = computed(() => this.currentUser()?.role === 'Admin');
   // Les roles sont exclusifs : un administrateur administre, il ne
@@ -101,12 +118,104 @@ export class AuthService {
     return this.http.patch<UserDto>(`${this.apiUrl}/users/${id}/role`, { role });
   }
 
+  // ═══ Prise en main de compte ═══
+
+  private chargerEmprunt(): EmpruntEnCours | null {
+    try {
+      const brut = localStorage.getItem(EMPRUNT_KEY);
+      return brut ? (JSON.parse(brut) as EmpruntEnCours) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Prend la main sur un compte.
+   *
+   * Le jeton d'administration est mis de cote, pas jete : c'est lui qu'on
+   * rendra a la sortie. Le serveur en delivre un autre, portant les deux
+   * identites, valable trente minutes.
+   */
+  prendreEnMain(userId: string): Observable<any> {
+    const jetonAdmin = this.token;
+    const admin = this.currentUser();
+
+    return this.http
+      .post<any>(`${environment.apiUrl}/admin/users/${userId}/impersonate`, {})
+      .pipe(
+        tap((res) => {
+          localStorage.setItem('lpde_token_admin', jetonAdmin ?? '');
+          localStorage.setItem('lpde_user_admin', JSON.stringify(admin));
+
+          localStorage.setItem(TOKEN_KEY, res.token);
+          localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+          this.currentUser.set(res.user);
+
+          const e: EmpruntEnCours = {
+            parNom: res.emprunt?.parNom ?? 'Administration',
+            compte: `${res.user.firstName} ${res.user.lastName}`,
+            expireA: res.expiration,
+          };
+          localStorage.setItem(EMPRUNT_KEY, JSON.stringify(e));
+          this.emprunt.set(e);
+
+          // Le tuyau temps reel portait le jeton precedent : il doit
+          // repartir sous la nouvelle identite.
+          this.signalR.stop();
+          this.signalR.start(res.token);
+        }),
+      );
+  }
+
+  /** Rend la main a l'administrateur. */
+  rendreLaMain(): Observable<any> {
+    return this.http
+      .post<any>(`${environment.apiUrl}/admin/impersonate/stop`, {})
+      .pipe(
+        tap((res) => {
+          this.appliquerRetour(res.token, res.user);
+        }),
+      );
+  }
+
+  /**
+   * Retour de secours, sans le serveur : si le jeton d'emprunt a expire,
+   * l'appel de sortie echoue et on resterait bloque sur un compte qu'on
+   * ne peut plus quitter. Le jeton d'administration mis de cote permet de
+   * revenir quand meme.
+   */
+  rendreLaMainLocalement(): boolean {
+    const jeton = localStorage.getItem('lpde_token_admin');
+    const brut = localStorage.getItem('lpde_user_admin');
+    if (!jeton || !brut) return false;
+    this.appliquerRetour(jeton, JSON.parse(brut));
+    return true;
+  }
+
+  private appliquerRetour(jeton: string, admin: UserDto) {
+    localStorage.setItem(TOKEN_KEY, jeton);
+    localStorage.setItem(USER_KEY, JSON.stringify(admin));
+    this.currentUser.set(admin);
+
+    localStorage.removeItem(EMPRUNT_KEY);
+    localStorage.removeItem('lpde_token_admin');
+    localStorage.removeItem('lpde_user_admin');
+    this.emprunt.set(null);
+
+    this.signalR.stop();
+    this.signalR.start(jeton);
+  }
+
   logout(): void {
     // Le tuyau temps reel se ferme avec la session : c'est le seul moment
     // ou il doit l'etre.
     this.signalR.stop();
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(EMPRUNT_KEY);
+    localStorage.removeItem('lpde_token_admin');
+    localStorage.removeItem('lpde_user_admin');
+    this.emprunt.set(null);
     this.currentUser.set(null);
     this.router.navigate(['/']);
     this.toastr.info('Deconnecte');

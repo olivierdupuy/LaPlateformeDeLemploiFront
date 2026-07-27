@@ -8,6 +8,10 @@
     </div>
   </div>
 } @else {
+  <!-- Le bandeau d'emprunt precede tout : il doit rester visible quel que
+       soit le gabarit, public ou administration. -->
+  <app-impersonation-banner />
+
   @if (isAdminArea()) {
     <!-- Le panneau d'administration porte sa propre coquille. -->
     <router-outlet />

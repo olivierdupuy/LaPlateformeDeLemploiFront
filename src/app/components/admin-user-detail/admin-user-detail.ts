@@ -308,6 +308,40 @@ export class AdminUserDetail implements OnInit {
     this.ecrire(`v${c.id}`, this.admin.supprimerSectionCv(c.id), 'Élément supprimé');
   }
 
+  /**
+   * Prend la main sur ce compte.
+   *
+   * On confirme d'abord : agir sous l'identite de quelqu'un donne acces a
+   * ses messages prives et permet d'agir en son nom. Ce n'est pas un
+   * geste qu'on fait par megarde.
+   */
+  prendreEnMain() {
+    const u = this.user();
+    if (!u) return;
+
+    const ok = confirm(
+      `Prendre la main sur le compte de ${u.firstName} ${u.lastName} ?
+
+`
+      + `Vous agirez en son nom pendant 30 minutes. Vos actions seront `
+      + `enregistrees au journal sous votre propre identite.`,
+    );
+    if (!ok) return;
+
+    this.saving.set(true);
+    this.auth.prendreEnMain(this.userId).subscribe({
+      next: () => {
+        this.saving.set(false);
+        // On quitte l'administration : le jeton ne l'ouvre plus.
+        this.router.navigate(['/']);
+      },
+      error: (e) => {
+        this.toastr.error(e?.error?.message ?? 'Prise en main impossible');
+        this.saving.set(false);
+      },
+    });
+  }
+
   resetPassword() {
     if (this.newPassword.trim().length < 6) {
       this.toastr.error('Le mot de passe doit faire au moins 6 caractères');
