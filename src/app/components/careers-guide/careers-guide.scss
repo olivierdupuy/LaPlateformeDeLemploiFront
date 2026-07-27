@@ -14,25 +14,24 @@
 .cg-card {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  padding: 1.7rem;
+  overflow: hidden;
   background: var(--canvas);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   transition: border-color var(--t), box-shadow var(--t), transform var(--t);
 
   &:hover {
-    border-color: var(--violet-200);
+    border-color: var(--bleu-200);
     box-shadow: var(--shadow-lg);
     transform: translateY(-3px);
     .cg-more { gap: 0.5rem; }
-    .cg-icon { background: var(--violet); color: #fff; }
-    h3 { color: var(--violet-700); }
+    .cg-photo img { transform: scale(1.05); }
+    h3 { color: var(--bleu-700); }
   }
 
   h3 {
     font-size: 1.1rem;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.012em;
     transition: color var(--t);
   }
 
@@ -44,20 +43,48 @@
   }
 }
 
+// Photo d'illustration + pastille de rubrique posee dessus
+.cg-photo {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--nuage-2);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.45s var(--ease-out);
+  }
+}
+
+.cg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  padding: 1.35rem 1.4rem 1.5rem;
+}
+
+// Posee dans la photo, pas a cheval sur son bord : le conteneur
+// rogne ce qui depasse.
 .cg-icon {
-  width: 46px; height: 46px;
-  margin-bottom: 0.5rem;
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  width: 38px; height: 38px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: var(--r-md);
-  background: var(--violet-100);
-  color: var(--violet);
-  font-size: 1.25rem;
-  transition: background var(--t), color var(--t);
+  border-radius: var(--r-sm);
+  background: var(--bleu-600);
+  color: #fff;
+  font-size: 1rem;
+  box-shadow: 0 6px 16px -6px rgba(7, 30, 69, 0.7);
 }
 
 .cg-cat {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.13em;

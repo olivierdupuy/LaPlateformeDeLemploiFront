@@ -371,6 +371,37 @@ h3, h4, h5, h6 {
   flex-wrap: wrap;
 }
 
+/* Variante photographique.
+   La photo est posée via --hero-photo dans le gabarit, puis voilée de
+   bleu : le texte blanc doit rester lisible quelle que soit l'image. */
+.page-hero--photo {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--hero-photo);
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  &::before {
+    inset: 0;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(
+      100deg,
+      var(--bleu-900) 8%,
+      rgba(10, 42, 94, 0.9) 42%,
+      rgba(10, 42, 94, 0.6) 100%
+    );
+    z-index: 1;
+  }
+
+  > * { position: relative; z-index: 2; }
+}
+
 /* Bandeau prune — la signature. Encadre l'app, ponctue les pages. */
 .band-plum {
   background: var(--plum-800);

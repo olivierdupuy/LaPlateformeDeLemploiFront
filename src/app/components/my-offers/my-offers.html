@@ -53,7 +53,7 @@
         @if (counts().rejected > 0) {
           <div class="mohs-div"></div>
           <button class="mohs" [class.active]="filter() === 'rejected'" (click)="filter.set(filter() === 'rejected' ? 'all' : 'rejected')">
-            <span class="mohs-val mohs-red">{{ counts().rejected }}</span><span class="mohs-lbl">Rejetees</span>
+            <span class="mohs-val mohs-red">{{ counts().rejected }}</span><span class="mohs-lbl">Rejetées</span>
           </button>
         }
         <div class="mohs-div"></div>
@@ -143,7 +143,7 @@
               @if (o.moderationStatus === 'Pending') {
                 <div class="oc-note oc-note-amber">
                   <i class="bi bi-info-circle-fill"></i>
-                  <div>Cette offre est en cours de verification par un administrateur.</div>
+                  <div>Cette offre est en cours de vérification par un administrateur.</div>
                 </div>
               }
 

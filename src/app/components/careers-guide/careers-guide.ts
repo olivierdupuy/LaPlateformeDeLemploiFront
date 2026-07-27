@@ -8,6 +8,8 @@ interface Article {
   title: string;
   category: string;
   icon: string;
+  /** Photo d'illustration de l'article (Unsplash). */
+  photo: string;
   excerpt: string;
   readMin: number;
   sections: { heading: string; body: string }[];
@@ -26,6 +28,7 @@ export class CareersGuide {
   articles: Article[] = [
     {
       slug: 'reussir-son-cv',
+      photo: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=70&auto=format&fit=crop',
       title: 'Réussir son CV en 2026',
       category: 'CV',
       icon: 'bi-file-earmark-person',
@@ -40,6 +43,7 @@ export class CareersGuide {
     },
     {
       slug: 'preparer-entretien',
+      photo: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&q=70&auto=format&fit=crop',
       title: 'Préparer son entretien d\'embauche',
       category: 'Entretien',
       icon: 'bi-chat-dots',
@@ -54,6 +58,7 @@ export class CareersGuide {
     },
     {
       slug: 'negocier-salaire',
+      photo: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=70&auto=format&fit=crop',
       title: 'Négocier son salaire',
       category: 'Rémunération',
       icon: 'bi-cash-coin',
@@ -67,6 +72,7 @@ export class CareersGuide {
     },
     {
       slug: 'reconversion',
+      photo: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=70&auto=format&fit=crop',
       title: 'Réussir sa reconversion professionnelle',
       category: 'Carrière',
       icon: 'bi-arrow-repeat',

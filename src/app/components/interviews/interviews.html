@@ -36,7 +36,7 @@
       <div class="iv-empty animate-in">
         <div class="ive-circle"><i class="bi bi-calendar-event"></i></div>
         <h3>Aucun entretien planifié</h3>
-        <p>{{ isCandidate() ? 'Vos entretiens apparaitront ici lorsqu\'un recruteur en planifiera un pour vous.' : 'Planifiez un entretien depuis la page candidatures pour une candidature acceptee.' }}</p>
+        <p>{{ isCandidate() ? 'Vos entretiens apparaîtront ici lorsqu\'un recruteur en planifiera un pour vous.' : 'Planifiez un entretien depuis la page candidatures pour une candidature acceptée.' }}</p>
         @if (isRecruiter()) {
           <a routerLink="/admin/candidatures" class="btn-primary"><i class="bi bi-people"></i> Voir les candidatures</a>
         }
@@ -130,7 +130,7 @@
                   @if (iv.status === 'Accepted') {
                     <div class="ivc-actions">
                       @if (isRecruiter()) {
-                        <button class="iva-complete" (click)="updateStatus(iv.id, 'Completed')"><i class="bi bi-trophy"></i> Marquer termine</button>
+                        <button class="iva-complete" (click)="updateStatus(iv.id, 'Completed')"><i class="bi bi-trophy"></i> Marquer terminé</button>
                         <button class="iva-decline" (click)="updateStatus(iv.id, 'Cancelled')"><i class="bi bi-x-lg"></i> Annuler</button>
                       }
                     </div>

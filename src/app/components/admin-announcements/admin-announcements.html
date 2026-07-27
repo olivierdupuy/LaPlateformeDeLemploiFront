@@ -12,7 +12,7 @@
     <div class="export-bar card animate-in" style="animation-delay:.05s">
       <div class="export-head">
         <span class="export-eyebrow"><i class="bi bi-download"></i> Exporter les données</span>
-        <p class="export-note">Genere un fichier CSV a la demande.</p>
+        <p class="export-note">Généré un fichier CSV a la demande.</p>
       </div>
       <div class="export-btns">
         <button (click)="exportUsers()" class="btn-secondary"><i class="bi bi-people"></i> Utilisateurs</button>
@@ -25,7 +25,7 @@
     <div class="section-head animate-in" style="animation-delay:.1s">
       <div>
         <h2 class="section-title"><i class="bi bi-megaphone"></i> Annonces</h2>
-        <p class="section-sub">Bannieres et notifications visibles par vos utilisateurs.</p>
+        <p class="section-sub">Bannières et notifications visibles par vos utilisateurs.</p>
       </div>
       <button class="btn-primary" (click)="showForm.set(!showForm())">
         <i class="bi" [class.bi-plus-lg]="!showForm()" [class.bi-x-lg]="showForm()"></i>
@@ -64,7 +64,7 @@
         </div>
         <label class="check-label">
           <input type="checkbox" [(ngModel)]="form.isBanner" />
-          <span>Afficher en banniere</span>
+          <span>Afficher en bannière</span>
         </label>
         @if (form.isBanner) {
           <div class="form-grid">
@@ -105,7 +105,7 @@
               <div class="ann-head">
                 <strong>{{ a.title }}</strong>
                 <div class="ann-badges">
-                  @if (a.isBanner) { <span class="badge badge-purple">Banniere</span> }
+                  @if (a.isBanner) { <span class="badge badge-purple">Bannière</span> }
                   @if (a.targetRole) { <span class="badge badge-blue">{{ a.targetRole }}</span> }
                   <span class="badge" [class.badge-green]="a.isActive" [class.badge-gray]="!a.isActive">
                     {{ a.isActive ? 'Active' : 'Inactive' }}

@@ -8,13 +8,13 @@
 
       <div class="cvh-search">
         <i class="bi bi-search"></i>
-        <input type="text" placeholder="Rechercher par nom, competence, bio..." [(ngModel)]="search" (keyup.enter)="loadCandidates()" />
+        <input type="text" placeholder="Rechercher par nom, compétence, bio..." [(ngModel)]="search" (keyup.enter)="loadCandidates()" />
         <button class="cvh-search-btn" (click)="loadCandidates()" aria-label="Rechercher"><i class="bi bi-arrow-right"></i></button>
       </div>
 
       <div class="cvh-filters">
         <button class="cvh-filter-toggle" [class.is-open]="showFilters" (click)="showFilters = !showFilters">
-          <i class="bi bi-sliders"></i> Filtres avances
+          <i class="bi bi-sliders"></i> Filtres avancés
           <i class="bi bi-chevron-down cvh-chev"></i>
         </button>
         @if (showFilters) {
@@ -46,7 +46,7 @@
             </div>
             <div class="cvh-filter-actions">
               <button class="btn-primary" (click)="loadCandidates()"><i class="bi bi-funnel"></i> Appliquer</button>
-              <button class="btn-ghost" (click)="clearFilters()"><i class="bi bi-arrow-counterclockwise"></i> Reinitialiser</button>
+              <button class="btn-ghost" (click)="clearFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
             </div>
           </div>
         }
@@ -72,7 +72,7 @@
         <div class="cve-circle"><i class="bi bi-person-lines-fill"></i></div>
         <h3>Aucun candidat trouve</h3>
         <p>Modifiez vos critères de recherche ou attendez de nouvelles inscriptions.</p>
-        <button class="btn-secondary" (click)="clearFilters()"><i class="bi bi-arrow-counterclockwise"></i> Reinitialiser les filtres</button>
+        <button class="btn-secondary" (click)="clearFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser les filtres</button>
       </div>
     } @else {
       <div class="cv-grid">

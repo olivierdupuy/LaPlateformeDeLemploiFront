@@ -114,17 +114,17 @@
                   @for (w of workSchedules; track w) { <option [value]="w">{{ w }}</option> }
                 </select>
               </div>
-              <div class="form-group"><label>Langues demandees (separees par virgules)</label>
+              <div class="form-group"><label>Langues demandées (séparées par virgules)</label>
                 <input type="text" placeholder="Francais, Anglais..." [(ngModel)]="form.languages" name="languages" />
               </div>
             </div>
             <div class="form-group span-2">
-              <label>Avantages (separes par virgules)</label>
+              <label>Avantages (séparés par virgules)</label>
               <input type="text" placeholder="Teletravail, Tickets restaurant, RTT, Mutuelle..." [(ngModel)]="form.benefits" name="benefits" />
             </div>
             <div class="form-group span-2">
               <label>A propos de l'entreprise</label>
-              <textarea placeholder="Decrivez votre entreprise, sa culture, ses valeurs..." [(ngModel)]="form.companyDescription" name="companyDescription" rows="3"></textarea>
+              <textarea placeholder="Décrivez votre entreprise, sa culture, ses valeurs..." [(ngModel)]="form.companyDescription" name="companyDescription" rows="3"></textarea>
             </div>
           </div>
           <div class="jfc-actions">
@@ -151,7 +151,7 @@
                 <i class="bi bi-shield-check"></i>
                 <div>
                   <strong>Modération active</strong>
-                  <p>Votre offre sera soumise a validation par un administrateur avant d'etre visible par les candidats. Vous serez notifie une fois l'offre approuvee.</p>
+                  <p>Votre offre sera soumise a validation par un administrateur avant d'etre visible par les candidats. Vous serez notifie une fois l'offre approuvée.</p>
                 </div>
               </div>
             }
@@ -172,7 +172,7 @@
               <label class="opt-card" [class.active]="form.easyApply">
                 <input type="checkbox" [(ngModel)]="form.easyApply" name="easyApply" />
                 <div class="opt-icon"><i class="bi bi-lightning-charge-fill"></i></div>
-                <div class="opt-text"><strong>Candidature simplifiee</strong><span>Postulation en 1 clic sur la plateforme</span></div>
+                <div class="opt-text"><strong>Candidature simplifiée</strong><span>Postulation en 1 clic sur la plateforme</span></div>
                 <i class="bi bi-check-lg opt-check"></i>
               </label>
               @if (isEdit() && !showModerationNotice) {
