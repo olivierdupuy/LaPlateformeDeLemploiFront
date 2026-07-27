@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, ViewChild, ElementRef, AfterViewInit
 import { JobOfferService } from '../../services/job-offer';
 import { JobStats, DetailedStats } from '../../models/job-offer.model';
 import Chart from 'chart.js/auto';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 // App palette — Clean SaaS identity
 const TEAL     = '#1657c4'; // brand (evergreen)
@@ -23,7 +24,7 @@ const CATEGORY_PALETTE = [TEAL, NAVY_800, AMBER, BLUE, GREEN, ORANGE, TEAL_400, 
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  imports: [ConsoleShell],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })

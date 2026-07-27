@@ -1,15 +1,14 @@
-<!-- ═══ HERO ═══ -->
-<section class="mo-hero">
-  <div class="container moh-inner">
-    <div class="moh-left animate-in">
-      <span class="eyebrow">Espace recruteur</span>
-      <h1>Mes offres d'<span class="em">emploi</span></h1>
-      <p>Gérez, renouvelez et suivez les performances de vos offres.</p>
-    </div>
-    <div class="moh-actions animate-in" style="animation-delay:.1s">
-      <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
-    </div>
+<app-console-shell>
+  <div head>
+    <h1>Mes offres d'<span class="em">emploi</span></h1>
+    <p class="console-head__sub">Gérez, renouvelez et suivez les performances de vos offres.</p>
   </div>
+  <div actions>
+    <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Publier une offre</a>
+  </div>
+</app-console-shell>
+
+<section class="mo-hero">
 
   <!-- Équipe de recrutement -->
   @if (team().company && team().members.length > 1) {

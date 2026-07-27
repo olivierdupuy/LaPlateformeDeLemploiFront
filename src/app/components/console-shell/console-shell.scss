@@ -1,0 +1,134 @@
+// ═══════════════════════════════════════════════
+//  COQUILLE DE CONSOLE — sous-navigation + en-tete
+// ═══════════════════════════════════════════════
+
+// ── Sous-navigation ──
+// Collante juste sous la navbar : on garde ses sections sous la main
+// pendant qu'on fait defiler un tableau.
+.console-nav {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 45;
+  background: var(--plum-900);
+  border-bottom: 1px solid rgba(232, 239, 250, 0.12);
+
+  :focus-visible { outline-color: var(--ambre); }
+}
+
+.console-nav__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.console-nav__label {
+  flex-shrink: 0;
+  padding-right: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--on-dark-muted);
+}
+
+.console-nav__sep {
+  flex-shrink: 0;
+  width: 1px;
+  height: 18px;
+  margin: 0 0.6rem 0 0.2rem;
+  background: rgba(232, 239, 250, 0.18);
+}
+
+.console-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  flex-shrink: 0;
+  padding: 0.85rem 0.7rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--on-dark-muted);
+  white-space: nowrap;
+  transition: color var(--t);
+
+  i { font-size: 0.9rem; opacity: 0.85; }
+
+  &:hover { color: #fff; }
+
+  // Meme marqueur que la navbar : un filet rouge sous la section active
+  &.is-active {
+    color: #fff;
+    i { opacity: 1; }
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0.7rem;
+      right: 0.7rem;
+      bottom: 0;
+      height: 2.5px;
+      background: var(--rouge);
+      border-radius: 2px 2px 0 0;
+    }
+  }
+}
+
+// ── En-tete de page ──
+.console-head {
+  background: var(--nuage);
+  border-bottom: 1px solid var(--line);
+  padding: clamp(1.6rem, 3vw, 2.4rem) 0;
+}
+
+.console-head__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 2rem;
+  flex-wrap: wrap;
+}
+
+.console-head__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.console-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+// Styles des elements projetes
+.console-head__text ::ng-deep {
+  h1 {
+    font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+    line-height: 1.12;
+    letter-spacing: -0.012em;
+  }
+
+  .console-head__sub,
+  p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 70ch;
+  }
+}
+
+@media (max-width: 720px) {
+  .console-nav__label,
+  .console-nav__sep { display: none; }
+
+  .console-head__inner { align-items: flex-start; }
+  .console-head__actions { width: 100%; }
+}

@@ -6,10 +6,11 @@ import { SignalRService } from '../../services/signalr.service';
 import { UserDto } from '../../models/auth.model';
 import { ToastrService } from 'ngx-toastr';
 import { companyColor } from '../../utils/job.utils';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-admin-users',
-  imports: [DatePipe],
+  imports: [DatePipe, ConsoleShell],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.scss',
 })

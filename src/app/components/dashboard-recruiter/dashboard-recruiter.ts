@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { ApplicationService } from '../../services/application';
 import { AuthService } from '../../services/auth.service';
 import Chart from 'chart.js/auto';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-dashboard-recruiter',
-  imports: [RouterLink],
+  imports: [RouterLink, ConsoleShell],
   templateUrl: './dashboard-recruiter.html',
   styleUrl: './dashboard-recruiter.scss',
 })

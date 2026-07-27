@@ -1,0 +1,29 @@
+@if (links().length) {
+  <nav class="console-nav" [attr.aria-label]="spaceLabel()">
+    <div class="container console-nav__inner">
+      <span class="console-nav__label">{{ spaceLabel() }}</span>
+      <span class="console-nav__sep" aria-hidden="true"></span>
+      @for (l of links(); track l.path) {
+        <a
+          [routerLink]="l.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: !!l.exact }"
+          #rla="routerLinkActive"
+          [attr.aria-current]="rla.isActive ? 'page' : null">
+          <i class="bi" [class]="l.icon" aria-hidden="true"></i> {{ l.label }}
+        </a>
+      }
+    </div>
+  </nav>
+}
+
+<header class="console-head">
+  <div class="container console-head__inner">
+    <div class="console-head__text">
+      <ng-content select="[head]" />
+    </div>
+    <div class="console-head__actions">
+      <ng-content select="[actions]" />
+    </div>
+  </div>
+</header>

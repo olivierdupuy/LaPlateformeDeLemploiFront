@@ -9,10 +9,11 @@ import { Application } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-applications',
-  imports: [RouterLink, DatePipe, FormsModule],
+  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell],
   templateUrl: './applications.html',
   styleUrl: './applications.scss',
 })

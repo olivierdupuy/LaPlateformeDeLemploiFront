@@ -7,10 +7,11 @@ import { RecruiterFeaturesService } from '../../services/recruiter-features.serv
 import { JobOffer } from '../../models/job-offer.model';
 import { companyColor, getContractBadgeClass } from '../../utils/job.utils';
 import { ToastrService } from 'ngx-toastr';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-my-offers',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, ConsoleShell],
   templateUrl: './my-offers.html',
   styleUrl: './my-offers.scss',
 })

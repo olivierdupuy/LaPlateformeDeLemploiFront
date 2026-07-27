@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { RecruiterFeaturesService } from '../../services/recruiter-features.service';
 import { CandidatePublicProfile } from '../../models/auth.model';
 import { companyColor } from '../../utils/job.utils';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-candidate-list',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, ConsoleShell],
   templateUrl: './candidate-list.html',
   styleUrl: './candidate-list.scss',
 })

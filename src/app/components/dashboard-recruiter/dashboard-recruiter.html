@@ -1,24 +1,14 @@
-<!-- ═══ HERO ═══ -->
-<section class="dr-hero">
-  <div class="container drh-inner">
+<app-console-shell space="recruteur">
+  <div head>
     @if (auth.currentUser(); as u) {
-      <div class="drh-left animate-in">
-        <div class="drh-avatar">
-          <span>{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
-        </div>
-        <div class="drh-greet">
-          <span class="eyebrow">Espace recruteur</span>
-          <h1>Bonjour, <span class="em">{{ u.firstName }}</span></h1>
-          <p>{{ u.company ? u.company : 'Pilotez vos recrutements en un coup d’œil' }}</p>
-        </div>
-      </div>
+      <h1>Bonjour, <span class="em">{{ u.firstName }}</span></h1>
+      <p class="console-head__sub">{{ u.company ? u.company : 'Pilotez vos recrutements en un coup d’œil' }}</p>
     }
-    <div class="drh-actions animate-in" style="animation-delay:.1s">
-      <a routerLink="/admin/mes-offres" class="btn-secondary"><i class="bi bi-collection"></i> Mes offres</a>
-      <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
-    </div>
   </div>
-</section>
+  <div actions>
+    <a routerLink="/admin/nouvelle-offre" class="btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Publier une offre</a>
+  </div>
+</app-console-shell>
 
 @if (loading()) {
   <div class="empty-box"><div class="spinner"></div></div>
@@ -109,43 +99,51 @@
     <!-- RIGHT: Quick access -->
     <aside class="dr-side">
       <div class="dr-card card animate-in" style="animation-delay:.2s">
-        <div class="drc-head"><h2 class="section-title">Accès rapide</h2></div>
+        <div class="drc-head"><h2 class="section-title">À traiter</h2></div>
         <div class="drc-body qnav">
-          <a routerLink="/admin/mes-offres" class="qn">
-            <div class="qn-icon ic-brand"><i class="bi bi-collection"></i></div>
-            <div class="qn-text"><strong>Mes offres</strong><span>Gérer et renouveler</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/admin/candidatures" class="qn">
-            <div class="qn-icon ic-blue"><i class="bi bi-people"></i></div>
-            <div class="qn-text"><strong>Candidatures</strong><span>{{ d.enAttente }} en attente</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/candidats" class="qn">
-            <div class="qn-icon ic-green"><i class="bi bi-person-lines-fill"></i></div>
-            <div class="qn-text"><strong>Vivier de candidats</strong><span>Explorer les profils</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/entretiens" class="qn">
-            <div class="qn-icon ic-amber"><i class="bi bi-calendar-event"></i></div>
-            <div class="qn-text"><strong>Entretiens</strong><span>{{ d.entretiensPlanifies }} planifie{{ d.entretiensPlanifies > 1 ? 's' : '' }}</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/messagerie" class="qn">
-            <div class="qn-icon ic-red"><i class="bi bi-chat-dots"></i></div>
-            <div class="qn-text"><strong>Messagerie</strong><span>{{ d.messagesNonLus }} non lu{{ d.messagesNonLus > 1 ? 's' : '' }}</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/admin/nouvelle-offre" class="qn">
-            <div class="qn-icon ic-brand"><i class="bi bi-plus-circle"></i></div>
-            <div class="qn-text"><strong>Publier une offre</strong><span>Créer une nouvelle annonce</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/profil" class="qn">
-            <div class="qn-icon ic-neutral"><i class="bi bi-person"></i></div>
-            <div class="qn-text"><strong>Mon profil</strong><span>Modifier mes informations</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
+          @if (d.enAttente > 0) {
+            <a routerLink="/admin/candidatures" class="qn qn-todo">
+              <span class="qn-icon ic-amber"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
+              <span class="qn-text">
+                <strong>{{ d.enAttente }} candidature{{ d.enAttente > 1 ? 's' : '' }} en attente</strong>
+                <span>Personne ne les a encore examinées</span>
+              </span>
+              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
+            </a>
+          }
+          @if (d.messagesNonLus > 0) {
+            <a routerLink="/messagerie" class="qn qn-todo">
+              <span class="qn-icon ic-red"><i class="bi bi-chat-dots" aria-hidden="true"></i></span>
+              <span class="qn-text">
+                <strong>{{ d.messagesNonLus }} message{{ d.messagesNonLus > 1 ? 's' : '' }} non lu{{ d.messagesNonLus > 1 ? 's' : '' }}</strong>
+                <span>Un candidat attend votre réponse</span>
+              </span>
+              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
+            </a>
+          }
+          @if (d.entretiensPlanifies > 0) {
+            <a routerLink="/entretiens" class="qn qn-todo">
+              <span class="qn-icon ic-blue"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
+              <span class="qn-text">
+                <strong>{{ d.entretiensPlanifies }} entretien{{ d.entretiensPlanifies > 1 ? 's' : '' }} planifié{{ d.entretiensPlanifies > 1 ? 's' : '' }}</strong>
+                <span>Vérifiez vos prochaines dates</span>
+              </span>
+              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
+            </a>
+          }
+          @if (d.offresActives === 0) {
+            <a routerLink="/admin/nouvelle-offre" class="qn qn-todo">
+              <span class="qn-icon ic-brand"><i class="bi bi-plus-circle" aria-hidden="true"></i></span>
+              <span class="qn-text">
+                <strong>Aucune offre en ligne</strong>
+                <span>Publiez-en une pour recevoir des candidatures</span>
+              </span>
+              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
+            </a>
+          }
+          @if (d.enAttente === 0 && d.messagesNonLus === 0 && d.entretiensPlanifies === 0 && d.offresActives > 0) {
+            <p class="qn-clear"><i class="bi bi-check2-circle" aria-hidden="true"></i> Rien en attente. Tout est à jour.</p>
+          }
         </div>
       </div>
     </aside>

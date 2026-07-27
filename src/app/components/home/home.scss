@@ -4,29 +4,83 @@
 //  un seul bloc sombre en haut, puis le contenu respire.
 // ═══════════════════════════════════════════════
 
+// Pleine hauteur sous la navbar fixe. 100svh plutot que 100vh :
+// sur mobile, la barre d'adresse ne doit pas rogner le contenu.
 .hero {
   position: relative;
-  padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 4.5rem);
-  background: var(--plum-900);
+  isolation: isolate;
+  min-height: calc(100svh - var(--nav-h));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(2.5rem, 6vh, 5rem) 0 clamp(4rem, 9vh, 6rem);
+  background: var(--bleu-900);
   overflow: hidden;
+}
 
-  // Halo violet très diffus : donne de la profondeur sans motif décoratif
-  &::before {
-    content: '';
-    position: absolute;
-    top: -30%; left: -10%;
-    width: 70%; height: 140%;
-    background: radial-gradient(circle, rgba(46, 116, 224, 0.32), transparent 62%);
-    pointer-events: none;
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+}
+
+// Voile : sans lui, le texte blanc devient illisible des que la
+// video passe sur une image claire.
+.hero-veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(100deg, rgba(7, 30, 69, 0.94) 6%, rgba(10, 42, 94, 0.86) 45%, rgba(10, 42, 94, 0.62) 100%),
+    linear-gradient(to bottom, rgba(7, 30, 69, 0.55) 0%, transparent 22%, transparent 68%, rgba(7, 30, 69, 0.75) 100%);
+}
+
+// Mouvement refuse : on coupe la video, l'affiche du poster suffit.
+@media (prefers-reduced-motion: reduce) {
+  .hero-video { display: none; }
+  .hero {
+    background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&q=60&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
   }
 }
 
-.hero-grid {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
-  gap: clamp(2.5rem, 5vw, 5rem);
-  align-items: start;
+.hero-inner { position: relative; width: 100%; }
+
+// Invite de defilement : un hero pleine hauteur cache ce qui suit.
+.hero-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.25rem, 3vh, 2rem);
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-dark-muted);
+  transition: color var(--t);
+
+  i { font-size: 1rem; animation: hero-bob 2.2s ease-in-out infinite; }
+  &:hover { color: #fff; }
+}
+
+@keyframes hero-bob {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(4px); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll i { animation: none; }
 }
 
 .hero-left { min-width: 0; animation: fadeUp 0.6s var(--ease-out) both; }
@@ -35,11 +89,11 @@
 // mesure un peu plus longue, pour tenir sur deux lignes.
 .hero h1 {
   margin-top: 1.1rem;
-  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
+  font-size: clamp(2.3rem, 5vw, 4.1rem);
   line-height: 1.08;
   letter-spacing: -0.015em;
   color: #fff;
-  max-width: 19ch;
+  max-width: 17ch;
 }
 
 .hero-sub {
@@ -185,25 +239,6 @@
   }
 }
 
-// ── Illustration : la mascotte fait face au discours ──
-// L'image a un fond opaque : on l'encadre proprement plutôt que
-// de la poser en découpe sur le bleu.
-.hero-art {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeUp 0.6s var(--ease-out) 0.12s both;
-
-  img {
-    width: 100%;
-    max-width: 460px;
-    height: auto;
-    border-radius: var(--r-xl);
-    border: 1px solid rgba(232, 239, 250, 0.14);
-    box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7);
-  }
-}
-
 // ═══ Dernières offres ═══
 .latest { padding: clamp(3rem, 6vw, 4.5rem) 0 clamp(2rem, 4vw, 3rem); }
 
@@ -343,9 +378,7 @@
 
 // ═══ Adaptatif ═══
 @media (max-width: 1080px) {
-  .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
   .hero h1 { max-width: 18ch; }
-  .hero-art { order: -1; img { max-width: 340px; } }
 }
 
 @media (max-width: 780px) {
@@ -365,5 +398,4 @@
 
 @media (max-width: 480px) {
   .hero h1 { font-size: 2.2rem; }
-  .hero-art img { max-width: 280px; }
 }

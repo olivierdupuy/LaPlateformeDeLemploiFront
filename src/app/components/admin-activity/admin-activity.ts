@@ -2,10 +2,11 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin.service';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-admin-activity',
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule, ConsoleShell],
   templateUrl: './admin-activity.html',
   styleUrl: './admin-activity.scss',
 })

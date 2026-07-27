@@ -1,12 +1,12 @@
+<app-console-shell space="admin">
+  <div head>
+    <h1>Statistiques de la <span class="em">plateforme</span></h1>
+    <p class="console-head__sub">Analyse complète de l'activité, des utilisateurs, des offres et des candidatures.</p>
+  </div>
+</app-console-shell>
+
 <section class="stats-page">
   <div class="container">
-
-    <!-- ═══ Header ═══ -->
-    <header class="stats-head animate-in">
-      <span class="eyebrow">Administration · Analytics</span>
-      <h1 class="stats-title">Statistiques de la <span class="em">plateforme</span></h1>
-      <p class="stats-sub">Analyse complète de l'activité, des utilisateurs, des offres et des candidatures.</p>
-    </header>
 
     @if (loading()) {
       <div class="stats-loading"><div class="spinner"></div></div>

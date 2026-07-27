@@ -1,13 +1,15 @@
+<app-console-shell space="admin">
+  <div head>
+    <h1>Journal d'<span class="em">activité</span></h1>
+    <p class="console-head__sub">Trace complète des actions réalisées sur la plateforme.</p>
+  </div>
+  <div actions>
+    <span class="act-count u-mono">{{ total() }} événement{{ total() > 1 ? 's' : '' }}</span>
+  </div>
+</app-console-shell>
+
 <section class="act-page">
   <div class="container">
-    <header class="act-head animate-in">
-      <div class="act-head-text">
-        <span class="eyebrow">Administration</span>
-        <h1 class="section-title">Journal d'<span class="em">activité</span></h1>
-        <p class="section-sub">Trace complete des actions réalisées sur la plateforme.</p>
-      </div>
-      <span class="act-count u-mono">{{ total() }} evenement{{ total() > 1 ? 's' : '' }}</span>
-    </header>
 
     <div class="filters card animate-in" style="animation-delay:.05s">
       <div class="form-group filter-field">

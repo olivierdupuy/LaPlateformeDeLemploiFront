@@ -1,11 +1,9 @@
-<!-- ═══ HERO ═══ -->
-<section class="app-hero">
-  <div class="container ah-inner">
-    <div class="ah-left animate-in">
-      <span class="eyebrow">Espace recruteur</span>
-      <h1>Candidatures <span class="em">reçues</span></h1>
-      <p>Gérez et suivez les candidatures à vos offres d'emploi.</p>
-    </div>
+<app-console-shell>
+  <div head>
+    <h1>Candidatures <span class="em">reçues</span></h1>
+    <p class="console-head__sub">Gérez et suivez les candidatures à vos offres d'emploi.</p>
+  </div>
+  <div actions>
     @if (!loading() && counts().total > 0) {
       <div class="ah-counters animate-in" style="animation-delay:.1s">
         <button class="ahc" [class.active]="!filterStatus" (click)="filterStatus = ''"><span class="ahc-val">{{ counts().total }}</span><span class="ahc-lbl">Total</span></button>
@@ -20,7 +18,7 @@
       </div>
     }
   </div>
-</section>
+</app-console-shell>
 
 <!-- ═══ CONTENT ═══ -->
 <section class="app-content">

@@ -1,22 +1,24 @@
+<app-console-shell space="admin">
+  <div head>
+    <h1>Gestion des <span class="em">utilisateurs</span></h1>
+    <p class="console-head__sub">Consultez les comptes, ajustez les rôles et suivez la présence en temps réel.</p>
+  </div>
+  <div actions>
+    <div class="page-stats">
+      <div class="stat">
+        <span class="stat-num u-mono">{{ users().length }}</span>
+        <span class="stat-lbl">utilisateur{{ users().length > 1 ? 's' : '' }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num u-mono"><span class="online-dot"></span>{{ onlineCount() }}</span>
+        <span class="stat-lbl">en ligne</span>
+      </div>
+    </div>
+  </div>
+</app-console-shell>
+
 <section class="users-page">
   <div class="container">
-    <header class="page-top animate-in">
-      <div class="page-head">
-        <span class="eyebrow">Administration</span>
-        <h1 class="section-title">Gestion des <span class="em">utilisateurs</span></h1>
-        <p class="section-sub">Consultez les comptes, ajustez les rôles et suivez la présence en temps réel.</p>
-      </div>
-      <div class="page-stats">
-        <div class="stat">
-          <span class="stat-num u-mono">{{ users().length }}</span>
-          <span class="stat-lbl">utilisateur{{ users().length > 1 ? 's' : '' }}</span>
-        </div>
-        <div class="stat">
-          <span class="stat-num u-mono"><span class="online-dot"></span>{{ onlineCount() }}</span>
-          <span class="stat-lbl">en ligne</span>
-        </div>
-      </div>
-    </header>
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>

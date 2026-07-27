@@ -1,10 +1,21 @@
 <!-- ═══════════════════════════════════════════════
-     HERO — prolonge le bandeau prune de la navbar.
-     Pas de photo d'illustration : ce que la plateforme
-     a de plus caractéristique, ce sont ses offres.
+     HERO — pleine hauteur, video en fond.
+     La video est decorative : voilee de bleu pour garder le
+     texte lisible, coupee si l'utilisateur refuse le mouvement.
      ═══════════════════════════════════════════════ -->
-<section class="hero band-plum">
-  <div class="container hero-grid">
+<section class="hero">
+  <video
+    class="hero-video"
+    autoplay muted loop playsinline
+    preload="metadata"
+    poster="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&q=60&auto=format&fit=crop"
+    aria-hidden="true"
+    tabindex="-1">
+    <source src="https://videos.pexels.com/video-files/3255275/3255275-hd_1920_1080_25fps.mp4" type="video/mp4" />
+  </video>
+  <span class="hero-veil" aria-hidden="true"></span>
+
+  <div class="container hero-inner">
     <div class="hero-left">
       <span class="eyebrow eyebrow--plum">
         {{ stats().totalOffers | number: '1.0-0' }} offres en ligne · mises à jour aujourd'hui
@@ -70,15 +81,16 @@
       </dl>
     </div>
 
-    <!-- La mascotte, en grand, face au discours -->
-    <div class="hero-art">
-      <img src="/images/2.png" alt="" width="1024" height="1024" fetchpriority="high" />
-    </div>
   </div>
+
+  <a class="hero-scroll" href="#dernieres-offres">
+    <span>Voir les offres</span>
+    <i class="bi bi-chevron-down" aria-hidden="true"></i>
+  </a>
 </section>
 
 <!-- ═══ DERNIÈRES OFFRES ═══ -->
-<section class="latest">
+<section class="latest" id="dernieres-offres">
   <div class="container">
     <div class="section-head">
       <div>

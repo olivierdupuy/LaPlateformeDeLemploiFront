@@ -3,6 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { JobOfferService } from '../../services/job-offer';
 import Chart from 'chart.js/auto';
 import * as L from 'leaflet';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 // ── Palette app (identité Clean SaaS) ──
 const TEAL = '#1657c4';        // brand evergreen
@@ -71,7 +72,7 @@ const FRENCH_CITIES: Record<string, [number, number]> = {
 
 @Component({
   selector: 'app-admin-stats',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, ConsoleShell],
   templateUrl: './admin-stats.html',
   styleUrl: './admin-stats.scss',
 })
