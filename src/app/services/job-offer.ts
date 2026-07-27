@@ -95,6 +95,15 @@ export class JobOfferService {
     return this.http.get<any>(`${this.apiUrl}/stats/admin`);
   }
 
+  /**
+   * Statistiques par section. La page d'administration ne demande que
+   * l'onglet regarde : tout charger d'un coup faisait transiter deux
+   * cents kilo-octets et cinq secondes d'agregation.
+   */
+  getAdminStatsSection(section: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/stats/admin/${section}`);
+  }
+
   isModerationRequired(): Observable<{ required: boolean }> {
     return this.http.get<{ required: boolean }>(`${this.apiUrl}/moderation-required`);
   }

@@ -117,16 +117,105 @@ export class AdminStats implements OnInit, OnDestroy {
   @ViewChild('interviewStatusChart') interviewStatusCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('messagesDayChart') messagesDayCanvas!: ElementRef<HTMLCanvasElement>;
 
+  /**
+   * Onglets. Chaque section a son point d'entree : la page ne demande que
+   * ce qu'elle affiche, et les graphiques ne se construisent que pour
+   * l'onglet visible. Dix-sept graphiques montes d'un coup, sur une
+   * reponse de deux cents kilo-octets, se payaient en secondes.
+   */
+  onglets = [
+    { cle: 'apercu', label: "Vue d'ensemble", icon: 'bi-speedometer2' },
+    { cle: 'offres', label: 'Offres', icon: 'bi-briefcase' },
+    { cle: 'candidatures', label: 'Candidatures', icon: 'bi-file-earmark-text' },
+    { cle: 'utilisateurs', label: 'Utilisateurs', icon: 'bi-people' },
+    { cle: 'echanges', label: 'Entretiens et messagerie', icon: 'bi-chat-dots' },
+  ];
+
+  onglet = signal<string>('apercu');
+  chargementSection = signal(false);
+
+  /** Sections deja recuperees : on ne redemande pas ce qu'on a. */
+  private recues = new Set<string>();
+
   ngOnInit() {
-    this.jobService.getAdminStats().subscribe({
-      next: (d) => {
-        this.data.set(d);
-        this.loading.set(false);
-        // Wait for Angular to render the @if block and DOM to be measured
-        setTimeout(() => this.buildAllCharts(d), 150);
-      },
-      error: () => this.loading.set(false),
+    // La vue d'ensemble porte les compteurs, affiches sur tous les
+    // onglets : elle se charge toujours, et d'abord.
+    this.charger('apercu', () => {
+      this.loading.set(false);
+      this.charger('activite');
     });
+  }
+
+  changerOnglet(cle: string) {
+    if (cle === this.onglet()) return;
+    this.onglet.set(cle);
+
+    // Les canevas de l'onglet quitte sortent du DOM : leurs graphiques
+    // n'ont plus de support et doivent etre liberes.
+    this.charts.forEach((c) => c.destroy());
+    this.charts = [];
+
+    // La vue d'ensemble affiche aussi la courbe de tendance.
+    this.charger(cle === 'apercu' ? 'activite' : cle);
+  }
+
+  private charger(section: string, ensuite?: () => void) {
+    if (this.recues.has(section)) {
+      this.construire();
+      ensuite?.();
+      return;
+    }
+
+    this.chargementSection.set(true);
+    this.jobService.getAdminStatsSection(section).subscribe({
+      next: (d) => {
+        this.recues.add(section);
+        // On fusionne plutot que de remplacer : le gabarit lit un seul
+        // objet, quelle que soit la section qui l'a rempli.
+        this.data.update((courant: any) => ({ ...(courant ?? {}), ...d }));
+        this.chargementSection.set(false);
+        setTimeout(() => this.construire(), 60);
+        ensuite?.();
+      },
+      error: () => {
+        this.chargementSection.set(false);
+        this.loading.set(false);
+      },
+    });
+  }
+
+  /** Monte les graphiques du seul onglet visible. */
+  private construire() {
+    const d = this.data();
+    if (!d) return;
+
+    this.charts.forEach((c) => c.destroy());
+    this.charts = [];
+
+    switch (this.onglet()) {
+      case 'apercu':
+        if (d.activityTimeline && this.activityCanvas) this.buildActivity(d);
+        break;
+      case 'offres':
+        if (!d.offersByCategory || !this.categoryCanvas) return;
+        this.buildOffersDay(d); this.buildCategory(d); this.buildContract(d);
+        this.buildExperience(d); this.buildLocations(d); this.buildSalary(d);
+        this.buildTopCompanies(d); this.buildTopViewed(d);
+        break;
+      case 'candidatures':
+        if (!d.appsByStatus || !this.statusCanvas) return;
+        this.buildStatus(d); this.buildAppsDay(d);
+        this.buildSource(d); this.buildConversion(d);
+        break;
+      case 'utilisateurs':
+        if (!d.registrationsByDay || !this.registrationsCanvas) return;
+        this.buildRegistrations(d); this.buildMap(d);
+        break;
+      case 'echanges':
+        if (!d.interviewsByStatus || !this.interviewStatusCanvas) return;
+        this.buildInterviewType(d); this.buildInterviewStatus(d); this.buildMessagesDay(d);
+        break;
+    }
   }
 
   ngOnDestroy() {

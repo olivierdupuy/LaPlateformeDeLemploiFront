@@ -320,3 +320,34 @@
   .map-wrap { height: 350px; }
   .map-header { flex-direction: column; align-items: flex-start; }
 }
+
+// ── Onglets des statistiques ──
+.st-tabs {
+  margin-bottom: 1.6rem;
+
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    i { font-size: 0.85rem; }
+  }
+}
+
+// Le chargement d'une section ne masque pas la page : les compteurs
+// restent lisibles pendant que les graphiques arrivent.
+.st-busy {
+  align-self: center;
+  margin-left: auto;
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--bleu-600);
+  border-radius: 50%;
+  animation: st-spin 0.7s linear infinite;
+}
+
+@keyframes st-spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .st-busy { animation-duration: 2s; }
+}

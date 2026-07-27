@@ -81,7 +81,22 @@
         Cliquez sur un segment d'un graphique pour ouvrir la liste correspondante.
       </p>
 
-      <!-- ═══ SECTION : ACTIVITE GLOBALE ═══ -->
+      
+      <!-- Onglets : on ne monte que les graphiques regardes -->
+      <div class="tabs st-tabs animate-in" role="tablist" aria-label="Sections statistiques">
+        @for (o of onglets; track o.cle) {
+          <button class="tab" role="tab"
+                  [class.is-active]="onglet() === o.cle"
+                  [attr.aria-selected]="onglet() === o.cle"
+                  (click)="changerOnglet(o.cle)">
+            <i class="bi" [class]="o.icon" aria-hidden="true"></i> {{ o.label }}
+          </button>
+        }
+        @if (chargementSection()) { <span class="st-busy" aria-hidden="true"></span> }
+      </div>
+
+      @if (onglet() === 'apercu') {
+<!-- ═══ SECTION : ACTIVITE GLOBALE ═══ -->
       <div class="sec-head animate-in" style="animation-delay:.1s">
         <span class="sec-ico"><i class="bi bi-activity"></i></span>
         <h2>Activité globale</h2>
@@ -102,8 +117,10 @@
           <div class="chart-box chart-lg"><canvas #activityChart></canvas></div>
         </div>
       </div>
+      }
 
-      <!-- ═══ SECTION : UTILISATEURS ═══ -->
+      @if (onglet() === 'utilisateurs') {
+<!-- ═══ SECTION : UTILISATEURS ═══ -->
       <div class="sec-head animate-in" style="animation-delay:.15s">
         <span class="sec-ico"><i class="bi bi-people"></i></span>
         <h2>Utilisateurs</h2>
@@ -133,8 +150,10 @@
         </div>
         <div class="map-wrap" #mapContainer></div>
       </div>
+      }
 
-      <!-- ═══ SECTION : OFFRES D'EMPLOI ═══ -->
+      @if (onglet() === 'offres') {
+<!-- ═══ SECTION : OFFRES D'EMPLOI ═══ -->
       <div class="sec-head animate-in" style="animation-delay:.22s">
         <span class="sec-ico"><i class="bi bi-briefcase"></i></span>
         <h2>Offres d'emploi</h2>
@@ -179,8 +198,10 @@
           <div class="chart-box chart-tall"><canvas #topViewedChart></canvas></div>
         </div>
       </div>
+      }
 
-      <!-- ═══ SECTION : CANDIDATURES ═══ -->
+      @if (onglet() === 'candidatures') {
+<!-- ═══ SECTION : CANDIDATURES ═══ -->
       <div class="sec-head animate-in" style="animation-delay:.4s">
         <span class="sec-ico"><i class="bi bi-send"></i></span>
         <h2>Candidatures</h2>
@@ -205,8 +226,10 @@
           <div class="chart-box chart-md"><canvas #conversionChart></canvas></div>
         </div>
       </div>
+      }
 
-      <!-- ═══ SECTION : ENTRETIENS & MESSAGERIE ═══ -->
+      @if (onglet() === 'echanges') {
+<!-- ═══ SECTION : ENTRETIENS & MESSAGERIE ═══ -->
       <div class="sec-head animate-in" style="animation-delay:.5s">
         <span class="sec-ico"><i class="bi bi-calendar-event"></i></span>
         <h2>Entretiens &amp; messagerie</h2>
@@ -225,7 +248,7 @@
           <div class="chart-box chart-sm"><canvas #messagesDayChart></canvas></div>
         </div>
       </div>
-
+      }
     }
   </div>
 </section>
