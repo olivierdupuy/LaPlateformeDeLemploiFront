@@ -7,6 +7,7 @@ import { AdminService } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
 import { ConsoleShell } from '../console-shell/console-shell';
 import { companyColor } from '../../utils/job.utils';
+import { fichierUrl } from '../../utils/fichiers';
 
 /**
  * Fiche d'un compte, ouverte depuis le tableau des utilisateurs.
@@ -73,6 +74,7 @@ export class AdminUserDetail implements OnInit {
   tabs = TABS;
   cvSections = CV_SECTIONS;
   companyColor = companyColor;
+  fichierUrl = fichierUrl;
   statusLabel = (s: string) => STATUS_LABELS[s] ?? s;
   statusBadge = (s: string) => STATUS_BADGE[s] ?? '';
   roleLabel = (r: string) => ROLE_LABELS[r] ?? r;

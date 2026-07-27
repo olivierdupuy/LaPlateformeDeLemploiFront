@@ -87,7 +87,12 @@ export const routes: Routes = [
   { path: 'admin/mes-offres', redirectTo: 'recruteur/offres', pathMatch: 'full' },
   { path: 'admin/nouvelle-offre', redirectTo: 'recruteur/offres/nouvelle', pathMatch: 'full' },
   { path: 'admin/modifier-offre/:id', redirectTo: 'recruteur/offres/:id/modifier' },
-  { path: 'admin/candidatures', redirectTo: 'recruteur/candidatures', pathMatch: 'full' },
+  // « admin/candidatures » n'est plus une ancienne adresse recruteur : c'est
+  // la page de l'administration. La redirection historique qui subsistait
+  // ici la captait au passage et l'envoyait vers une page a garde
+  // recruteur — qu'un administrateur n'est pas, les roles etant exclusifs.
+  // D'ou le renvoi au tableau de bord depuis les liens « candidatures de
+  // cette offre ».
   { path: 'admin/dashboard', redirectTo: 'admin/tableau-de-bord', pathMatch: 'full' },
 
   // ── Panneau d'administration ──

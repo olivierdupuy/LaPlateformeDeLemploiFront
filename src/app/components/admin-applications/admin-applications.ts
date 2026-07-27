@@ -6,6 +6,7 @@ import { AdminService } from '../../services/admin.service';
 import { ConsoleShell } from '../console-shell/console-shell';
 import { Pager } from '../pager/pager';
 import { companyColor } from '../../utils/job.utils';
+import { fichierUrl } from '../../utils/fichiers';
 import { pagedQuery } from '../../utils/paged-query';
 import { dayLabel } from '../../utils/day-filter';
 
@@ -75,6 +76,8 @@ export class AdminApplications {
   private admin = inject(AdminService);
 
   companyColor = companyColor;
+  /** Le CV est servi par l'API, pas par le site. */
+  fichierUrl = fichierUrl;
   statusLabel = (s: string) => STATUS_LABELS[s] ?? s;
   statusBadge = (s: string) => STATUS_BADGE[s] ?? '';
 

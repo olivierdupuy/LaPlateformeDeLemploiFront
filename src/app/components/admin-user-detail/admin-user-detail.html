@@ -58,7 +58,7 @@
               <a [href]="user().portfolioUrl" target="_blank" rel="noopener"><i class="bi bi-globe"></i> Portfolio</a>
             }
             @if (user().resumeUrl) {
-              <a [href]="user().resumeUrl" target="_blank" rel="noopener"><i class="bi bi-file-earmark-person"></i> CV</a>
+              <a [href]="fichierUrl(user().resumeUrl)" target="_blank" rel="noopener"><i class="bi bi-file-earmark-person"></i> CV</a>
             }
           </div>
         </div>
@@ -334,7 +334,7 @@
               <h3>CV non renseigné</h3>
               <p>Ce compte n'a pas encore rempli son CV en ligne.</p>
               @if (user().resumeUrl) {
-                <a [href]="user().resumeUrl" target="_blank" rel="noopener" class="btn-primary">
+                <a [href]="fichierUrl(user().resumeUrl)" target="_blank" rel="noopener" class="btn-primary">
                   <i class="bi bi-file-earmark-person"></i> Ouvrir le CV téléversé
                 </a>
               }
