@@ -1,157 +1,222 @@
-<!-- ═══ HERO — Split editorial ═══ -->
-<section class="hero">
+<!-- ═══════════════════════════════════════════════
+     HERO — prolonge le bandeau prune de la navbar.
+     Pas de photo d'illustration : ce que la plateforme
+     a de plus caractéristique, ce sont ses offres.
+     ═══════════════════════════════════════════════ -->
+<section class="hero band-plum">
   <div class="container hero-grid">
-    <!-- Left: pitch + search -->
-    <div class="hero-left animate-in">
-      <div class="hero-eyebrow">
-        <span class="ed-pill">{{ stats().totalOffers }}</span>
-        <span>offres disponibles</span>
-      </div>
+    <div class="hero-left">
+      <span class="eyebrow eyebrow--plum">
+        {{ stats().totalOffers | number: '1.0-0' }} offres en ligne · mises à jour aujourd'hui
+      </span>
 
-      <h1>Trouvez le poste<br/>qui vous <span class="accent">ressemble</span></h1>
+      <h1>Votre prochain poste est <span class="em em-plum">déjà</span> en ligne</h1>
+
+      <p class="hero-sub">
+        Les offres des grands sites d'emploi et celles publiées ici, rassemblées au même
+        endroit. Une seule recherche, et vous suivez chaque candidature jusqu'à la réponse.
+      </p>
 
       @if (platform.welcomeMessage) {
-        <p class="hero-welcome"><i class="bi bi-stars"></i> {{ platform.welcomeMessage }}</p>
+        <p class="hero-welcome"><i class="bi bi-megaphone" aria-hidden="true"></i> {{ platform.welcomeMessage }}</p>
       }
 
-      <p class="hero-caption">{{ slides[currentSlide()].sub }}</p>
-
       <form class="hero-search" (ngSubmit)="search()">
-        <div class="search-inner">
-          <i class="bi bi-search"></i>
-          <input type="text" placeholder="Poste, entreprise, competence..." [(ngModel)]="searchQuery" name="search" />
+        <div class="hs-field">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <label class="sr-only" for="hs-what">Poste, entreprise ou compétence</label>
+          <input id="hs-what" type="text" placeholder="Poste ou entreprise"
+                 [(ngModel)]="searchQuery" name="search" />
         </div>
-        <button type="submit" class="btn-primary search-btn">Rechercher</button>
+        <div class="hs-sep" aria-hidden="true"></div>
+        <div class="hs-field hs-field--where">
+          <i class="bi bi-geo-alt" aria-hidden="true"></i>
+          <label class="sr-only" for="hs-where">Ville ou région</label>
+          <input id="hs-where" type="text" placeholder="Ville ou région"
+                 [(ngModel)]="searchLocation" name="location" />
+        </div>
+        <button type="submit" class="hs-submit">Rechercher</button>
       </form>
 
       @if (categories().length) {
         <div class="hero-cats">
-          <span class="cats-label">Populaire</span>
-          @for (cat of categories(); track cat) {
-            <a [routerLink]="['/offres']" [queryParams]="{category: cat}" class="cat-chip">{{ cat }}</a>
-          }
-        </div>
-      }
-    </div>
-
-    <!-- Right: rotating showcase + floating metrics -->
-    <div class="hero-media animate-in" style="animation-delay:.15s">
-      <div class="carousel">
-        @for (slide of slides; track slide.img; let i = $index) {
-          <div class="carousel-slide" [class.active]="currentSlide() === i" [style.background-image]="'url(' + slide.img + ')'"></div>
-        }
-        <div class="carousel-overlay"></div>
-        <div class="carousel-cap">
-          <span class="cap-kicker">La Plateforme de l'emploi</span>
-          <span class="cap-title">{{ slides[currentSlide()].title }}</span>
-        </div>
-
-        <div class="carousel-controls">
-          <button class="carousel-arrow" (click)="prevSlide()" aria-label="Precedent"><i class="bi bi-chevron-left"></i></button>
-          <div class="carousel-dots">
-            @for (slide of slides; track slide.img; let i = $index) {
-              <button class="dot" [class.active]="currentSlide() === i" (click)="goToSlide(i)" aria-label="Slide">
-                <span class="dot-progress" [class.running]="currentSlide() === i"></span>
-              </button>
+          <span class="cats-label">Recherches fréquentes</span>
+          <div class="cats-list">
+            @for (cat of categories().slice(0, 7); track cat) {
+              <a [routerLink]="['/offres']" [queryParams]="{ category: cat }" class="cat-chip">{{ cat }}</a>
             }
           </div>
-          <button class="carousel-arrow" (click)="nextSlide()" aria-label="Suivant"><i class="bi bi-chevron-right"></i></button>
         </div>
+      }
+
+      <!-- Chiffres clés : la preuve, pas la décoration -->
+      <dl class="hero-stats">
+        <div class="hstat">
+          <dt>Offres actives</dt>
+          <dd>{{ stats().totalOffers | number: '1.0-0' }}</dd>
+        </div>
+        <div class="hstat">
+          <dt>Entreprises</dt>
+          <dd>{{ stats().totalCompanies | number: '1.0-0' }}</dd>
+        </div>
+        <div class="hstat">
+          <dt>En télétravail</dt>
+          <dd>{{ stats().remoteOffers | number: '1.0-0' }}</dd>
+        </div>
+        <div class="hstat">
+          <dt>Candidatures</dt>
+          <dd>{{ stats().totalApplications | number: '1.0-0' }}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Le contenu clair perce le bandeau sombre -->
+    <aside class="hero-feed" aria-label="Offres publiées récemment">
+      <div class="feed-head">
+        <span class="feed-live"><span class="live-dot" aria-hidden="true"></span> Publiées récemment</span>
+        <a routerLink="/offres" class="feed-all">Tout voir</a>
       </div>
 
-      <!-- Floating metrics card -->
-      <div class="hero-stats">
-        <div class="hstat">
-          <span class="hstat-val">{{ stats().totalOffers }}</span>
-          <span class="hstat-lbl">Offres actives</span>
-        </div>
-        <div class="hstat">
-          <span class="hstat-val">{{ stats().totalCompanies }}</span>
-          <span class="hstat-lbl">Entreprises</span>
-        </div>
-        <div class="hstat">
-          <span class="hstat-val">{{ stats().remoteOffers }}</span>
-          <span class="hstat-lbl">Teletravail</span>
-        </div>
-        <div class="hstat">
-          <span class="hstat-val">{{ stats().totalApplications }}</span>
-          <span class="hstat-lbl">Candidatures</span>
-        </div>
-      </div>
-    </div>
+      @if (latestJobs().length) {
+        <ul class="feed-list">
+          @for (job of latestJobs().slice(0, 4); track job.id) {
+            <li>
+              <a [routerLink]="['/offres', job.id]" class="feed-item">
+                <span class="feed-av" [style.background]="avatarBg(job.company)">
+                  <span [style.color]="avatarFg(job.company)">{{ job.company.charAt(0) }}</span>
+                </span>
+                <span class="feed-body">
+                  <span class="feed-title">{{ job.title }}</span>
+                  <span class="feed-meta">
+                    {{ job.company }} · {{ job.location }}
+                    @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
+                  </span>
+                </span>
+                <span class="feed-side">
+                  @if (job.salary) { <span class="feed-salary">{{ job.salary }}</span> }
+                  <span class="feed-time">{{ getTimeAgo(job.createdAt) }}</span>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+      } @else {
+        <ul class="feed-list">
+          @for (n of [1, 2, 3, 4]; track n) {
+            <li class="feed-item feed-item--loading" aria-hidden="true">
+              <span class="skeleton feed-av"></span>
+              <span class="feed-body">
+                <span class="skeleton sk-line" style="width: 72%"></span>
+                <span class="skeleton sk-line" style="width: 45%; margin-top: 8px; height: 9px"></span>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </aside>
   </div>
 </section>
 
-<!-- ═══ STATS STRIP — dark trust band ═══ -->
-<section class="stats-strip">
-  <div class="container">
-    <div class="strip-inner animate-in" style="animation-delay:.1s">
-      <div class="strip-item">
-        <span class="strip-val">{{ stats().totalOffers }}</span>
-        <span class="strip-lbl">Offres actives</span>
-      </div>
-      <div class="strip-divider"></div>
-      <div class="strip-item">
-        <span class="strip-val">{{ stats().totalCompanies }}</span>
-        <span class="strip-lbl">Entreprises</span>
-      </div>
-      <div class="strip-divider"></div>
-      <div class="strip-item">
-        <span class="strip-val">{{ stats().totalApplications }}</span>
-        <span class="strip-lbl">Candidatures</span>
-      </div>
-      <div class="strip-divider"></div>
-      <div class="strip-item">
-        <span class="strip-val">{{ stats().remoteOffers }}</span>
-        <span class="strip-lbl">Teletravail</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ LATEST JOBS ═══ -->
+<!-- ═══ DERNIÈRES OFFRES ═══ -->
 <section class="latest">
   <div class="container">
     <div class="section-head">
       <div>
-        <div class="section-title"><span class="ed-pill">01</span> Dernieres offres</div>
-        <p class="section-sub">Les opportunites les plus recentes publiees sur la plateforme</p>
+        <h2 class="section-title">Dernières offres</h2>
+        <p class="section-sub">Les annonces les plus récemment publiées sur la plateforme.</p>
       </div>
-      <a routerLink="/offres" class="link-teal">Toutes les offres <i class="bi bi-arrow-right"></i></a>
+      <a routerLink="/offres" class="link-brand">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
     </div>
 
-    <div class="jobs-grid">
-      @for (job of latestJobs(); track job.id; let i = $index) {
-        <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="(i * 0.05) + 's'">
-          <div class="card-stripe" [style.background]="{'CDI':'var(--brand)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--purple)'}[job.contractType] || 'var(--brand)'"></div>
-          <div class="jc-inner">
-            <div class="jc-header">
-              <div class="company-av" [style.background]="'hsl(' + (job.company.charCodeAt(0)*7%360) + ',45%,92%)'">
-                <span [style.color]="'hsl(' + (job.company.charCodeAt(0)*7%360) + ',55%,35%)'">{{ job.company.charAt(0) }}</span>
-              </div>
-              <div class="jc-meta">
-                <span class="jc-company">{{ job.company }}</span>
-                <span class="jc-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}
-                  @if (job.isRemote) { <span class="remote-pill">Teletravail</span> }
+    @if (latestJobs().length) {
+      <div class="jobs-grid">
+        @for (job of latestJobs(); track job.id; let i = $index) {
+          <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="i * 0.05 + 's'">
+            <span class="card-stripe" [style.background]="stripeFor(job.contractType)" aria-hidden="true"></span>
+            <div class="jc-inner">
+              <div class="jc-header">
+                <span class="company-av" [style.background]="avatarBg(job.company)">
+                  <span [style.color]="avatarFg(job.company)">{{ job.company.charAt(0) }}</span>
+                </span>
+                <span class="jc-meta">
+                  <span class="jc-company">{{ job.company }}</span>
+                  <span class="jc-loc">
+                    <i class="bi bi-geo-alt" aria-hidden="true"></i> {{ job.location }}
+                    @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
+                  </span>
                 </span>
               </div>
-              <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
-              @if (job.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
-            </div>
-            <h3 class="jc-title">{{ job.title }}</h3>
-            <p class="jc-desc">{{ job.description }}</p>
-            <div class="jc-footer">
-              <div class="jc-tags">
+
+              <h3 class="jc-title">{{ job.title }}</h3>
+              <p class="jc-desc">{{ job.description }}</p>
+
+              <div class="jc-badges">
+                <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+                @if (job.isUrgent) {
+                  <span class="badge badge-red"><i class="bi bi-lightning-fill" aria-hidden="true"></i> Urgent</span>
+                }
                 @for (tag of getTags(job.tags); track tag) { <span class="tag">{{ tag }}</span> }
               </div>
-              <div class="jc-right">
-                @if (job.salary) { <span class="jc-salary">{{ job.salary }}</span> }
+
+              <div class="jc-footer">
+                @if (job.salary) {
+                  <span class="jc-salary">{{ job.salary }}</span>
+                } @else {
+                  <span class="jc-salary jc-salary--none">Salaire non précisé</span>
+                }
                 <span class="jc-time">{{ getTimeAgo(job.createdAt) }}</span>
               </div>
             </div>
+          </a>
+        }
+      </div>
+    } @else {
+      <div class="jobs-grid">
+        @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+          <div class="job-card card card--flat" aria-hidden="true">
+            <div class="jc-inner">
+              <div class="skeleton sk-line" style="width: 40%"></div>
+              <div class="skeleton sk-title" style="margin-top: 18px; width: 80%"></div>
+              <div class="skeleton sk-line" style="margin-top: 16px"></div>
+              <div class="skeleton sk-line" style="margin-top: 8px; width: 65%"></div>
+            </div>
           </div>
-        </a>
-      }
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ═══ COMMENT ÇA MARCHE ═══
+     Numéroté parce que c'est réellement une séquence. -->
+<section class="how">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">De la recherche à la <span class="em">réponse</span></h2>
+        <p class="section-sub">Vous gardez la trace de chaque candidature, sans tableur ni relance oubliée.</p>
+      </div>
     </div>
+
+    <ol class="how-steps">
+      <li class="how-step">
+        <span class="step-num">01</span>
+        <h3>Cherchez</h3>
+        <p>Filtrez par contrat, salaire, télétravail ou distance. Enregistrez une recherche et recevez les nouvelles offres par email.</p>
+        <a routerLink="/offres" class="link-brand">Voir les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+      </li>
+      <li class="how-step">
+        <span class="step-num">02</span>
+        <h3>Postulez</h3>
+        <p>Votre CV et votre profil sont réutilisés d'une candidature à l'autre. Sur les offres compatibles, un seul clic suffit.</p>
+        <a routerLink="/mon-cv" class="link-brand">Préparer mon CV <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+      </li>
+      <li class="how-step">
+        <span class="step-num">03</span>
+        <h3>Suivez</h3>
+        <p>Envoyée, vue, entretien, réponse : chaque candidature a un statut, et vous savez toujours où vous en êtes.</p>
+        <a routerLink="/suivi" class="link-brand">Suivre mes candidatures <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+      </li>
+    </ol>
   </div>
 </section>

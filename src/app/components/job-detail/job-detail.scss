@@ -3,7 +3,7 @@
 // ═══════════════════════════════════
 
 .jd {
-  padding: calc(68px + 1.5rem) 0 4rem;
+  padding: calc(var(--nav-h) + 1.5rem) 0 4rem;
   background: var(--canvas);
 }
 
@@ -170,7 +170,7 @@
 // ═══ SIDEBAR ═══
 .jd-side {
   display: flex; flex-direction: column; gap: 1rem;
-  position: sticky; top: calc(68px + 1rem);
+  position: sticky; top: calc(var(--nav-h) + 1rem);
 }
 
 .apply-card {

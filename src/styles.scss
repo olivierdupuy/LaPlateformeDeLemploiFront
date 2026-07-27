@@ -281,12 +281,84 @@ h3, h4, h5, h6 {
 }
 .page-head__actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
 
+/* En-tête de page — prolonge le bandeau prune de la navbar.
+   Partagé par les pages publiques pour un rythme identique partout. */
+.page-hero {
+  position: relative;
+  padding: calc(var(--nav-h) + clamp(1.6rem, 3.2vw, 2.6rem)) 0 clamp(1.6rem, 2.8vw, 2.4rem);
+  background: var(--plum-900);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -40%; left: -6%;
+    width: 55%; height: 180%;
+    background: radial-gradient(circle, rgba(107, 63, 196, 0.3), transparent 62%);
+    pointer-events: none;
+  }
+
+  > * { position: relative; }
+
+  .eyebrow {
+    color: var(--on-plum-muted);
+    &::before { background: var(--citron); }
+  }
+
+  h1 {
+    margin: 0.7rem 0 0;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    color: #fff;
+  }
+
+  .crumbs {
+    color: var(--on-plum-muted);
+    a { color: var(--on-plum-muted); &:hover { color: var(--citron); } }
+    .sep { color: rgba(239, 234, 243, 0.3); }
+    span[aria-current] { color: #fff; }
+  }
+}
+
+.page-hero__sub {
+  margin-top: 0.8rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--on-plum-muted);
+  max-width: 58ch;
+}
+
+.page-hero__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
 /* Bandeau prune — la signature. Encadre l'app, ponctue les pages. */
 .band-plum {
   background: var(--plum-800);
   color: var(--on-plum);
   h1, h2, h3, h4, h5 { color: #fff; }
   p { color: var(--on-plum-muted); }
+}
+
+/* Lien de retour (pages de détail) */
+.back-link, .cd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: gap var(--t), color var(--t);
+  &:hover { color: var(--violet); gap: 0.65rem; }
 }
 
 /* Fil d'Ariane */
@@ -443,8 +515,11 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  border: none; // sert aussi de <fieldset> pour les groupes de boutons
+  min-width: 0;
 
-  label {
+  label, legend {
+    padding: 0; // reset <legend>
     font-family: var(--font-mono);
     font-size: 0.6rem;
     font-weight: 500;
@@ -452,6 +527,8 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
     text-transform: uppercase;
     letter-spacing: 0.13em;
   }
+
+  legend + * { margin-top: 0.4rem; }
 
   input, select, textarea {
     padding: 0.68rem 0.9rem;

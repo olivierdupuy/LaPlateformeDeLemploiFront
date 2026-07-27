@@ -2,7 +2,7 @@
 //  SALAIRE — détail métier
 // ═══════════════════════════════════
 
-.sd-page { padding: calc(68px + 1.5rem) 0 4rem; }
+.sd-page { padding: calc(var(--nav-h) + 1.5rem) 0 4rem; }
 
 .back-link {
   display: inline-flex; align-items: center; gap: 0.45rem;

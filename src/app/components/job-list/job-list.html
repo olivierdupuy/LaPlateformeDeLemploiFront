@@ -3,7 +3,7 @@
   <div class="container">
     <div class="sh-content animate-in">
       <span class="eyebrow">Offres d'emploi</span>
-      <h1>Explorez les <span class="hl">opportunités</span></h1>
+      <h1>Cherchez, filtrez, <span class="em em-plum">postulez</span></h1>
 
       <!-- Double champ : mot-clé + lieu -->
       <form class="sh-search" (ngSubmit)="loadJobs()">
@@ -34,57 +34,67 @@
         </div>
         <button type="submit" class="btn-primary sh-btn">Rechercher</button>
       </form>
+    </div>
+  </div>
+</section>
 
-      <!-- Barre de filtres -->
-      <div class="filter-bar">
-        <select class="fchip" [(ngModel)]="contractType" (change)="loadJobs()">
+<!-- ═══ FILTRES — sur fond clair, collants au défilement ═══ -->
+<section class="filters-section">
+  <div class="container">
+      <div class="filter-bar" role="group" aria-label="Filtres de recherche">
+        <select class="fchip" aria-label="Type de contrat" [(ngModel)]="contractType" (change)="loadJobs()">
           <option value="">Type de contrat</option>
           @for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }
         </select>
 
-        <select class="fchip" [ngModel]="isRemote === undefined ? '' : (isRemote ? 'remote' : 'onsite')"
+        <select class="fchip" aria-label="Télétravail ou sur site"
+                [ngModel]="isRemote === undefined ? '' : (isRemote ? 'remote' : 'onsite')"
                 (ngModelChange)="isRemote = $event === '' ? undefined : $event === 'remote'; loadJobs()">
           <option value="">Télétravail</option>
           <option value="remote">Télétravail</option>
           <option value="onsite">Sur site</option>
         </select>
 
-        <select class="fchip" [(ngModel)]="category" (change)="loadJobs()">
+        <select class="fchip" aria-label="Secteur" [(ngModel)]="category" (change)="loadJobs()">
           <option value="">Secteur</option>
           @for (c of categories(); track c) { <option [value]="c">{{ c }}</option> }
         </select>
 
-        <select class="fchip" [(ngModel)]="workSchedule" (change)="loadJobs()">
+        <select class="fchip" aria-label="Horaires" [(ngModel)]="workSchedule" (change)="loadJobs()">
           <option value="">Horaires</option>
           @for (w of workSchedules(); track w) { <option [value]="w">{{ w }}</option> }
         </select>
 
-        <select class="fchip" [(ngModel)]="language" (change)="loadJobs()">
+        <select class="fchip" aria-label="Langue" [(ngModel)]="language" (change)="loadJobs()">
           <option value="">Langue</option>
           @for (l of languagesList(); track l) { <option [value]="l">{{ l }}</option> }
         </select>
 
-        <select class="fchip" [(ngModel)]="datePosted" (change)="loadJobs()">
+        <select class="fchip" aria-label="Date de publication" [(ngModel)]="datePosted" (change)="loadJobs()">
           @for (d of datePostedOptions; track d.label) { <option [ngValue]="d.value">{{ d.label }}</option> }
         </select>
 
-        <select class="fchip" [(ngModel)]="radius" (change)="loadJobs()" [disabled]="!location" title="Rayon autour du lieu">
+        <select class="fchip" aria-label="Rayon autour du lieu" [(ngModel)]="radius" (change)="loadJobs()"
+                [disabled]="!location" title="Renseignez un lieu pour choisir un rayon">
           @for (r of radiusOptions; track r.label) { <option [ngValue]="r.value">{{ r.value ? 'Rayon ' + r.label : r.label }}</option> }
         </select>
 
-        <button class="fchip fchip-btn" [class.active]="showAdvanced || hasAdvancedFilters" (click)="showAdvanced = !showAdvanced">
-          <i class="bi bi-sliders"></i> Plus de filtres
+        <button class="fchip fchip-btn" [class.active]="showAdvanced || hasAdvancedFilters"
+                [attr.aria-expanded]="showAdvanced" (click)="showAdvanced = !showAdvanced">
+          <i class="bi bi-sliders" aria-hidden="true"></i> Plus de filtres
           @if (activeFilterCount) { <span class="fchip-badge">{{ activeFilterCount }}</span> }
         </button>
 
         <div class="fb-spacer"></div>
 
-        <select class="fchip fchip-sort" [(ngModel)]="sort" (change)="loadJobs()">
+        <select class="fchip fchip-sort" aria-label="Trier les résultats" [(ngModel)]="sort" (change)="loadJobs()">
           @for (s of sortOptions; track s.value) { <option [value]="s.value">Trier : {{ s.label }}</option> }
         </select>
 
         @if (activeFilterCount) {
-          <button class="fb-clear" (click)="clearFilters()"><i class="bi bi-x-circle"></i> Effacer</button>
+          <button class="fb-clear" (click)="clearFilters()">
+            <i class="bi bi-x-circle" aria-hidden="true"></i> Effacer les filtres
+          </button>
         }
       </div>
 
@@ -115,7 +125,6 @@
           </div>
         </div>
       }
-    </div>
   </div>
 </section>
 
@@ -126,10 +135,12 @@
       <div class="empty-box"><div class="spinner"></div><p>Chargement des offres…</p></div>
     } @else if (jobs().length === 0) {
       <div class="empty-box animate-in">
-        <i class="bi bi-search"></i>
-        <h3>Aucune offre trouvée</h3>
-        <p>Modifiez vos filtres ou élargissez votre recherche</p>
-        <button class="btn-primary" (click)="clearFilters()"><i class="bi bi-arrow-counterclockwise"></i> Réinitialiser</button>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <h3>Aucune offre ne correspond</h3>
+        <p>Vos filtres sont peut-être trop serrés. Élargissez le lieu, retirez un critère, ou repartez de zéro.</p>
+        <button class="btn-primary" (click)="clearFilters()">
+          <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Effacer les filtres
+        </button>
       </div>
     } @else {
       <div class="results-toolbar animate-in">
@@ -156,7 +167,10 @@
       <div class="offers-grid">
           @for (job of jobs(); track job.id; let i = $index) {
             <article class="jcard" [class.selected]="selected()?.id === job.id"
-                     (click)="selectJob(job, $event)" tabindex="0" (keydown.enter)="selectJob(job)">
+                     (click)="selectJob(job, $event)" tabindex="0" role="button"
+                     [attr.aria-expanded]="selected()?.id === job.id"
+                     [attr.aria-label]="job.title + ' chez ' + job.company + ' — voir le détail'"
+                     (keydown.enter)="selectJob(job)" (keydown.space)="selectJob(job)">
               <div class="card-stripe" [style.background]="{'CDI':'var(--brand)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--purple)'}[job.contractType] || 'var(--brand)'"></div>
               <div class="jcard-body">
                 <div class="jcard-top">
@@ -172,8 +186,10 @@
                     </div>
                   </div>
                   <button class="jcard-bk" (click)="$event.stopPropagation(); bookmarkService.toggle(job.id)"
-                          [class.active]="bookmarkService.isBookmarked(job.id)" title="Enregistrer">
-                    <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
+                          [class.active]="bookmarkService.isBookmarked(job.id)"
+                          [attr.aria-pressed]="bookmarkService.isBookmarked(job.id)"
+                          [attr.aria-label]="bookmarkService.isBookmarked(job.id) ? 'Retirer des favoris' : 'Enregistrer dans les favoris'">
+                    <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)" aria-hidden="true"></i>
                   </button>
                 </div>
 
@@ -204,8 +220,8 @@
                 <div class="jcard-foot">
                   <span class="jcard-time u-mono">{{ getTimeAgo(job.createdAt) }}</span>
                   <div class="jcard-actions">
-                    <button (click)="shareJob(job, $event)" title="Partager"><i class="bi bi-share"></i></button>
-                    <button (click)="openReport(job, $event)" title="Signaler"><i class="bi bi-flag"></i></button>
+                    <button (click)="shareJob(job, $event)" aria-label="Partager cette offre"><i class="bi bi-share" aria-hidden="true"></i></button>
+                    <button (click)="openReport(job, $event)" aria-label="Signaler cette offre"><i class="bi bi-flag" aria-hidden="true"></i></button>
                   </div>
                 </div>
               </div>
@@ -222,7 +238,9 @@
 
       <!-- Tiroir détail coulissant (droite) -->
       <div class="drawer-backdrop" [class.show]="!!selected()" (click)="closeDetail()"></div>
-      <aside class="offer-drawer" [class.open]="!!selected()" role="dialog" aria-modal="true">
+      <aside class="offer-drawer" [class.open]="!!selected()" role="dialog" aria-modal="true"
+             [attr.aria-hidden]="!selected()" [attr.inert]="!selected() ? '' : null"
+             [attr.aria-label]="selected() ? selected()!.title : 'Détail de l\'offre'">
           @if (selected(); as job) {
             <div class="detail-pane">
               <button class="drawer-close" (click)="closeDetail()" title="Fermer" aria-label="Fermer"><i class="bi bi-x-lg"></i></button>
@@ -239,8 +257,10 @@
                   </div>
                 </div>
                 <button class="dp-bk" (click)="bookmarkService.toggle(job.id)"
-                        [class.active]="bookmarkService.isBookmarked(job.id)" title="Enregistrer">
-                  <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
+                        [class.active]="bookmarkService.isBookmarked(job.id)"
+                        [attr.aria-pressed]="bookmarkService.isBookmarked(job.id)"
+                        [attr.aria-label]="bookmarkService.isBookmarked(job.id) ? 'Retirer des favoris' : 'Enregistrer dans les favoris'">
+                  <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)" aria-hidden="true"></i>
                 </button>
               </div>
 

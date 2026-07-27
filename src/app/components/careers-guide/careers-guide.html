@@ -2,16 +2,20 @@
   <!-- ═══ ARTICLE ═══ -->
   <article class="cg-article">
     <div class="container">
-      <a routerLink="/guide" class="back-link"><i class="bi bi-arrow-left"></i> Guide Carrières</a>
+      <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a routerLink="/guide">Guide carrière</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <span aria-current="page">{{ a.title }}</span>
+      </nav>
       <div class="cg-art-head animate-in">
-        <span class="badge badge-green">{{ a.category }}</span>
+        <span class="badge badge-purple">{{ a.category }}</span>
         <h1>{{ a.title }}</h1>
-        <span class="cg-read u-mono"><i class="bi bi-clock"></i> {{ a.readMin }} min de lecture</span>
+        <span class="cg-read"><i class="bi bi-clock" aria-hidden="true"></i> {{ a.readMin }} min de lecture</span>
       </div>
       <div class="cg-art-body">
         @for (s of a.sections; track s.heading; let i = $index) {
           <section class="cg-section animate-in" [style.animation-delay]="(i*0.05)+'s'">
-            <h2><span class="ed-pill">{{ i + 1 }}</span> {{ s.heading }}</h2>
+            <h2>{{ s.heading }}</h2>
             <p>{{ s.body }}</p>
           </section>
         }
@@ -24,13 +28,14 @@
   </article>
 } @else {
   <!-- ═══ LISTE ═══ -->
-  <section class="cg-hero">
+  <section class="page-hero">
     <div class="container">
-      <div class="animate-in">
-        <span class="eyebrow">Ressources</span>
-        <h1>Guide <span class="hl">Carrières</span></h1>
-        <p class="cg-sub">Conseils pratiques pour rédiger votre CV, réussir vos entretiens et faire avancer votre carrière.</p>
-      </div>
+      <span class="eyebrow">Ressources</span>
+      <h1>Ce qu'on aurait aimé savoir <span class="em em-plum">avant</span></h1>
+      <p class="page-hero__sub">
+        Écrire son CV, passer un entretien, parler d'argent. Des articles courts, concrets,
+        écrits pour être appliqués tout de suite.
+      </p>
     </div>
   </section>
 

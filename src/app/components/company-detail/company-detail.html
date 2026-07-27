@@ -135,7 +135,7 @@
     <!-- Autres entreprises qui pourraient vous intéresser -->
     @if (tab() === 'about' && similar().length) {
       <div class="cd-similar animate-in">
-        <div class="section-head"><div class="section-title"><span class="ed-pill"><i class="bi bi-building"></i></span> Autres entreprises qui pourraient vous intéresser</div></div>
+        <div class="section-head"><h2 class="section-title">Autres entreprises à découvrir</h2></div>
         <div class="sim-grid">
           @for (c of similar(); track c.company) {
             <a class="sim-card card" [routerLink]="['/entreprises', c.company]">

@@ -1,26 +1,18 @@
 <!-- ═══ HERO HEADER ═══ -->
-<section class="ent-hero">
+<section class="page-hero ent-hero">
   <div class="container">
-    <div class="eh-top">
-      <div class="eh-content animate-in">
-        <span class="eyebrow">Annuaire · {{ total() }} entreprises</span>
-        <h1>Les entreprises qui <span class="hl">recrutent</span></h1>
-        <p>Decouvrez les entreprises presentes sur la plateforme et explorez leurs offres en cours.</p>
+    <span class="eyebrow">Annuaire</span>
+    <h1>Les entreprises qui <span class="em em-plum">recrutent</span></h1>
+    <p class="page-hero__sub">
+      {{ total() | number: '1.0-0' }} entreprises publient actuellement sur la plateforme.
+      Parcourez leurs offres, leurs avis et leurs équipes.
+    </p>
 
-        <!-- Search -->
-        <div class="eh-search">
-          <i class="bi bi-search"></i>
-          <input type="text" placeholder="Rechercher une entreprise ou une ville..." [(ngModel)]="searchQuery" (input)="onSearch()" />
-        </div>
-      </div>
-
-      <!-- Stats row -->
-      <div class="eh-stats animate-in" style="animation-delay:.12s">
-        <div class="ehs">
-          <span class="ehs-val">{{ total() }}</span>
-          <span class="ehs-lbl">Entreprises</span>
-        </div>
-      </div>
+    <div class="eh-search">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <label class="sr-only" for="ent-q">Rechercher une entreprise ou une ville</label>
+      <input id="ent-q" type="text" placeholder="Nom d'entreprise ou ville"
+             [(ngModel)]="searchQuery" (input)="onSearch()" />
     </div>
   </div>
 </section>
@@ -32,9 +24,9 @@
       <div class="empty-box"><div class="spinner"></div></div>
     } @else if (companies().length === 0) {
       <div class="empty-box animate-in">
-        <div class="empty-icon"><i class="bi bi-buildings"></i></div>
-        <h3>Aucune entreprise trouvee</h3>
-        <p>Essayez avec un autre terme de recherche</p>
+        <i class="bi bi-buildings" aria-hidden="true"></i>
+        <h3>Aucune entreprise ne correspond</h3>
+        <p>Vérifiez l'orthographe, ou cherchez plutôt par ville.</p>
       </div>
     } @else {
       <div class="results-info animate-in">

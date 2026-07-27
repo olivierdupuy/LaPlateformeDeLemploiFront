@@ -1,10 +1,10 @@
-<section class="browse-hero">
+<section class="page-hero">
   <div class="container">
-    <div class="bh-content animate-in">
-      <span class="eyebrow">Explorer</span>
-      <h1>Parcourez les <span class="hl">emplois</span></h1>
-      <p class="bh-sub">Trouvez votre voie par métier, par ville ou par type de contrat.</p>
-    </div>
+    <span class="eyebrow">Explorer</span>
+    <h1>Par métier, par ville, <span class="em em-plum">par contrat</span></h1>
+    <p class="page-hero__sub">
+      Vous ne savez pas quoi taper dans la recherche ? Partez d'une catégorie et affinez ensuite.
+    </p>
   </div>
 </section>
 
@@ -16,7 +16,7 @@
       <!-- Métiers -->
       <div class="browse-block animate-in">
         <div class="section-head">
-          <div class="section-title"><span class="ed-pill"><i class="bi bi-briefcase"></i></span> Par métier</div>
+          <h2 class="section-title">Par métier</h2>
         </div>
         <div class="chip-grid">
           @for (c of categories(); track c.label) {
@@ -33,7 +33,7 @@
       <!-- Villes -->
       <div class="browse-block animate-in" style="animation-delay:.06s">
         <div class="section-head">
-          <div class="section-title"><span class="ed-pill"><i class="bi bi-geo-alt"></i></span> Par ville</div>
+          <h2 class="section-title">Par ville</h2>
         </div>
         <div class="chip-grid">
           @for (l of locations(); track l.label) {
@@ -50,7 +50,7 @@
       <!-- Contrats -->
       <div class="browse-block animate-in" style="animation-delay:.12s">
         <div class="section-head">
-          <div class="section-title"><span class="ed-pill"><i class="bi bi-file-earmark-text"></i></span> Par type de contrat</div>
+          <h2 class="section-title">Par type de contrat</h2>
         </div>
         <div class="chip-grid">
           @for (ct of contractTypes(); track ct.label) {

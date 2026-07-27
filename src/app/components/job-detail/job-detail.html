@@ -61,7 +61,7 @@
         <main class="jd-content">
           <!-- Détails de l'emploi -->
           <section class="jd-card animate-in" style="animation-delay:.1s">
-            <h2 class="jd-card-title"><span class="ed-pill">01</span> Détails de l'emploi</h2>
+            <h2 class="jd-card-title">Détails de l'emploi</h2>
             <div class="facts-grid">
               @if (j.salary) { <div class="fact"><span class="fact-l">Salaire</span><span class="fact-v fact-salary">{{ j.salary }}</span></div> }
               <div class="fact"><span class="fact-l">Type de contrat</span><span class="fact-v">{{ j.contractType }}</span></div>
@@ -77,7 +77,7 @@
           <!-- Lieu -->
           @if (j.latitude && j.longitude) {
             <section class="jd-card animate-in">
-              <h2 class="jd-card-title"><span class="ed-pill"><i class="bi bi-geo-alt"></i></span> Lieu</h2>
+              <h2 class="jd-card-title">Lieu</h2>
               <p class="jd-loc-text"><i class="bi bi-geo-alt-fill"></i> {{ j.location }} @if (j.isRemote) { · <span class="remote-pill">Télétravail</span> }</p>
               <div id="jd-map" class="jd-map"></div>
             </section>
@@ -86,7 +86,7 @@
           <!-- Avantages -->
           @if (j.benefits) {
             <section class="jd-card animate-in" style="animation-delay:.14s">
-              <h2 class="jd-card-title"><span class="ed-pill">02</span> Avantages</h2>
+              <h2 class="jd-card-title">Avantages</h2>
               <div class="perk-grid">
                 @for (b of j.benefits.split(','); track b) { <span class="perk"><i class="bi bi-check2-circle"></i> {{ b.trim() }}</span> }
               </div>
@@ -95,7 +95,7 @@
 
           <!-- Description -->
           <section class="jd-card animate-in" style="animation-delay:.18s">
-            <h2 class="jd-card-title"><span class="ed-pill">03</span> Description du poste</h2>
+            <h2 class="jd-card-title">Description du poste</h2>
             <div class="jd-desc jd-rich" [innerHTML]="j.description | markdown"></div>
             @if (j.companyDescription) {
               <div class="company-desc">
@@ -108,7 +108,7 @@
           <!-- Compétences -->
           @if (j.tags) {
             <section class="jd-card animate-in" style="animation-delay:.22s">
-              <h2 class="jd-card-title"><span class="ed-pill">04</span> Compétences</h2>
+              <h2 class="jd-card-title">Compétences</h2>
               <div class="skill-tags">
                 @for (tag of getTags(j.tags); track tag) { <span class="skill-pill">{{ tag }}</span> }
               </div>
@@ -118,7 +118,7 @@
           <!-- Candidatures reçues (recruteur) -->
           @if (j.applications && j.applications.length > 0) {
             <section class="jd-card animate-in">
-              <h2 class="jd-card-title"><span class="ed-pill"><i class="bi bi-people"></i></span> Candidatures reçues ({{ j.applications.length }})</h2>
+              <h2 class="jd-card-title">Candidatures reçues ({{ j.applications.length }})</h2>
               <div class="app-list">
                 @for (app of j.applications.slice(0,5); track app.id) {
                   <div class="app-item">
@@ -242,7 +242,7 @@
       @if (employerJobs().length > 0) {
         <div class="similar-section animate-in">
           <div class="section-head">
-            <div class="section-title"><span class="ed-pill"><i class="bi bi-building"></i></span> Autres offres chez {{ j.company }}</div>
+            <h2 class="section-title">Autres offres chez {{ j.company }}</h2>
             <a [routerLink]="['/entreprises', j.company]" class="link-teal">Voir l'entreprise <i class="bi bi-arrow-right"></i></a>
           </div>
           <div class="similar-grid">
@@ -271,7 +271,7 @@
       @if (similarJobs().length > 0) {
         <div class="similar-section animate-in" style="animation-delay:.3s">
           <div class="section-head">
-            <div class="section-title"><span class="ed-pill"><i class="bi bi-grid"></i></span> Offres similaires</div>
+            <h2 class="section-title">Offres similaires</h2>
             <a routerLink="/offres" class="link-teal">Toutes les offres <i class="bi bi-arrow-right"></i></a>
           </div>
           <div class="similar-grid">

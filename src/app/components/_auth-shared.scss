@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════
-//  AUTH — Login / Register (Clean SaaS)
-//  Shared split-shell shell between both pages.
-//  Reuses global tokens + .btn-primary / .form-group / .hl / .sp
+//  AUTHENTIFICATION — connexion / inscription
+//  Coquille en deux colonnes partagée par les deux pages.
+//  Le panneau de marque reprend le bandeau prune de l'app.
 // ═══════════════════════════════════════════════════
 
 .auth-page {
@@ -11,8 +11,8 @@
   justify-content: center;
   padding: clamp(5.5rem, 10vh, 7rem) 1.25rem 3rem;
   background:
-    radial-gradient(58rem 40rem at 100% -12%, var(--brand-tint), transparent 60%),
-    var(--paper);
+    radial-gradient(58rem 40rem at 100% -12%, var(--violet-tint), transparent 60%),
+    var(--brume);
 }
 
 // ── Split shell ──
@@ -36,8 +36,8 @@
   flex-direction: column;
   gap: 2.25rem;
   padding: 2.75rem 2.5rem;
-  background: var(--brand);
-  color: #fff;
+  background: var(--plum-900);
+  color: var(--on-plum);
 }
 
 .auth-aside__glow {
@@ -46,7 +46,7 @@
   top: -70px;
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(199, 242, 77, 0.20), transparent 70%);
+  background: radial-gradient(circle, rgba(107, 63, 196, 0.45), transparent 70%);
   pointer-events: none;
 }
 
@@ -61,10 +61,9 @@
   width: 40px;
   height: 40px;
   flex-shrink: 0;
-  border-radius: 11px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: var(--spring);
+  border-radius: 10px;
+  background: var(--citron);
+  color: var(--plum-900);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,18 +76,18 @@
 }
 .auth-brand__name {
   font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-size: 1.02rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
   color: #fff;
 }
 .auth-brand__sub {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  font-size: 0.53rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--brand-300);
+  color: var(--citron);
 }
 
 .auth-aside__body {
@@ -104,35 +103,35 @@
   align-items: center;
   gap: 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.6rem;
+  font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--spring);
+  color: var(--on-plum-muted);
 
   &::before {
     content: '';
-    width: 18px;
+    width: 16px;
     height: 2px;
-    background: var(--spring);
+    background: var(--citron);
     border-radius: 2px;
   }
 }
 
 .auth-aside__title {
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 3vw, 2rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.7rem, 3vw, 2.15rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.025em;
   color: #fff;
 }
 
 .auth-aside__lead {
   font-size: 0.9rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.72);
-  max-width: 34ch;
+  color: var(--on-plum-muted);
+  max-width: 36ch;
 }
 
 .auth-perks {
@@ -147,7 +146,7 @@
     align-items: flex-start;
     gap: 0.6rem;
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.82);
+    color: var(--on-plum);
 
     i {
       flex-shrink: 0;
@@ -155,8 +154,8 @@
       width: 18px;
       height: 18px;
       border-radius: var(--r-full);
-      background: rgba(199, 242, 77, 0.16);
-      color: var(--spring);
+      background: rgba(232, 255, 99, 0.16);
+      color: var(--citron);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -196,9 +195,9 @@
   height: 46px;
   margin-bottom: 1.1rem;
   border-radius: var(--r-md);
-  background: var(--brand-tint);
-  color: var(--brand);
-  font-size: 1.35rem;
+  background: var(--violet-100);
+  color: var(--violet);
+  font-size: 1.3rem;
 }
 
 .auth-form {
@@ -239,7 +238,7 @@
   }
 
   &:focus-within > i:first-child {
-    color: var(--brand);
+    color: var(--violet);
   }
 }
 
@@ -261,7 +260,7 @@
 
   &:hover {
     color: var(--ink);
-    background: var(--paper-2);
+    background: var(--brume);
   }
 }
 
@@ -284,7 +283,7 @@
     align-items: center;
     gap: 0.3rem;
     margin-left: 0.35rem;
-    color: var(--brand);
+    color: var(--violet);
     font-weight: 600;
     transition: gap var(--t);
 
@@ -318,15 +317,15 @@
   i { font-size: 1rem; }
 
   &:hover {
-    border-color: var(--brand-300);
+    border-color: var(--violet-300);
     color: var(--ink);
   }
 
   &.selected {
-    border-color: var(--brand);
-    background: var(--brand-tint);
-    color: var(--brand);
-    box-shadow: 0 0 0 3px var(--brand-ring);
+    border-color: var(--violet);
+    background: var(--violet-tint);
+    color: var(--violet-700);
+    box-shadow: 0 0 0 3px var(--violet-ring);
   }
 }
 
@@ -357,3 +356,6 @@
   .auth-main { padding: 1.75rem 1.5rem; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+// Le focus doit rester visible sur le panneau prune
+.auth-aside :focus-visible { outline-color: var(--citron); }

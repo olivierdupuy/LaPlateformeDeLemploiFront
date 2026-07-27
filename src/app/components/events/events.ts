@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { EventService, JobEvent } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-events',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, RouterLink],
   templateUrl: './events.html',
   styleUrl: './events.scss',
 })

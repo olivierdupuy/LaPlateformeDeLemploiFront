@@ -1,32 +1,41 @@
-<section class="ev-hero">
-  <div class="container">
-    <div class="ev-hero-inner animate-in">
-      <div>
-        <span class="eyebrow">Événements</span>
-        <h1>Événements <span class="hl">emploi</span></h1>
-        <p class="ev-sub">Salons, webinaires et job datings pour rencontrer les recruteurs et booster votre recherche.</p>
-      </div>
-      @if (canManage) {
-        <button class="btn-primary" (click)="openCreate()"><i class="bi bi-plus-lg"></i> Proposer un événement</button>
-      }
+<section class="page-hero">
+  <div class="container page-hero__inner">
+    <div>
+      <span class="eyebrow">Événements</span>
+      <h1>Rencontrez les recruteurs <span class="em em-plum">en vrai</span></h1>
+      <p class="page-hero__sub">
+        Salons, job datings et webinaires. Une poignée de main vaut souvent mieux qu'une candidature de plus.
+      </p>
     </div>
+    @if (canManage) {
+      <button class="btn-citron" (click)="openCreate()">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i> Proposer un événement
+      </button>
+    }
   </div>
 </section>
 
 <section class="ev-page">
   <div class="container">
-    <div class="ev-tabs animate-in">
-      <button class="ev-tab" [class.active]="!past()" (click)="setPast(false)">À venir</button>
-      <button class="ev-tab" [class.active]="past()" (click)="setPast(true)">Passés</button>
+    <div class="tabs ev-tabs animate-in" role="tablist" aria-label="Période">
+      <button class="tab" role="tab" [class.is-active]="!past()" [attr.aria-selected]="!past()" (click)="setPast(false)">À venir</button>
+      <button class="tab" role="tab" [class.is-active]="past()" [attr.aria-selected]="past()" (click)="setPast(true)">Passés</button>
     </div>
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
     } @else if (events().length === 0) {
       <div class="empty-box">
-        <i class="bi bi-calendar-x"></i>
-        <h3>Aucun événement</h3>
-        <p>{{ past() ? 'Aucun événement passé.' : 'Aucun événement à venir pour le moment.' }}</p>
+        <i class="bi bi-calendar-x" aria-hidden="true"></i>
+        <h3>{{ past() ? 'Aucun événement passé' : 'Rien de prévu pour le moment' }}</h3>
+        <p>
+          {{ past()
+            ? "L'historique est vide : les événements y apparaîtront une fois la date passée."
+            : "Aucun salon ni job dating n'est programmé. Revenez d'ici quelques jours, ou consultez les offres en attendant." }}
+        </p>
+        @if (!past()) {
+          <a routerLink="/offres" class="btn-primary">Voir les offres</a>
+        }
       </div>
     } @else {
       <div class="ev-grid">

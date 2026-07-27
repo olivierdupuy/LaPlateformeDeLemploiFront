@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { JobOfferService } from '../../services/job-offer';
 import { CompanyInfo } from '../../models/job-offer.model';
@@ -8,7 +9,7 @@ import { companyColor } from '../../utils/job.utils';
 
 @Component({
   selector: 'app-company-list',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, DecimalPipe],
   templateUrl: './company-list.html',
   styleUrl: './company-list.scss',
 })

@@ -1,42 +1,48 @@
-<section class="sal-hero">
+<section class="page-hero">
   <div class="container">
-    <div class="sh-content animate-in">
-      <span class="eyebrow">Salaires</span>
-      <h1>Estimez votre <span class="hl">prochain salaire</span></h1>
-      <p class="sh-sub">Explorez les rémunérations par métier, secteur et entreprise, à partir des offres de la plateforme.</p>
+    <span class="eyebrow">Salaires</span>
+    <h1>Ce que paient <span class="em em-plum">vraiment</span> les offres</h1>
+    <p class="page-hero__sub">
+      Fourchettes calculées à partir des offres publiées sur la plateforme, métier par métier.
+      Pas de déclaratif : uniquement des salaires annoncés par les recruteurs.
+    </p>
 
-      <form class="sal-search" (ngSubmit)="load()">
-        <div class="ss-field">
-          <i class="bi bi-search"></i>
-          <input type="text" placeholder="Intitulé de poste…" [(ngModel)]="q" name="q" />
-        </div>
-        <button type="submit" class="btn-primary">Rechercher</button>
-      </form>
-    </div>
+    <form class="sal-search" (ngSubmit)="load()">
+      <div class="ss-field">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="sr-only" for="sal-q">Intitulé de poste</label>
+        <input id="sal-q" type="text" placeholder="Développeur, comptable, infirmier…" [(ngModel)]="q" name="q" />
+      </div>
+      <button type="submit" class="btn-primary">Rechercher</button>
+    </form>
   </div>
 </section>
 
 <section class="sal-page">
   <div class="container">
     <!-- Filtre secteur -->
-    <div class="sal-sectors animate-in">
-      <button class="sec-chip" [class.active]="!sector" (click)="pickSector('')">Tous les secteurs</button>
+    <div class="sal-sectors animate-in" role="group" aria-label="Filtrer par secteur">
+      <button class="sec-chip" [class.active]="!sector" [attr.aria-pressed]="!sector" (click)="pickSector('')">Tous les secteurs</button>
       @for (c of categories(); track c) {
-        <button class="sec-chip" [class.active]="sector === c" (click)="pickSector(c)">{{ c }}</button>
+        <button class="sec-chip" [class.active]="sector === c" [attr.aria-pressed]="sector === c" (click)="pickSector(c)">{{ c }}</button>
       }
     </div>
 
     <div class="section-head">
-      <div class="section-title"><span class="ed-pill"><i class="bi bi-graph-up-arrow"></i></span> Meilleurs salaires {{ sector ? '· ' + sector : 'par métier' }}</div>
+      <div>
+        <h2 class="section-title">Les mieux payés {{ sector ? '· ' + sector : '' }}</h2>
+        <p class="section-sub">Classés par salaire annuel moyen. Cliquez un métier pour voir le détail et les offres.</p>
+      </div>
     </div>
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
     } @else if (roles().length === 0) {
       <div class="empty-box">
-        <i class="bi bi-cash-stack"></i>
-        <h3>Aucune donnée de salaire</h3>
-        <p>Aucune offre avec fourchette de salaire pour ce filtre. Élargissez la recherche.</p>
+        <i class="bi bi-cash-stack" aria-hidden="true"></i>
+        <h3>Pas encore de salaires pour ce filtre</h3>
+        <p>Aucune offre de ce secteur n'affiche de fourchette. Choisissez un autre secteur ou cherchez un métier précis.</p>
+        <button class="btn-secondary" (click)="pickSector('')">Voir tous les secteurs</button>
       </div>
     } @else {
       <div class="role-grid">
