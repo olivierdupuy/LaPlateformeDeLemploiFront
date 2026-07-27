@@ -51,6 +51,10 @@ export interface Application {
   source?: string;
   screeningAnswers?: string;
   appliedAt: string;
+  /** Le candidat a range la candidature : elle sort de sa vue active. */
+  isArchived?: boolean;
+  /** Date a laquelle le recruteur a consulte la candidature. */
+  reviewedAt?: string;
   jobOffer?: JobOffer;
 }
 

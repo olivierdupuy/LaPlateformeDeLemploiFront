@@ -1,124 +1,212 @@
 <app-console-shell space="candidat">
   <div head>
     <h1>Mes <span class="em">candidatures</span></h1>
-    <p class="console-head__sub">Suivez l'évolution de chaque candidature, de l'envoi à la réponse.</p>
+    <p class="console-head__sub">Vos offres mises de côté, vos candidatures et vos entretiens, au même endroit.</p>
   </div>
   <div actions>
     <a routerLink="/offres" class="btn-primary">
       <i class="bi bi-search" aria-hidden="true"></i> Nouvelles offres
     </a>
-    @if (!loading() && counts().total > 0) {
-      <div class="th-counters animate-in">
-        <div class="thc">
-          <span class="thc-val">{{ counts().total }}</span>
-          <span class="thc-lbl">Total</span>
-        </div>
-        <div class="thc-div"></div>
-        <div class="thc">
-          <span class="thc-val thc-amber">{{ counts().pending }}</span>
-          <span class="thc-lbl">En attente</span>
-        </div>
-        <div class="thc-div"></div>
-        <div class="thc">
-          <span class="thc-val thc-blue">{{ counts().reviewed }}</span>
-          <span class="thc-lbl">Examinées</span>
-        </div>
-        <div class="thc-div"></div>
-        <div class="thc">
-          <span class="thc-val thc-green">{{ counts().accepted }}</span>
-          <span class="thc-lbl">Acceptées</span>
-        </div>
-        <div class="thc-div"></div>
-        <div class="thc">
-          <span class="thc-val thc-red">{{ counts().rejected }}</span>
-          <span class="thc-lbl">Refusées</span>
-        </div>
-      </div>
-    }
   </div>
 </app-console-shell>
 
-<!-- ═══ CONTENT ═══ -->
+<!-- ═══ ONGLETS ═══ -->
+<section class="trk-tabs-band">
+  <div class="container">
+    <div class="tabs" role="tablist" aria-label="Mes candidatures">
+      <button class="tab" role="tab" [class.is-active]="tab() === 'saved'"
+              [attr.aria-selected]="tab() === 'saved'" (click)="setTab('saved')">
+        <i class="bi bi-bookmark" aria-hidden="true"></i> Enregistrées
+        <span class="tab-count">{{ tabCounts().saved }}</span>
+      </button>
+      <button class="tab" role="tab" [class.is-active]="tab() === 'sent'"
+              [attr.aria-selected]="tab() === 'sent'" (click)="setTab('sent')">
+        <i class="bi bi-send" aria-hidden="true"></i> Envoyées
+        <span class="tab-count">{{ tabCounts().sent }}</span>
+      </button>
+      <button class="tab" role="tab" [class.is-active]="tab() === 'interviews'"
+              [attr.aria-selected]="tab() === 'interviews'" (click)="setTab('interviews')">
+        <i class="bi bi-calendar-event" aria-hidden="true"></i> Entretiens
+        <span class="tab-count">{{ tabCounts().interviews }}</span>
+      </button>
+      <button class="tab" role="tab" [class.is-active]="tab() === 'archived'"
+              [attr.aria-selected]="tab() === 'archived'" (click)="setTab('archived')">
+        <i class="bi bi-archive" aria-hidden="true"></i> Archivées
+        <span class="tab-count">{{ tabCounts().archived }}</span>
+      </button>
+    </div>
+  </div>
+</section>
+
 <section class="trk-content">
   <div class="container">
-    @if (loading()) {
-      <div class="empty-box"><div class="spinner"></div></div>
-    } @else if (applications().length === 0) {
-      <div class="trk-empty animate-in">
-        <div class="te-circle"><i class="bi bi-clipboard-check"></i></div>
-        <h3>Aucune candidature</h3>
-        <p>Vous n'avez pas encore postule a une offre. Explorez les offres disponibles et postulez !</p>
-        <a routerLink="/offres" class="btn-primary"><i class="bi bi-search-heart"></i> Explorer les offres</a>
-      </div>
-    } @else {
-      <!-- Progress bar -->
-      <div class="trk-progress-wrap animate-in" style="animation-delay:.2s">
-        <span class="eyebrow">Répartition</span>
-        <div class="trk-progress">
-          @if (counts().pending > 0) { <div class="tp-seg tp-amber" [style.width]="(counts().pending / counts().total * 100) + '%'"></div> }
-          @if (counts().reviewed > 0) { <div class="tp-seg tp-blue" [style.width]="(counts().reviewed / counts().total * 100) + '%'"></div> }
-          @if (counts().accepted > 0) { <div class="tp-seg tp-green" [style.width]="(counts().accepted / counts().total * 100) + '%'"></div> }
-          @if (counts().rejected > 0) { <div class="tp-seg tp-red" [style.width]="(counts().rejected / counts().total * 100) + '%'"></div> }
+
+    <!-- ═══ ENREGISTRÉES ═══ -->
+    @if (tab() === 'saved') {
+      @if (loadingSaved()) {
+        <div class="empty-box"><div class="spinner"></div></div>
+      } @else if (savedJobs().length === 0) {
+        <div class="empty-box">
+          <i class="bi bi-bookmark" aria-hidden="true"></i>
+          <h3>Aucune offre enregistrée</h3>
+          <p>Les offres que vous mettez de côté s'affichent ici, le temps d'y revenir.</p>
+          <a routerLink="/offres" class="btn-primary">Explorer les offres</a>
         </div>
-      </div>
-
-      <!-- Timeline -->
-      <div class="timeline">
-        @for (app of applications(); track app.id; let i = $index) {
-          <div class="tl-item animate-in" [style.animation-delay]="(i * 0.05 + 0.25) + 's'">
-            <!-- Marker -->
-            <div class="tl-marker" [class]="getStatusClass(app.status)">
-              <i class="bi" [class]="getStatusIcon(app.status)"></i>
-            </div>
-
-            <!-- Card -->
-            <div class="tl-card card">
-              <!-- Stripe -->
-              @if (app.jobOffer) {
-                <div class="tl-stripe" [style.background]="{'CDI':'var(--brand)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--purple)'}[app.jobOffer.contractType] || 'var(--brand)'"></div>
-              }
-
-              <div class="tl-body">
-                <div class="tl-top">
-                  <div class="tl-left">
-                    @if (app.jobOffer) {
-                      <div class="tl-avatar" [style.background]="companyColor(app.jobOffer.company).bg">
-                        <span [style.color]="companyColor(app.jobOffer.company).fg">{{ app.jobOffer.company.charAt(0) }}</span>
-                      </div>
-                      <div class="tl-info">
-                        <a [routerLink]="['/offres', app.jobOfferId]" class="tl-title">{{ app.jobOffer.title }}</a>
-                        <span class="tl-company">{{ app.jobOffer.company }} &bull; {{ app.jobOffer.location }}</span>
-                      </div>
-                    } @else {
-                      <div class="tl-info">
-                        <span class="tl-title">Offre #{{ app.jobOfferId }}</span>
-                      </div>
-                    }
-                  </div>
-                  <span class="tl-badge" [class]="getStatusClass(app.status)">{{ getStatusLabel(app.status) }}</span>
-                </div>
-
-                <div class="tl-bottom">
-                  <span class="tl-date"><i class="bi bi-calendar3"></i> Postulé le {{ app.appliedAt | date:'dd MMM yyyy' }}</span>
-                  @if (app.coverLetter) { <span class="tl-meta"><i class="bi bi-file-text"></i> Lettre jointe</span> }
-                  @if (app.jobOffer) { <span class="tl-meta"><i class="bi bi-briefcase"></i> {{ app.jobOffer.contractType }}</span> }
-                  @if (app.jobOffer && app.jobOffer.salary) { <span class="tl-meta tl-salary"><i class="bi bi-cash-stack"></i> {{ app.jobOffer.salary }}</span> }
-                  @if (canRemind(app)) {
-                    <button class="tl-remind" [disabled]="remindingId() === app.id" (click)="remind(app)">
-                      @if (remindingId() === app.id) { <span class="sp sp-brand"></span> } @else { <i class="bi bi-bell"></i> } Relancer
-                    </button>
-                  } @else if (remindedIds().has(app.id)) {
-                    <span class="tl-reminded"><i class="bi bi-check2"></i> Relancé</span>
-                  }
-                  @if (app.status !== 'Accepted') {
-                    <button class="tl-withdraw" (click)="withdraw(app)"><i class="bi bi-x-circle"></i> Retirer</button>
-                  }
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-      </div>
+      } @else {
+        <ul class="trk-list">
+          @for (j of savedJobs(); track j.id) {
+            <li class="trk-row">
+              <span class="trk-av" [style.background]="companyColor(j.company).bg">
+                <span [style.color]="companyColor(j.company).fg">{{ j.company.charAt(0) }}</span>
+              </span>
+              <span class="trk-body">
+                <a class="trk-title" [routerLink]="['/offres', j.id]">{{ j.title }}</a>
+                <span class="trk-meta">{{ j.company }} · {{ j.location }}</span>
+              </span>
+              <span class="trk-side">
+                <a class="btn-secondary btn-sm" [routerLink]="['/offres', j.id]">Postuler</a>
+                <button class="icon-action is-on" (click)="removeSaved(j.id, $event)"
+                        aria-label="Retirer des offres enregistrées">
+                  <i class="bi bi-bookmark-fill" aria-hidden="true"></i>
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+      }
     }
+
+    <!-- ═══ ENVOYÉES ═══ -->
+    @if (tab() === 'sent') {
+      @if (loading()) {
+        <div class="empty-box"><div class="spinner"></div></div>
+      } @else if (active().length === 0) {
+        <div class="empty-box">
+          <i class="bi bi-send" aria-hidden="true"></i>
+          <h3>Aucune candidature en cours</h3>
+          <p>Vos candidatures apparaîtront ici, avec leur statut, dès que vous aurez postulé.</p>
+          <a routerLink="/offres" class="btn-primary">Trouver une offre</a>
+        </div>
+      } @else {
+        <div class="trk-counters">
+          <span class="trkc"><b>{{ counts().pending }}</b> en attente</span>
+          <span class="trkc"><b>{{ counts().reviewed }}</b> examinées</span>
+          <span class="trkc"><b>{{ counts().accepted }}</b> acceptées</span>
+          <span class="trkc"><b>{{ counts().rejected }}</b> refusées</span>
+        </div>
+
+        <ul class="trk-list">
+          @for (a of active(); track a.id) {
+            <li class="trk-row">
+              <span class="trk-av" [style.background]="companyColor(a.jobOffer?.company || '?').bg">
+                <span [style.color]="companyColor(a.jobOffer?.company || '?').fg">{{ (a.jobOffer?.company || '?').charAt(0) }}</span>
+              </span>
+              <span class="trk-body">
+                <a class="trk-title" [routerLink]="['/offres', a.jobOfferId]">{{ a.jobOffer?.title }}</a>
+                <span class="trk-meta">
+                  {{ a.jobOffer?.company }} · Postulé le {{ a.appliedAt | date: 'd MMM y' }}
+                </span>
+                @if (a.reviewedAt) {
+                  <span class="trk-seen">
+                    <i class="bi bi-eye-fill" aria-hidden="true"></i>
+                    Consultée par le recruteur le {{ a.reviewedAt | date: 'd MMM' }}
+                  </span>
+                }
+                @if (a.jobOffer && a.jobOffer.isActive === false) {
+                  <span class="trk-gone">
+                    <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                    Cette offre n'est plus disponible
+                  </span>
+                }
+              </span>
+              <span class="trk-side">
+                <span class="trk-status" [class]="getStatusClass(a.status)">
+                  <i class="bi" [class]="getStatusIcon(a.status)" aria-hidden="true"></i>
+                  {{ getStatusLabel(a.status) }}
+                </span>
+                @if (canRemind(a)) {
+                  <button class="btn-secondary btn-sm" [disabled]="remindingId() === a.id" (click)="remind(a, $event)">
+                    @if (remindingId() === a.id) { <span class="sp"></span> } @else { Relancer }
+                  </button>
+                }
+                <button class="icon-action" [disabled]="archivingId() === a.id"
+                        (click)="setArchived(a, true, $event)" aria-label="Ranger cette candidature">
+                  <i class="bi bi-archive" aria-hidden="true"></i>
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    }
+
+    <!-- ═══ ENTRETIENS ═══ -->
+    @if (tab() === 'interviews') {
+      @if (interviews().length === 0) {
+        <div class="empty-box">
+          <i class="bi bi-calendar-event" aria-hidden="true"></i>
+          <h3>Aucun entretien</h3>
+          <p>Quand un recruteur vous proposera un entretien, il apparaîtra ici.</p>
+        </div>
+      } @else {
+        <ul class="trk-list">
+          @for (iv of interviews(); track iv.id) {
+            <li class="trk-row">
+              <span class="trk-date">
+                <b>{{ iv.proposedAt | date: 'dd' }}</b>
+                <span>{{ iv.proposedAt | date: 'MMM' }}</span>
+              </span>
+              <span class="trk-body">
+                <span class="trk-title">{{ iv.jobTitle }}</span>
+                <span class="trk-meta">
+                  {{ iv.company }} · {{ iv.proposedAt | date: "EEEE d MMMM 'à' HH:mm" }}
+                  @if (iv.location) { · {{ iv.location }} }
+                </span>
+              </span>
+              <span class="trk-side">
+                <span class="trk-status" [class]="interviewStatusClass(iv.status)">
+                  {{ interviewStatusLabel(iv.status) }}
+                </span>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    }
+
+    <!-- ═══ ARCHIVÉES ═══ -->
+    @if (tab() === 'archived') {
+      @if (archived().length === 0) {
+        <div class="empty-box">
+          <i class="bi bi-archive" aria-hidden="true"></i>
+          <h3>Rien d'archivé</h3>
+          <p>Rangez une candidature terminée pour la sortir de votre liste active, sans la perdre.</p>
+        </div>
+      } @else {
+        <ul class="trk-list trk-list--muted">
+          @for (a of archived(); track a.id) {
+            <li class="trk-row">
+              <span class="trk-av" [style.background]="companyColor(a.jobOffer?.company || '?').bg">
+                <span [style.color]="companyColor(a.jobOffer?.company || '?').fg">{{ (a.jobOffer?.company || '?').charAt(0) }}</span>
+              </span>
+              <span class="trk-body">
+                <a class="trk-title" [routerLink]="['/offres', a.jobOfferId]">{{ a.jobOffer?.title }}</a>
+                <span class="trk-meta">
+                  {{ a.jobOffer?.company }} · Postulé le {{ a.appliedAt | date: 'd MMM y' }}
+                </span>
+              </span>
+              <span class="trk-side">
+                <span class="trk-status" [class]="getStatusClass(a.status)">{{ getStatusLabel(a.status) }}</span>
+                <button class="btn-secondary btn-sm" [disabled]="archivingId() === a.id"
+                        (click)="setArchived(a, false, $event)">
+                  Remettre
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    }
+
   </div>
 </section>

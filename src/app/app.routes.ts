@@ -9,7 +9,6 @@ import { Events } from './components/events/events';
 import { JobDetail } from './components/job-detail/job-detail';
 import { JobForm } from './components/job-form/job-form';
 import { Applications } from './components/applications/applications';
-import { Bookmarks } from './components/bookmarks/bookmarks';
 import { TrackApplications } from './components/track-applications/track-applications';
 import { CompanyList } from './components/company-list/company-list';
 import { CompanyDetail } from './components/company-detail/company-detail';
@@ -52,7 +51,9 @@ export const routes: Routes = [
   { path: 'suivi', component: TrackApplications },
 
   // Authenticated
-  { path: 'favoris', component: Bookmarks, canActivate: [authGuard] },
+  // Les favoris sont un onglet de « Mes candidatures » ; l'ancienne
+  // adresse reste valide et ouvre le bon onglet.
+  { path: 'favoris', component: TrackApplications, data: { tab: 'saved' } },
   { path: 'profil', component: Profile, canActivate: [authGuard] },
   { path: 'recherches-sauvegardees', component: SavedSearches, canActivate: [authGuard] },
   { path: 'entretiens', component: Interviews, canActivate: [authGuard] },

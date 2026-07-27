@@ -21,6 +21,12 @@ export class ApplicationService {
     return this.http.get<Application[]>(`${this.apiUrl}/track`);
   }
 
+  /** Ranger ou sortir des archives une candidature (candidat). */
+  setArchived(id: number, isArchived: boolean): Observable<{ id: number; isArchived: boolean }> {
+    return this.http.patch<{ id: number; isArchived: boolean }>(
+      `${this.apiUrl}/${id}/archive`, { isArchived });
+  }
+
   create(application: Partial<Application>): Observable<Application> {
     return this.http.post<Application>(this.apiUrl, application);
   }

@@ -18,9 +18,8 @@ const CANDIDATE: ConsoleSpace = {
   label: 'Espace candidat',
   links: [
     { path: '/mon-espace', label: 'Tableau de bord', icon: 'bi-grid-1x2', exact: true },
+    // Favoris et entretiens sont des onglets de « Mes candidatures ».
     { path: '/suivi', label: 'Mes candidatures', icon: 'bi-clipboard-check' },
-    { path: '/favoris', label: 'Favoris', icon: 'bi-bookmark' },
-    { path: '/entretiens', label: 'Entretiens', icon: 'bi-calendar-event' },
     { path: '/recherches-sauvegardees', label: 'Recherches', icon: 'bi-bookmark-star' },
     { path: '/mon-cv', label: 'Mon CV', icon: 'bi-file-earmark-person' },
   ],
