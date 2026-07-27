@@ -32,3 +32,8 @@ Ancienne mascotte, remplacee par le symbole `public/images/logo-lpde.svg`.
 Conservee ici comme source : elle reste l'origine de la palette
 (bleu roi de la casquette, rouge de l'epingle, ambre du dossier) et de
 la forme d'epingle reprise dans le nouveau symbole.
+
+## mascotte-bureau.png
+
+Ancienne illustration du hero d'accueil (anciennement `public/images/2.png`),
+remplacee par le fond video. Conservee comme source.

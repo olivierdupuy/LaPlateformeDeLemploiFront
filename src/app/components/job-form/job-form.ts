@@ -6,10 +6,11 @@ import { AuthService } from '../../services/auth.service';
 import { PlatformService } from '../../services/platform.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-job-form',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, ConsoleShell],
   templateUrl: './job-form.html',
   styleUrl: './job-form.scss',
 })

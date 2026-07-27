@@ -1,11 +1,9 @@
-<!-- ═══ HERO ═══ -->
-<section class="iv-hero">
-  <div class="container ivh-inner">
-    <div class="ivh-left animate-in">
-      <span class="eyebrow">Espace entretiens</span>
-      <h1>Mes <span class="em">entretiens</span></h1>
-      <p>Gérez vos entretiens d'embauche et suivez leur avancement en un coup d'oeil.</p>
-    </div>
+<app-console-shell>
+  <div head>
+    <h1>Mes <span class="em">entretiens</span></h1>
+    <p class="console-head__sub">Gérez vos entretiens d'embauche et suivez leur avancement en un coup d'œil.</p>
+  </div>
+  <div actions>
     @if (!loading() && counts().total > 0) {
       <div class="ivh-counters animate-in" style="animation-delay:.1s">
         <div class="ivhc">
@@ -15,17 +13,17 @@
         <div class="ivhc-div"></div>
         <div class="ivhc">
           <span class="ivhc-val ivhc-green">{{ counts().accepted }}</span>
-          <span class="ivhc-lbl">Confirmes</span>
+          <span class="ivhc-lbl">Confirmés</span>
         </div>
         <div class="ivhc-div"></div>
         <div class="ivhc">
           <span class="ivhc-val ivhc-purple">{{ counts().completed }}</span>
-          <span class="ivhc-lbl">Termines</span>
+          <span class="ivhc-lbl">Terminés</span>
         </div>
       </div>
     }
   </div>
-</section>
+</app-console-shell>
 
 <!-- ═══ CONTENT ═══ -->
 <section class="iv-content">

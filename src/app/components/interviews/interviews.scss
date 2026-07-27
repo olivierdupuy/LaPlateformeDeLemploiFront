@@ -1,49 +1,3 @@
-// ═══════════════════════════════════
-//  ENTRETIENS — Clean SaaS
-// ═══════════════════════════════════
-
-// ── Hero ──
-.iv-hero {
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
-  padding: 2.25rem 0 2.75rem;
-  position: relative;
-  overflow: hidden;
-
-  &::after {
-    content: '';
-    position: absolute;
-    right: -80px; top: -80px;
-    width: 320px; height: 320px;
-    background: radial-gradient(circle, var(--brand-tint), transparent 70%);
-    pointer-events: none;
-  }
-}
-
-.ivh-inner {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
-  position: relative;
-  z-index: 1;
-}
-
-.ivh-left {
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    margin: 0.85rem 0 0.4rem;
-  }
-  p {
-    font-size: 0.92rem;
-    color: var(--muted);
-    max-width: 46ch;
-  }
-}
-
 // ── Hero counters ──
 .ivh-counters {
   display: inline-flex;
@@ -388,8 +342,6 @@
 
 // ── Responsive ──
 @media (max-width: 768px) {
-  .iv-hero { padding: 1.5rem 0 1.75rem; }
-  .ivh-inner { flex-direction: column; align-items: flex-start; }
   .ivh-counters { width: 100%; justify-content: space-between; }
   .ivhc { flex: 1; padding: 0.75rem 0.5rem; }
   .iv-grid { grid-template-columns: 1fr; }

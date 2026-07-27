@@ -7,10 +7,11 @@ import { InterviewService } from '../../services/interview.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
 import { InterviewItem } from '../../models/job-offer.model';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-interviews',
-  imports: [DatePipe, RouterLink, FormsModule],
+  imports: [DatePipe, RouterLink, FormsModule, ConsoleShell],
   templateUrl: './interviews.html',
   styleUrl: './interviews.scss',
 })

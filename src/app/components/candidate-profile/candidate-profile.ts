@@ -3,10 +3,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { CandidateService } from '../../services/candidate.service';
 import { CandidatePublicProfile } from '../../models/auth.model';
+import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-candidate-profile',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, ConsoleShell],
   templateUrl: './candidate-profile.html',
   styleUrl: './candidate-profile.scss',
 })

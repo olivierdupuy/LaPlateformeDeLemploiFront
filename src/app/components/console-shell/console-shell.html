@@ -17,13 +17,15 @@
   </nav>
 }
 
-<header class="console-head">
-  <div class="container console-head__inner">
-    <div class="console-head__text">
-      <ng-content select="[head]" />
+@if (showHead()) {
+  <header class="console-head">
+    <div class="container console-head__inner">
+      <div class="console-head__text">
+        <ng-content select="[head]" />
+      </div>
+      <div class="console-head__actions">
+        <ng-content select="[actions]" />
+      </div>
     </div>
-    <div class="console-head__actions">
-      <ng-content select="[actions]" />
-    </div>
-  </div>
-</header>
+  </header>
+}

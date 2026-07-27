@@ -9,20 +9,6 @@
 }
 
 // ── Header ──
-.mod-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-
-.mod-head-text {
-  .eyebrow { margin-bottom: 0.75rem; }
-  .section-sub { margin-top: 0.5rem; }
-}
-
 .mod-count {
   font-size: 0.72rem;
   font-weight: 600;

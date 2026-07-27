@@ -53,6 +53,10 @@ export class ConsoleShell {
   /** 'auto' suit le role ; forcer 'recruteur' pour une page hors /admin. */
   space = input<'auto' | 'recruteur' | 'admin'>('auto');
 
+  /** Les pages de detail ont deja leur propre en-tete : elles ne
+   *  prennent que la sous-navigation. */
+  showHead = input(true);
+
   links = computed<ConsoleLink[]>(() => {
     const wanted = this.space();
     if (wanted === 'admin') return ADMIN_LINKS;

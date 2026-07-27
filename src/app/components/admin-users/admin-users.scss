@@ -5,30 +5,10 @@
 .users-page { padding: 2.25rem 0 5rem; }
 
 // ── Header ──
-.page-top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.5rem 2rem;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-
 // .page-head est aussi une primitive globale (en ligne, alignee en bas).
 // Ici la pile est verticale : il faut neutraliser explicitement
 // l'alignement herite, sinon les elements courts (l'eyebrow) partent
 // se coller a droite.
-.page-head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 0.5rem;
-
-  .eyebrow { margin-bottom: 0.15rem; }
-  .section-sub { margin-top: 0.15rem; }
-}
-
 .page-stats {
   display: flex;
   gap: 0.85rem;

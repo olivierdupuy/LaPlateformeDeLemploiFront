@@ -1,7 +1,9 @@
+<app-console-shell space="recruteur" [showHead]="false" />
+
 <section class="cp-page">
   <div class="container">
     <a routerLink="/candidats" class="cp-back animate-in">
-      <i class="bi bi-arrow-left"></i> Retour au vivier
+      <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour au vivier
     </a>
 
     @if (loading()) {

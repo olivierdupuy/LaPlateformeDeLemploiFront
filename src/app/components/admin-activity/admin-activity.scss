@@ -4,18 +4,6 @@
 
 .act-page { padding: 2.75rem 0 5rem; background: var(--paper); min-height: 100vh; }
 
-// ── Header ──
-.act-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-.act-head-text .eyebrow { margin-bottom: 0.7rem; }
-.act-head-text .section-sub { margin-top: 0.5rem; }
-
 .act-count {
   display: inline-flex;
   align-items: center;

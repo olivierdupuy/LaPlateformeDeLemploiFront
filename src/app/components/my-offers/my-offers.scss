@@ -9,27 +9,6 @@
   padding: 2.25rem 0 2rem;
 }
 
-.moh-inner {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 1.75rem;
-}
-
-.moh-left {
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(1.7rem, 3.4vw, 2.4rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    margin: 0.6rem 0 0.35rem;
-  }
-  p { font-size: 0.95rem; color: var(--muted); }
-}
-
-.moh-actions { flex-shrink: 0; }
-
 // ── Stats / filter bar ──
 .moh-stats {
   display: inline-flex;
@@ -345,8 +324,6 @@
 // ── Responsive ──
 @media (max-width: 768px) {
   .mo-hero { padding: 1.25rem 0 1.75rem; }
-  .moh-inner { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
-  .moh-actions { width: 100%; .btn-primary { width: 100%; } }
   .mo-grid { grid-template-columns: 1fr; }
   .oc-footer { flex-direction: column; align-items: flex-start; }
   .oc-actions { justify-content: flex-start; }
