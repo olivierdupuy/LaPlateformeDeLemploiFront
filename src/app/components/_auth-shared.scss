@@ -51,16 +51,8 @@
 }
 
 .auth-brand {
+  --lock: 52px;
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-
-  img {
-    height: 112px;
-    width: auto;
-    object-fit: contain;
-  }
 }
 
 .auth-aside__body {

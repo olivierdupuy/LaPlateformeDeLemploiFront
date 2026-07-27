@@ -25,3 +25,10 @@ ffmpeg -i public/videos/recherche-emploi.mp4 -frames:v 1 \
 ```
 
 4,0 Mo → 716 Ko sans perte visible.
+
+## logo_lpde_mascotte.png
+
+Ancienne mascotte, remplacee par le symbole `public/images/logo-lpde.svg`.
+Conservee ici comme source : elle reste l'origine de la palette
+(bleu roi de la casquette, rouge de l'epingle, ambre du dossier) et de
+la forme d'epingle reprise dans le nouveau symbole.

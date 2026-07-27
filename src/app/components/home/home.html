@@ -6,8 +6,9 @@
 <section class="hero">
   <video
     class="hero-video"
-    autoplay muted loop playsinline
-    preload="metadata"
+    autoplay loop playsinline
+    [muted]="true"
+    preload="auto"
     poster="/videos/recherche-emploi-poster.jpg"
     aria-hidden="true"
     tabindex="-1">

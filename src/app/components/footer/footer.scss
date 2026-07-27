@@ -91,15 +91,8 @@ footer {
 .ft-brand { max-width: 380px; }
 
 .ft-logo {
-  display: inline-flex;
-  align-items: center;
+  --lock: 48px;
   margin-bottom: 1.15rem;
-
-  img {
-    height: 108px;
-    width: auto;
-    object-fit: contain;
-  }
 }
 
 .ft-tagline {

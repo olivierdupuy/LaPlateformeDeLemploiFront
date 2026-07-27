@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════
 //  NAVBAR
-//  La mascotte est dessinee pour un fond clair
-//  (bleu cerne de blanc) : le bandeau passe en blanc.
+//  Chrome clair : le symbole et le mot-symbole sont poses
+//  en bleu de marque, ils demandent un fond blanc.
 // ═══════════════════════════════════════════════
 
 nav {
@@ -30,49 +30,9 @@ nav {
 }
 
 // ── Marque ──
-// Le PNG est un logo vertical : dans une barre horizontale, son
-// texte integre devient illisible. On garde donc le personnage a
-// grande taille et on recompose le mot-symbole en Fredoka, qui
-// reprend le lettrage du logo. Proportions du dessin inchangees.
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-shrink: 0;
-}
-
-// Le PNG ne contient plus que le personnage : on l'affiche tel quel,
-// proportions d'origine intactes.
-.logo-mascotte {
-  display: block;
-  flex-shrink: 0;
-
-  img {
-    display: block;
-    height: calc(var(--nav-h) - 18px);
-    width: auto;
-    object-fit: contain;
-    transition: transform var(--t) var(--ease-spring);
-  }
-}
-.logo:hover .logo-mascotte img { transform: scale(1.07) rotate(-2deg); }
-
-.logo-word {
-  display: flex;
-  flex-direction: column;
-  line-height: 0.94;
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.005em;
-}
-.logo-word__top {
-  font-size: calc(var(--nav-h) * 0.235);
-  color: var(--bleu-600);
-}
-.logo-word__bottom {
-  font-size: calc(var(--nav-h) * 0.185);
-  color: var(--rouge);
-}
+// Le verrou (symbole + mot-symbole) est defini dans styles.scss ;
+// ici on ne fixe que sa taille dans la barre.
+.logo { --lock: 46px; }
 
 // ── Liens centraux ──
 .nav-center {

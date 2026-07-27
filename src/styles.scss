@@ -410,6 +410,55 @@ h3, h4, h5, h6 {
   p { color: var(--on-plum-muted); }
 }
 
+/* ═══ Verrou de marque ═══
+   Symbole + mot-symbole, une seule definition pour la navbar, le pied
+   de page et les pages d'authentification. La taille se pilote par
+   --lock ; le mot-symbole suit. */
+.brand-lockup {
+  --lock: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62rem;
+  flex-shrink: 0;
+}
+
+.brand-lockup img {
+  width: var(--lock);
+  height: var(--lock);
+  display: block;
+  flex-shrink: 0;
+  transition: transform var(--t) var(--ease-spring);
+}
+.brand-lockup:hover img { transform: rotate(-5deg) scale(1.06); }
+
+.brand-lockup__word {
+  display: flex;
+  flex-direction: column;
+  line-height: 0.98;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+
+  b {
+    font-weight: 600;
+    font-size: calc(var(--lock) * 0.42);
+    color: var(--bleu-600);
+  }
+  span {
+    font-weight: 600;
+    font-size: calc(var(--lock) * 0.33);
+    color: var(--rouge);
+  }
+}
+
+/* Sur fond bleu profond, le bleu du mot-symbole disparait et le rouge
+   manque de contraste : blanc + rouge eclairci. */
+.brand-lockup--dark .brand-lockup__word {
+  b { color: #fff; }
+  span { color: #ff8a8d; }
+}
+
 /* Lien de retour (pages de détail) */
 .back-link, .cd-back {
   display: inline-flex;
