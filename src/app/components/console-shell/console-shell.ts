@@ -21,6 +21,7 @@ const CANDIDATE: ConsoleSpace = {
     // Favoris et entretiens sont des onglets de « Mes candidatures ».
     { path: '/suivi', label: 'Mes candidatures', icon: 'bi-clipboard-check' },
     { path: '/recherches-sauvegardees', label: 'Recherches', icon: 'bi-bookmark-star' },
+    { path: '/mon-metier', label: 'Mon métier', icon: 'bi-compass' },
     { path: '/entreprises-qui-recrutent', label: 'Qui recrute', icon: 'bi-buildings' },
     { path: '/mon-cv', label: 'Mon CV', icon: 'bi-file-earmark-person' },
   ],

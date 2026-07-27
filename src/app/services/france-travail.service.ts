@@ -118,6 +118,47 @@ export interface CritereEntreprises {
   taille?: number;
 }
 
+/** Fiche metier ROME 4.0 : ce que le metier mobilise et ce qu'il suppose de savoir. */
+export interface FicheMetier {
+  code: string;
+  obsolete?: boolean;
+  metier: { code: string; libelle: string };
+  groupesCompetencesMobilisees?: GroupeCompetences[];
+  groupesSavoirs?: GroupeSavoirs[];
+}
+
+export interface GroupeCompetences {
+  /** L'« enjeu » regroupe les competences : data, relation client, securite… */
+  enjeu?: { code: string; libelle: string };
+  competences?: { libelle: string; code?: string; type?: string }[];
+}
+
+export interface GroupeSavoirs {
+  categorieSavoirs?: { code: string; libelle: string };
+  savoirs?: { libelle: string; code?: string; type?: string }[];
+}
+
+/**
+ * Marche du travail : nombre d'offres par origine, sur un territoire et
+ * un trimestre. Les quatre lignes distinguent les offres deposees a
+ * France Travail de l'ensemble du marche, au trimestre et sur douze mois.
+ */
+export interface MarcheDuTravail {
+  codeIndicateur: string;
+  libIndicateur: string;
+  listeValeursParPeriode: ValeurMarche[];
+}
+
+export interface ValeurMarche {
+  libTerritoire: string;
+  libActivite: string;
+  codeNomenclature: string;
+  libNomenclature: string;
+  libPeriode: string;
+  valeurPrincipaleNombre: number;
+  valeurSecondairePourcentage?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class FranceTravailService {
   private http = inject(HttpClient);
@@ -140,6 +181,16 @@ export class FranceTravailService {
     return this.http.get<PredictionRomeo[]>(`${this.api}/metiers/deviner`, {
       params: new HttpParams().set('intitule', intitule),
     });
+  }
+
+  ficheMetier(code: string): Observable<FicheMetier> {
+    return this.http.get<FicheMetier>(`${this.api}/metiers/${code}`);
+  }
+
+  marcheDuTravail(rome: string, departement?: string): Observable<MarcheDuTravail> {
+    let p = new HttpParams().set('rome', rome);
+    if (departement) p = p.set('departement', departement);
+    return this.http.get<MarcheDuTravail>(`${this.api}/marche-du-travail`, { params: p });
   }
 
   entreprisesQuiRecrutent(criteres: CritereEntreprises): Observable<RechercheEntreprises> {

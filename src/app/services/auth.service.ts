@@ -1,6 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { SignalRService } from './signalr.service';
 import { Observable, tap } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import {
@@ -21,6 +22,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private toastr = inject(ToastrService);
+  private signalR = inject(SignalRService);
   private apiUrl = `${environment.apiUrl}/auth`;
 
   currentUser = signal<UserDto | null>(this.loadUser());
@@ -100,6 +102,9 @@ export class AuthService {
   }
 
   logout(): void {
+    // Le tuyau temps reel se ferme avec la session : c'est le seul moment
+    // ou il doit l'etre.
+    this.signalR.stop();
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     this.currentUser.set(null);

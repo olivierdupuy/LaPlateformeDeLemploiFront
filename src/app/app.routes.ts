@@ -27,6 +27,7 @@ import { AdminApplications } from './components/admin-applications/admin-applica
 import { AdminInterviews } from './components/admin-interviews/admin-interviews';
 import { AdminUserDetail } from './components/admin-user-detail/admin-user-detail';
 import { HiringCompanies } from './components/hiring-companies/hiring-companies';
+import { JobMarket } from './components/job-market/job-market';
 import { AdminAnnouncements } from './components/admin-announcements/admin-announcements';
 import { AdminSettings } from './components/admin-settings/admin-settings';
 import { MyOffers } from './components/my-offers/my-offers';
@@ -62,6 +63,7 @@ export const routes: Routes = [
   { path: 'favoris', component: TrackApplications, data: { tab: 'saved' } },
   { path: 'profil', component: Profile, canActivate: [authGuard] },
   { path: 'entreprises-qui-recrutent', component: HiringCompanies, canActivate: [authGuard] },
+  { path: 'mon-metier', component: JobMarket, canActivate: [authGuard] },
   { path: 'recherches-sauvegardees', component: SavedSearches, canActivate: [authGuard] },
   { path: 'entretiens', component: Interviews, canActivate: [authGuard] },
   { path: 'messagerie', component: Inbox, canActivate: [authGuard] },

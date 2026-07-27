@@ -1,0 +1,175 @@
+<app-console-shell space="candidat">
+  <div head>
+    <h1>Mon <span class="em">métier</span></h1>
+    <p class="console-head__sub">
+      Ce qu'on attend de ce métier, et l'état du marché là où vous cherchez.
+    </p>
+  </div>
+</app-console-shell>
+
+<section class="jm-page">
+  <div class="container">
+
+    <div class="jm-source">
+      <i class="bi bi-broadcast" aria-hidden="true"></i>
+      <span>
+        Référentiel <strong>ROME 4.0</strong> et statistiques du marché du travail,
+        publiés par France Travail.
+      </span>
+    </div>
+
+    <div class="jm-form">
+      <label class="jm-field jm-field--grow">
+        <span>Métier</span>
+        <input type="text" [(ngModel)]="metier" (keydown.enter)="rechercher()"
+               placeholder="Développeur web, aide-soignant, chef de projet…"
+               aria-label="Métier" />
+      </label>
+
+      <label class="jm-field jm-field--narrow">
+        <span>Département</span>
+        <input type="text" inputmode="numeric" maxlength="3" [(ngModel)]="departement"
+               (keydown.enter)="changerDepartement()" placeholder="France entière"
+               aria-label="Code département" />
+      </label>
+
+      <button class="btn-primary jm-go" (click)="rechercher()" [disabled]="loading()">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        {{ loading() ? 'Recherche…' : 'Analyser' }}
+      </button>
+    </div>
+
+    @if (suggestions().length > 1) {
+      <div class="jm-romes">
+        <span class="jm-romes__label">Métier retenu</span>
+        @for (m of suggestions(); track m.codeRome) {
+          <button class="chip" [class.is-active]="romeChoisi()?.codeRome === m.codeRome"
+                  (click)="choisirMetier(m)" [title]="'Code ROME ' + m.codeRome">
+            {{ m.libelleRome }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (demarrage()) {
+      <div class="empty-box">
+        <i class="bi bi-compass" aria-hidden="true"></i>
+        <h3>Situez votre métier</h3>
+        <p>
+          Indiquez un métier : nous affichons les compétences attendues, les savoirs
+          associés, et le volume d'offres sur votre territoire.
+        </p>
+      </div>
+    } @else if (erreur(); as message) {
+      <div class="empty-box">
+        <i class="bi bi-cloud-slash" aria-hidden="true"></i>
+        <h3>Analyse impossible</h3>
+        <p>{{ message }}</p>
+      </div>
+    } @else if (loading() && !fiche()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (fiche(); as f) {
+
+      <!-- ═══ MARCHÉ ═══ -->
+      @if (marcheIndisponible()) {
+        <div class="jm-market jm-market--vide">
+          <i class="bi bi-bar-chart" aria-hidden="true"></i>
+          <span>
+            Aucune statistique de marché pour ce métier
+            @if (departement) { dans le département {{ departement }} }.
+            Essayez la France entière en laissant le département vide.
+          </span>
+        </div>
+      } @else if (chiffres(); as c) {
+        <div class="jm-market">
+          <div class="jm-market__head">
+            <h2>Marché du travail</h2>
+            <span class="jm-market__where">
+              {{ c.territoire || 'France entière' }}
+              @if (c.periode) { · {{ c.periode }} }
+            </span>
+          </div>
+
+          <div class="jm-stats">
+            <div class="jm-stat jm-stat--main">
+              <span class="jm-stat__val u-mono">{{ c.toutesAn ?? '—' }}</span>
+              <span class="jm-stat__lbl">offres sur douze mois</span>
+              <span class="jm-stat__note">toutes sources confondues</span>
+            </div>
+            <div class="jm-stat">
+              <span class="jm-stat__val u-mono">{{ c.toutesTrimestre ?? '—' }}</span>
+              <span class="jm-stat__lbl">ce trimestre</span>
+            </div>
+            <div class="jm-stat">
+              <span class="jm-stat__val u-mono">{{ c.ftAn ?? '—' }}</span>
+              <span class="jm-stat__lbl">via France Travail</span>
+            </div>
+            @if (partFranceTravail(); as part) {
+              <div class="jm-stat">
+                <span class="jm-stat__val u-mono">{{ part }}%</span>
+                <span class="jm-stat__lbl">du marché</span>
+                <!-- Une part faible dit ou chercher, pas seulement combien. -->
+                <span class="jm-stat__note">
+                  {{ part < 30
+                    ? 'la majorité des offres passe ailleurs'
+                    : 'France Travail couvre bien ce métier' }}
+                </span>
+              </div>
+            }
+          </div>
+
+          <div class="jm-market__act">
+            <a [routerLink]="['/offres']" [queryParams]="{ search: f.metier.libelle }" class="btn-primary jm-btn">
+              <i class="bi bi-search" aria-hidden="true"></i> Voir les offres
+            </a>
+            <a routerLink="/entreprises-qui-recrutent"
+               [queryParams]="{ metier: f.metier.libelle }" class="btn-ghost jm-btn">
+              <i class="bi bi-buildings" aria-hidden="true"></i> Qui recrute
+            </a>
+          </div>
+        </div>
+      }
+
+      <!-- ═══ FICHE MÉTIER ═══ -->
+      <div class="jm-fiche">
+        <div class="jm-fiche__head">
+          <h2>{{ f.metier.libelle }}</h2>
+          <span class="tag u-mono">{{ f.code }}</span>
+          @if (f.obsolete) { <span class="badge badge-red">Fiche obsolète</span> }
+        </div>
+
+        @if (f.groupesCompetencesMobilisees?.length) {
+          <section class="jm-bloc">
+            <h3 class="jm-bloc__title">Compétences mobilisées</h3>
+            <div class="jm-groupes">
+              @for (g of f.groupesCompetencesMobilisees; track $index) {
+                <article class="jm-groupe card">
+                  <h4>{{ g.enjeu?.libelle || 'Autres compétences' }}</h4>
+                  <ul>
+                    @for (c of g.competences; track c.code) { <li>{{ c.libelle }}</li> }
+                  </ul>
+                </article>
+              }
+            </div>
+          </section>
+        }
+
+        @if (f.groupesSavoirs?.length) {
+          <section class="jm-bloc">
+            <h3 class="jm-bloc__title">Savoirs associés</h3>
+            <div class="jm-groupes">
+              @for (g of f.groupesSavoirs; track $index) {
+                <article class="jm-groupe card">
+                  <h4>{{ g.categorieSavoirs?.libelle || 'Autres savoirs' }}</h4>
+                  <ul>
+                    @for (s of g.savoirs; track s.code) { <li>{{ s.libelle }}</li> }
+                  </ul>
+                </article>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    }
+  </div>
+</section>

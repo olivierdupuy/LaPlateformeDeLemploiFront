@@ -75,7 +75,10 @@ export class Navbar implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.notifService.stopPolling();
-    this.signalR.stop();
+    // La connexion temps réel n'est pas fermée ici : elle appartient à la
+    // session, pas à cette barre. Le panneau d'administration ne rend pas
+    // la navbar — la détruire en y entrant coupait le temps réel de toute
+    // l'application. La fermeture se fait à la déconnexion.
     this.subs.forEach(s => s.unsubscribe());
   }
 
