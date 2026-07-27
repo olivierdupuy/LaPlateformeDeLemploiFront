@@ -26,7 +26,7 @@ export const recruiterGuard: CanActivateFn = () => {
     toastr.warning('Veuillez vous connecter');
     router.navigate(['/login']);
   } else {
-    toastr.error('Acces reserve aux recruteurs');
+    toastr.error('Accès réservé aux recruteurs');
     router.navigate(['/']);
   }
   return false;
@@ -43,7 +43,7 @@ export const adminGuard: CanActivateFn = () => {
     toastr.warning('Veuillez vous connecter');
     router.navigate(['/login']);
   } else {
-    toastr.error('Acces reserve aux administrateurs');
+    toastr.error('Accès réservé aux administrateurs');
     router.navigate(['/']);
   }
   return false;

@@ -168,7 +168,7 @@ export class JobDetail implements OnInit {
     this.applied.set(true);
     Swal.fire({
       icon: 'success',
-      title: 'Candidature envoyee !',
+      title: 'Candidature envoyée !',
       text: 'Votre candidature a ete transmise avec succes.',
       confirmButtonColor: '#1657c4',
       confirmButtonText: 'Parfait',
@@ -182,7 +182,7 @@ export class JobDetail implements OnInit {
     if (!j) return;
     this.noteSaving = true;
     this.candidateService.saveNote(j.id, this.noteContent).subscribe({
-      next: () => { this.noteSaving = false; this.toastr.success('Note sauvegardee'); },
+      next: () => { this.noteSaving = false; this.toastr.success('Note enregistrée'); },
       error: () => { this.noteSaving = false; this.toastr.error('Erreur'); },
     });
   }
@@ -234,7 +234,7 @@ export class JobDetail implements OnInit {
     if (result.isConfirmed) {
       this.jobService.delete(this.job()!.id).subscribe({
         next: () => {
-          this.toastr.success('Offre supprimee');
+          this.toastr.success('Offre supprimée');
           this.router.navigate(['/offres']);
         },
         error: () => this.toastr.error('Erreur lors de la suppression'),

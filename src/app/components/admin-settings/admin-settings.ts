@@ -37,7 +37,7 @@ export class AdminSettings implements OnInit {
     this.saving.set(true);
     const data = this.settings().map(s => ({ key: s.key, value: s.value, type: s.type, description: s.description }));
     this.admin.updateSettings(data).subscribe({
-      next: () => { this.toastr.success('Parametres sauvegardes'); this.saving.set(false); },
+      next: () => { this.toastr.success('Paramètres enregistrés'); this.saving.set(false); },
       error: () => { this.toastr.error('Erreur'); this.saving.set(false); },
     });
   }

@@ -57,7 +57,7 @@ export class SavedSearches implements OnInit {
     this.searchService.delete(id).subscribe({
       next: () => {
         this.searches.update((list) => list.filter((s) => s.id !== id));
-        this.toastr.success('Recherche supprimee');
+        this.toastr.success('Recherche supprimée');
       },
       error: () => this.toastr.error('Erreur lors de la suppression'),
     });

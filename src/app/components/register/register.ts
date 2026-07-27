@@ -34,7 +34,7 @@ export class Register {
     if (this.form.password.length < 6) { this.toastr.warning('Mot de passe : 6 caracteres minimum'); return;  }
     this.loading = true;
     this.auth.register(this.form).subscribe({
-      next: () => { this.toastr.success('Compte cree avec succes'); this.router.navigate(['/']); },
+      next: () => { this.toastr.success('Compte créé avec succes'); this.router.navigate(['/']); },
       error: (err) => { this.loading = false; this.toastr.error(err.error?.message || 'Erreur lors de l\'inscription'); },
     });
   }

@@ -4,7 +4,7 @@
       <div class="page-head">
         <span class="eyebrow">Administration</span>
         <h1 class="section-title">Gestion des <span class="em">utilisateurs</span></h1>
-        <p class="section-sub">Consultez les comptes, ajustez les roles et suivez la presence en temps réel.</p>
+        <p class="section-sub">Consultez les comptes, ajustez les rôles et suivez la présence en temps réel.</p>
       </div>
       <div class="page-stats">
         <div class="stat">
@@ -26,10 +26,10 @@
           <thead>
             <tr>
               <th>Utilisateur</th>
-              <th>Role</th>
+              <th>Rôle</th>
               <th>Entreprise</th>
               <th>Inscription</th>
-              <th>Modifier le role</th>
+              <th>Modifier le rôle</th>
             </tr>
           </thead>
           <tbody>
@@ -49,16 +49,26 @@
                     </div>
                   </div>
                 </td>
-                <td data-label="Role"><span class="badge" [class]="getRoleBadge(u.role)">{{ {Admin:'Administrateur',Recruiter:'Recruteur',Candidate:'Candidat'}[u.role] || u.role }}</span></td>
+                <td data-label="Rôle"><span class="badge" [class]="getRoleBadge(u.role)">{{ {Admin:'Administrateur',Recruiter:'Recruteur',Candidate:'Candidat'}[u.role] || u.role }}</span></td>
                 <td data-label="Entreprise"><span class="sub">{{ u.company || '—' }}</span></td>
                 <td data-label="Inscription"><span class="dt u-mono">{{ u.createdAt | date:'dd/MM/yyyy' }}</span></td>
-                <td data-label="Modifier le role">
+                <td data-label="Modifier le rôle">
                   <div class="act">
                     <select [value]="u.role" (change)="changeRole(u, $any($event.target).value)" class="sel">
                       <option value="Candidate">Candidat</option>
                       <option value="Recruiter">Recruteur</option>
                       <option value="Admin">Administrateur</option>
                     </select>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="tbl-empty-row">
+                <td colspan="5">
+                  <div class="empty-box">
+                    <i class="bi bi-people" aria-hidden="true"></i>
+                    <h3>Aucun utilisateur</h3>
+                    <p>Aucun compte ne correspond. Les inscriptions apparaîtront ici.</p>
                   </div>
                 </td>
               </tr>

@@ -108,7 +108,7 @@ export class Profile implements OnInit {
     if (this.pwForm.newPassword.length < 6) { this.toastr.warning('6 caracteres minimum'); return; }
     this.savingPw = true;
     this.auth.changePassword(this.pwForm).subscribe({
-      next: () => { this.savingPw = false; this.pwForm = { currentPassword: '', newPassword: '' }; this.toastr.success('Mot de passe modifie'); },
+      next: () => { this.savingPw = false; this.pwForm = { currentPassword: '', newPassword: '' }; this.toastr.success('Mot de passe modifié'); },
       error: (err) => { this.savingPw = false; this.toastr.error(err.error?.message || 'Erreur'); },
     });
   }
@@ -163,7 +163,7 @@ export class Profile implements OnInit {
                 error: () => { Swal.close(); this.toastr.error('Erreur lors de l\'import des sections'); },
               });
             },
-            error: () => { Swal.close(); this.toastr.error('Erreur lors de la mise a jour du CV'); },
+            error: () => { Swal.close(); this.toastr.error('Erreur lors de la mise à jour du CV'); },
           });
         },
         error: () => { Swal.close(); this.toastr.error('Erreur lors de l\'analyse IA'); },

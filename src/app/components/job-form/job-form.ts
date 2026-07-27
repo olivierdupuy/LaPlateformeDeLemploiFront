@@ -108,7 +108,7 @@ export class JobForm implements OnInit {
               confirmButtonColor: '#1657c4',
             }).then(() => this.router.navigate(['/admin/mes-offres']));
           } else {
-            this.toastr.success('Offre mise a jour');
+            this.toastr.success('Offre mise à jour');
             this.router.navigate(['/offres', this.jobId]);
           }
         },
@@ -129,7 +129,7 @@ export class JobForm implements OnInit {
           } else {
             Swal.fire({
               icon: 'success',
-              title: 'Offre publiee !',
+              title: 'Offre publiée !',
               text: 'Votre offre est maintenant visible par les candidats.',
               confirmButtonColor: '#1657c4',
             }).then(() => this.router.navigate(['/offres', job.id]));

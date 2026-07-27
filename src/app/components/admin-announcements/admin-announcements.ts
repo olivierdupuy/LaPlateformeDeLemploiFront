@@ -35,7 +35,7 @@ export class AdminAnnouncements implements OnInit {
       startsAt: this.form.startsAt || null,
       endsAt: this.form.endsAt || null,
     }).subscribe(() => {
-      this.toastr.success('Annonce creee');
+      this.toastr.success('Annonce créée');
       this.showForm.set(false);
       this.form = { title: '', message: '', type: 'info', targetRole: '', isBanner: false, startsAt: '', endsAt: '' };
       this.load();
@@ -43,11 +43,11 @@ export class AdminAnnouncements implements OnInit {
   }
 
   toggle(id: number) {
-    this.admin.toggleAnnouncement(id).subscribe(() => { this.toastr.success('Statut modifie'); this.load(); });
+    this.admin.toggleAnnouncement(id).subscribe(() => { this.toastr.success('Statut modifié'); this.load(); });
   }
 
   remove(id: number) {
-    this.admin.deleteAnnouncement(id).subscribe(() => { this.toastr.success('Annonce supprimee'); this.load(); });
+    this.admin.deleteAnnouncement(id).subscribe(() => { this.toastr.success('Annonce supprimée'); this.load(); });
   }
 
   typeIcon(type: string): string {

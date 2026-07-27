@@ -28,7 +28,7 @@ export class AdminUsers implements OnInit, OnDestroy {
   ngOnInit() {
     this.auth.getAllUsers().subscribe({
       next: (u) => { this.users.set(u); this.loading.set(false); },
-      error: () => { this.toastr.error('Acces refuse'); this.loading.set(false); },
+      error: () => { this.toastr.error('Accès refusé'); this.loading.set(false); },
     });
 
     this.subs.push(
@@ -49,14 +49,14 @@ export class AdminUsers implements OnInit, OnDestroy {
 
   toggleActive(user: UserDto) {
     this.auth.toggleUserActive(user.id).subscribe({
-      next: () => { this.toastr.success('Statut modifie'); this.ngOnInit(); },
+      next: () => { this.toastr.success('Statut modifié'); this.ngOnInit(); },
       error: () => this.toastr.error('Erreur'),
     });
   }
 
   changeRole(user: UserDto, role: string) {
     this.auth.changeUserRole(user.id, role).subscribe({
-      next: () => { this.toastr.success('Role modifie'); this.ngOnInit(); },
+      next: () => { this.toastr.success('Rôle modifié'); this.ngOnInit(); },
       error: () => this.toastr.error('Erreur'),
     });
   }

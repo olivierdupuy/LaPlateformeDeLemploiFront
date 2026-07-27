@@ -68,7 +68,7 @@ export class AdminModeration implements OnInit {
 
   approve(id: number) {
     this.admin.approveOffer(id).subscribe(() => {
-      this.toastr.success('Offre approuvee');
+      this.toastr.success('Offre approuvée');
       this.load();
     });
   }
@@ -78,7 +78,7 @@ export class AdminModeration implements OnInit {
 
   confirmReject(id: number) {
     this.admin.rejectOffer(id, this.rejectNote).subscribe(() => {
-      this.toastr.success('Offre rejetee');
+      this.toastr.success('Offre rejetée');
       this.rejectingId.set(null);
       this.load();
     });

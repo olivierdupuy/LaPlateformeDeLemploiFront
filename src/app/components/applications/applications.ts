@@ -81,7 +81,7 @@ export class Applications implements OnInit {
   openNotes(app: Application) { this.editingNotesId.set(app.id); this.notesText = app.recruiterNotes || ''; }
   saveNotes(app: Application) {
     this.appService.updateNotes(app.id, this.notesText).subscribe({
-      next: () => { app.recruiterNotes = this.notesText; this.editingNotesId.set(null); this.toastr.success('Notes sauvegardees'); },
+      next: () => { app.recruiterNotes = this.notesText; this.editingNotesId.set(null); this.toastr.success('Notes enregistrées'); },
       error: () => this.toastr.error('Erreur'),
     });
   }
@@ -104,14 +104,14 @@ export class Applications implements OnInit {
   }
   cancelSchedule() { this.schedulingId.set(null); }
   submitInterview(appId: number) {
-    if (!this.interviewForm.proposedAt) { this.toastr.warning('Selectionnez une date'); return; }
+    if (!this.interviewForm.proposedAt) { this.toastr.warning('Sélectionnez une date'); return; }
     this.interviewService.create({
       applicationId: appId, proposedAt: this.interviewForm.proposedAt,
       location: this.interviewForm.location || undefined, notes: this.interviewForm.notes || undefined,
       duration: this.interviewForm.duration || undefined, type: this.interviewForm.type || undefined,
       interviewerName: this.interviewForm.interviewerName || undefined,
     }).subscribe({
-      next: () => { this.schedulingId.set(null); this.toastr.success('Entretien planifie — candidat notifie'); },
+      next: () => { this.schedulingId.set(null); this.toastr.success('Entretien planifié — candidat notifié'); },
       error: () => this.toastr.error('Erreur'),
     });
   }

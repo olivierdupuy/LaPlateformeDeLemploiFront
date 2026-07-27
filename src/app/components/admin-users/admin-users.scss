@@ -14,9 +14,15 @@
   margin-bottom: 2rem;
 }
 
+// .page-head est aussi une primitive globale (en ligne, alignee en bas).
+// Ici la pile est verticale : il faut neutraliser explicitement
+// l'alignement herite, sinon les elements courts (l'eyebrow) partent
+// se coller a droite.
 .page-head {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 0.5rem;
 
   .eyebrow { margin-bottom: 0.15rem; }
@@ -209,4 +215,11 @@ tbody {
   }
 
   .act, .sel { width: 100%; }
+}
+
+// Etat vide occupant toute la largeur du tableau
+.tbl-empty-row td {
+  padding: 0;
+  border: none;
+  background: transparent;
 }

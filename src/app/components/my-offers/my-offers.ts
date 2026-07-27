@@ -119,7 +119,7 @@ export class MyOffers implements OnInit {
     event.preventDefault();
     this.recruiterService.duplicateOffer(offer.id).subscribe({
       next: (dup) => {
-        this.toastr.success('Offre dupliquee');
+        this.toastr.success('Offre dupliquée');
         this.router.navigate(['/admin/modifier-offre', dup.id]);
       },
       error: () => this.toastr.error('Erreur'),

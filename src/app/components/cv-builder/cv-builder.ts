@@ -70,9 +70,9 @@ export class CvBuilder implements OnInit {
 
   saveSection() {
     if (this.isNew) {
-      this.cvService.create(this.editForm).subscribe({ next: () => { this.editOpen.set(false); this.load(); this.toastr.success('Section ajoutee'); }, error: () => this.toastr.error('Erreur') });
+      this.cvService.create(this.editForm).subscribe({ next: () => { this.editOpen.set(false); this.load(); this.toastr.success('Section ajoutée'); }, error: () => this.toastr.error('Erreur') });
     } else {
-      this.cvService.update(this.editId, this.editForm).subscribe({ next: () => { this.editOpen.set(false); this.load(); this.toastr.success('Section modifiee'); }, error: () => this.toastr.error('Erreur') });
+      this.cvService.update(this.editId, this.editForm).subscribe({ next: () => { this.editOpen.set(false); this.load(); this.toastr.success('Section modifiée'); }, error: () => this.toastr.error('Erreur') });
     }
   }
 
@@ -132,7 +132,7 @@ export class CvBuilder implements OnInit {
 
   acceptAi() {
     const selected = this.aiSections().filter((_, i) => this.aiSelected()[i]);
-    if (selected.length === 0) { this.toastr.warning('Selectionnez au moins une section'); return; }
+    if (selected.length === 0) { this.toastr.warning('Sélectionnez au moins une section'); return; }
 
     // Vider les anciennes sections puis inserer les nouvelles
     this.cvService.deleteAll().subscribe({

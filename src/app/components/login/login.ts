@@ -24,7 +24,7 @@ export class Login {
     if (!this.form.email || !this.form.password) { this.toastr.warning('Remplissez tous les champs'); return; }
     this.loading = true;
     this.auth.login(this.form).subscribe({
-      next: () => { this.toastr.success('Connexion reussie'); this.router.navigate(['/']); },
+      next: () => { this.toastr.success('Connexion réussie'); this.router.navigate(['/']); },
       error: (err) => { this.loading = false; this.toastr.error(err.error?.message || 'Erreur de connexion'); },
     });
   }
