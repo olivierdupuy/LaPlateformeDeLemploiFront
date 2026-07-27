@@ -34,7 +34,9 @@
 }
 
 .jfh-back {
-  display: inline-flex; align-items: center; gap: 0.4rem;
+  // Sur sa propre ligne : sinon il chevauche l'eyebrow qui suit.
+  display: flex; width: fit-content; margin-bottom: 0.9rem;
+  align-items: center; gap: 0.4rem;
   font-family: var(--font-mono);
   font-size: 0.76rem; font-weight: 600;
   letter-spacing: 0.02em;

@@ -23,10 +23,30 @@ export function getContractBadgeClass(type: string): string {
   return map[type] || 'badge-indigo';
 }
 
+/**
+ * Pastilles d'initiales (entreprises, candidats).
+ *
+ * L'ancienne version balayait les 360° de la roue chromatique : on
+ * obtenait des pastilles vertes ou roses en pleine identité bleue.
+ * On tire désormais dans une palette fermée, dérivée de la mascotte —
+ * assez de variété pour distinguer deux cartes voisines, sans sortir
+ * de la charte.
+ */
+const AVATAR_PALETTE: ReadonlyArray<{ bg: string; fg: string }> = [
+  { bg: '#e4eefd', fg: '#13489f' }, // bleu roi
+  { bg: '#e7eef8', fg: '#33445f' }, // ardoise
+  { bg: '#fdf1d9', fg: '#8a5804' }, // ambre
+  { bg: '#dff1fa', fg: '#12688c' }, // cyan
+  { bg: '#fde8e8', fg: '#a91a1e' }, // rouge
+  { bg: '#e3f5ed', fg: '#0b6b4a' }, // vert
+  { bg: '#e9e6f9', fg: '#4b3fa8' }, // indigo
+];
+
 export function companyColor(name: string): { bg: string; fg: string } {
-  const hue = name.charCodeAt(0) * 7 % 360;
-  return {
-    bg: `hsl(${hue}, 45%, 92%)`,
-    fg: `hsl(${hue}, 55%, 35%)`,
-  };
+  const label = name?.trim() || '?';
+  let hash = 0;
+  for (let i = 0; i < label.length; i++) {
+    hash = (hash * 31 + label.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_PALETTE[hash % AVATAR_PALETTE.length];
 }

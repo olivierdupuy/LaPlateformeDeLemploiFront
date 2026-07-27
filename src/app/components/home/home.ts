@@ -5,6 +5,7 @@ import { DecimalPipe } from '@angular/common';
 import { JobOfferService } from '../../services/job-offer';
 import { PlatformService } from '../../services/platform.service';
 import { JobOffer, JobStats } from '../../models/job-offer.model';
+import { companyColor } from '../../utils/job.utils';
 
 @Component({
   selector: 'app-home',
@@ -59,15 +60,12 @@ export class Home implements OnInit {
     return map[type] || 'var(--stripe-cdi)';
   }
 
-  /** Pastille d'entreprise : teinte dérivée du nom, pour distinguer les cartes d'un coup d'œil. */
+  /** Pastille d'entreprise : palette fermee, derivee de la mascotte. */
   avatarBg(company: string): string {
-    return `hsl(${this.hue(company)}, 42%, 94%)`;
+    return companyColor(company).bg;
   }
   avatarFg(company: string): string {
-    return `hsl(${this.hue(company)}, 48%, 34%)`;
-  }
-  private hue(company: string): number {
-    return ((company?.charCodeAt(0) ?? 65) * 7) % 360;
+    return companyColor(company).fg;
   }
 
   getTimeAgo(date: string): string {

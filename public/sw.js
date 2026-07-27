@@ -1,6 +1,6 @@
 // Service worker minimal — coquille offline (app shell) + cache des assets statiques.
 const CACHE = 'lpde-v1';
-const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg', '/favicon.ico'];
+const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.ico', '/icon-192.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

@@ -1,20 +1,32 @@
 {
   "name": "La Plateforme de l'emploi",
   "short_name": "LPDE",
-  "description": "Trouvez le poste qui vous ressemble : offres, entreprises, salaires.",
+  "description": "Les offres d'emploi en France, rassemblées au même endroit : offres, entreprises, salaires.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#0e5c43",
+  "theme_color": "#1657c4",
   "lang": "fr",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

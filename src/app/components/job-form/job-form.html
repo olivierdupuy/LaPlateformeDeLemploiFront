@@ -2,10 +2,10 @@
 <section class="jf-hero">
   <div class="container jfh-inner">
     <div class="jfh-left animate-in">
-      <a routerLink="/admin/mes-offres" class="jfh-back"><i class="bi bi-arrow-left"></i> Retour a mes offres</a>
-      <span class="eyebrow">{{ isEdit() ? 'Edition' : 'Nouvelle annonce' }}</span>
+      <a routerLink="/admin/mes-offres" class="jfh-back"><i class="bi bi-arrow-left"></i> Retour à mes offres</a>
+      <span class="eyebrow">{{ isEdit() ? 'Édition' : 'Nouvelle annonce' }}</span>
       <h1>{{ isEdit() ? 'Modifier l\'offre' : 'Publier une offre' }}</h1>
-      <p>{{ isEdit() ? 'Mettez a jour les informations de cette offre' : 'Decrivez le poste pour attirer les meilleurs profils' }}</p>
+      <p>{{ isEdit() ? 'Mettez à jour les informations de cette offre' : 'Décrivez le poste pour attirer les meilleurs profils' }}</p>
     </div>
   </div>
 </section>
@@ -19,7 +19,7 @@
       </button>
       <div class="step-line" [class.done]="currentStep() > 1"></div>
       <button type="button" class="step" [class.active]="currentStep() === 2" [class.done]="currentStep() > 2" (click)="goStep(2)">
-        <span class="step-num">2</span><span class="step-label">Details</span>
+        <span class="step-num">2</span><span class="step-label">Détails</span>
       </button>
       <div class="step-line" [class.done]="currentStep() > 2"></div>
       <button type="button" class="step" [class.active]="currentStep() === 3" (click)="goStep(3)">
@@ -41,12 +41,12 @@
             <span class="ed-pill">01</span>
             <div>
               <h2>Informations principales</h2>
-              <p>L'essentiel du poste, visible en tete de l'annonce.</p>
+              <p>L'essentiel du poste, visible en tête de l'annonce.</p>
             </div>
           </div>
           <div class="jfc-body">
             <div class="form-group span-2">
-              <label>Intitule du poste *</label>
+              <label>Intitulé du poste *</label>
               <input type="text" placeholder="ex: Developpeur Full Stack Angular / .NET" [(ngModel)]="form.title" name="title" required />
             </div>
             <div class="form-row">
@@ -63,7 +63,7 @@
             </div>
             <div class="form-group span-2">
               <label>Description du poste *</label>
-              <textarea placeholder="Decrivez les missions, le profil recherche, l'environnement de travail..." [(ngModel)]="form.description" name="description" rows="7" required></textarea>
+              <textarea placeholder="Décrivez les missions, le profil recherché, l'environnement de travail..." [(ngModel)]="form.description" name="description" rows="7" required></textarea>
               <span class="jf-hint"><i class="bi bi-markdown"></i> Mise en forme : **gras**, *italique*, « - » pour les listes, ## pour les sous-titres.</span>
             </div>
           </div>
@@ -80,13 +80,13 @@
           <div class="jfc-head">
             <span class="ed-pill">02</span>
             <div>
-              <h2>Details et avantages</h2>
+              <h2>Détails et avantages</h2>
               <p>Précisez la remuneration, les compétences et les avantages.</p>
             </div>
           </div>
           <div class="jfc-body">
             <div class="form-row">
-              <div class="form-group"><label>Remuneration (texte)</label><input type="text" placeholder="ex: 45K - 55K EUR" [(ngModel)]="form.salary" name="salary" /></div>
+              <div class="form-group"><label>Rémunération (texte)</label><input type="text" placeholder="ex: 45K - 55K EUR" [(ngModel)]="form.salary" name="salary" /></div>
               <div class="form-group"><label>Compétences (virgules)</label><input type="text" placeholder="Angular, .NET, TypeScript" [(ngModel)]="form.tags" name="tags" /></div>
             </div>
             <div class="form-row">
