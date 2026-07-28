@@ -179,7 +179,7 @@
                       <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
                     </div>
                     <div class="jcard-cmeta">
-                      <span class="jcard-cname">{{ job.company }}</span>
+                      <span class="jcard-cname">{{ job.company | employeur }}</span>
                       <span class="jcard-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}
                         @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
                       </span>
@@ -250,7 +250,11 @@
                     <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
                   </div>
                   <div>
-                    <a class="dp-cname" [routerLink]="['/entreprises', job.company]">{{ job.company }}</a>
+                    @if (estAnonyme(job.company)) {
+                      <span class="dp-cname">{{ job.company | employeur }}</span>
+                    } @else {
+                      <a class="dp-cname" [routerLink]="['/entreprises', job.company]">{{ job.company }}</a>
+                    }
                     <span class="dp-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}
                       @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
                     </span>

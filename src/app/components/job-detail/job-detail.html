@@ -12,7 +12,11 @@
             <span [style.color]="companyColor(j.company).fg">{{ j.company.charAt(0) }}</span>
           </div>
           <div class="jd-company-meta">
-            <a class="jd-company-name" [routerLink]="['/entreprises', j.company]">{{ j.company }} <i class="bi bi-arrow-up-right"></i></a>
+            @if (estAnonyme(j.company)) {
+              <span class="jd-company-name">{{ j.company | employeur }}</span>
+            } @else {
+              <a class="jd-company-name" [routerLink]="['/entreprises', j.company]">{{ j.company }} <i class="bi bi-arrow-up-right"></i></a>
+            }
             <div class="jd-headmeta">
               <span><i class="bi bi-geo-alt"></i> {{ j.location }}</span>
               <span class="sep"></span>
@@ -194,9 +198,9 @@
               <div class="sc-av" [style.background]="companyColor(j.company).bg">
                 <span [style.color]="companyColor(j.company).fg">{{ j.company.charAt(0) }}</span>
               </div>
-              <div><strong>{{ j.company }}</strong><span>{{ j.location }}</span></div>
+              <div><strong>{{ j.company | employeur }}</strong><span>{{ j.location }}</span></div>
             </div>
-            @if (companyRating(); as r) {
+            @if (!estAnonyme(j.company) && companyRating(); as r) {
               <a class="sc-rating" [routerLink]="['/entreprises', j.company]">
                 <span class="stars">
                   @for (i of stars5; track i) {
@@ -206,7 +210,9 @@
                 <strong>{{ r.average }}</strong> <span class="sc-rc">({{ r.count }} avis)</span>
               </a>
             }
-            <a class="link-teal" [routerLink]="['/entreprises', j.company]">Voir l'entreprise <i class="bi bi-arrow-right"></i></a>
+            @if (!estAnonyme(j.company)) {
+              <a class="link-teal" [routerLink]="['/entreprises', j.company]">Voir l'entreprise <i class="bi bi-arrow-right"></i></a>
+            }
           </div>
 
           <!-- Notes candidat -->
@@ -239,7 +245,7 @@
       </div>
 
       <!-- ═══ Offres de cet employeur ═══ -->
-      @if (employerJobs().length > 0) {
+      @if (!estAnonyme(j.company) && employerJobs().length > 0) {
         <div class="similar-section animate-in">
           <div class="section-head">
             <h2 class="section-title">Autres offres chez {{ j.company }}</h2>

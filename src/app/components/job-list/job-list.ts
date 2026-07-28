@@ -12,10 +12,11 @@ import { AuthService } from '../../services/auth.service';
 import { SavedSearchService } from '../../services/saved-search.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
+import { EmployerNamePipe, estEmployeurAnonyme } from '../../pipes/employer-name.pipe';
 
 @Component({
   selector: 'app-job-list',
-  imports: [RouterLink, FormsModule, DecimalPipe],
+  imports: [RouterLink, FormsModule, DecimalPipe, EmployerNamePipe],
   templateUrl: './job-list.html',
   styleUrl: './job-list.scss',
 })
@@ -111,6 +112,7 @@ export class JobList implements OnInit {
   getTags = getTags;
   getContractBadgeClass = getContractBadgeClass;
   companyColor = companyColor;
+  estAnonyme = estEmployeurAnonyme;
 
   ngOnInit() {
     this.jobService.getCategories().subscribe((c) => this.categories.set(c));
