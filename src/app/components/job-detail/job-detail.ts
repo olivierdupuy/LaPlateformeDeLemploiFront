@@ -14,7 +14,7 @@ import { JobOffer } from '../../models/job-offer.model';
 import { ApplyModal } from '../apply-modal/apply-modal';
 import { MarkdownPipe } from '../../utils/markdown.pipe';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
-import { EmployerNamePipe, estEmployeurAnonyme } from '../../pipes/employer-name.pipe';
+import { EmployerNamePipe, estEmployeurGenerique } from '../../pipes/employer-name.pipe';
 import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
 
@@ -61,7 +61,7 @@ export class JobDetail implements OnInit {
   getTags = getTags;
   getContractBadgeClass = getContractBadgeClass;
   companyColor = companyColor;
-  estAnonyme = estEmployeurAnonyme;
+  estGenerique = estEmployeurGenerique;
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -73,7 +73,7 @@ export class JobDetail implements OnInit {
         // Employeur non communique : les appels par nom d'entreprise n'auraient
         // aucun sens ici, ils ramasseraient des milliers d'offres sans lien entre
         // elles sous un libelle qui n'identifie personne.
-        if (!estEmployeurAnonyme(job.company)) {
+        if (!estEmployeurGenerique(job.company)) {
           this.reviewSvc.getRating(job.company).subscribe((r) => { if (r.count > 0) this.companyRating.set(r); });
           this.jobService.getByCompany(job.company).subscribe((jobs) => {
             this.employerJobs.set(jobs.filter((j) => j.id !== job.id).slice(0, 4));

@@ -12,7 +12,7 @@
             <span [style.color]="companyColor(j.company).fg">{{ j.company.charAt(0) }}</span>
           </div>
           <div class="jd-company-meta">
-            @if (estAnonyme(j.company)) {
+            @if (estGenerique(j.company)) {
               <span class="jd-company-name">{{ j.company | employeur }}</span>
             } @else {
               <a class="jd-company-name" [routerLink]="['/entreprises', j.company]">{{ j.company }} <i class="bi bi-arrow-up-right"></i></a>
@@ -103,7 +103,7 @@
             <div class="jd-desc jd-rich" [innerHTML]="j.description | markdown"></div>
             @if (j.companyDescription) {
               <div class="company-desc">
-                <h4><i class="bi bi-buildings"></i> À propos de {{ j.company }}</h4>
+                <h4><i class="bi bi-buildings"></i> @if (estGenerique(j.company)) { À propos de l'employeur } @else { À propos de {{ j.company }} }</h4>
                 <p>{{ j.companyDescription }}</p>
               </div>
             }
@@ -200,7 +200,7 @@
               </div>
               <div><strong>{{ j.company | employeur }}</strong><span>{{ j.location }}</span></div>
             </div>
-            @if (!estAnonyme(j.company) && companyRating(); as r) {
+            @if (!estGenerique(j.company) && companyRating(); as r) {
               <a class="sc-rating" [routerLink]="['/entreprises', j.company]">
                 <span class="stars">
                   @for (i of stars5; track i) {
@@ -210,7 +210,7 @@
                 <strong>{{ r.average }}</strong> <span class="sc-rc">({{ r.count }} avis)</span>
               </a>
             }
-            @if (!estAnonyme(j.company)) {
+            @if (!estGenerique(j.company)) {
               <a class="link-teal" [routerLink]="['/entreprises', j.company]">Voir l'entreprise <i class="bi bi-arrow-right"></i></a>
             }
           </div>
@@ -245,7 +245,7 @@
       </div>
 
       <!-- ═══ Offres de cet employeur ═══ -->
-      @if (!estAnonyme(j.company) && employerJobs().length > 0) {
+      @if (!estGenerique(j.company) && employerJobs().length > 0) {
         <div class="similar-section animate-in">
           <div class="section-head">
             <h2 class="section-title">Autres offres chez {{ j.company }}</h2>

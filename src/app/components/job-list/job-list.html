@@ -250,7 +250,7 @@
                     <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
                   </div>
                   <div>
-                    @if (estAnonyme(job.company)) {
+                    @if (estGenerique(job.company)) {
                       <span class="dp-cname">{{ job.company | employeur }}</span>
                     } @else {
                       <a class="dp-cname" [routerLink]="['/entreprises', job.company]">{{ job.company }}</a>

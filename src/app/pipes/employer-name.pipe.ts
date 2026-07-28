@@ -1,14 +1,31 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 /**
- * Nom que les imports posent quand la source ne communique pas l'employeur.
- * Doit rester aligné sur CompanyNames.Undisclosed côté API.
+ * Libellés d'employeur qui ne désignent pas une organisation identifiable.
+ * Doit rester aligné sur CompanyNames côté API.
  */
-export const EMPLOYEUR_ANONYME = 'Entreprise';
 
-/** Vrai si l'offre ne nomme pas son employeur : ni fiche, ni lien à proposer. */
+/** Ne nomment personne : l'offre est anonyme, on remplace le libellé. */
+const NON_NOMMES = ['entreprise', 'confidentiel', 'recruteur', 'employeur'];
+
+/**
+ * Nomment une catégorie d'organisme, pas un organisme. On garde le libellé —
+ * savoir que l'employeur est une mairie renseigne le candidat — mais aucune
+ * fiche ne peut lui correspondre : « MAIRIE » couvre des centaines de communes.
+ */
+const INSTITUTIONNELS = ['mairie', 'commune', 'ccas', 'ehpad'];
+
+const cle = (nom: string | null | undefined) => (nom ?? '').trim().toLowerCase();
+
+/** Aucun employeur nommé : afficher « Employeur non précisé ». */
 export function estEmployeurAnonyme(nom: string | null | undefined): boolean {
-  return (nom ?? '').trim().toLowerCase() === EMPLOYEUR_ANONYME.toLowerCase();
+  return NON_NOMMES.includes(cle(nom));
+}
+
+/** Libellé générique : ne pas proposer de fiche entreprise. */
+export function estEmployeurGenerique(nom: string | null | undefined): boolean {
+  const k = cle(nom);
+  return NON_NOMMES.includes(k) || INSTITUTIONNELS.includes(k);
 }
 
 @Pipe({ name: 'employeur' })

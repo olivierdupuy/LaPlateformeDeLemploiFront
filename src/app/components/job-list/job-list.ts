@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
 import { SavedSearchService } from '../../services/saved-search.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
-import { EmployerNamePipe, estEmployeurAnonyme } from '../../pipes/employer-name.pipe';
+import { EmployerNamePipe, estEmployeurGenerique } from '../../pipes/employer-name.pipe';
 
 @Component({
   selector: 'app-job-list',
@@ -112,7 +112,7 @@ export class JobList implements OnInit {
   getTags = getTags;
   getContractBadgeClass = getContractBadgeClass;
   companyColor = companyColor;
-  estAnonyme = estEmployeurAnonyme;
+  estGenerique = estEmployeurGenerique;
 
   ngOnInit() {
     this.jobService.getCategories().subscribe((c) => this.categories.set(c));
