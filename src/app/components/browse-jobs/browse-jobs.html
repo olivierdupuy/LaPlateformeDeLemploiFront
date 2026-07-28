@@ -10,63 +10,79 @@
 
 <section class="browse-page">
   <div class="container">
-    @if (loading()) {
-      <div class="empty-box"><div class="spinner"></div><p>Chargement…</p></div>
-    } @else {
-      <!-- Métiers -->
-      <div class="browse-block animate-in">
+    @for (section of sections; track section.key) {
+      @let st = state(section.key);
+
+      <div class="browse-block">
         <div class="section-head">
-          <h2 class="section-title">Par métier</h2>
-        </div>
-        <div class="chip-grid">
-          @for (c of categories(); track c.label) {
-            <a class="browse-chip" [routerLink]="['/offres']" [queryParams]="{ category: c.label }">
-              <span class="bc-label">{{ c.label }}</span>
-              <span class="bc-count u-mono">{{ c.count }}</span>
-            </a>
-          } @empty {
-            <p class="browse-empty">Aucun métier pour le moment.</p>
+          <h2 class="section-title">{{ section.title }}</h2>
+
+          @if (section.searchable && !st.loading() && st.total() > 0) {
+            <div class="browse-filter">
+              <i class="bi bi-funnel"></i>
+              <input
+                type="search"
+                [placeholder]="section.placeholder"
+                [value]="st.search()"
+                (input)="onSearch(section.key, $any($event.target).value)"
+                [attr.aria-label]="section.placeholder"
+              />
+              @if (st.search()) {
+                <button type="button" class="browse-filter__clear" (click)="clearSearch(section.key)" aria-label="Effacer le filtre">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              }
+            </div>
           }
         </div>
-      </div>
 
-      <!-- Villes -->
-      <div class="browse-block animate-in" style="animation-delay:.06s">
-        <div class="section-head">
-          <h2 class="section-title">Par ville</h2>
-        </div>
-        <div class="chip-grid">
-          @for (l of locations(); track l.label) {
-            <a class="browse-chip" [routerLink]="['/offres']" [queryParams]="{ location: l.label }">
-              <span class="bc-label">{{ l.label }}</span>
-              <span class="bc-count u-mono">{{ l.count }}</span>
-            </a>
-          } @empty {
-            <p class="browse-empty">Aucune ville pour le moment.</p>
+        @if (st.loading()) {
+          <!-- Squelettes : la page garde sa structure pendant que chaque bloc arrive. -->
+          <div class="chip-grid" aria-hidden="true">
+            @for (p of placeholders; track $index) {
+              <div class="browse-chip browse-chip--skeleton">
+                <span class="skeleton sk-line" style="width:60%"></span>
+                <span class="skeleton sk-line" style="width:1.8rem"></span>
+              </div>
+            }
+          </div>
+        } @else if (st.failed()) {
+          <div class="browse-error">
+            <p>Cette liste n'a pas pu être chargée.</p>
+            <button type="button" class="btn-ghost" (click)="retry(section.key)">
+              <i class="bi bi-arrow-clockwise"></i> Réessayer
+            </button>
+          </div>
+        } @else {
+          <div class="chip-grid">
+            @for (facet of st.items(); track facet.label) {
+              <a class="browse-chip" [routerLink]="['/offres']" [queryParams]="queryParams(section, facet)">
+                <span class="bc-label">{{ facet.label }}</span>
+                <span class="bc-count u-mono">{{ facet.count }}</span>
+              </a>
+            } @empty {
+              <p class="browse-empty">{{ st.search() ? section.noMatch : section.empty }}</p>
+            }
+          </div>
+
+          @if (st.hasMore()) {
+            <div class="browse-more">
+              <button type="button" class="btn-secondary" (click)="loadMore(section.key)" [disabled]="st.loadingMore()">
+                @if (st.loadingMore()) {
+                  <span class="spinner-inline"></span> Chargement…
+                } @else {
+                  <i class="bi bi-plus-lg"></i> {{ section.more }}
+                }
+              </button>
+              <span class="browse-count u-mono">{{ st.items().length }} / {{ st.total() }}</span>
+            </div>
           }
-        </div>
-      </div>
-
-      <!-- Contrats -->
-      <div class="browse-block animate-in" style="animation-delay:.12s">
-        <div class="section-head">
-          <h2 class="section-title">Par type de contrat</h2>
-        </div>
-        <div class="chip-grid">
-          @for (ct of contractTypes(); track ct.label) {
-            <a class="browse-chip" [routerLink]="['/offres']" [queryParams]="{ contractType: ct.label }">
-              <span class="bc-label">{{ ct.label }}</span>
-              <span class="bc-count u-mono">{{ ct.count }}</span>
-            </a>
-          } @empty {
-            <p class="browse-empty">Aucun contrat pour le moment.</p>
-          }
-        </div>
-      </div>
-
-      <div class="browse-cta animate-in" style="animation-delay:.18s">
-        <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Voir toutes les offres</a>
+        }
       </div>
     }
+
+    <div class="browse-cta">
+      <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Voir toutes les offres</a>
+    </div>
   </div>
 </section>

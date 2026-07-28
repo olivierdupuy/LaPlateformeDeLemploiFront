@@ -5,6 +5,10 @@ import { map } from 'rxjs/operators';
 import { JobOffer, JobStats, CompanyInfo, DetailedStats, JobReport } from '../models/job-offer.model';
 import { environment } from '../../environments/environment';
 
+export type BrowseSection = 'categories' | 'locations' | 'contractTypes';
+export interface BrowseFacet { label: string; count: number; }
+export interface BrowsePage { items: BrowseFacet[]; total: number; page: number; pageSize: number; }
+
 @Injectable({ providedIn: 'root' })
 export class JobOfferService {
   private http = inject(HttpClient);
@@ -108,12 +112,19 @@ export class JobOfferService {
     return this.http.get<{ required: boolean }>(`${this.apiUrl}/moderation-required`);
   }
 
-  getBrowse(): Observable<{
-    categories: { label: string; count: number }[];
-    locations: { label: string; count: number }[];
-    contractTypes: { label: string; count: number }[];
-  }> {
-    return this.http.get<any>(`${this.apiUrl}/browse`);
+  /**
+   * Une seule section de la page « Parcourir ». Les metiers se comptent par
+   * milliers : on ne les charge que par tranches, a la demande.
+   */
+  getBrowseSection(
+    section: BrowseSection,
+    opts?: { search?: string; page?: number; pageSize?: number }
+  ): Observable<BrowsePage> {
+    let params = new HttpParams();
+    if (opts?.search) params = params.set('search', opts.search);
+    if (opts?.page) params = params.set('page', opts.page);
+    if (opts?.pageSize) params = params.set('pageSize', opts.pageSize);
+    return this.http.get<BrowsePage>(`${this.apiUrl}/browse/${section}`, { params });
   }
 
   getCompanies(opts?: { search?: string; page?: number; pageSize?: number }): Observable<{ items: CompanyInfo[]; total: number }> {
