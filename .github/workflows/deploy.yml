@@ -48,6 +48,30 @@ jobs:
             <system.webServer>
               <rewrite>
                 <rules>
+                  <!-- L'apex etait servi par la redirection Gandi, qui ne parle
+                       que HTTP : le 443 y refusait la connexion. Une fois son
+                       enregistrement A pointe sur IIS, c'est cette regle qui
+                       renvoie vers www, en HTTPS. -->
+                  <rule name="Apex vers www" stopProcessing="true">
+                    <match url="(.*)" />
+                    <conditions logicalGrouping="MatchAll">
+                      <add input="{HTTP_HOST}" pattern="^laplateformedelemploi\.com$" />
+                      <add input="{REQUEST_URI}" pattern="^/\.well-known/acme-challenge/" negate="true" />
+                    </conditions>
+                    <action type="Redirect" url="https://www.laplateformedelemploi.com/{R:1}" redirectType="Permanent" />
+                  </rule>
+                  <!-- Le site repondait 200 en clair sur http://www : tout le
+                       trafic, jetons de session compris, pouvait transiter sans
+                       chiffrement. La validation ACME reste en clair, sinon le
+                       renouvellement du certificat se mord la queue. -->
+                  <rule name="HTTPS obligatoire" stopProcessing="true">
+                    <match url="(.*)" />
+                    <conditions logicalGrouping="MatchAll">
+                      <add input="{HTTPS}" pattern="off" ignoreCase="true" />
+                      <add input="{REQUEST_URI}" pattern="^/\.well-known/acme-challenge/" negate="true" />
+                    </conditions>
+                    <action type="Redirect" url="https://{HTTP_HOST}/{R:1}" redirectType="Permanent" />
+                  </rule>
                   <rule name="Angular Routes" stopProcessing="true">
                     <match url=".*" />
                     <conditions logicalGrouping="MatchAll">
