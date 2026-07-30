@@ -60,7 +60,7 @@ export class Home implements OnInit {
     return map[type] || 'var(--stripe-cdi)';
   }
 
-  /** Pastille d'entreprise : palette fermee, derivee de la mascotte. */
+  /** Pastille d'entreprise : palette fermee, sept degres du bleu de marque. */
   avatarBg(company: string): string {
     return companyColor(company).bg;
   }

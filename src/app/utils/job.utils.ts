@@ -30,18 +30,22 @@ export function getContractBadgeClass(type: string): string {
  * produisait des pastilles vertes ou roses au milieu de la charte. On
  * tire désormais dans une palette fermée.
  *
- * Avec trois couleurs seulement, la variété vient de l'intensité plutôt
- * que de la teinte : six degrés d'ardoise et deux de terracotta suffisent
- * à distinguer deux cartes voisines sans jamais sortir de la gamme.
+ * Avec une palette monochrome, la variété vient entièrement de
+ * l'intensité : sept degrés du même bleu, de clair à plein, suffisent à
+ * distinguer deux cartes voisines sans jamais sortir de la gamme.
+ *
+ * Les fonds descendent régulièrement en clarté (écart OKLab ≥ 0,045
+ * entre voisins) et aucun ne se confond avec le sol #ebf2fa ; chaque
+ * paire dépasse 4,6:1, la plus faible étant l'aplat d'accent.
  */
 const AVATAR_PALETTE: ReadonlyArray<{ bg: string; fg: string }> = [
-  { bg: '#e7e8ee', fg: '#3d405b' }, // ardoise claire
-  { bg: '#cbcdd9', fg: '#2c2e44' }, // ardoise moyenne
-  { bg: '#f9e5de', fg: '#a44e30' }, // terracotta clair
-  { bg: '#ebe7d2', fg: '#55587a' }, // crème sombre
-  { bg: '#d8dae4', fg: '#343750' }, // ardoise pâle
-  { bg: '#f2d9cf', fg: '#c8623f' }, // terracotta pâle
-  { bg: '#dedbc8', fg: '#4a4e6d' }, // crème grisée
+  { bg: '#dde9f6', fg: '#064789' }, // bleu très pâle   7.51:1
+  { bg: '#c7dcec', fg: '#043b74' }, // bleu pâle        7.90:1
+  { bg: '#b0cee3', fg: '#033260' }, // bleu clair       7.85:1
+  { bg: '#9dbfd8', fg: '#01121f' }, // bleu doux        9.82:1
+  { bg: '#82aecd', fg: '#01121f' }, // bleu moyen clair 8.02:1
+  { bg: '#427aa1', fg: '#ffffff' }, // aplat d'accent   4.64:1
+  { bg: '#064789', fg: '#ebf2fa' }, // aplat de marque  8.20:1
 ];
 
 export function companyColor(name: string): { bg: string; fg: string } {

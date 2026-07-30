@@ -1,77 +1,112 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400..900;1,6..12,400..900&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400..700&family=Inter:wght@300..800&display=swap');
 
 /* ═══════════════════════════════════════════════════════════
    LA PLATEFORME DE L'EMPLOI
-   Palette : creme, terracotta, ardoise.
+   Palette : trois bleus.
 
-     #f4f1de  creme      — le sol, la couleur qu'on voit le plus
-     #e07a5f  terracotta — l'accent, rare et donc efficace
-     #3d405b  ardoise    — la structure : texte, chrome, appuis
+     #064789  bleu profond — la marque : boutons primaires, mot en
+                             evidence, chrome sombre
+     #427aa1  bleu moyen   — l'accent : etat actif, survol, seconds roles
+     #ebf2fa  bleu pale    — le sol, la couleur qu'on voit le plus
 
-   Le fond n'est plus blanc mais creme : c'est lui qui donne le ton, et
-   les surfaces posees dessus sont d'un blanc legerement rechauffe pour
-   ne pas trancher. Le terracotta ne sert qu'a designer — mot en
-   evidence, etat actif, refus — car repandu partout il cesserait
-   d'attirer l'oeil.
+   Palette monochrome : la hierarchie ne se joue plus sur l'opposition
+   chaud/froid mais sur la clarte et la saturation. Le sol est un blanc
+   bleute, les surfaces posees dessus sont blanches (et non plus d'un
+   blanc rechauffe), le texte est une encre bleu-nuit desaturee — c'est
+   ce qui laisse le #064789, seul vraiment sature, faire l'accent.
+
+   Le bleu moyen tient 4.64:1 sur blanc mais 4.11:1 sur le sol : on le
+   pose en aplat ou en filet, pas en texte courant sur fond teinte.
+
+   Une seule couleur hors palette subsiste, le rouge de danger : une
+   suppression et une erreur ne peuvent pas porter la couleur de la
+   marque. Elle ne sert qu'a ca.
 
    Les noms --bleu-* et --rouge-* sont conserves : trente-sept
    composants s'y referent, et ce sont des roles (structure, accent) que
-   les nouvelles teintes reprennent telles quelles.
+   les nouvelles teintes reprennent telles quelles. --rouge-* n'est donc
+   plus rouge : c'est le nom du role d'accent.
 
-   Display Fredoka (la fonte du logo) · UI Nunito Sans · Data DM Mono
+   Typographie : une seule superfamille pour le texte. Inter Tight, plus
+   resserre, porte les titres ; Inter porte l'interface. Les deux ont le
+   meme squelette, donc aucun raccord visible entre un titre et le
+   paragraphe qui le suit. IBM Plex Mono chiffre les donnees : ses
+   chiffres sont de chasse fixe, les colonnes s'alignent seules.
+
+   Fredoka, la fonte ronde du logo, a ete deposee avec la mascotte : le
+   lettrage arrondi tirait vers le produit grand public la ou le bleu
+   institutionnel tire vers l'inverse.
+
+   Display Inter Tight · UI Inter · Data IBM Plex Mono
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Ardoise (structure) — texte, chrome sombre, appuis ── */
-  --bleu-950: #24263a;
-  --bleu-900: #2c2e44;   /* chrome sombre : barre laterale, pied de page */
-  --bleu-800: #343750;
-  --bleu-700: #3d405b;   /* ardoise de reference */
-  --bleu-600: #4a4e6d;   /* couleur de marque */
-  --bleu-500: #5d6285;
-  --bleu-400: #8085a3;
-  --bleu-300: #a8abc1;
-  --bleu-200: #cbcdd9;
-  --bleu-100: #e7e8ee;
-  --bleu-tint: rgba(61, 64, 91, 0.06);
-  --bleu-ring: rgba(61, 64, 91, 0.24);
+  /* ── Bleu profond (structure) — marque, chrome sombre, appuis ──
+     Les trois teintes donnees occupent les crans 600, 500 et 100 ; le
+     reste de la rampe est interpole sur le meme axe (teinte ~211°),
+     clarte strictement croissante du 950 au 100. */
+  --bleu-950: #01121f;
+  --bleu-900: #022546;   /* chrome sombre : barre laterale, pied de page */
+  --bleu-800: #033260;
+  --bleu-700: #043b74;   /* cran sombre : survol du primaire, statuts pleins */
+  --bleu-600: #064789;   /* couleur de marque */
+  --bleu-500: #427aa1;   /* accent */
+  --bleu-400: #6f9dbe;
+  --bleu-300: #9dbfd8;
+  --bleu-200: #c7dcec;
+  --bleu-100: #ebf2fa;   /* le sol */
+  --bleu-tint: rgba(6, 71, 137, 0.06);
+  --bleu-ring: rgba(6, 71, 137, 0.24);
 
-  /* ── Terracotta (accent, negatif) ── */
-  --rouge: #e07a5f;
-  --rouge-600: #c8623f;
-  --rouge-700: #a44e30;
-  --rouge-100: #f9e5de;
+  /* ── Accent ──
+     Anciennement le terracotta. Le nom reste, la teinte est le bleu
+     moyen de la palette : etat actif, survol, mot en evidence sur fond
+     sombre. */
+  --rouge: #427aa1;
+  --rouge-600: #35688c;
+  --rouge-700: #2b5674;
+  --rouge-100: #e2edf7;
 
-  /* L'ambre se fond dans le terracotta, dont il n'etait qu'une nuance. */
+  /* L'ambre se fond dans l'accent, dont il n'etait qu'une nuance. */
   --ambre: var(--rouge);
   --ambre-600: var(--rouge-600);
   --ambre-100: var(--rouge-100);
 
-  --ciel: #d6d3c0;
+  /* ── Danger — la seule couleur hors palette ──
+     Une suppression, une erreur : leur couleur doit se distinguer de
+     celle de la marque, sans quoi le bouton qui detruit ressemble au
+     bouton qui valide. Retenue au bleu de la palette (crimson froid),
+     jamais employee comme accent. */
+  --danger: #c8384c;
+  --danger-600: #ac2b3e;
+  --danger-700: #8c2131;
+  --danger-100: #fae5e8;
 
-  /* ── Neutres chauds — la creme et ses degres ── */
-  --canvas: #fffdf7;     /* surfaces posees sur la creme */
-  --nuage: #f4f1de;      /* creme : le sol */
-  --nuage-2: #ebe7d2;
-  --nuage-3: #ddd8c2;
+  --ciel: #cddff0;
 
-  --ink: #3d405b;
-  --ink-soft: #55587a;
-  --muted: #6f7391;
-  --faint: #9a9db4;
-  --on-dark: #f4f1de;
-  --on-dark-muted: #a8abc1;
+  /* ── Neutres froids — le bleu pale et ses degres ── */
+  --canvas: #ffffff;     /* surfaces posees sur le sol */
+  --nuage: #ebf2fa;      /* bleu pale : le sol */
+  --nuage-2: #dde9f6;
+  --nuage-3: #cbdcee;
 
-  --line: #e3dfcb;
-  --line-strong: #d0cbb4;
-  --line-dark: rgba(244, 241, 222, 0.16);
+  --ink: #17263a;        /* 15.28:1 sur blanc */
+  --ink-soft: #2f4a66;   /*  9.16:1 */
+  --muted: #56718f;      /*  5.05:1 */
+  --faint: #8ba4bf;      /*  2.57:1 — decor, jamais du texte a lire */
+  --on-dark: #ebf2fa;
+  --on-dark-muted: #9dbfd8;
+
+  --line: #d8e5f2;
+  --line-strong: #bfd4e8;
+  --line-dark: rgba(235, 242, 250, 0.16);
 
   /* ── Statuts ──
      Trois teintes seulement : l'echelle se lit au remplissage. Contour
-     pour l'attente, aplat clair pour l'intermediaire, ardoise pleine
-     pour l'aboutissement, terracotta pour le refus. */
+     pour l'attente, aplat clair pour l'intermediaire, bleu profond plein
+     pour l'aboutissement, rouge de danger pour le refus. */
   --green: var(--bleu-700);   --green-bg: var(--bleu-100);
-  --red: var(--rouge);        --red-bg: var(--rouge-100);
+  --red: var(--danger);       --red-bg: var(--danger-100);
   --amber: var(--rouge-700);  --amber-bg: var(--rouge-100);
   --blue: var(--bleu-500);    --blue-bg: var(--bleu-100);
   --purple: var(--bleu-700);  --purple-bg: var(--bleu-100);
@@ -105,8 +140,8 @@
   --teal-glow: var(--bleu-tint);
   --teal-ring: var(--bleu-ring);
 
-  /* L'accent vif n'est plus le citron mais le rouge de la mascotte.
-     Le texte pose dessus passe donc en blanc. */
+  /* L'accent vif n'est plus le citron mais le bleu moyen de la palette.
+     Le texte pose dessus reste en blanc (4.64:1). */
   --citron: var(--rouge);
   --citron-600: var(--rouge-600);
   --citron-700: var(--rouge-700);
@@ -156,18 +191,21 @@
   --border: var(--line);
   --border-hover: var(--line-strong);
 
-  /* ── Ombres (teintees ardoise) ──
-     Une ombre grise sur un fond creme le ternit : elles portent donc la
-     teinte de l'ardoise, qui reste dans la meme famille chaude. */
-  --shadow-xs: 0 1px 2px rgba(61, 64, 91, 0.06);
-  --shadow-sm: 0 1px 2px rgba(61, 64, 91, 0.06), 0 2px 6px rgba(61, 64, 91, 0.05);
-  --shadow-md: 0 2px 4px rgba(61, 64, 91, 0.06), 0 8px 20px -6px rgba(61, 64, 91, 0.12);
-  --shadow-lg: 0 4px 8px rgba(61, 64, 91, 0.06), 0 18px 36px -12px rgba(61, 64, 91, 0.16);
-  --shadow-xl: 0 8px 16px rgba(61, 64, 91, 0.08), 0 32px 60px -16px rgba(61, 64, 91, 0.24);
-  --shadow-brand: 0 8px 22px -6px rgba(61, 64, 91, 0.38);
-  --shadow-citron: 0 8px 22px -8px rgba(224, 122, 95, 0.5);
+  /* ── Ombres (teintees bleu) ──
+     Une ombre grise sur un fond bleute le ternit : elles portent donc la
+     teinte de la palette, en version profonde et peu saturee. */
+  --shadow-xs: 0 1px 2px rgba(6, 47, 92, 0.06);
+  --shadow-sm: 0 1px 2px rgba(6, 47, 92, 0.06), 0 2px 6px rgba(6, 47, 92, 0.05);
+  --shadow-md: 0 2px 4px rgba(6, 47, 92, 0.06), 0 8px 20px -6px rgba(6, 47, 92, 0.12);
+  --shadow-lg: 0 4px 8px rgba(6, 47, 92, 0.06), 0 18px 36px -12px rgba(6, 47, 92, 0.16);
+  --shadow-xl: 0 8px 16px rgba(6, 47, 92, 0.08), 0 32px 60px -16px rgba(6, 47, 92, 0.24);
+  --shadow-brand: 0 8px 22px -6px rgba(6, 71, 137, 0.38);
+  --shadow-citron: 0 8px 22px -8px rgba(66, 122, 161, 0.5);
 
-  /* ── Rayons — plutot ronds, comme la mascotte ── */
+  /* ── Rayons — herites de l'identite ronde precedente ──
+     Ils n'ont pas suivi le passage au bleu institutionnel : les
+     resserrer (8/12/16 au lieu de 14/18/24) durcirait encore le ton si
+     on le souhaite. */
   --r-xs: 6px;
   --r-sm: 10px;
   --r-md: 14px;
@@ -177,9 +215,9 @@
   --r-full: 9999px;
 
   /* ── Typographie ── */
-  --font: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Fredoka', 'Nunito Sans', sans-serif;
-  --font-mono: 'DM Mono', ui-monospace, 'SF Mono', monospace;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Inter Tight', 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
 
   /* ── Gabarit ── */
   --max-width: 1650px;
@@ -265,7 +303,9 @@ h3, h4, h5, h6 {
   color: var(--rouge);
 }
 /* Sur le bleu profond, le rouge ne passe pas : l'ambre du dossier prend le relais. */
-.em-plum, .em-dark { color: var(--ambre); }
+/* Sur fond sombre, l'accent ne tient que 3.34:1 : on monte d'un cran
+   dans la rampe (5.34:1) pour que le mot en evidence le soit vraiment. */
+.em-plum, .em-dark { color: var(--bleu-400); }
 
 .display-xl { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.5rem, 6vw, 4.6rem); line-height: 1.02; letter-spacing: -0.02em; }
 .display-lg { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.06; letter-spacing: -0.015em; }
@@ -347,7 +387,7 @@ h3, h4, h5, h6 {
     position: absolute;
     top: -40%; left: -6%;
     width: 55%; height: 180%;
-    background: radial-gradient(circle, rgba(46, 116, 224, 0.34), transparent 62%);
+    background: radial-gradient(circle, rgba(66, 122, 161, 0.34), transparent 62%);
     pointer-events: none;
   }
 
@@ -369,7 +409,7 @@ h3, h4, h5, h6 {
   .crumbs {
     color: var(--on-plum-muted);
     a { color: var(--on-plum-muted); &:hover { color: var(--citron); } }
-    .sep { color: rgba(232, 239, 250, 0.3); }
+    .sep { color: rgba(235, 242, 250, 0.3); }
     span[aria-current] { color: #fff; }
   }
 }
@@ -412,8 +452,8 @@ h3, h4, h5, h6 {
     background: linear-gradient(
       100deg,
       var(--bleu-900) 8%,
-      rgba(10, 42, 94, 0.9) 42%,
-      rgba(10, 42, 94, 0.6) 100%
+      rgba(2, 37, 70, 0.9) 42%,
+      rgba(2, 37, 70, 0.6) 100%
     );
     z-index: 1;
   }
@@ -471,11 +511,11 @@ h3, h4, h5, h6 {
   }
 }
 
-/* Sur fond bleu profond, le bleu du mot-symbole disparait et le rouge
-   manque de contraste : blanc + rouge eclairci. */
+/* Sur fond bleu profond, le bleu de marque du mot-symbole disparait et
+   l'accent ne tient que 3.34:1 : blanc + accent eclairci (5.34:1). */
 .brand-lockup--dark .brand-lockup__word {
   b { color: #fff; }
-  span { color: var(--rouge); }
+  span { color: var(--bleu-400); }
 }
 
 /* Lien de retour (pages de détail) */
@@ -693,7 +733,7 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   .error { font-size: 0.78rem; color: var(--red); font-weight: 500; }
   &.has-error input, &.has-error select, &.has-error textarea {
     border-color: var(--red);
-    &:focus { box-shadow: 0 0 0 3px rgba(228, 43, 47, 0.18); }
+    &:focus { box-shadow: 0 0 0 3px rgba(200, 56, 76, 0.18); }
   }
 }
 
@@ -724,7 +764,7 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   background: var(--bleu-100); color: var(--bleu-700);
 }
 .badge-red, .badge-urgent {
-  background: var(--rouge); color: #fff;
+  background: var(--danger); color: #fff;
 }
 .badge-yellow {
   background: var(--canvas); color: var(--muted);
@@ -968,7 +1008,7 @@ table.data {
 /* ═══════════════ Modales ═══════════════ */
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(7, 30, 69, 0.5);
+  background: rgba(1, 18, 31, 0.5);
   backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex; align-items: center; justify-content: center;
@@ -1001,7 +1041,7 @@ table.data {
 
 /* Tiroir latéral */
 .drawer-overlay {
-  position: fixed; inset: 0; background: rgba(7, 30, 69, 0.4);
+  position: fixed; inset: 0; background: rgba(1, 18, 31, 0.4);
   backdrop-filter: blur(3px); z-index: 900; animation: fadeIn 0.2s ease both;
 }
 .drawer {
@@ -1032,7 +1072,7 @@ table.data {
   .toast-progress { height: 3px !important; }
 
   &.toast-success { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--citron) !important; .toast-progress { background: var(--citron) !important; } }
-  &.toast-error   { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--rouge) !important; .toast-progress { background: var(--rouge) !important; } }
+  &.toast-error   { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--danger) !important; .toast-progress { background: var(--danger) !important; } }
   &.toast-warning { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--rouge-600) !important; .toast-progress { background: var(--rouge-600) !important; } }
   &.toast-info    { background: var(--plum-900) !important; color: #fff !important; border-left-color: var(--violet-300) !important; .toast-progress { background: var(--violet-300) !important; } }
 }
@@ -1131,4 +1171,496 @@ body:has(app-impersonation-banner .imp) {
 
   .adm-side,
   .adm-topbar { top: var(--imp-h); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KIT DU PANNEAU D'ADMINISTRATION
+
+   Les douze pages du panneau reecrivaient chacune leur en-tete, leurs
+   tuiles de filtre et leur barre d'outils sous un prefixe different :
+   .aof-counters ici, .amo-counters la, .aus-tools ailleurs. Trois cents
+   lignes de SCSS repetees huit fois, qui divergeaient a chaque retouche —
+   un rayon d'angle par ici, une graisse par la.
+
+   Le panneau n'est pas un site : c'est un outil, et un outil se tient
+   d'une seule main. Ces classes sont donc communes, prefixees `ad-`, et
+   les pages ne gardent en propre que ce qui leur est vraiment propre.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── En-tete de page ──
+   Le panneau a deja sa barre superieure avec le fil d'Ariane : l'en-tete
+   de page ne repete pas la navigation, il annonce la page et porte ses
+   actions. */
+.ad-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: clamp(1.15rem, 2.4vw, 1.7rem) 0 1.1rem;
+}
+
+.ad-head__text { min-width: 0; }
+
+.ad-head h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.6vw, 1.8rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.ad-head__sub {
+  margin-top: 0.3rem;
+  font-size: 0.87rem;
+  line-height: 1.45;
+  color: var(--muted);
+  max-width: 68ch;
+}
+
+.ad-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Compte total d'une liste, pose a cote du titre. */
+.ad-count {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ad-page { padding-bottom: 3.5rem; }
+
+/* ── Rangee de tuiles de chiffres ──
+   `auto-fill` plutot que `auto-fit` : une derniere rangee incomplete garde
+   la largeur de colonne au lieu de s'etirer, et deux tuiles orphelines ne
+   deviennent pas deux pavés de six cents pixels.
+   Le seuil de 300 px laisse tenir sur une ligne l'icone, le libelle
+   complet, la valeur avec son ecart, et l'etincelle. En dessous, la tuile
+   sacrifie l'etincelle (voir la requete de conteneur du composant). */
+.ad-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 1.1rem;
+}
+
+/* ── Tuiles de filtre ──
+   Chaque tuile compte, et le clic applique ce qu'elle compte. Une tuile
+   qui n'est pas un filtre ne doit pas s'en donner l'air : `--static`. */
+.ad-facets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(124px, 1fr));
+  gap: 0.55rem;
+  margin-bottom: 1.1rem;
+}
+
+.ad-facet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  padding: 0.72rem 0.85rem;
+  text-align: left;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  transition: border-color var(--t), box-shadow var(--t);
+
+  &:hover { border-color: var(--line-strong); box-shadow: var(--shadow-xs); }
+
+  &.is-active {
+    border-color: var(--bleu-600);
+    box-shadow: 0 0 0 2px var(--bleu-tint);
+  }
+
+  &--static {
+    cursor: default;
+    background: transparent;
+    border-style: dashed;
+    &:hover { border-color: var(--line); box-shadow: none; }
+  }
+}
+
+.ad-facet__val {
+  font-family: var(--font-mono);
+  font-size: 1.22rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.ad-facet__lbl {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* La pastille porte l'etat ; le libelle a cote le nomme. La couleur seule
+   ne dit jamais rien — c'est la regle des palettes d'etat. */
+.ad-facet__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Barre d'outils : recherche, tri, filtres ──
+   Une seule rangee, au-dessus de tout ce qu'elle cadre. Un filtre pose
+   dans une carte ne cadrerait que cette carte, et le lecteur croirait
+   qu'il cadre la page. */
+.ad-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.ad-search {
+  position: relative;
+  flex: 1;
+  min-width: 230px;
+
+  > i:first-child {
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.82rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.58rem 2.2rem 0.58rem 2.25rem;
+    font-size: 0.87rem;
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    transition: border-color var(--t), box-shadow var(--t);
+
+    &:focus {
+      border-color: var(--bleu-600);
+      box-shadow: 0 0 0 3px var(--bleu-tint);
+      outline: none;
+    }
+  }
+}
+
+/* Rond d'attente dans le champ : la liste reste lisible pendant qu'elle
+   se rafraichit, et l'indicateur dit que quelque chose se passe. */
+.ad-busy {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  margin-top: -6.5px;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--bleu-600);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.ad-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  > span {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  select,
+  input {
+    padding: 0.52rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    transition: border-color var(--t);
+    &:focus { border-color: var(--bleu-600); outline: none; }
+  }
+}
+
+/* ── Grille de graphiques ── */
+.ad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 0.85rem;
+  align-items: stretch;
+}
+
+.ad-grid--2 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+
+/* Une carte qui prend toute la largeur : la courbe d'activite, la carte
+   geographique. */
+.ad-grid > .ad-span-all { grid-column: 1 / -1; }
+
+@media (max-width: 720px) {
+  .ad-grid,
+  .ad-grid--2 { grid-template-columns: 1fr; }
+}
+
+/* ── Panneau generique (liste, formulaire, encart) ── */
+.ad-panel {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.ad-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem 0.7rem;
+  border-bottom: 1px solid var(--line);
+
+  h3 {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+}
+
+.ad-panel__ico {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs);
+  background: var(--bleu-100);
+  color: var(--bleu-700);
+  font-size: 0.8rem;
+}
+
+.ad-panel__body { padding: 0.85rem 1rem 1rem; }
+.ad-panel__body--flush { padding: 0; }
+
+/* ── Liste d'elements dans un panneau ── */
+.ad-list { display: flex; flex-direction: column; }
+
+.ad-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.62rem 1rem;
+  border-bottom: 1px solid var(--nuage-2);
+  transition: background var(--t);
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--nuage); }
+}
+
+.ad-item__txt {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.32;
+
+  strong {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.ad-item__when {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+/* Pastille d'initiales ou d'icone en tete de ligne. */
+.ad-av {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* ── Actions en bout de ligne de tableau ── */
+.ad-acts {
+  display: flex;
+  gap: 0.15rem;
+  justify-content: flex-end;
+}
+
+.ad-act {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs);
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition: color var(--t), background var(--t);
+
+  &:hover { color: var(--bleu-700); background: var(--bleu-100); }
+  &.is-danger:hover { color: #fff; background: var(--danger); }
+}
+
+/* ── Etat sur une ligne : pastille + libelle, jamais la couleur seule ── */
+.ad-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  white-space: nowrap;
+
+  i { font-size: 0.78rem; }
+}
+
+/* ── Le tableau qui se rafraichit ──
+   Il recule au lieu de disparaitre : remplacer la liste par un squelette
+   la ferait clignoter a chaque frappe dans la recherche. */
+.is-refreshing {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s var(--ease-out);
+}
+
+/* ── Bandeau d'aide au forage ── */
+.ad-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.85rem;
+  font-size: 0.76rem;
+  color: var(--muted);
+
+  i { font-size: 0.82rem; color: var(--faint); }
+}
+
+/* ── Onglets de section ── */
+.ad-tabs {
+  display: flex;
+  gap: 0.2rem;
+  margin-bottom: 1.1rem;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.ad-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color var(--t);
+
+  i { font-size: 0.9rem; }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0.6rem;
+    right: 0.6rem;
+    bottom: -3px;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--rouge);
+    transform: scaleX(0);
+    transition: transform var(--t) var(--ease-out);
+  }
+
+  &:hover { color: var(--ink); }
+  &.is-active { color: var(--ink); &::after { transform: scaleX(1); } }
+}
+
+/* ── Etat vide compact, a l'interieur d'un panneau ── */
+.ad-void {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 2.2rem 1.2rem;
+  text-align: center;
+
+  i { font-size: 1.4rem; color: var(--bleu-300); }
+  p { font-size: 0.83rem; color: var(--muted); max-width: 40ch; }
+}
+
+/* ── Legende de rampe, pour la carte et les grilles de chaleur ── */
+.ad-ramp {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.ad-ramp__bar {
+  display: flex;
+  height: 8px;
+  width: 108px;
+  border-radius: var(--r-full);
+  overflow: hidden;
+
+  span { flex: 1; }
 }
