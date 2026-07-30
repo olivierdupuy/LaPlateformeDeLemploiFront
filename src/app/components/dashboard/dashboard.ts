@@ -1,363 +1,366 @@
-import { Component, OnInit, inject, signal, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
-import { JobOfferService } from '../../services/job-offer';
-import { JobStats, DetailedStats } from '../../models/job-offer.model';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import Chart from 'chart.js/auto';
-import { ConsoleShell } from '../console-shell/console-shell';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { JobOfferService } from '../../services/job-offer';
+import { AdminService } from '../../services/admin.service';
 import { drilldown, to } from '../../utils/chart-drilldown';
+import { VizCard, VizRow } from '../../viz/viz-card/viz-card';
+import { StatTile } from '../../viz/stat-tile/stat-tile';
+import { barsH, columns, donut, lines, nf } from '../../viz/chart-presets';
+import { APPLICATION_STATUS, ORDINAL, SERIES, STATUS } from '../../viz/palette';
 
-// Palette : creme, terracotta, ardoise.
-// Une rampe d'ardoise porte l'ordre des series ; le terracotta reste
-// reserve au negatif, sinon il perdrait sa valeur de signal.
-const ARDOISE     = '#3d405b';
-const ARDOISE_900 = '#2c2e44';
-const ARDOISE_600 = '#4a4e6d';
-const ARDOISE_500 = '#5d6285';
-const ARDOISE_400 = '#8085a3';
-const ARDOISE_300 = '#a8abc1';
-const ARDOISE_200 = '#cbcdd9';
-const ARDOISE_50  = 'rgba(61, 64, 91, 0.08)';
-const TERRE       = '#e07a5f';
-const TERRE_700   = '#a44e30';
-const CREME       = '#f4f1de';
-const GRIS        = '#6f7391';
+/** Une etape de l'entonnoir, avec son taux de passage depuis la precedente. */
+interface Etape {
+  label: string;
+  value: number;
+  /**
+   * Part de l'etape precedente, en pourcentage. La premiere vaut 100.
+   *
+   * `null` quand l'etape precedente est vide : le taux n'est pas nul, il
+   * n'existe pas. Afficher « 0 % » a cote de quatre acceptations parce
+   * qu'aucun entretien n'a ete enregistre serait faux.
+   */
+  rate: number | null;
+  color: string;
+  icon: string;
+  route: string;
+  params?: Record<string, string>;
+}
 
-// Alias conserves pour ne pas reecrire chaque graphique
-const TEAL = ARDOISE, TEAL_400 = ARDOISE_400, TEAL_50 = ARDOISE_50;
-const NAVY_800 = ARDOISE, NAVY_700 = ARDOISE_500;
-const AMBER = TERRE_700, GREEN = ARDOISE, RED = TERRE, BLUE = ARDOISE_400;
-const SLATE400 = GRIS, ORANGE = TERRE_700;
-
-const STATUS_COLORS: Record<string, string> = { Pending: ARDOISE_200, Reviewed: ARDOISE_400, Accepted: ARDOISE, Rejected: TERRE };
-const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' };
-
-const CATEGORY_PALETTE = [ARDOISE, ARDOISE_900, ARDOISE_500, ARDOISE_400, ARDOISE_300, TERRE, TERRE_700, ARDOISE_200, GRIS, ARDOISE_600];
-
+/**
+ * Tableau de bord de l'administration — poste de pilotage.
+ *
+ * La version precedente montrait quatre compteurs et quatre graphiques
+ * tires de `stats/detailed`, le meme jeu que voit un recruteur sur son
+ * espace. Un administrateur n'ouvre pas cette page pour savoir combien il
+ * y a d'offres : il l'ouvre pour savoir ce qui a bouge et ce qui l'attend.
+ *
+ * D'ou trois etages :
+ *
+ *   1. Les chiffres, avec leur ecart sur trente jours et leur allure. Un
+ *      total sans variation ne dit pas si la plateforme monte ou stagne.
+ *   2. L'activite du mois, trois series sur un seul axe — jamais deux
+ *      echelles, le calage entre elles serait arbitraire et inventerait
+ *      une correlation que la donnee ne contient pas.
+ *   3. Ce qui demande une decision : la file de moderation et le journal.
+ *
+ * Chaque section se charge separement. L'apercu porte les compteurs et
+ * arrive en premier ; le reste suit sans retenir l'affichage.
+ */
 @Component({
   selector: 'app-dashboard',
-  imports: [ConsoleShell, RouterLink],
+  imports: [RouterLink, DatePipe, DecimalPipe, VizCard, StatTile],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
+export class Dashboard implements OnInit {
   private jobService = inject(JobOfferService);
+  private admin = inject(AdminService);
   private router = inject(Router);
 
-  stats = signal<JobStats>({ totalOffers: 0, totalApplications: 0, totalCompanies: 0, remoteOffers: 0 });
-  detailed = signal<DetailedStats | null>(null);
-  loading = signal(true);
+  apercu = signal<any | null>(null);
+  timeline = signal<any[]>([]);
+  candidatures = signal<any | null>(null);
+  fileModeration = signal<any[]>([]);
+  journal = signal<any[]>([]);
 
-  @ViewChild('categoryChart') categoryCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('statusChart') statusCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('companyChart') companyCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('contractChart') contractCanvas!: ElementRef<HTMLCanvasElement>;
-
-  private charts: Chart[] = [];
-  private viewReady = false;
-  private dataReady = false;
+  chargeApercu = signal(true);
+  chargeSuite = signal(true);
 
   ngOnInit() {
-    this.jobService.getStats().subscribe((s) => this.stats.set(s));
-    this.jobService.getDetailedStats().subscribe((d) => {
-      this.detailed.set(d);
-      this.loading.set(false);
-      this.dataReady = true;
-      if (this.viewReady) this.buildCharts(d);
+    // L'apercu porte les six tuiles de chiffres : il part seul et en
+    // premier, pour que la page ait quelque chose a montrer tout de suite.
+    this.jobService.getAdminStatsSection('apercu').subscribe({
+      next: (d) => {
+        this.apercu.set(d);
+        this.chargeApercu.set(false);
+      },
+      error: () => this.chargeApercu.set(false),
+    });
+
+    // Le reste arrive ensemble. Une section absente ne doit pas emporter
+    // les autres : chaque flux retombe sur une valeur vide.
+    forkJoin({
+      activite: this.jobService.getAdminStatsSection('activite').pipe(catchError(() => of(null))),
+      candidatures: this.jobService.getAdminStatsSection('candidatures').pipe(catchError(() => of(null))),
+      moderation: this.admin.getModerationQueue('Pending').pipe(catchError(() => of([] as any[]))),
+      journal: this.admin.getActivityLogs({ page: 1 }).pipe(catchError(() => of({ logs: [] }))),
+    }).subscribe((r) => {
+      this.timeline.set(r.activite?.activityTimeline ?? []);
+      this.candidatures.set(r.candidatures);
+      this.fileModeration.set((r.moderation ?? []).slice(0, 6));
+      this.journal.set((r.journal?.logs ?? []).slice(0, 7));
+      this.chargeSuite.set(false);
     });
   }
 
-  ngAfterViewInit() {
-    this.viewReady = true;
-    const d = this.detailed();
-    if (d && this.dataReady) {
-      // Small delay to let @if render the canvases
-      setTimeout(() => this.buildCharts(d));
-    }
+  // ═══════════════════════════════════════════
+  //  Tuiles de chiffres
+  // ═══════════════════════════════════════════
+
+  private serie(cle: 'offres' | 'candidatures' | 'inscriptions'): number[] {
+    // Douze points suffisent a donner une allure ; trente en font une
+    // chenille illisible dans une vignette de soixante pixels.
+    return this.timeline().slice(-12).map((j) => j[cle] ?? 0);
   }
 
-  ngOnDestroy() {
-    this.charts.forEach(c => c.destroy());
-  }
+  sparkOffres = computed(() => this.serie('offres'));
+  sparkCandidatures = computed(() => this.serie('candidatures'));
+  sparkInscriptions = computed(() => this.serie('inscriptions'));
 
-  private buildCharts(d: DetailedStats) {
-    // Wait for canvases to exist in DOM
-    if (!this.categoryCanvas) {
-      setTimeout(() => this.buildCharts(d), 50);
-      return;
-    }
+  /** Combien de comptes sont connectes a l'instant. */
+  enLigne = computed(() => this.apercu()?.onlineNow ?? 0);
 
-    this.charts.forEach(c => c.destroy());
-    this.charts = [];
+  // ═══════════════════════════════════════════
+  //  Courbe d'activite — trois series, un seul axe
+  // ═══════════════════════════════════════════
 
-    this.buildCategoryChart(d);
-    this.buildStatusChart(d);
-    this.buildCompanyChart(d);
-    this.buildContractChart(d);
-  }
-
-  private baseFont() {
-    return { family: "'DM Mono', ui-monospace, monospace", size: 12, weight: 500 as const };
-  }
-
-  private buildCategoryChart(d: DetailedStats) {
-    const ctx = this.categoryCanvas.nativeElement.getContext('2d')!;
-    const labels = d.offersByCategory.map(i => i.label);
-    const data = d.offersByCategory.map(i => i.value);
-    const colors = data.map((_, i) => CATEGORY_PALETTE[i % CATEGORY_PALETTE.length]);
-
-    const chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: colors,
-          borderRadius: 6,
-          borderSkipped: false,
-          barPercentage: 0.65,
-        }],
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        // Le libelle affiche est deja la valeur attendue par le filtre,
-        // mais on passe par la donnee source : elle ne depend pas de la
-        // mise en forme du graphique.
-        ...drilldown(this.router, (i) =>
-          to(['/admin/offres'], { categorie: d.offersByCategory[i].label })),
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: NAVY_800,
-            titleFont: this.baseFont(),
-            bodyFont: this.baseFont(),
-            padding: 10,
-            cornerRadius: 8,
-            callbacks: {
-              label: (ctx) => `${ctx.parsed.x ?? 0} offre${(ctx.parsed.x ?? 0) > 1 ? 's' : ''}`
-            }
-          }
-        },
-        scales: {
-          x: {
-            beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: this.baseFont(), color: SLATE400, stepSize: 1 },
+  activiteConfig = computed(() => {
+    const t = this.timeline();
+    if (!t.length) return null;
+    return lines(
+      t.map((j) => j.label),
+      [
+        { label: 'Offres publiées', values: t.map((j) => j.offres) },
+        { label: 'Candidatures', values: t.map((j) => j.candidatures) },
+        { label: 'Inscriptions', values: t.map((j) => j.inscriptions) },
+      ],
+      {
+        drill: drilldown(
+          this.router,
+          (_i, label, ds) => {
+            const jour = this.jourIso(label);
+            if (!jour) return null;
+            if (ds === 0) return to(['/admin/offres'], { jour });
+            if (ds === 1) return to(['/admin/candidatures'], { jour });
+            return to(['/admin/utilisateurs'], { jour });
           },
-          y: {
-            grid: { display: false },
-            ticks: { font: { ...this.baseFont(), weight: 600 as const }, color: NAVY_800 },
-          }
-        },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      }
+          { nearest: true },
+        ),
+      },
+    );
+  });
+
+  activiteRows = computed<VizRow[]>(() =>
+    this.timeline()
+      .slice()
+      .reverse()
+      .map((j) => ({
+        label: j.label,
+        value: j.offres + j.candidatures + j.inscriptions,
+        note: `${j.offres} offres · ${j.candidatures} cand. · ${j.inscriptions} inscr.`,
+      })),
+  );
+
+  /** « 14/03 » redevient « 2026-03-14 » pour le filtre des listes. */
+  private jourIso(label: string): string | null {
+    const m = label.match(/^(\d{2})\/(\d{2})$/);
+    if (!m) return null;
+    const [, jour, mois] = m;
+    const now = new Date();
+    // Une etiquette dont le mois depasse le mois courant appartient a
+    // l'annee precedente : la fenetre fait trente jours, elle enjambe le
+    // premier janvier une fois par an.
+    const annee = Number(mois) > now.getMonth() + 1 ? now.getFullYear() - 1 : now.getFullYear();
+    return `${annee}-${mois}-${jour}`;
+  }
+
+  // ═══════════════════════════════════════════
+  //  Entonnoir
+  // ═══════════════════════════════════════════
+
+  /**
+   * L'entonnoir n'est pas un histogramme.
+   *
+   * Entre trois millions de vues et quelques centaines de candidatures il
+   * y a quatre ordres de grandeur : en barres, la premiere occuperait
+   * toute la largeur et les trois autres seraient des traits d'un pixel.
+   * La barre encode donc le taux de passage depuis l'etape precedente, et
+   * le chiffre absolu se lit a cote — c'est ce que l'on vient chercher.
+   */
+  entonnoir = computed<Etape[]>(() => {
+    const a = this.apercu();
+    if (!a) return [];
+
+    const statuts: any[] = this.candidatures()?.appsByStatus ?? [];
+    const acceptees = statuts.find((s) => s.label === 'Accepted')?.value ?? 0;
+
+    const brut = [
+      { label: "Vues d'offres", value: a.totalViews ?? 0, icon: 'bi-eye', route: '/admin/offres' },
+      {
+        label: 'Candidatures',
+        value: a.totalApplications ?? 0,
+        icon: 'bi-file-earmark-text',
+        route: '/admin/candidatures',
+      },
+      {
+        label: 'Entretiens',
+        value: a.totalInterviews ?? 0,
+        icon: 'bi-calendar-event',
+        route: '/admin/entretiens',
+      },
+      {
+        label: 'Acceptées',
+        value: acceptees,
+        icon: 'bi-check-circle',
+        route: '/admin/candidatures',
+        params: { statut: 'Accepted' },
+      },
+    ];
+
+    return brut.map((e, i) => {
+      const avant = i === 0 ? e.value : brut[i - 1].value;
+      return {
+        ...e,
+        rate: i === 0 ? 100 : avant > 0 ? (e.value / avant) * 100 : null,
+        color: ORDINAL[Math.min(i, ORDINAL.length - 1)],
+      };
     });
-    this.charts.push(chart);
-  }
+  });
 
-  private buildStatusChart(d: DetailedStats) {
-    const ctx = this.statusCanvas.nativeElement.getContext('2d')!;
-    const labels = d.appsByStatus.map(i => STATUS_LABELS[i.label] || i.label);
-    const data = d.appsByStatus.map(i => i.value);
-    const colors = d.appsByStatus.map(i => STATUS_COLORS[i.label] || SLATE400);
-    const total = data.reduce((s, v) => s + v, 0);
+  /** Le taux de bout en bout : une vue sur combien devient une acceptation. */
+  tauxGlobal = computed(() => {
+    const e = this.entonnoir();
+    if (e.length < 2 || !e[0].value) return null;
+    return (e[e.length - 1].value / e[0].value) * 100;
+  });
 
-    const chart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: colors,
-          borderWidth: 3,
-          borderColor: CREME,
-          hoverOffset: 6,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '68%',
-        // Le libelle est traduit pour l'affichage ; le filtre attend le
-        // statut brut, qu'on relit dans la donnee source.
-        ...drilldown(this.router, (i) =>
-          to(['/admin/candidatures'], { statut: d.appsByStatus[i].label })),
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle',
-              padding: 16,
-              font: { ...this.baseFont(), weight: 500 as const },
-              color: NAVY_800,
-              generateLabels: (chart) => {
-                const ds = chart.data.datasets[0];
-                return chart.data.labels!.map((label, i) => ({
-                  text: `${label}  (${(ds.data as number[])[i]})`,
-                  fillStyle: (ds.backgroundColor as string[])[i],
-                  strokeStyle: 'transparent',
-                  pointStyle: 'circle' as const,
-                  index: i,
-                }));
-              }
-            }
-          },
-          tooltip: {
-            backgroundColor: NAVY_800,
-            titleFont: this.baseFont(),
-            bodyFont: this.baseFont(),
-            padding: 10,
-            cornerRadius: 8,
-            callbacks: {
-              label: (ctx) => {
-                const pct = total ? Math.round((ctx.parsed / total) * 100) : 0;
-                return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
-              }
-            }
-          }
-        },
-        animation: { duration: 900, easing: 'easeOutQuart' },
-      },
-      plugins: [{
-        id: 'centerText',
-        afterDraw: (chart) => {
-          const { ctx: c, chartArea } = chart;
-          const cx = (chartArea.left + chartArea.right) / 2;
-          const cy = (chartArea.top + chartArea.bottom) / 2;
-          c.save();
-          c.textAlign = 'center';
-          c.textBaseline = 'middle';
-          c.font = "700 1.6rem 'Bricolage Grotesque', sans-serif";
-          c.fillStyle = ARDOISE;
-          c.fillText(String(total), cx, cy - 8);
-          c.font = "500 0.72rem 'DM Mono', monospace";
-          c.fillStyle = SLATE400;
-          c.fillText('Total', cx, cy + 14);
-          c.restore();
-        }
-      }]
+  // ═══════════════════════════════════════════
+  //  Repartition des candidatures
+  // ═══════════════════════════════════════════
+
+  /**
+   * Ces quatre-la sont des etats, pas des series : « Acceptee » et
+   * « Refusee » portent un jugement. Ils prennent donc les couleurs
+   * d'etat, pas les pentes 1 a 4 — sinon le meme rouge dirait « refus »
+   * ici et « quatrieme categorie » sur la carte d'a cote.
+   */
+  private statutsTries = computed(() => {
+    const brut: any[] = this.candidatures()?.appsByStatus ?? [];
+    const ordre = ['Pending', 'Reviewed', 'Accepted', 'Rejected'];
+    return brut
+      .slice()
+      .sort((a, b) => ordre.indexOf(a.label) - ordre.indexOf(b.label))
+      .map((s) => ({
+        cle: s.label,
+        label: APPLICATION_STATUS[s.label]?.label ?? s.label,
+        value: s.value,
+        color: APPLICATION_STATUS[s.label]?.color ?? STATUS.neutral,
+      }));
+  });
+
+  statutsConfig = computed(() => {
+    const s = this.statutsTries();
+    if (!s.length) return null;
+    return donut(s, {
+      colors: s.map((x) => x.color),
+      drill: drilldown(this.router, (i) => to(['/admin/candidatures'], { statut: s[i].cle })),
     });
-    this.charts.push(chart);
-  }
+  });
 
-  private buildCompanyChart(d: DetailedStats) {
-    const ctx = this.companyCanvas.nativeElement.getContext('2d')!;
-    const labels = d.topCompanies.map(i => i.label);
-    const data = d.topCompanies.map(i => i.value);
+  statutsRows = computed<VizRow[]>(() => {
+    const s = this.statutsTries();
+    const total = s.reduce((n, x) => n + x.value, 0);
+    return s.map((x) => ({
+      label: x.label,
+      value: x.value,
+      note: total ? `${Math.round((x.value / total) * 100)} %` : '—',
+      color: x.color,
+    }));
+  });
 
-    // Gradient
-    const gradient = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
-    gradient.addColorStop(0, NAVY_800);
-    gradient.addColorStop(1, TEAL);
+  // ═══════════════════════════════════════════
+  //  Provenance des candidatures
+  // ═══════════════════════════════════════════
 
-    const chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: gradient,
-          borderRadius: 6,
-          borderSkipped: false,
-          barPercentage: 0.65,
-        }],
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        ...drilldown(this.router, (i) =>
-          to(['/admin/offres'], { entreprise: d.topCompanies[i].label })),
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: NAVY_800,
-            titleFont: this.baseFont(),
-            bodyFont: this.baseFont(),
-            padding: 10,
-            cornerRadius: 8,
-            callbacks: {
-              label: (ctx) => `${ctx.parsed.x ?? 0} offre${(ctx.parsed.x ?? 0) > 1 ? 's' : ''}`
-            }
-          }
-        },
-        scales: {
-          x: {
-            beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,0.04)' },
-            ticks: { font: this.baseFont(), color: SLATE400, stepSize: 1 },
-          },
-          y: {
-            grid: { display: false },
-            ticks: { font: { ...this.baseFont(), weight: 600 as const }, color: NAVY_800 },
-          }
-        },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      }
+  // Categorie nominale : toutes les barres prennent la meme teinte. Les
+  // peindre d'une rampe redirait ce que la longueur montre deja, et
+  // gaspillerait le seul canal libre.
+  private sources = computed<any[]>(() => (this.candidatures()?.appsBySource ?? []).slice(0, 8));
+
+  sourcesConfig = computed(() => {
+    const s = this.sources();
+    if (!s.length) return null;
+    return columns(s, {
+      unit: 'candidatures',
+      drill: drilldown(this.router, (i) => to(['/admin/candidatures'], { source: s[i].label })),
     });
-    this.charts.push(chart);
-  }
+  });
 
-  private buildContractChart(d: DetailedStats) {
-    const ctx = this.contractCanvas.nativeElement.getContext('2d')!;
-    const labels = d.offersByContract.map(i => i.label);
-    const data = d.offersByContract.map(i => i.value);
-    const colors = [TEAL, TEAL_400, NAVY_800, AMBER, BLUE, GREEN, ORANGE];
-    const total = data.reduce((s, v) => s + v, 0);
+  sourcesRows = computed<VizRow[]>(() =>
+    this.sources().map((s) => ({ label: s.label, value: s.value, color: SERIES[0] })),
+  );
 
-    // Une aire polaire etait illisible ici : le CDI ecrase tout (133
-    // contre 1 a 6), la surface des autres types devenait invisible.
-    // Une barre horizontale supporte cet ecart d'echelle.
-    const chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: colors.slice(0, data.length),
-          borderRadius: 5,
-          maxBarThickness: 26,
-        }],
-      },
-      options: {
-        indexAxis: 'y' as const,
-        responsive: true,
-        maintainAspectRatio: false,
-        ...drilldown(this.router, (i) =>
-          to(['/admin/offres'], { contrat: d.offersByContract[i].label })),
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: NAVY_800,
-            titleFont: this.baseFont(),
-            bodyFont: this.baseFont(),
-            padding: 10,
-            cornerRadius: 8,
-            callbacks: {
-              label: (ctx) => {
-                const v = (ctx.parsed.x ?? 0) as number;
-                const pct = total ? Math.round((v / total) * 100) : 0;
-                return ` ${v} offre${v > 1 ? 's' : ''} (${pct}%)`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            beginAtZero: true,
-            ticks: { font: this.baseFont(), color: SLATE400, precision: 0 },
-            grid: { color: 'rgba(0,0,0,0.04)' },
-          },
-          y: {
-            ticks: { font: { ...this.baseFont(), weight: 500 as const }, color: NAVY_800 },
-            grid: { display: false },
-          },
-        },
-        animation: { duration: 900, easing: 'easeOutQuart' },
-      }
+  // ═══════════════════════════════════════════
+  //  Comptes par role
+  // ═══════════════════════════════════════════
+
+  private roles = computed(() => {
+    const a = this.apercu();
+    if (!a) return [];
+    return [
+      { cle: 'Candidate', label: 'Candidats', value: a.totalCandidates ?? 0 },
+      { cle: 'Recruiter', label: 'Recruteurs', value: a.totalRecruiters ?? 0 },
+      { cle: 'Admin', label: 'Administrateurs', value: a.totalAdmins ?? 0 },
+    ].filter((r) => r.value > 0);
+  });
+
+  rolesConfig = computed(() => {
+    const r = this.roles();
+    if (!r.length) return null;
+    return barsH(r, {
+      unit: 'comptes',
+      drill: drilldown(this.router, (i) => to(['/admin/utilisateurs'], { role: r[i].cle })),
     });
-    this.charts.push(chart);
+  });
+
+  rolesRows = computed<VizRow[]>(() => {
+    const r = this.roles();
+    const total = r.reduce((n, x) => n + x.value, 0);
+    return r.map((x) => ({
+      label: x.label,
+      value: x.value,
+      note: total ? `${Math.round((x.value / total) * 100)} %` : '—',
+      color: SERIES[0],
+    }));
+  });
+
+  // ═══════════════════════════════════════════
+  //  Journal
+  // ═══════════════════════════════════════════
+
+  iconeAction(action: string): string {
+    const map: Record<string, string> = {
+      Login: 'bi-box-arrow-in-right',
+      Register: 'bi-person-plus',
+      ExportCSV: 'bi-download',
+      ApproveOffer: 'bi-check-circle',
+      RejectOffer: 'bi-x-circle',
+      ToggleFeature: 'bi-star',
+      CreateAnnouncement: 'bi-megaphone',
+      UpdateSettings: 'bi-gear',
+      ChangeRole: 'bi-shield',
+      Impersonate: 'bi-person-badge',
+    };
+    return map[action] ?? 'bi-activity';
   }
+
+  couleurAction(action: string): string {
+    const map: Record<string, string> = {
+      ApproveOffer: STATUS.good,
+      RejectOffer: STATUS.critical,
+      Register: STATUS.info,
+      Impersonate: STATUS.serious,
+    };
+    return map[action] ?? STATUS.neutral;
+  }
+
+  protected readonly nf = nf;
+  protected readonly SERIES = SERIES;
+  protected readonly STATUS = STATUS;
+  // La jauge de l'entonnoir garde un fil visible sur les etapes a taux
+  // quasi nul : sans plancher, une etape reelle disparaitrait de la vue.
+  protected readonly Math = Math;
 }

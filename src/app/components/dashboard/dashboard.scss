@@ -1,130 +1,213 @@
-// ═══════════════════════════════════
-//  DASHBOARD — Clean SaaS analytics
-// ═══════════════════════════════════
+// ═══════════════════════════════════════════════
+//  TABLEAU DE BORD DE L'ADMINISTRATION
+//  L'essentiel vient du kit `.ad-*` de la feuille globale ;
+//  il ne reste ici que ce qui n'existe que sur cette page.
+// ═══════════════════════════════════════════════
 
-.dash-page { padding: 2.25rem 0 4rem; background: var(--paper); min-height: 100vh; }
-
-// ── Header ──
-// ── Stat cards ──
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 1.75rem;
-}
-
-.sc {
-  display: flex;
+// ── Présence en direct ──
+// La seule mesure instantanée de la page, au milieu de tuiles qui parlent
+// toutes de trente jours : elle se distingue par la forme, pas par le ton.
+.dash-live {
+  display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.4rem 1.5rem 1.4rem 1.65rem;
-  overflow: hidden;
-  color: inherit;
-  &:hover { transform: translateY(-3px); }
-  // La fleche ne se montre qu'au survol : quatre fleches permanentes
-  // alourdiraient une rangee qu'on lit d'abord pour ses chiffres.
-  &:hover .sc-go, &:focus-visible .sc-go { opacity: 1; transform: translateX(0); }
-}
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--r-full);
+  background: var(--canvas);
+  border: 1px solid var(--line-strong);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
 
-.sc-go {
-  margin-left: auto;
-  flex-shrink: 0;
-  font-size: 0.9rem;
-  color: var(--muted);
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity var(--t), transform var(--t);
-}
-
-.sc-icon {
-  width: 46px; height: 46px;
-  border-radius: var(--r-md);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem;
-  flex-shrink: 0;
-}
-
-.bg-brand { background: var(--brand-100); color: var(--brand); }
-.bg-blue  { background: var(--blue-bg);  color: var(--blue); }
-.bg-amber { background: var(--amber-bg); color: var(--amber); }
-.bg-green { background: var(--green-bg); color: var(--green); }
-
-.sc-body { display: flex; flex-direction: column; min-width: 0; }
-
-.sc-val {
-  display: block;
-  font-size: 1.85rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--ink);
-}
-
-.sc-lbl {
-  display: block;
-  margin-top: 0.15rem;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-}
-
-// ── Charts grid ──
-.charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-.chart-card {
-  padding: 1.6rem 1.75rem 1.75rem;
-  &:hover { transform: none; box-shadow: var(--shadow-md); }
-}
-
-.chart-head {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 1.4rem;
-
-  h3 {
-    font-family: var(--font-display);
-    font-size: 1.02rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+  strong {
+    font-family: var(--font-mono);
+    font-weight: 500;
     color: var(--ink);
   }
 }
 
-.chart-ico {
-  width: 32px; height: 32px;
-  flex-shrink: 0;
+.dash-live__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2f7d4f;
+  box-shadow: 0 0 0 3px rgba(47, 125, 79, 0.16);
+  animation: dash-pulse 2.4s var(--ease) infinite;
+}
+
+.dash-live.is-idle .dash-live__dot {
+  background: var(--faint);
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes dash-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(47, 125, 79, 0.16); }
+  50% { box-shadow: 0 0 0 6px rgba(47, 125, 79, 0.04); }
+}
+
+// ── Grilles ──
+// La courbe d'activité tient deux colonnes ; l'entonnoir, qui se lit en
+// hauteur, en tient une et se pose à côté.
+.dash-main {
+  margin-bottom: 0.85rem;
+
+  app-viz-card.span-2 { grid-column: span 2; }
+}
+
+@media (max-width: 1180px) {
+  .dash-main app-viz-card.span-2 { grid-column: 1 / -1; }
+}
+
+.dash-todo { margin-top: 0.85rem; }
+
+// ── Entonnoir ──
+.dash-funnel { display: flex; flex-direction: column; }
+
+.dash-funnel__rate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+
+  span {
+    font-size: 0.52rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--muted);
+  }
+}
+
+.fun {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+// Le filet vertical relie les étapes : sans lui, quatre lignes empilées ne
+// se lisent pas comme un parcours.
+.fun-step {
+  position: relative;
+
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 1.15rem;
+    top: 2.3rem;
+    bottom: -0.2rem;
+    width: 2px;
+    background: var(--nuage-2);
+  }
+}
+
+.fun-link {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.15rem 0.7rem;
+  padding: 0.45rem 0.5rem;
   border-radius: var(--r-sm);
-  background: var(--brand-tint);
-  color: var(--brand);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.95rem;
+  transition: background var(--t);
+
+  &:hover { background: var(--nuage); }
 }
 
-// ── Chart containers ──
-.chart-container { position: relative; width: 100%; }
-.chart-h-bar    { height: 280px; }
-.chart-doughnut { height: 260px; }
-.chart-polar    { height: 280px; }
-
-// ── Responsive ──
-@media (max-width: 1024px) {
-  .stat-cards { grid-template-columns: 1fr 1fr; }
-  .charts-grid { grid-template-columns: 1fr; }
+.fun-ico {
+  grid-row: span 2;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 0.72rem;
+  z-index: 1;
 }
 
-@media (max-width: 620px) {
-  .dash-page { padding: 1.25rem 0 3rem; }
-  .stat-cards { grid-template-columns: 1fr; }
-  .chart-card { padding: 1.4rem 1.35rem 1.5rem; }
-  .chart-h-bar    { height: 260px; }
-  .chart-doughnut { height: 300px; }
-  .chart-polar    { height: 300px; }
+.fun-txt {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.fun-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Valeur en chasse fixe : les quatre étapes s'alignent verticalement.
+.fun-value {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.fun-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+// La piste est une marche claire de la même rampe que le remplissage :
+// l'état se lit sur toute la longueur de la barre.
+.fun-meter__track {
+  height: 5px;
+  border-radius: var(--r-full);
+  background: rgba(148, 167, 216, 0.28);
+  overflow: hidden;
+}
+
+.fun-meter__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width 0.5s var(--ease-out);
+}
+
+.fun-meter__lbl {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+// ── Pastille de compte sur un en-tête de panneau ──
+.dash-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: #3d2c00;
+}
+
+.dash-log__ico {
+  border-radius: 50%;
+  font-size: 0.78rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-live__dot { animation: none; }
+  .fun-meter__fill { transition: none; }
 }

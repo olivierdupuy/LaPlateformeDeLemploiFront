@@ -68,10 +68,10 @@
 .adm-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 0.9rem 0.7rem;
+  padding: 0.8rem 0.7rem;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.9rem;
 
   a {
     position: relative;
@@ -108,10 +108,79 @@
   }
 }
 
+// ── Groupes de sections ──
+// Le titre de groupe n'est pas cliquable : c'est une etiquette de rangement,
+// pas une destination. Il reste donc discret et sans etat de survol.
+.adm-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.adm-group__label {
+  padding: 0 0.8rem 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(244, 241, 222, 0.42);
+}
+
+// Compteur d'attente. Terracotta : c'est la teinte de signal de la marque,
+// et il n'y en a qu'un dans toute la barre — il ne perd donc pas sa force.
+.adm-count {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: var(--r-full);
+  background: var(--rouge);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
 // ── Pied de la barre ──
 .adm-side__foot {
   padding: 0.8rem 0.7rem 1rem;
   border-top: 1px solid rgba(244, 241, 222, 0.1);
+}
+
+// Rappel visible du raccourci : une palette de commandes que personne ne
+// sait ouvrir n'existe pas.
+.adm-cmd {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.48rem 0.7rem;
+  margin-bottom: 0.6rem;
+  border-radius: var(--r-sm);
+  background: rgba(244, 241, 222, 0.06);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--on-dark-muted);
+  transition: background var(--t), color var(--t);
+
+  i { font-size: 0.8rem; }
+  span { flex: 1; text-align: left; }
+
+  kbd {
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    background: rgba(244, 241, 222, 0.1);
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    color: var(--on-dark-muted);
+  }
+
+  &:hover { background: rgba(244, 241, 222, 0.12); color: #fff; }
 }
 
 .adm-back {
@@ -308,6 +377,20 @@
   &:hover { color: var(--bleu-600); background: var(--bleu-100); }
 }
 
+// Pastille d'attente sur l'icone de moderation de la barre superieure.
+.adm-tb-act--badge { position: relative; }
+
+.adm-tb-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rouge);
+  box-shadow: 0 0 0 2px var(--canvas);
+}
+
 .adm-tb-user {
   width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
@@ -339,13 +422,10 @@ app-admin-statusbar {
   // derniere ligne de chaque page.
   padding: 0 0 var(--adm-status-h);
 
-  // Les pages reutilisent l'en-tete de la coquille de console. Sans la
-  // navbar publique au-dessus, il lui faut son propre fond et son air.
-  ::ng-deep .console-head {
-    background: var(--canvas);
-    border-bottom: 1px solid var(--line);
-    padding: clamp(1.5rem, 3vw, 2.1rem) 0;
-  }
+  // Les pages du panneau portent desormais leur propre en-tete (`.ad-head`
+  // du kit) : elles n'empruntent plus la coquille de console des espaces
+  // candidat et recruteur, qui doublait le fil d'Ariane de la barre
+  // superieure.
 
   // Un panneau d'administration se lit en pleine largeur : le conteneur
   // du site, calibre et centre sur 1650 px, perdrait de la place dans
@@ -361,6 +441,151 @@ app-admin-statusbar {
 
 // Le voile ne sert que sur petit ecran
 .adm-scrim { display: none; }
+
+// ═══════════════════════════════════════════════
+//  PALETTE DE COMMANDES (Ctrl+K)
+// ═══════════════════════════════════════════════
+
+.cmdk {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  // Sans cela, l'etirement par defaut du conteneur flex donne a la boite
+  // toute la hauteur de l'ecran : le pied de page se retrouvait au milieu
+  // d'un grand aplat vide.
+  align-items: flex-start;
+  // Posee au premier tiers plutot qu'au centre : c'est la hauteur ou
+  // l'oeil se pose, et la liste a la place de s'allonger vers le bas.
+  padding: clamp(4rem, 14vh, 9rem) 1rem 2rem;
+}
+
+.cmdk__scrim {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(44, 46, 68, 0.45);
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.15s var(--ease-out) both;
+}
+
+.cmdk__box {
+  position: relative;
+  width: min(540px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  animation: scaleIn 0.16s var(--ease-out) both;
+}
+
+.cmdk__field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--line);
+
+  > i { font-size: 0.9rem; color: var(--muted); }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    &:focus { outline: none; }
+    &::placeholder { color: var(--faint); font-weight: 400; }
+  }
+
+  kbd {
+    padding: 0.14rem 0.36rem;
+    border-radius: 5px;
+    background: var(--nuage);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--muted);
+  }
+}
+
+.cmdk__list {
+  list-style: none;
+  overflow-y: auto;
+  padding: 0.35rem;
+}
+
+.cmdk__item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--r-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: left;
+
+  > i:first-child { font-size: 0.95rem; width: 20px; text-align: center; color: var(--muted); }
+  > span { flex: 1; min-width: 0; }
+
+  // La selection est portee par le fond, pas par le survol : elle doit
+  // suivre les fleches du clavier autant que la souris.
+  &.is-on {
+    background: var(--bleu-100);
+    color: var(--ink);
+    > i:first-child { color: var(--bleu-700); }
+    .cmdk__go { opacity: 1; }
+  }
+
+  .adm-count { margin-left: 0; }
+}
+
+.cmdk__go {
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity var(--t);
+}
+
+.cmdk__void {
+  padding: 1.6rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.cmdk__foot {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.55rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--nuage);
+  font-size: 0.68rem;
+  color: var(--muted);
+
+  span { display: inline-flex; align-items: center; gap: 0.25rem; }
+
+  kbd {
+    padding: 0.06rem 0.28rem;
+    border-radius: 4px;
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .cmdk__foot { display: none; }
+}
 
 // ── Adaptatif ──
 @media (max-width: 1024px) {

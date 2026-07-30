@@ -1,15 +1,15 @@
-<app-console-shell space="admin">
-  <div head>
-    <h1>Tous les <span class="em">entretiens</span></h1>
-    <p class="console-head__sub">Les entretiens planifiés entre recruteurs et candidats.</p>
-  </div>
-  <div actions>
-    <span class="mod-count u-mono">{{ q.total() }} entretien{{ q.total() > 1 ? 's' : '' }}</span>
-  </div>
-</app-console-shell>
-
-<section class="ain-page">
+<section class="ad-page">
   <div class="container">
+
+    <header class="ad-head">
+      <div class="ad-head__text">
+        <h1>Tous les entretiens</h1>
+        <p class="ad-head__sub">Les entretiens planifiés entre recruteurs et candidats.</p>
+      </div>
+      <div class="ad-head__actions">
+        <span class="ad-count">{{ q.total() }} entretien{{ q.total() > 1 ? 's' : '' }}</span>
+      </div>
+    </header>
 
     @if (activeFilters().length) {
       <div class="filter-bar animate-in">
@@ -27,41 +27,37 @@
       </div>
     }
 
-    <div class="ain-counters animate-in" style="animation-delay:.05s">
-      <button class="ainc" (click)="q.clearAll()">
-        <span class="ainc-val u-mono">{{ q.facets().total }}</span>
-        <span class="ainc-lbl">Total</span>
+    <!-- Chaque tuile compte, et le clic applique ce qu'elle compte. -->
+    <div class="ad-facets animate-in" style="animation-delay:.05s">
+      <button class="ad-facet" [class.is-active]="!activeFilters().length" (click)="q.clearAll()">
+        <span class="ad-facet__val">{{ q.facets().total }}</span>
+        <span class="ad-facet__lbl">Total</span>
       </button>
-      <button class="ainc" (click)="q.setParam('statut', 'Proposed')">
-        <span class="ainc-val u-mono ainc-amber">{{ q.facets().proposed }}</span>
-        <span class="ainc-lbl">Proposés</span>
-      </button>
-      <button class="ainc" (click)="q.setParam('statut', 'Accepted')">
-        <span class="ainc-val u-mono ainc-green">{{ q.facets().accepted }}</span>
-        <span class="ainc-lbl">Acceptés</span>
-      </button>
-      <button class="ainc" (click)="q.setParam('statut', 'Completed')">
-        <span class="ainc-val u-mono ainc-blue">{{ q.facets().completed }}</span>
-        <span class="ainc-lbl">Terminés</span>
-      </button>
-      <button class="ainc" (click)="q.setParam('statut', 'Cancelled')">
-        <span class="ainc-val u-mono ainc-red">{{ q.facets().cancelled }}</span>
-        <span class="ainc-lbl">Annulés</span>
-      </button>
-      <div class="ainc ainc--static">
-        <span class="ainc-val u-mono">{{ q.facets().upcoming }}</span>
-        <span class="ainc-lbl">À venir</span>
+      @for (s of etats; track s.cle) {
+        <button class="ad-facet" (click)="q.setParam('statut', s.cle)">
+          <span class="ad-facet__val">{{ facette(s.cle) }}</span>
+          <span class="ad-facet__lbl">
+            <span class="ad-facet__dot" [style.background]="s.color"></span> {{ s.pluriel }}
+          </span>
+        </button>
+      }
+      <!-- « À venir » n'est pas un statut mais une position dans le temps :
+           aucun filtre ne lui correspond, la tuile ne se donne donc pas
+           l'air cliquable. -->
+      <div class="ad-facet ad-facet--static">
+        <span class="ad-facet__val">{{ q.facets().upcoming }}</span>
+        <span class="ad-facet__lbl">À venir</span>
       </div>
     </div>
 
-    <div class="ain-tools animate-in" style="animation-delay:.1s">
-      <div class="ain-search">
+    <div class="ad-tools animate-in" style="animation-delay:.1s">
+      <div class="ad-search">
         <i class="bi bi-search" aria-hidden="true"></i>
         <input type="search" [ngModel]="search" (ngModelChange)="search = $event" placeholder="Candidat, poste ou entreprise…"
                aria-label="Rechercher dans les entretiens" />
-        @if (q.loading()) { <span class="ain-busy" aria-hidden="true"></span> }
+        @if (q.loading()) { <span class="ad-busy" aria-hidden="true"></span> }
       </div>
-      <label class="ain-sort">
+      <label class="ad-field">
         <span>Trier par</span>
         <select [ngModel]="sort" (ngModelChange)="sort = $event" aria-label="Trier les entretiens">
           <option value="soon">Date d'entretien</option>
@@ -90,7 +86,7 @@
         }
       </div>
     } @else {
-      <div class="table-wrap animate-in" [class.is-busy]="q.loading()" style="animation-delay:.15s">
+      <div class="table-wrap animate-in" [class.is-refreshing]="q.loading()" style="animation-delay:.15s">
         <table class="data">
           <thead>
             <tr>
@@ -136,15 +132,18 @@
                   } @else { <span class="ain-none">—</span> }
                 </td>
                 <td>
-                  <a class="badge" [class]="statusBadge(i.status)"
-                     [routerLink]="['/admin/entretiens']" [queryParams]="{ statut: i.status }">
-                    {{ statusLabel(i.status) }}
-                  </a>
+                  @if (etat(i.status); as e) {
+                    <a class="ad-state" [routerLink]="['/admin/entretiens']"
+                       [queryParams]="{ statut: i.status }">
+                      <i class="bi" [class]="e.icon" [style.color]="e.color" aria-hidden="true"></i>
+                      {{ e.label }}
+                    </a>
+                  }
                 </td>
                 <td>
-                  <div class="ain-actions">
+                  <div class="ad-acts">
                     <a [routerLink]="['/admin/candidatures']" [queryParams]="{ q: i.candidateName }"
-                       class="ain-act" title="La candidature de ce candidat">
+                       class="ad-act" title="La candidature de ce candidat">
                       <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
                     </a>
                   </div>

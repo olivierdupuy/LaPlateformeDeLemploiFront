@@ -1,0 +1,423 @@
+@if (loading()) {
+  <section class="af-loading">
+    <div class="container"><span class="sp sp-brand"></span> Chargement de l'offre…</div>
+  </section>
+} @else if (job(); as j) {
+
+  <!-- ═══ EN-TÊTE ═══ -->
+  <section class="af-head">
+    <div class="container">
+      <a [routerLink]="['/offres', j.id]" class="af-back"><i class="bi bi-arrow-left"></i> Revenir à l'offre</a>
+      <span class="eyebrow">Candidature</span>
+      <h1>{{ j.title }}</h1>
+      <p class="af-sub">
+        <span class="af-company">{{ j.company | employeur }}</span>
+        <span class="af-dot">·</span>{{ j.location }}
+        @if (j.openings && j.openings > 1) { <span class="af-dot">·</span>{{ j.openings }} postes à pourvoir }
+      </p>
+    </div>
+  </section>
+
+  <section class="af-body">
+    <div class="container">
+
+      @if (!isCandidate) {
+        <!-- Un recruteur ou un administrateur n'a pas de candidature à déposer. -->
+        <div class="af-panel af-panel-info">
+          <i class="bi bi-info-circle-fill"></i>
+          <div>
+            <h2>Compte non candidat</h2>
+            <p>Seuls les comptes candidats peuvent postuler. Vous consultez cette offre avec un compte {{ auth.currentUser()?.role === 'Admin' ? 'administrateur' : 'recruteur' }}.</p>
+            <a [routerLink]="['/offres', j.id]" class="btn-secondary"><i class="bi bi-arrow-left"></i> Retour à l'offre</a>
+          </div>
+        </div>
+      } @else if (sent()) {
+
+        <!-- ═══ CONFIRMATION ═══ -->
+        <div class="af-done animate-in">
+          <div class="af-done-check"><i class="bi bi-check-lg"></i></div>
+          <h2>Candidature envoyée</h2>
+          <p class="af-done-sub">
+            Votre candidature au poste de <strong>{{ j.title }}</strong> chez
+            <strong>{{ j.company | employeur }}</strong> a été transmise le {{ today | date:'dd MMMM yyyy' }}.
+          </p>
+
+          <div class="af-next">
+            <h3>Prochaines étapes</h3>
+            <ol>
+              <li>
+                <span class="af-next-num">1</span>
+                <div><strong>Le recruteur examine votre dossier</strong><span>Vous verrez la mention « consultée » dans le suivi dès son ouverture.</span></div>
+              </li>
+              <li>
+                <span class="af-next-num">2</span>
+                <div><strong>Échange par messagerie</strong><span>Les questions et propositions d'entretien arrivent dans votre messagerie et par notification.</span></div>
+              </li>
+              <li>
+                <span class="af-next-num">3</span>
+                <div><strong>Relance possible sous 7 jours</strong><span>Si la candidature reste en attente, un bouton de relance apparaît dans le suivi.</span></div>
+              </li>
+            </ol>
+          </div>
+
+          <div class="af-done-actions">
+            <a routerLink="/suivi" class="btn-spring"><i class="bi bi-clipboard-check"></i> Suivre mes candidatures</a>
+            <a [routerLink]="['/offres', j.id]" class="btn-secondary"><i class="bi bi-file-earmark-text"></i> Revoir l'offre</a>
+          </div>
+
+          @if (similarJobs().length) {
+            <div class="af-similar">
+              <h3>Postes similaires</h3>
+              <div class="af-similar-grid">
+                @for (s of similarJobs(); track s.id) {
+                  <a [routerLink]="['/offres', s.id]" class="af-sim-card">
+                    <div class="af-sim-av" [style.background]="companyColor(s.company).bg">
+                      <span [style.color]="companyColor(s.company).fg">{{ s.company.charAt(0) }}</span>
+                    </div>
+                    <div class="af-sim-txt">
+                      <strong>{{ s.title }}</strong>
+                      <span>{{ s.company | employeur }} · {{ s.location }}</span>
+                    </div>
+                    <span class="badge" [class]="getContractBadgeClass(s.contractType)">{{ s.contractType }}</span>
+                  </a>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+      } @else if (alreadyApplied()) {
+
+        <div class="af-panel af-panel-info">
+          <i class="bi bi-check2-circle"></i>
+          <div>
+            <h2>Vous avez déjà postulé</h2>
+            <p>Une candidature à cette offre figure déjà dans votre suivi. Inutile d'en envoyer une seconde.</p>
+            <div class="af-panel-actions">
+              <a routerLink="/suivi" class="btn-spring"><i class="bi bi-clipboard-check"></i> Voir mon suivi</a>
+              <a [routerLink]="['/offres', j.id]" class="btn-secondary">Retour à l'offre</a>
+            </div>
+          </div>
+        </div>
+
+      } @else {
+
+        <!-- ═══ TUNNEL ═══ -->
+        <div class="af-grid">
+          <div class="af-main">
+
+            <!-- Progression -->
+            <div class="af-progress">
+              <div class="af-progress-bar"><span [style.width.%]="progress()"></span></div>
+              <div class="af-steps">
+                @for (s of steps(); track s.key; let i = $index) {
+                  <button type="button" class="af-step"
+                          [class.active]="i === stepIndex()"
+                          [class.done]="i < stepIndex()"
+                          (click)="goToStep(i)">
+                    <span class="af-step-icon">
+                      @if (i < stepIndex()) { <i class="bi bi-check-lg"></i> } @else { <i class="bi" [class]="s.icon"></i> }
+                    </span>
+                    <span class="af-step-label">{{ s.label }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            @if (draftRestored()) {
+              <div class="af-draft-note">
+                <i class="bi bi-clock-history"></i>
+                <span>Nous avons repris votre candidature là où vous l'aviez laissée.</span>
+                <button type="button" class="af-draft-clear" (click)="discardDraft()">Repartir de zéro</button>
+              </div>
+            }
+
+            @if (errors().length) {
+              <div class="af-errors" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <ul>@for (e of errors(); track e) { <li>{{ e }}</li> }</ul>
+              </div>
+            }
+
+            <div class="af-card">
+
+              <!-- ÉTAPE : Coordonnées -->
+              @if (currentStep() === 'contact') {
+                <div class="af-card-head">
+                  <span class="ed-pill">01</span>
+                  <div><h2>Vos coordonnées</h2><p>Ces informations sont transmises au recruteur avec votre candidature.</p></div>
+                </div>
+                <div class="af-card-body">
+                  <div class="form-row">
+                    <div class="form-group"><label>Prénom *</label><input type="text" [(ngModel)]="form.firstName" name="firstName" autocomplete="given-name" /></div>
+                    <div class="form-group"><label>Nom *</label><input type="text" [(ngModel)]="form.lastName" name="lastName" autocomplete="family-name" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group"><label>E-mail *</label><input type="email" [(ngModel)]="form.email" name="email" autocomplete="email" /></div>
+                    <div class="form-group"><label>Téléphone</label><input type="tel" placeholder="06 12 34 56 78" [(ngModel)]="form.phone" name="phone" autocomplete="tel" /></div>
+                  </div>
+                  <div class="form-group">
+                    <label>Ville</label>
+                    <input type="text" placeholder="ex : Marseille" [(ngModel)]="form.city" name="city" autocomplete="address-level2" />
+                    <span class="af-hint">Indique au recruteur votre distance au lieu de travail.</span>
+                  </div>
+                </div>
+              }
+
+              <!-- ÉTAPE : CV -->
+              @if (currentStep() === 'resume') {
+                <div class="af-card-head">
+                  <span class="ed-pill">02</span>
+                  <div>
+                    <h2>Votre CV</h2>
+                    <p>{{ resumeRequired ? 'Le recruteur exige un CV pour cette offre.' : 'Le CV est facultatif pour cette offre.' }}</p>
+                  </div>
+                </div>
+                <div class="af-card-body">
+                  <div class="af-choices">
+                    @if (profileResumeUrl) {
+                      <label class="af-choice" [class.active]="resumeChoice() === 'profile'">
+                        <input type="radio" name="resumeChoice" [checked]="resumeChoice() === 'profile'" (change)="resumeChoice.set('profile')" />
+                        <span class="af-choice-icon"><i class="bi bi-file-earmark-person-fill"></i></span>
+                        <span class="af-choice-txt">
+                          <strong>Utiliser le CV de mon profil</strong>
+                          <span>Le fichier déjà enregistré sur votre espace candidat.</span>
+                          <a [href]="profileResumeHref" target="_blank" rel="noopener" class="af-choice-link">Consulter le fichier <i class="bi bi-box-arrow-up-right"></i></a>
+                        </span>
+                        <i class="bi bi-check-lg af-choice-check"></i>
+                      </label>
+                    }
+
+                    <label class="af-choice" [class.active]="resumeChoice() === 'upload'">
+                      <input type="radio" name="resumeChoice" [checked]="resumeChoice() === 'upload'" (change)="resumeChoice.set('upload')" />
+                      <span class="af-choice-icon"><i class="bi bi-cloud-arrow-up-fill"></i></span>
+                      <span class="af-choice-txt">
+                        <strong>Téléverser un nouveau CV</strong>
+                        <span>PDF, 5 Mo maximum. Ce fichier remplacera le CV de votre profil.</span>
+                        @if (uploadedFileName()) {
+                          <span class="af-file"><i class="bi bi-paperclip"></i> {{ uploadedFileName() }}</span>
+                        }
+                        <span class="af-upload">
+                          <input type="file" id="af-resume-file" accept="application/pdf" (change)="onResumeSelected($event)" hidden />
+                          <label for="af-resume-file" class="btn-secondary af-upload-btn">
+                            @if (uploading()) { <span class="sp"></span> Envoi… } @else { <i class="bi bi-upload"></i> Choisir un fichier PDF }
+                          </label>
+                        </span>
+                      </span>
+                      <i class="bi bi-check-lg af-choice-check"></i>
+                    </label>
+
+                    @if (!resumeRequired) {
+                      <label class="af-choice" [class.active]="resumeChoice() === 'none'">
+                        <input type="radio" name="resumeChoice" [checked]="resumeChoice() === 'none'" (change)="resumeChoice.set('none')" />
+                        <span class="af-choice-icon"><i class="bi bi-slash-circle"></i></span>
+                        <span class="af-choice-txt">
+                          <strong>Postuler sans CV</strong>
+                          <span>Votre profil et votre lettre suffiront pour cette offre.</span>
+                        </span>
+                        <i class="bi bi-check-lg af-choice-check"></i>
+                      </label>
+                    }
+                  </div>
+
+                  <p class="af-hint af-hint-block">
+                    <i class="bi bi-lightbulb"></i>
+                    Pas encore de CV ? <a routerLink="/mon-cv">Créez-en un sur la plateforme</a> — il sera ensuite proposé ici.
+                  </p>
+                </div>
+              }
+
+              <!-- ÉTAPE : Questions du recruteur -->
+              @if (currentStep() === 'questions') {
+                <div class="af-card-head">
+                  <span class="ed-pill">03</span>
+                  <div><h2>Questions du recruteur</h2><p>{{ questions().length }} question{{ questions().length > 1 ? 's' : '' }} de présélection pour ce poste.</p></div>
+                </div>
+                <div class="af-card-body">
+                  @for (q of questions(); track $index) {
+                    <div class="af-question">
+                      <label class="af-q-label">
+                        <span class="af-q-num u-mono">Q{{ $index + 1 }}</span>
+                        {{ q.text }}
+                        @if (q.required) { <span class="af-req">*</span> }
+                      </label>
+
+                      @if (q.type === 'boolean' || q.type === 'choice') {
+                        <div class="af-options">
+                          @for (opt of answerOptions(q); track opt) {
+                            <button type="button" class="af-option" [class.active]="answers()[$index] === opt" (click)="setAnswer($index, opt)">
+                              {{ opt }}
+                            </button>
+                          }
+                        </div>
+                      } @else if (q.type === 'number') {
+                        <input type="number" [ngModel]="answers()[$index]" (ngModelChange)="setAnswer($index, $event)" [name]="'answer' + $index" placeholder="ex : 3" />
+                      } @else {
+                        <textarea [ngModel]="answers()[$index]" (ngModelChange)="setAnswer($index, $event)" [name]="'answer' + $index" rows="3" placeholder="Votre réponse…"></textarea>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- ÉTAPE : Lettre de motivation -->
+              @if (currentStep() === 'letter') {
+                <div class="af-card-head">
+                  <span class="ed-pill">04</span>
+                  <div><h2>Lettre de motivation</h2><p>Facultative, mais elle pèse souvent dans la décision.</p></div>
+                </div>
+                <div class="af-card-body">
+                  <div class="form-group">
+                    <label>Votre message au recruteur</label>
+                    <textarea rows="10" [(ngModel)]="form.coverLetter" name="coverLetter"
+                              placeholder="Expliquez ce qui vous attire dans ce poste, ce que vous avez déjà fait de comparable, ce que vous apporteriez à l'équipe…"></textarea>
+                    <span class="af-hint">{{ form.coverLetter.length }} caractères</span>
+                  </div>
+                  <div class="af-tips">
+                    <strong><i class="bi bi-stars"></i> Trois points à couvrir</strong>
+                    <ul>
+                      <li>Pourquoi ce poste et cette entreprise en particulier.</li>
+                      <li>Une réalisation concrète en rapport avec les missions décrites.</li>
+                      <li>Votre disponibilité et la suite que vous proposez.</li>
+                    </ul>
+                  </div>
+                </div>
+              }
+
+              <!-- ÉTAPE : Informations complémentaires -->
+              @if (currentStep() === 'extras') {
+                <div class="af-card-head">
+                  <span class="ed-pill">05</span>
+                  <div><h2>Informations complémentaires</h2><p>Facultatif — cela évite un aller-retour au recruteur.</p></div>
+                </div>
+                <div class="af-card-body">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Disponible à partir du</label>
+                      <input type="date" [(ngModel)]="form.availableFrom" name="availableFrom" />
+                      @if (j.startDate) { <span class="af-hint">Prise de poste souhaitée : {{ j.startDate | date:'dd/MM/yyyy' }}</span> }
+                    </div>
+                    <div class="form-group">
+                      <label>Prétentions salariales</label>
+                      <input type="text" placeholder="ex : 42 000 € brut / an" [(ngModel)]="form.salaryExpectation" name="salaryExpectation" />
+                      @if (salaryLabel(j)) { <span class="af-hint">Fourchette annoncée : {{ salaryLabel(j) }}</span> }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- ÉTAPE : Vérification -->
+              @if (currentStep() === 'review') {
+                <div class="af-card-head">
+                  <span class="ed-pill">06</span>
+                  <div><h2>Vérifiez votre candidature</h2><p>Dernier coup d'œil avant l'envoi au recruteur.</p></div>
+                </div>
+                <div class="af-card-body">
+
+                  <div class="af-review">
+                    <div class="af-review-block">
+                      <div class="af-review-top"><h3>Coordonnées</h3><button type="button" (click)="goToStep(0)">Modifier</button></div>
+                      <dl>
+                        <div><dt>Nom</dt><dd>{{ form.firstName }} {{ form.lastName }}</dd></div>
+                        <div><dt>E-mail</dt><dd>{{ form.email }}</dd></div>
+                        <div><dt>Téléphone</dt><dd>{{ form.phone || 'Non communiqué' }}</dd></div>
+                        <div><dt>Ville</dt><dd>{{ form.city || 'Non communiquée' }}</dd></div>
+                      </dl>
+                    </div>
+
+                    <div class="af-review-block">
+                      <div class="af-review-top"><h3>CV</h3><button type="button" (click)="goToStep(1)">Modifier</button></div>
+                      <p class="af-review-line"><i class="bi bi-file-earmark-text"></i> {{ resumeLabel() }}</p>
+                    </div>
+
+                    @if (questions().length) {
+                      <div class="af-review-block">
+                        <div class="af-review-top"><h3>Questions du recruteur</h3><button type="button" (click)="goToStep(2)">Modifier</button></div>
+                        <dl>
+                          @for (q of questions(); track $index) {
+                            <div><dt>{{ q.text }}</dt><dd>{{ answers()[$index] || '—' }}</dd></div>
+                          }
+                        </dl>
+                      </div>
+                    }
+
+                    <div class="af-review-block">
+                      <div class="af-review-top"><h3>Lettre de motivation</h3><button type="button" (click)="goToStep(questions().length ? 3 : 2)">Modifier</button></div>
+                      @if (form.coverLetter.trim()) {
+                        <p class="af-review-letter">{{ form.coverLetter }}</p>
+                      } @else {
+                        <p class="af-review-line af-muted">Aucune lettre jointe.</p>
+                      }
+                    </div>
+
+                    <div class="af-review-block">
+                      <div class="af-review-top"><h3>Informations complémentaires</h3><button type="button" (click)="goToStep(questions().length ? 4 : 3)">Modifier</button></div>
+                      <dl>
+                        <div><dt>Disponibilité</dt><dd>{{ form.availableFrom ? (form.availableFrom | date:'dd/MM/yyyy') : 'Non précisée' }}</dd></div>
+                        <div><dt>Prétentions</dt><dd>{{ form.salaryExpectation || 'Non précisées' }}</dd></div>
+                      </dl>
+                    </div>
+                  </div>
+
+                  <p class="af-legal">
+                    <i class="bi bi-shield-check"></i>
+                    En envoyant cette candidature, vous transmettez ces informations et votre CV au recruteur de
+                    {{ j.company | employeur }}. Vous pouvez suivre son traitement depuis « Mes candidatures ».
+                  </p>
+                </div>
+              }
+
+              <!-- Actions -->
+              <div class="af-actions">
+                @if (stepIndex() > 0) {
+                  <button type="button" class="btn-secondary" (click)="prev()"><i class="bi bi-arrow-left"></i> Précédent</button>
+                } @else {
+                  <a [routerLink]="['/offres', j.id]" class="btn-secondary">Annuler</a>
+                }
+
+                <div class="af-actions-right">
+                  @if (currentStep() === 'letter' || currentStep() === 'extras') {
+                    <button type="button" class="btn-ghost" (click)="skip()">Passer cette étape</button>
+                  }
+                  @if (isLastStep()) {
+                    <button type="button" class="btn-spring" [disabled]="submitting()" (click)="submit()">
+                      @if (submitting()) { <span class="sp"></span> Envoi… } @else { <i class="bi bi-send-fill"></i> Envoyer ma candidature }
+                    </button>
+                  } @else {
+                    <button type="button" class="btn-primary" (click)="next()">Continuer <i class="bi bi-arrow-right"></i></button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ RÉCAP DE L'OFFRE ═══ -->
+          <aside class="af-side">
+            <div class="af-side-card">
+              <div class="af-side-company">
+                <div class="af-side-av" [style.background]="companyColor(j.company).bg">
+                  <span [style.color]="companyColor(j.company).fg">{{ j.company.charAt(0) }}</span>
+                </div>
+                <div><strong>{{ j.company | employeur }}</strong><span>{{ j.location }}</span></div>
+              </div>
+              <h3 class="af-side-title">{{ j.title }}</h3>
+              <ul class="af-side-facts">
+                <li><span>Contrat</span><strong>{{ j.contractType }}</strong></li>
+                @if (j.workplaceType) { <li><span>Lieu de travail</span><strong>{{ j.workplaceType }}</strong></li> }
+                @if (j.workSchedule) { <li><span>Horaires</span><strong>{{ j.workSchedule }}</strong></li> }
+                @if (salaryLabel(j)) { <li><span>Salaire</span><strong>{{ salaryLabel(j) }}</strong></li> }
+                @if (j.experienceRequired) { <li><span>Expérience</span><strong>{{ j.experienceRequired }}</strong></li> }
+              </ul>
+              <a [routerLink]="['/offres', j.id]" class="af-side-link">Relire l'offre complète <i class="bi bi-arrow-right"></i></a>
+            </div>
+
+            <div class="af-side-note">
+              <i class="bi bi-clock-history"></i>
+              <p>Votre progression est enregistrée sur cet appareil : vous pouvez fermer cette page et reprendre plus tard.</p>
+            </div>
+          </aside>
+        </div>
+      }
+    </div>
+  </section>
+}

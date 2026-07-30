@@ -51,6 +51,13 @@ export const routes: Routes = [
   { path: 'guide/:slug', component: CareersGuide },
   { path: 'evenements', component: Events },
   { path: 'offres/:id', component: JobDetail },
+  // Tunnel de candidature : charge a la demande (il ne sert qu'apres avoir
+  // choisi une offre) et sans garde de route, le composant renvoyant lui-meme
+  // vers la connexion en gardant l'offre en adresse de retour.
+  {
+    path: 'offres/:id/postuler',
+    loadComponent: () => import('./components/apply-flow/apply-flow').then((m) => m.ApplyFlow),
+  },
   { path: 'entreprises', component: CompanyList },
   { path: 'entreprises/:name', component: CompanyDetail },
   { path: 'login', component: Login },

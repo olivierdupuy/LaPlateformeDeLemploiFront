@@ -1,19 +1,19 @@
-<app-console-shell space="admin">
-  <div head>
-    <h1>Modération des <span class="em">offres</span></h1>
-    <p class="console-head__sub">Validez, rejetez et mettez en avant les offres publiées sur la plateforme.</p>
-  </div>
-  <div actions>
-    @if (activeTab() === 'Reports') {
-      <span class="mod-count u-mono">{{ reports().length }} signalement{{ reports().length > 1 ? 's' : '' }}</span>
-    } @else {
-      <span class="mod-count u-mono">{{ offers().length }} offre{{ offers().length > 1 ? 's' : '' }}</span>
-    }
-  </div>
-</app-console-shell>
-
-<section class="mod-page">
+<section class="ad-page">
   <div class="container">
+
+    <header class="ad-head">
+      <div class="ad-head__text">
+        <h1>Modération des offres</h1>
+        <p class="ad-head__sub">Validez, rejetez et mettez en avant les offres publiées sur la plateforme.</p>
+      </div>
+      <div class="ad-head__actions">
+        @if (activeTab() === 'Reports') {
+        <span class="ad-count">{{ reports().length }} signalement{{ reports().length > 1 ? 's' : '' }}</span>
+        } @else {
+        <span class="ad-count">{{ offers().length }} offre{{ offers().length > 1 ? 's' : '' }}</span>
+        }
+      </div>
+    </header>
 
     <div class="tabs animate-in" style="animation-delay:.05s" role="tablist">
       <button class="tab" [class.active]="activeTab() === 'Pending'" (click)="switchTab('Pending')">

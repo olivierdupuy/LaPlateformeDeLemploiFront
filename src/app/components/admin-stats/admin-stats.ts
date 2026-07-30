@@ -1,121 +1,67 @@
-import { Component, OnInit, OnDestroy, inject, signal, ElementRef, ViewChild } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import { JobOfferService } from '../../services/job-offer';
-import Chart from 'chart.js/auto';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { Router } from '@angular/router';
 import * as L from 'leaflet';
-import { ConsoleShell } from '../console-shell/console-shell';
+import { JobOfferService } from '../../services/job-offer';
 import { drilldown, to } from '../../utils/chart-drilldown';
-import { toIsoDay } from '../../utils/day-filter';
+import { findCity } from '../../utils/france-geo';
+import { StatTile } from '../../viz/stat-tile/stat-tile';
+import { VizCard, VizRow } from '../../viz/viz-card/viz-card';
+import { barsH, columns, donut, lines, nf, stacked } from '../../viz/chart-presets';
+import { APPLICATION_STATUS, ORDINAL, SEQUENTIAL, SERIES, STATUS } from '../../viz/palette';
 
-// ── Palette : creme, terracotta, ardoise ──
-// La rampe d'ardoise porte l'ordre ; le terracotta signale le negatif.
-const ARDOISE = '#3d405b';
-const ARDOISE_900 = '#2c2e44';
-const ARDOISE_800 = '#343750';
-const ARDOISE_600 = '#4a4e6d';
-const ARDOISE_500 = '#5d6285';
-const ARDOISE_400 = '#8085a3';
-const ARDOISE_300 = '#a8abc1';
-const ARDOISE_200 = '#cbcdd9';
-const ARDOISE_50 = 'rgba(61, 64, 91, 0.10)';
-const TERRE = '#e07a5f';
-const TERRE_600 = '#c8623f';
-const TERRE_700 = '#a44e30';
-const CREME = '#f4f1de';
-const GRIS = '#6f7391';
-const LIGNE = '#e3dfcb';
+interface Onglet {
+  cle: string;
+  label: string;
+  icon: string;
+  /** Section a demander au serveur pour peupler cet onglet. */
+  section: string;
+}
 
-// Alias conserves pour ne pas reecrire les dix-sept graphiques
-const TEAL = ARDOISE, TEAL_400 = ARDOISE_400, TEAL_600 = ARDOISE_600, TEAL_50 = ARDOISE_50;
-const NAVY_950 = '#24263a', NAVY_900 = ARDOISE, NAVY_800 = ARDOISE_800, NAVY_700 = ARDOISE_500;
-const AMBER = TERRE_700, GREEN = ARDOISE, RED = TERRE, BLUE = ARDOISE_400, ORANGE = TERRE_600;
-const SLATE400 = '#9a9db4', SLATE200 = LIGNE;
-
-const MULTI = [ARDOISE, ARDOISE_900, ARDOISE_500, ARDOISE_400, ARDOISE_300, TERRE, TERRE_700, ARDOISE_200, GRIS, ARDOISE_600, ARDOISE_800, TERRE_600, '#c3c5d2'];
-const STATUS_COLORS: Record<string, string> = { Pending: ARDOISE_200, Reviewed: ARDOISE_400, Accepted: ARDOISE, Rejected: TERRE };
-const STATUS_LABELS: Record<string, string> = { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' };
-
-// Coordonnées des principales villes françaises
-const FRENCH_CITIES: Record<string, [number, number]> = {
-  'paris': [48.8566, 2.3522], 'marseille': [43.2965, 5.3698], 'lyon': [45.764, 4.8357],
-  'toulouse': [43.6047, 1.4442], 'nice': [43.7102, 7.262], 'nantes': [47.2184, -1.5536],
-  'montpellier': [43.6108, 3.8767], 'strasbourg': [48.5734, 7.7521], 'bordeaux': [44.8378, -0.5792],
-  'lille': [50.6292, 3.0573], 'rennes': [48.1173, -1.6778], 'reims': [49.2583, 3.6236],
-  'saint-etienne': [45.4397, 4.3872], 'toulon': [43.1242, 5.928], 'le havre': [49.4944, 0.1079],
-  'grenoble': [45.1885, 5.7245], 'dijon': [47.322, 5.0415], 'angers': [47.4784, -0.5632],
-  'nimes': [43.8367, 4.3601], 'clermont-ferrand': [45.7772, 3.087],
-  'le mans': [48.0061, 0.1996], 'aix-en-provence': [43.5297, 5.4474],
-  'brest': [48.3904, -4.4861], 'tours': [47.3941, 0.6848], 'amiens': [49.894, 2.2958],
-  'limoges': [45.8315, 1.2578], 'perpignan': [42.6887, 2.8948], 'metz': [49.1193, 6.1757],
-  'besancon': [47.2378, 6.0241], 'orleans': [47.9029, 1.909], 'rouen': [49.4432, 1.0999],
-  'mulhouse': [47.7508, 7.3359], 'caen': [49.1829, -0.3707], 'nancy': [48.6921, 6.1844],
-  'argenteuil': [48.9472, 2.2467], 'saint-denis': [48.9362, 2.3574],
-  'montreuil': [48.8638, 2.4484], 'roubaix': [50.6942, 3.1746], 'tourcoing': [50.7239, 3.1613],
-  'avignon': [43.9493, 4.8055], 'dunkerque': [51.0343, 2.3768], 'valence': [44.9334, 4.8924],
-  'pau': [43.2951, -0.3708], 'cannes': [43.5528, 7.0174], 'antibes': [43.5808, 7.1239],
-  'calais': [50.9513, 1.8587], 'la rochelle': [46.1603, -1.1511], 'beziers': [43.3442, 3.2151],
-  'colmar': [48.0794, 7.3588], 'bourges': [47.0833, 2.3964], 'quimper': [47.9976, -4.0977],
-  'troyes': [48.2973, 4.0744], 'poitiers': [46.5802, 0.3404], 'ajaccio': [41.9192, 8.7386],
-  'bastia': [42.6977, 9.4509], 'cherbourg': [49.6337, -1.6222], 'lorient': [47.7483, -3.3666],
-  'bayonne': [43.4929, -1.4748], 'chambery': [45.5646, 5.9178], 'annecy': [45.8992, 6.1294],
-  'saint-nazaire': [47.2736, -2.2137], 'niort': [46.3234, -0.4582], 'villeurbanne': [45.7667, 4.8795],
-  'saint-malo': [48.6493, -2.0066], 'laval': [48.0726, -0.7686], 'vannes': [47.6583, -2.7607],
-  'saint-brieuc': [48.5141, -2.7603], 'charleville-mezieres': [49.7733, 4.7203],
-  'belfort': [47.6397, 6.8654], 'saint-quentin': [49.8467, 3.2875],
-  'cholet': [47.0596, -0.8788], 'auxerre': [47.7981, 3.5736], 'gap': [44.5593, 6.0793],
-  'boulogne-sur-mer': [50.7264, 1.6134], 'tarbes': [43.2327, 0.0782], 'albi': [43.9277, 2.148],
-  'arras': [50.2921, 2.7807], 'compiegne': [49.4186, 2.826], 'chartres': [48.4561, 1.4893],
-  'bourg-en-bresse': [46.2058, 5.2254], 'la roche-sur-yon': [46.6706, -1.4268],
-  'chalon-sur-saone': [46.7803, 4.8536], 'macon': [46.307, 4.8286], 'angouleme': [45.6487, 0.1562],
-  'agen': [44.2033, 0.6166], 'rodez': [44.3497, 2.5754], 'aurillac': [44.9261, 2.4406],
-  'moulins': [46.5646, 3.3337], 'digne-les-bains': [44.0929, 6.2356], 'tulle': [45.2669, 1.7689],
-  'gueret': [46.1715, 1.8706], 'mont-de-marsan': [43.8936, -0.497], 'cahors': [44.4472, 1.4406],
-  'auch': [43.6465, 0.5862], 'foix': [42.9645, 1.6079], 'privas': [44.7356, 4.5987],
-  'mende': [44.5177, 3.4985], 'le puy-en-velay': [45.0429, 3.8855],
-  'cergy': [49.0363, 2.0761], 'evry': [48.6248, 2.4338], 'versailles': [48.8014, 2.1301],
-  'boulogne-billancourt': [48.8397, 2.2399], 'nanterre': [48.8924, 2.2071],
-  'creteil': [48.7906, 2.4553], 'bobigny': [48.9097, 2.4256], 'pontoise': [49.0507, 2.1006],
-  'melun': [48.5395, 2.6553], 'ile-de-france': [48.8499, 2.6371], 'idf': [48.8499, 2.6371],
-  'region parisienne': [48.8566, 2.3522],
-};
+/** Couche de la carte : qui l'on compte, et sous quelle teinte. */
+interface Couche {
+  cle: 'candidates' | 'recruiters' | 'offers';
+  label: string;
+  champ: string;
+  nom: string;
+  color: string;
+  icon: string;
+}
 
 /**
- * Outre-mer, indexe par code departement.
+ * Statistiques de la plateforme.
  *
- * Le nom seul ne suffit pas : Saint-Denis designe une commune de
- * Seine-Saint-Denis et le chef-lieu de La Reunion, Saint-Pierre en
- * designe plusieurs. Les libelles France Travail portent le code du
- * departement — c'est lui qui tranche, on ne le jette donc pas.
+ * Le fichier faisait quarante-six kilo-octets pour dix-sept graphiques,
+ * et chacun portait sa propre copie des memes quatre-vingts lignes
+ * d'options Chart.js — une grille eclaircie ici et pas la, une infobulle
+ * restee au fond noir par defaut, deux legendes a droite quand les autres
+ * etaient en haut. Les reglages vivent desormais dans les fabriques
+ * partagees ; il ne reste ici que ce que la page a de propre : quelle
+ * donnee, quelle forme, ou mene un clic.
+ *
+ * La palette a change de nature au passage. Les categories etaient
+ * peintes d'une rampe d'ardoise : « Informatique », « Sante » et
+ * « Commerce » sortaient en trois gris bleutes voisins, et la couleur ne
+ * disait plus laquelle est laquelle — elle ne faisait que redire la
+ * longueur de la barre. Une categorie nominale prend donc une teinte
+ * unique, et seules les series distinctes recoivent les huit teintes
+ * d'identite.
+ *
+ * Le chargement reste par section : dix-sept graphiques montes d'un coup
+ * sur une reponse de deux cents kilo-octets se payaient en secondes.
  */
-const OUTRE_MER: Record<string, [number, number]> = {
-  '971-pointe-a-pitre': [16.2412, -61.5340],
-  '971-basse-terre': [15.9958, -61.7292],
-  '971-les abymes': [16.2718, -61.5057],
-  '972-fort-de-france': [14.6161, -61.0588],
-  '972-le lamentin': [14.6097, -60.9994],
-  '973-cayenne': [4.9224, -52.3135],
-  '973-saint-laurent-du-maroni': [5.5031, -54.0289],
-  '973-kourou': [5.1594, -52.6503],
-  '974-saint-denis': [-20.8823, 55.4504],
-  '974-saint-pierre': [-21.3393, 55.4781],
-  '974-le tampon': [-21.2783, 55.5153],
-  '974-saint-paul': [-21.0096, 55.2707],
-  '976-mamoudzou': [-12.7806, 45.2278],
-};
-
-/** Chef-lieu par defaut, quand la commune outre-mer n'est pas listee. */
-const CHEFS_LIEUX_OUTRE_MER: Record<string, [number, number]> = {
-  '971': [16.2412, -61.5340],
-  '972': [14.6161, -61.0588],
-  '973': [4.9224, -52.3135],
-  '974': [-20.8823, 55.4504],
-  '976': [-12.7806, 45.2278],
-};
-
 @Component({
   selector: 'app-admin-stats',
-  imports: [DecimalPipe, ConsoleShell, RouterLink],
+  imports: [VizCard, StatTile],
   templateUrl: './admin-stats.html',
   styleUrl: './admin-stats.scss',
 })
@@ -123,78 +69,79 @@ export class AdminStats implements OnInit, OnDestroy {
   private jobService = inject(JobOfferService);
   private router = inject(Router);
 
-  data = signal<any>(null);
+  /** Toutes les sections recues, fusionnees : le gabarit ne lit qu'un objet. */
+  data = signal<any>({});
   loading = signal(true);
-  activeMapLayer = signal<'candidates' | 'recruiters' | 'offers'>('candidates');
-  private charts: Chart[] = [];
-  private map: L.Map | null = null;
-  private mapLayers: Record<string, L.LayerGroup> = {};
+  chargementSection = signal(false);
 
-  // Canvas refs
-  @ViewChild('activityChart') activityCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('registrationsChart') registrationsCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('mapContainer') mapContainer!: ElementRef<HTMLDivElement>;
-  @ViewChild('offersDayChart') offersDayCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('categoryChart') categoryCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('contractChart') contractCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('experienceChart') experienceCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('locationsChart') locationsCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('salaryChart') salaryCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('topCompaniesChart') topCompaniesCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('statusChart') statusCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('appsDayChart') appsDayCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('sourceChart') sourceCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('conversionChart') conversionCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('topViewedChart') topViewedCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('interviewTypeChart') interviewTypeCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('interviewStatusChart') interviewStatusCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('messagesDayChart') messagesDayCanvas!: ElementRef<HTMLCanvasElement>;
-
-  /**
-   * Onglets. Chaque section a son point d'entree : la page ne demande que
-   * ce qu'elle affiche, et les graphiques ne se construisent que pour
-   * l'onglet visible. Dix-sept graphiques montes d'un coup, sur une
-   * reponse de deux cents kilo-octets, se payaient en secondes.
-   */
-  onglets = [
-    { cle: 'apercu', label: "Vue d'ensemble", icon: 'bi-speedometer2' },
-    { cle: 'offres', label: 'Offres', icon: 'bi-briefcase' },
-    { cle: 'candidatures', label: 'Candidatures', icon: 'bi-file-earmark-text' },
-    { cle: 'utilisateurs', label: 'Utilisateurs', icon: 'bi-people' },
-    { cle: 'echanges', label: 'Entretiens et messagerie', icon: 'bi-chat-dots' },
+  onglets: Onglet[] = [
+    { cle: 'apercu', label: "Vue d'ensemble", icon: 'bi-speedometer2', section: 'activite' },
+    { cle: 'offres', label: 'Offres', icon: 'bi-briefcase', section: 'offres' },
+    { cle: 'candidatures', label: 'Candidatures', icon: 'bi-file-earmark-text', section: 'candidatures' },
+    { cle: 'utilisateurs', label: 'Utilisateurs', icon: 'bi-people', section: 'utilisateurs' },
+    { cle: 'echanges', label: 'Entretiens et messagerie', icon: 'bi-chat-dots', section: 'echanges' },
   ];
 
   onglet = signal<string>('apercu');
-  chargementSection = signal(false);
 
-  /** Sections deja recuperees : on ne redemande pas ce qu'on a. */
+  /** Sections deja recues : on ne redemande pas ce qu'on a. */
   private recues = new Set<string>();
 
+  // ── Carte ──
+  couches: Couche[] = [
+    { cle: 'candidates', label: 'Candidats', champ: 'candidatesByCity', nom: 'candidat', color: SERIES[0], icon: 'bi-person' },
+    { cle: 'recruiters', label: 'Recruteurs', champ: 'recruitersByCity', nom: 'recruteur', color: SERIES[1], icon: 'bi-building' },
+    { cle: 'offers', label: 'Offres', champ: 'offersByLocation', nom: 'offre', color: SERIES[4], icon: 'bi-briefcase' },
+  ];
+
+  coucheActive = signal<'candidates' | 'recruiters' | 'offers'>('candidates');
+
+  private mapHost = viewChild<ElementRef<HTMLDivElement>>('mapHost');
+  private map: L.Map | null = null;
+  private mapLayers: Record<string, L.LayerGroup> = {};
+
+  constructor() {
+    // La carte se monte quand son conteneur entre dans le DOM — c'est-a-dire
+    // quand on ouvre l'onglet « Utilisateurs » — et pas avant.
+    effect(() => {
+      const host = this.mapHost()?.nativeElement;
+      const d = this.data();
+      if (!host || !d?.candidatesByCity) return;
+      this.monterCarte(host, d);
+    });
+  }
+
   ngOnInit() {
-    // La vue d'ensemble porte les compteurs, affiches sur tous les
-    // onglets : elle se charge toujours, et d'abord.
+    // L'apercu porte les compteurs, affiches sur tous les onglets : il se
+    // charge toujours, et d'abord.
     this.charger('apercu', () => {
       this.loading.set(false);
       this.charger('activite');
     });
   }
 
+  ngOnDestroy() {
+    this.map?.remove();
+  }
+
   changerOnglet(cle: string) {
     if (cle === this.onglet()) return;
     this.onglet.set(cle);
 
-    // Les canevas de l'onglet quitte sortent du DOM : leurs graphiques
-    // n'ont plus de support et doivent etre liberes.
-    this.charts.forEach((c) => c.destroy());
-    this.charts = [];
+    // Les cartes de graphique se demontent avec l'onglet quitte et
+    // liberent leur Chart elles-memes : rien a faire ici.
+    if (cle !== 'utilisateurs') {
+      this.map?.remove();
+      this.map = null;
+      this.mapLayers = {};
+    }
 
-    // La vue d'ensemble affiche aussi la courbe de tendance.
-    this.charger(cle === 'apercu' ? 'activite' : cle);
+    const section = this.onglets.find((o) => o.cle === cle)?.section;
+    if (section) this.charger(section);
   }
 
   private charger(section: string, ensuite?: () => void) {
     if (this.recues.has(section)) {
-      this.construire();
       ensuite?.();
       return;
     }
@@ -207,7 +154,6 @@ export class AdminStats implements OnInit, OnDestroy {
         // objet, quelle que soit la section qui l'a rempli.
         this.data.update((courant: any) => ({ ...(courant ?? {}), ...d }));
         this.chargementSection.set(false);
-        setTimeout(() => this.construire(), 60);
         ensuite?.();
       },
       error: () => {
@@ -217,181 +163,341 @@ export class AdminStats implements OnInit, OnDestroy {
     });
   }
 
-  /** Monte les graphiques du seul onglet visible. */
-  private construire() {
-    const d = this.data();
-    if (!d) return;
+  // ═══════════════════════════════════════════
+  //  Vue d'ensemble
+  // ═══════════════════════════════════════════
 
-    this.charts.forEach((c) => c.destroy());
-    this.charts = [];
+  private timeline = computed<any[]>(() => this.data()?.activityTimeline ?? []);
 
-    switch (this.onglet()) {
-      case 'apercu':
-        if (d.activityTimeline && this.activityCanvas) this.buildActivity(d);
-        break;
-      case 'offres':
-        if (!d.offersByCategory || !this.categoryCanvas) return;
-        this.buildOffersDay(d); this.buildCategory(d); this.buildContract(d);
-        this.buildExperience(d); this.buildLocations(d); this.buildSalary(d);
-        this.buildTopCompanies(d); this.buildTopViewed(d);
-        break;
-      case 'candidatures':
-        if (!d.appsByStatus || !this.statusCanvas) return;
-        this.buildStatus(d); this.buildAppsDay(d);
-        this.buildSource(d); this.buildConversion(d);
-        break;
-      case 'utilisateurs':
-        if (!d.registrationsByDay || !this.registrationsCanvas) return;
-        this.buildRegistrations(d); this.buildMap(d);
-        break;
-      case 'echanges':
-        if (!d.interviewsByStatus || !this.interviewStatusCanvas) return;
-        this.buildInterviewType(d); this.buildInterviewStatus(d); this.buildMessagesDay(d);
-        break;
-    }
-  }
-
-  ngOnDestroy() {
-    this.charts.forEach(c => c.destroy());
-    this.map?.remove();
-  }
-
-  private font(size = 11, weight: 'normal' | 'bold' | 500 | 600 | 700 = 500) {
-    return { family: "'DM Mono', sans-serif", size, weight: weight as any };
-  }
-
-  private tooltipStyle() {
-    return {
-      backgroundColor: NAVY_900,
-      titleFont: this.font(12, 600),
-      bodyFont: this.font(11),
-      padding: 10,
-      cornerRadius: 8,
-      borderColor: 'rgba(255,255,255,0.08)',
-      borderWidth: 1,
-    };
-  }
-
-  private buildAllCharts(d: any) {
-    if (!this.activityCanvas) {
-      setTimeout(() => this.buildAllCharts(d), 60);
-      return;
-    }
-    this.charts.forEach(c => c.destroy());
-    this.charts = [];
-
-    this.buildActivity(d);
-    this.buildRegistrations(d);
-    this.buildMap(d);
-    this.buildOffersDay(d);
-    this.buildCategory(d);
-    this.buildContract(d);
-    this.buildExperience(d);
-    this.buildLocations(d);
-    this.buildSalary(d);
-    this.buildTopCompanies(d);
-    this.buildStatus(d);
-    this.buildAppsDay(d);
-    this.buildSource(d);
-    this.buildConversion(d);
-    this.buildTopViewed(d);
-    this.buildInterviewType(d);
-    this.buildInterviewStatus(d);
-    this.buildMessagesDay(d);
-  }
-
-  // ════════════════════════════════════════
-  //  1. ACTIVITE GLOBALE (ligne multi)
-  // ════════════════════════════════════════
-  private buildActivity(d: any) {
-    const labels = d.activityTimeline.map((i: any) => i.label);
-    this.charts.push(new Chart(this.activityCanvas.nativeElement, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Offres', data: d.activityTimeline.map((i: any) => i.offres), borderColor: TEAL, backgroundColor: TEAL_50, fill: true, tension: 0.4, pointRadius: 2 },
-          { label: 'Candidatures', data: d.activityTimeline.map((i: any) => i.candidatures), borderColor: BLUE, backgroundColor: 'rgba(37,99,168,0.08)', fill: true, tension: 0.4, pointRadius: 2 },
-          { label: 'Inscriptions', data: d.activityTimeline.map((i: any) => i.inscriptions), borderColor: AMBER, backgroundColor: 'rgba(180,105,14,0.08)', fill: true, tension: 0.4, pointRadius: 2 },
-        ],
+  activiteConfig = computed(() => {
+    const t = this.timeline();
+    if (!t.length) return null;
+    return lines(
+      t.map((j) => j.label),
+      [
+        { label: 'Offres publiées', values: t.map((j) => j.offres) },
+        { label: 'Candidatures', values: t.map((j) => j.candidatures) },
+        { label: 'Inscriptions', values: t.map((j) => j.inscriptions) },
+      ],
+      {
+        drill: drilldown(
+          this.router,
+          (_i, _label, ds) =>
+            to([ds === 0 ? '/admin/offres' : ds === 1 ? '/admin/candidatures' : '/admin/utilisateurs']),
+          { nearest: true },
+        ),
       },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        // Trois series superposees : la destination depend de la courbe
-        // cliquee, pas seulement du jour.
-        ...drilldown(this.router, (i, label, dataset) => {
-          const jour = toIsoDay(String(labels[i] ?? label));
-          const route = ['/admin/offres', '/admin/candidatures', '/admin/utilisateurs'][dataset];
-          return route ? to([route], { jour }) : null;
-        }, { nearest: true }),
-        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle', font: this.font(11, 500), color: NAVY_800, padding: 16 } }, tooltip: this.tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 0 } },
-          y: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-        },
-        interaction: { intersect: false, mode: 'index' },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      },
-    }));
-  }
+    );
+  });
 
-  // ════════════════════════════════════════
-  //  2. INSCRIPTIONS PAR JOUR
-  // ════════════════════════════════════════
-  private buildRegistrations(d: any) {
-    this.charts.push(new Chart(this.registrationsCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: d.registrationsByDay.map((i: any) => i.label),
-        datasets: [{ data: d.registrationsByDay.map((i: any) => i.value), backgroundColor: TEAL, borderRadius: 4, barPercentage: 0.7 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) =>
-          to(['/admin/utilisateurs'], { jour: toIsoDay(d.registrationsByDay[i].label) })),
-        plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 45 } },
-          y: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
+  activiteRows = computed<VizRow[]>(() =>
+    this.timeline()
+      .slice()
+      .reverse()
+      .map((j) => ({
+        label: j.label,
+        value: j.offres + j.candidatures + j.inscriptions,
+        note: `${j.offres} offres · ${j.candidatures} cand. · ${j.inscriptions} inscr.`,
+      })),
+  );
 
-  // ════════════════════════════════════════
-  //  3. CARTE DE FRANCE INTERACTIVE
-  // ════════════════════════════════════════
-  private buildMap(d: any) {
-    if (!this.mapContainer?.nativeElement) return;
+  // ═══════════════════════════════════════════
+  //  Offres
+  // ═══════════════════════════════════════════
 
-    // Destroy previous instance if any
-    if (this.map) {
-      this.map.remove();
-      this.map = null;
-    }
+  private pts = (champ: string): any[] => this.data()?.[champ] ?? [];
 
-    const el = this.mapContainer.nativeElement;
+  offresJourConfig = computed(() => {
+    const p = this.pts('offersByDay');
+    if (!p.length) return null;
+    return lines(
+      p.map((x) => x.label),
+      [{ label: 'Offres publiées', values: p.map((x) => x.value) }],
+      { drill: drilldown(this.router, () => to(['/admin/offres'])) },
+    );
+  });
 
-    // Wait until container actually has dimensions
-    if (el.clientHeight === 0) {
-      setTimeout(() => this.buildMap(d), 100);
-      return;
-    }
-
-    // Fix Leaflet default marker icon path (Webpack breaks it)
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'assets/marker-icon-2x.png',
-      iconUrl: 'assets/marker-icon.png',
-      shadowUrl: 'assets/marker-shadow.png',
+  categoriesConfig = computed(() => {
+    const p = this.pts('offersByCategory');
+    if (!p.length) return null;
+    return barsH(p, {
+      unit: 'offres',
+      drill: drilldown(this.router, (i) => to(['/admin/offres'], { categorie: p[i].label })),
     });
+  });
+
+  contratsConfig = computed(() => {
+    const p = this.pts('offersByContract');
+    if (!p.length) return null;
+    // Six parts au plus : au-dela, l'anneau ne se lit plus et la liste
+    // est plus honnete. Le reste part dans « Autres ».
+    const tete = p.slice(0, 6);
+    const reste = p.slice(6).reduce((n, x) => n + x.value, 0);
+    const parts = reste ? [...tete, { label: 'Autres', value: reste }] : tete;
+    return donut(parts, {
+      unit: 'offres',
+      drill: drilldown(this.router, (i) =>
+        i < tete.length ? to(['/admin/offres'], { contrat: tete[i].label }) : null,
+      ),
+    });
+  });
+
+  /**
+   * L'experience requise est un palier ordonne — debutant, confirme,
+   * senior : echanger deux niveaux changerait le sens. C'est donc la
+   * rampe, pas les teintes d'identite, et l'ordre se lit dans la couleur.
+   *
+   * Encore faut-il que les barres soient dans le bon ordre. Le serveur
+   * les renvoie triees par effectif : la rampe posait alors du clair sur
+   * « Junior », du fonce sur « Senior » et du plus clair encore sur
+   * « Intermediaire », ce qui affirmait une progression fausse. On remet
+   * donc les paliers dans leur ordre avant de les peindre.
+   */
+  private niveauxExperience = computed(() => {
+    const rang = (label: string) => {
+      const l = label.toLowerCase();
+      if (/debut|junior|0|aucune|sans/.test(l)) return 0;
+      if (/interm|confirm|2|3/.test(l)) return 1;
+      if (/senior|5/.test(l)) return 2;
+      if (/expert|lead|10/.test(l)) return 3;
+      return 9; // Palier non reconnu : rejete en fin de liste.
+    };
+    return this.pts('offersByExperience')
+      .slice()
+      .sort((a, b) => rang(a.label) - rang(b.label));
+  });
+
+  experienceConfig = computed(() => {
+    const p = this.niveauxExperience();
+    if (!p.length) return null;
+    return barsH(p, {
+      unit: 'offres',
+      ordinal: true,
+      drill: drilldown(this.router, (i) => to(['/admin/offres'], { experience: p[i].label })),
+    });
+  });
+
+  experienceRows = computed<VizRow[]>(() =>
+    this.niveauxExperience().map((x, i) => ({
+      label: x.label,
+      value: x.value,
+      color: ORDINAL[Math.min(i, ORDINAL.length - 1)],
+    })),
+  );
+
+  villesConfig = computed(() => {
+    const p = this.pts('offersByLocation').slice(0, 15);
+    if (!p.length) return null;
+    return barsH(p, {
+      unit: 'offres',
+      drill: drilldown(this.router, (i) => to(['/admin/offres'], { lieu: p[i].label })),
+    });
+  });
+
+  /**
+   * Salaires : deux mesures de meme nature et de meme echelle — un
+   * minimum et un maximum en euros — donc un seul axe. Deux echelles
+   * verticales inventeraient un rapport entre elles.
+   */
+  salairesConfig = computed(() => {
+    const p = this.pts('salaryByCategory');
+    if (!p.length) return null;
+    return stacked(
+      p.map((x) => x.label),
+      [
+        { label: 'Salaire minimum moyen', values: p.map((x) => x.min) },
+        { label: 'Amplitude jusqu\'au maximum', values: p.map((x) => x.max - x.min) },
+      ],
+      {
+        horizontal: true,
+        unit: '€',
+        drill: drilldown(this.router, (i) => to(['/admin/offres'], { categorie: p[i].label })),
+      },
+    );
+  });
+
+  salairesRows = computed<VizRow[]>(() =>
+    this.pts('salaryByCategory').map((x) => ({
+      label: x.label,
+      value: `${nf(x.min)} – ${nf(x.max)} €`,
+      note: `${nf(x.max - x.min)} € d'amplitude`,
+    })),
+  );
+
+  entreprisesConfig = computed(() => {
+    const p = this.pts('topCompanies');
+    if (!p.length) return null;
+    return barsH(p, {
+      unit: 'offres',
+      drill: drilldown(this.router, (i) => to(['/admin/offres'], { entreprise: p[i].label })),
+    });
+  });
+
+  vuesConfig = computed(() => {
+    const p = this.pts('topViewedOffers');
+    if (!p.length) return null;
+    return barsH(p, {
+      unit: 'vues',
+      drill: drilldown(this.router, () => to(['/admin/offres'], { tri: 'views' })),
+    });
+  });
+
+  vuesRows = computed<VizRow[]>(() =>
+    this.pts('topViewedOffers').map((x) => ({ label: x.label, value: x.value, note: x.company })),
+  );
+
+  // ═══════════════════════════════════════════
+  //  Candidatures
+  // ═══════════════════════════════════════════
+
+  private statuts = computed(() => {
+    const ordre = ['Pending', 'Reviewed', 'Accepted', 'Rejected'];
+    return this.pts('appsByStatus')
+      .slice()
+      .sort((a, b) => ordre.indexOf(a.label) - ordre.indexOf(b.label))
+      .map((s) => ({
+        cle: s.label,
+        label: APPLICATION_STATUS[s.label]?.label ?? s.label,
+        value: s.value,
+        color: APPLICATION_STATUS[s.label]?.color ?? STATUS.neutral,
+      }));
+  });
+
+  statutsConfig = computed(() => {
+    const s = this.statuts();
+    if (!s.length) return null;
+    return donut(s, {
+      colors: s.map((x) => x.color),
+      drill: drilldown(this.router, (i) => to(['/admin/candidatures'], { statut: s[i].cle })),
+    });
+  });
+
+  statutsRows = computed<VizRow[]>(() => {
+    const s = this.statuts();
+    const total = s.reduce((n, x) => n + x.value, 0);
+    return s.map((x) => ({
+      label: x.label,
+      value: x.value,
+      note: total ? `${Math.round((x.value / total) * 100)} %` : '—',
+      color: x.color,
+    }));
+  });
+
+  candJourConfig = computed(() => {
+    const p = this.pts('appsByDay');
+    if (!p.length) return null;
+    return lines(
+      p.map((x) => x.label),
+      [{ label: 'Candidatures', values: p.map((x) => x.value) }],
+      { drill: drilldown(this.router, () => to(['/admin/candidatures'])) },
+    );
+  });
+
+  sourcesConfig = computed(() => {
+    const p = this.pts('appsBySource');
+    if (!p.length) return null;
+    return columns(p, {
+      unit: 'candidatures',
+      drill: drilldown(this.router, (i) => to(['/admin/candidatures'], { source: p[i].label })),
+    });
+  });
+
+  conversionConfig = computed(() => {
+    const p = this.pts('conversionByCompany');
+    if (!p.length) return null;
+    return barsH(p, {
+      unit: '%',
+      drill: drilldown(this.router, (i) => to(['/admin/offres'], { entreprise: p[i].label })),
+    });
+  });
+
+  conversionRows = computed<VizRow[]>(() =>
+    this.pts('conversionByCompany').map((x) => ({
+      label: x.label,
+      value: `${String(x.value).replace('.', ',')} %`,
+    })),
+  );
+
+  // ═══════════════════════════════════════════
+  //  Utilisateurs
+  // ═══════════════════════════════════════════
+
+  inscriptionsConfig = computed(() => {
+    const p = this.pts('registrationsByDay');
+    if (!p.length) return null;
+    return lines(
+      p.map((x) => x.label),
+      [{ label: 'Inscriptions', values: p.map((x) => x.value) }],
+      { drill: drilldown(this.router, () => to(['/admin/utilisateurs'])) },
+    );
+  });
+
+  villesUsersConfig = computed(() => {
+    const p = this.pts('usersByCity');
+    if (!p.length) return null;
+    return barsH(p, {
+      unit: 'comptes',
+      drill: drilldown(this.router, (i) => to(['/admin/utilisateurs'], { ville: p[i].label })),
+    });
+  });
+
+  // ═══════════════════════════════════════════
+  //  Entretiens et messagerie
+  // ═══════════════════════════════════════════
+
+  typesEntretienConfig = computed(() => {
+    const p = this.pts('interviewsByType');
+    if (!p.length) return null;
+    return donut(p, {
+      unit: 'entretiens',
+      drill: drilldown(this.router, (i) => to(['/admin/entretiens'], { type: p[i].label })),
+    });
+  });
+
+  statutsEntretienConfig = computed(() => {
+    const p = this.pts('interviewsByStatus');
+    if (!p.length) return null;
+    return columns(p, {
+      unit: 'entretiens',
+      drill: drilldown(this.router, (i) => to(['/admin/entretiens'], { statut: p[i].label })),
+    });
+  });
+
+  messagesConfig = computed(() => {
+    const p = this.pts('messagesByDay');
+    if (!p.length) return null;
+    return lines(
+      p.map((x) => x.label),
+      [{ label: 'Messages', values: p.map((x) => x.value) }],
+    );
+  });
+
+  /** Vue tableau generique : libelle et valeur, dans l'ordre du graphique. */
+  rows(champ: string, limite = 100): VizRow[] {
+    return this.pts(champ)
+      .slice(0, limite)
+      .map((x) => ({ label: x.label, value: x.value, color: SERIES[0] }));
+  }
+
+  // ═══════════════════════════════════════════
+  //  Carte
+  // ═══════════════════════════════════════════
+
+  private monterCarte(el: HTMLDivElement, d: any) {
+    if (this.map) return;
+
+    // Un conteneur sans hauteur donne une carte d'un pixel : on attend
+    // que la mise en page ait pose ses dimensions.
+    if (el.clientHeight === 0) {
+      setTimeout(() => this.monterCarte(el, d), 100);
+      return;
+    }
 
     this.map = L.map(el, {
       center: [46.6, 2.5],
-      zoom: 6,
+      zoom: 5,
       zoomControl: true,
-      scrollWheelZoom: true,
+      scrollWheelZoom: false, // la molette fait defiler la page, pas zoomer
       attributionControl: false,
     });
 
@@ -400,541 +506,78 @@ export class AdminStats implements OnInit, OnDestroy {
       maxZoom: 19,
     }).addTo(this.map);
 
-    L.control.attribution({ position: 'bottomright', prefix: false })
+    L.control
+      .attribution({ position: 'bottomright', prefix: false })
       .addAttribution('&copy; <a href="https://carto.com/">CARTO</a>')
       .addTo(this.map);
 
-    // Build layers
-    this.mapLayers['candidates'] = this.createCityLayer(d.candidatesByCity || [], TEAL, 'candidat');
-    this.mapLayers['recruiters'] = this.createCityLayer(d.recruitersByCity || [], BLUE, 'recruteur');
-    this.mapLayers['offers'] = this.createCityLayer(d.offersByLocation || [], ORANGE, 'offre');
+    for (const c of this.couches) {
+      this.mapLayers[c.cle] = this.coucheVille(d[c.champ] ?? [], c);
+    }
+    this.mapLayers[this.coucheActive()]?.addTo(this.map);
 
-    // Show default layer
-    this.mapLayers['candidates'].addTo(this.map);
-
-    // Multiple invalidateSize calls to handle CSS animations/transitions
+    // La carte se monte dans un onglet qui vient d'apparaitre : sa taille
+    // n'est pas encore stabilisee au premier rendu.
     const map = this.map;
     setTimeout(() => map.invalidateSize(), 150);
-    setTimeout(() => map.invalidateSize(), 400);
-    setTimeout(() => map.invalidateSize(), 800);
+    setTimeout(() => map.invalidateSize(), 500);
   }
 
-  private createCityLayer(items: { label: string; value: number }[], color: string, noun: string): L.LayerGroup {
+  /**
+   * Une couche de pastilles proportionnelles.
+   *
+   * L'aire du disque suit la valeur, pas son rayon : a rayon
+   * proportionnel, une ville deux fois plus peuplee occupe quatre fois la
+   * surface et le lecteur surestime l'ecart.
+   */
+  private coucheVille(items: { label: string; value: number }[], c: Couche): L.LayerGroup {
     const group = L.layerGroup();
-    const maxVal = Math.max(...items.map(i => i.value), 1);
+    const max = Math.max(...items.map((i) => i.value), 1);
 
     for (const item of items) {
-      const coords = this.findCity(item.label);
+      const coords = findCity(item.label);
       if (!coords) continue;
 
-      const radius = 8 + (item.value / maxVal) * 30;
-      const circle = L.circleMarker(coords, {
-        radius,
-        fillColor: color,
-        fillOpacity: 0.55,
-        color: color,
+      const rayon = 5 + Math.sqrt(item.value / max) * 24;
+      const cercle = L.circleMarker(coords, {
+        radius: rayon,
+        fillColor: c.color,
+        fillOpacity: 0.42,
+        color: c.color,
         weight: 2,
-        opacity: 0.85,
+        opacity: 0.9,
       });
 
-      circle.bindPopup(
-        `<div style="font-family:'DM Mono',sans-serif;text-align:center;padding:4px">` +
-        `<strong style="font-size:14px;color:${NAVY_800}">${item.label}</strong><br>` +
-        `<span style="font-size:22px;font-weight:800;color:${color}">${item.value}</span><br>` +
-        `<span style="font-size:11px;color:${SLATE400}">${noun}${item.value > 1 ? 's' : ''}</span></div>`,
-        { closeButton: false, className: 'map-popup' }
+      cercle.bindPopup(
+        `<div class="mp"><strong>${item.label}</strong>` +
+          `<span class="mp-val" style="color:${c.color}">${nf(item.value)}</span>` +
+          `<span class="mp-nom">${c.nom}${item.value > 1 ? 's' : ''}</span></div>`,
+        { closeButton: false, className: 'map-popup' },
       );
 
-      circle.on('mouseover', () => circle.openPopup());
-      circle.on('mouseout', () => circle.closePopup());
+      cercle.on('mouseover', () => cercle.openPopup());
+      cercle.on('mouseout', () => cercle.closePopup());
 
-      group.addLayer(circle);
+      group.addLayer(cercle);
     }
     return group;
   }
 
-  /**
-   * Retrouve les coordonn\u00e9es d'un lieu.
-   *
-   * Les offres import\u00e9es de France Travail portent un libell\u00e9 de la forme
-   * \u00ab 87 - LIMOGES \u00bb : un code d\u00e9partement, un tiret, la commune. Le code
-   * est retir\u00e9 avant toute comparaison, sinon rien ne correspond.
-   *
-   * La recherche approchante est volontairement stricte. La version
-   * pr\u00e9c\u00e9dente acceptait n'importe quelle sous-cha\u00eene : \u00ab Beaupr\u00e9au \u00bb
-   * contient \u00ab pau \u00bb et atterrissait dans les Pyr\u00e9n\u00e9es. On n'accepte
-   * d\u00e9sormais qu'un mot entier, et d'au moins quatre lettres.
-   */
-  private findCity(name: string): [number, number] | null {
-    const brut = String(name ?? '');
-
-    // Le code departement en tete sert d'abord a lever les homonymies
-    // outre-mer, avant d'etre retire pour la recherche metropolitaine.
-    const code = brut.match(/^\s*(\d{3})\s*-\s*/)?.[1];
-
-    const nettoye = brut
-      // \u00ab 87 - \u00bb, \u00ab 2A - \u00bb, \u00ab 973 - \u00bb : le code departement en tete
-      .replace(/^\s*\d{2,3}\s*-\s*/, '')
-      .replace(/^\s*2[AB]\s*-\s*/i, '')
-      // \u00ab Paris 15e \u00bb, \u00ab Lyon 3eme \u00bb : l'arrondissement ne change pas la ville
-      .replace(/\s+\d{1,2}\s*(e|er|eme|\u00e8me)\b/i, '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .trim();
-
-    const enTirets = nettoye.replace(/[\s']+/g, '-');
-
-    if (code) {
-      const precis = OUTRE_MER[`${code}-${enTirets}`] ?? OUTRE_MER[`${code}-${nettoye}`];
-      if (precis) return precis;
-      // Commune non listee : le chef-lieu situe correctement le territoire,
-      // ce qui vaut mieux que de projeter la Guyane sur la metropole.
-      const chefLieu = CHEFS_LIEUX_OUTRE_MER[code];
-      if (chefLieu) return chefLieu;
-    }
-
-    if (FRENCH_CITIES[enTirets]) return FRENCH_CITIES[enTirets];
-
-    // Egalite une fois les tirets ramenes a des espaces : \u00ab le-havre \u00bb
-    // et \u00ab le havre \u00bb designent la meme ville.
-    const enEspaces = enTirets.replace(/-/g, ' ');
-    for (const [cle, coords] of Object.entries(FRENCH_CITIES)) {
-      if (cle.replace(/-/g, ' ') === enEspaces) return coords;
-    }
-
-    // Dernier recours : la ville apparait comme mot entier dans le libelle.
-    const mots = new Set(enEspaces.split(' ').filter(Boolean));
-    for (const [cle, coords] of Object.entries(FRENCH_CITIES)) {
-      const cleEspaces = cle.replace(/-/g, ' ');
-      if (cleEspaces.length < 4) continue;
-      if (cleEspaces.includes(' ')) {
-        if (enEspaces.includes(cleEspaces)) return coords;
-      } else if (mots.has(cleEspaces)) {
-        return coords;
-      }
-    }
-    return null;
-  }
-
-  switchMapLayer(layer: 'candidates' | 'recruiters' | 'offers') {
+  changerCouche(cle: 'candidates' | 'recruiters' | 'offers') {
+    this.coucheActive.set(cle);
     if (!this.map) return;
-    // Remove all layers
-    Object.values(this.mapLayers).forEach(l => this.map!.removeLayer(l));
-    // Add selected
-    this.mapLayers[layer]?.addTo(this.map);
-    this.activeMapLayer.set(layer);
+    Object.values(this.mapLayers).forEach((l) => this.map!.removeLayer(l));
+    this.mapLayers[cle]?.addTo(this.map);
   }
 
-  // ════════════════════════════════════════
-  //  4. OFFRES PAR JOUR
-  // ════════════════════════════════════════
-  private buildOffersDay(d: any) {
-    this.charts.push(new Chart(this.offersDayCanvas.nativeElement, {
-      type: 'line',
-      data: {
-        labels: d.offersByDay.map((i: any) => i.label),
-        datasets: [{
-          data: d.offersByDay.map((i: any) => i.value),
-          borderColor: TEAL, backgroundColor: TEAL_50, fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: TEAL,
-        }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) =>
-          to(['/admin/offres'], { jour: toIsoDay(d.offersByDay[i].label) })),
-        plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 45 } },
-          y: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
+  /** Les villes de la couche affichee, en toutes lettres : la carte a aussi son tableau. */
+  villesCouche = computed<VizRow[]>(() => {
+    const c = this.couches.find((x) => x.cle === this.coucheActive());
+    if (!c) return [];
+    return this.pts(c.champ).map((v) => ({ label: v.label, value: v.value, color: c.color }));
+  });
 
-  // ════════════════════════════════════════
-  //  5. OFFRES PAR CATEGORIE
-  // ════════════════════════════════════════
-  private buildCategory(d: any) {
-    const items = d.offersByCategory || [];
-    this.charts.push(new Chart(this.categoryCanvas.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: MULTI.slice(0, items.length), borderWidth: 2, borderColor: CREME, hoverOffset: 6 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: '60%',
-        ...drilldown(this.router, (i) => to(['/admin/offres'], { categorie: items[i].label })),
-        plugins: {
-          legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: this.font(11, 500), color: NAVY_800 } },
-          tooltip: this.tooltipStyle(),
-        },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  6. TYPES DE CONTRAT
-  // ════════════════════════════════════════
-  private buildContract(d: any) {
-    const items = d.offersByContract || [];
-    this.charts.push(new Chart(this.contractCanvas.nativeElement, {
-      type: 'polarArea',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: MULTI.slice(0, items.length).map(c => c + '44'), borderColor: MULTI.slice(0, items.length), borderWidth: 2 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) => to(['/admin/offres'], { contrat: items[i].label })),
-        plugins: { legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: this.font(11, 500), color: NAVY_800 } }, tooltip: this.tooltipStyle() },
-        scales: { r: { ticks: { display: false }, grid: { color: SLATE200 } } },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  7. EXPERIENCE REQUISE
-  // ════════════════════════════════════════
-  private buildExperience(d: any) {
-    const items = d.offersByExperience || [];
-    if (!items.length) return;
-    this.charts.push(new Chart(this.experienceCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: [TEAL, TEAL_400, NAVY_800, AMBER, RED], borderRadius: 6, barPercentage: 0.6 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) => to(['/admin/offres'], { experience: items[i].label })),
-        plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: this.font(11, 600), color: NAVY_800 } },
-          y: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  8. GEOGRAPHIE DES OFFRES
-  // ════════════════════════════════════════
-  private buildLocations(d: any) {
-    const items = d.offersByLocation || [];
-    if (!items.length) return;
-    const ctx = this.locationsCanvas.nativeElement.getContext('2d')!;
-    const grad = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
-    grad.addColorStop(0, TEAL_600);
-    grad.addColorStop(1, TEAL_400);
-    this.charts.push(new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: grad, borderRadius: 5, borderSkipped: false, barPercentage: 0.65 }],
-      },
-      options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) => to(['/admin/offres'], { lieu: items[i].label })),
-        plugins: { legend: { display: false }, tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => `${ctx.parsed.x} offre${ctx.parsed.x > 1 ? 's' : ''}` } } },
-        scales: {
-          x: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-          y: { grid: { display: false }, ticks: { font: this.font(11, 600), color: NAVY_800 } },
-        },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  9. SALAIRES MOYENS PAR CATEGORIE
-  // ════════════════════════════════════════
-  private buildSalary(d: any) {
-    const items = d.salaryByCategory || [];
-    if (!items.length) return;
-    this.charts.push(new Chart(this.salaryCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [
-          { label: 'Min', data: items.map((i: any) => i.min), backgroundColor: TEAL_400 + '88', borderColor: TEAL_400, borderWidth: 1, borderRadius: 4, barPercentage: 0.7 },
-          { label: 'Max', data: items.map((i: any) => i.max), backgroundColor: NAVY_800 + '88', borderColor: NAVY_800, borderWidth: 1, borderRadius: 4, barPercentage: 0.7 },
-        ],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        // Les deux series (min et max) portent la meme categorie : la
-        // destination ne depend donc pas de la courbe cliquee.
-        ...drilldown(this.router, (i) => to(['/admin/offres'], { categorie: items[i].label })),
-        plugins: {
-          legend: { labels: { usePointStyle: true, pointStyle: 'circle', font: this.font(11, 500), color: NAVY_800, padding: 16 } },
-          tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => ` ${ctx.dataset.label}: ${(ctx.parsed.y / 1000).toFixed(0)}k EUR/an` } },
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 45 } },
-          y: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, callback: (v: any) => (v / 1000) + 'k' } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  10. TOP ENTREPRISES
-  // ════════════════════════════════════════
-  private buildTopCompanies(d: any) {
-    const items = d.topCompanies || [];
-    const ctx = this.topCompaniesCanvas.nativeElement.getContext('2d')!;
-    const grad = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
-    grad.addColorStop(0, NAVY_800);
-    grad.addColorStop(1, TEAL);
-    this.charts.push(new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: grad, borderRadius: 5, borderSkipped: false, barPercentage: 0.65 }],
-      },
-      options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) => to(['/admin/offres'], { entreprise: items[i].label })),
-        plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
-        scales: {
-          x: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-          y: { grid: { display: false }, ticks: { font: this.font(11, 600), color: NAVY_800 } },
-        },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  11. CANDIDATURES PAR STATUT
-  // ════════════════════════════════════════
-  private buildStatus(d: any) {
-    const items = d.appsByStatus || [];
-    const total = items.reduce((s: number, i: any) => s + i.value, 0);
-    this.charts.push(new Chart(this.statusCanvas.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: items.map((i: any) => STATUS_LABELS[i.label] || i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: items.map((i: any) => STATUS_COLORS[i.label] || SLATE400), borderWidth: 3, borderColor: CREME, hoverOffset: 6 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: '65%',
-        // Le libelle affiche est traduit ; le filtre veut le statut brut.
-        ...drilldown(this.router, (i) => to(['/admin/candidatures'], { statut: items[i].label })),
-        plugins: {
-          legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: this.font(11, 500), color: NAVY_800 } },
-          tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => { const pct = total ? Math.round(ctx.parsed / total * 100) : 0; return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`; } } },
-        },
-        animation: { duration: 900, easing: 'easeOutQuart' },
-      },
-      plugins: [{
-        id: 'centerText',
-        afterDraw: (chart: any) => {
-          const { ctx: c, chartArea } = chart;
-          const cx = (chartArea.left + chartArea.right) / 2;
-          const cy = (chartArea.top + chartArea.bottom) / 2;
-          c.save();
-          c.textAlign = 'center'; c.textBaseline = 'middle';
-          c.font = "700 1.4rem 'DM Mono', sans-serif"; c.fillStyle = NAVY_900;
-          c.fillText(String(total), cx, cy - 7);
-          c.font = "500 0.7rem 'DM Mono', sans-serif"; c.fillStyle = SLATE400;
-          c.fillText('Total', cx, cy + 13);
-          c.restore();
-        }
-      }],
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  12. CANDIDATURES PAR JOUR
-  // ════════════════════════════════════════
-  private buildAppsDay(d: any) {
-    this.charts.push(new Chart(this.appsDayCanvas.nativeElement, {
-      type: 'line',
-      data: {
-        labels: d.appsByDay.map((i: any) => i.label),
-        datasets: [{
-          data: d.appsByDay.map((i: any) => i.value),
-          borderColor: BLUE, backgroundColor: 'rgba(37,99,168,0.08)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: BLUE,
-        }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) =>
-          to(['/admin/candidatures'], { jour: toIsoDay(d.appsByDay[i].label) })),
-        plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 45 } },
-          y: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  13. SOURCE DES CANDIDATURES
-  // ════════════════════════════════════════
-  private buildSource(d: any) {
-    const items = d.appsBySource || [];
-    if (!items.length) return;
-    this.charts.push(new Chart(this.sourceCanvas.nativeElement, {
-      type: 'pie',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: MULTI.slice(0, items.length), borderWidth: 2, borderColor: CREME }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) => to(['/admin/candidatures'], { source: items[i].label })),
-        plugins: {
-          legend: { position: 'right', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: this.font(11, 500), color: NAVY_800 } },
-          tooltip: this.tooltipStyle(),
-        },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  14. TAUX DE CONVERSION
-  // ════════════════════════════════════════
-  private buildConversion(d: any) {
-    const items = d.conversionByCompany || [];
-    if (!items.length) return;
-    this.charts.push(new Chart(this.conversionCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: GREEN + 'cc', borderColor: GREEN, borderWidth: 1, borderRadius: 5, barPercentage: 0.6 }],
-      },
-      options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        // Un taux de conversion faible appelle l'inspection des offres de
-        // cette entreprise : c'est la ou se voit ce qui bloque.
-        ...drilldown(this.router, (i) => to(['/admin/offres'], { entreprise: items[i].label })),
-        plugins: { legend: { display: false }, tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => ` Conversion: ${ctx.parsed.x}%` } } },
-        scales: {
-          x: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, callback: (v: any) => v + '%' } },
-          y: { grid: { display: false }, ticks: { font: this.font(11, 600), color: NAVY_800 } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  15. TOP OFFRES LES PLUS VUES
-  // ════════════════════════════════════════
-  private buildTopViewed(d: any) {
-    const items = d.topViewedOffers || [];
-    if (!items.length) return;
-    this.charts.push(new Chart(this.topViewedCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: ORANGE + 'cc', borderColor: ORANGE, borderWidth: 1, borderRadius: 5, barPercentage: 0.65 }],
-      },
-      options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        // Le libelle est un titre tronque par le serveur ; on retire les
-        // points de suspension et on cherche sur le prefixe restant, que
-        // la recherche de l'explorateur traite en « contient ».
-        ...drilldown(this.router, (i) =>
-          to(['/admin/offres'], {
-            entreprise: items[i].company,
-            q: String(items[i].label).replace(/\.\.\.$/, ''),
-          })),
-        plugins: { legend: { display: false }, tooltip: { ...this.tooltipStyle(), callbacks: { label: (ctx: any) => ` ${ctx.parsed.x} vues — ${items[ctx.dataIndex].company}` } } },
-        scales: {
-          x: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400 } },
-          y: { grid: { display: false }, ticks: { font: this.font(10, 600), color: NAVY_800 } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  16. ENTRETIENS PAR TYPE
-  // ════════════════════════════════════════
-  private buildInterviewType(d: any) {
-    const items = d.interviewsByType || [];
-    if (!items.length) return;
-    this.charts.push(new Chart(this.interviewTypeCanvas.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: [TEAL, BLUE, AMBER, NAVY_800], borderWidth: 2, borderColor: CREME, hoverOffset: 6 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: '55%',
-        ...drilldown(this.router, (i) => to(['/admin/entretiens'], { type: items[i].label })),
-        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: this.font(11, 500), color: NAVY_800 } }, tooltip: this.tooltipStyle() },
-        animation: { duration: 800, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  17. ENTRETIENS PAR STATUT
-  // ════════════════════════════════════════
-  private buildInterviewStatus(d: any) {
-    const items = d.interviewsByStatus || [];
-    if (!items.length) return;
-    const colors: Record<string, string> = { Proposed: ARDOISE_200, Accepted: ARDOISE_400, Completed: ARDOISE, Cancelled: TERRE };
-    this.charts.push(new Chart(this.interviewStatusCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: items.map((i: any) => colors[i.label] || SLATE400), borderRadius: 6, barPercentage: 0.55 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        ...drilldown(this.router, (i) => to(['/admin/entretiens'], { statut: items[i].label })),
-        plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: this.font(11, 600), color: NAVY_800 } },
-          y: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
-
-  // ════════════════════════════════════════
-  //  18. MESSAGES PAR JOUR
-  // ════════════════════════════════════════
-  // Seul graphique du panneau sans forage : sa destination naturelle
-  // serait la liste des messages echanges, c'est-a-dire une page ou
-  // l'administration lirait les conversations privees des utilisateurs.
-  // Ouvrir cet acces est une decision qui revient a l'exploitant, pas un
-  // effet de bord de « rendre les graphiques cliquables ».
-  private buildMessagesDay(d: any) {
-    const items = d.messagesByDay || [];
-    if (!items.length) return;
-    this.charts.push(new Chart(this.messagesDayCanvas.nativeElement, {
-      type: 'bar',
-      data: {
-        labels: items.map((i: any) => i.label),
-        datasets: [{ data: items.map((i: any) => i.value), backgroundColor: NAVY_800 + 'cc', borderRadius: 3, barPercentage: 0.7 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: this.tooltipStyle() },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: this.font(10), color: SLATE400, maxRotation: 45 } },
-          y: { beginAtZero: true, grid: { color: SLATE200 }, ticks: { font: this.font(10), color: SLATE400, stepSize: 1 } },
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-      },
-    }));
-  }
+  protected readonly nf = nf;
+  protected readonly SERIES = SERIES;
+  protected readonly SEQUENTIAL = SEQUENTIAL;
 }

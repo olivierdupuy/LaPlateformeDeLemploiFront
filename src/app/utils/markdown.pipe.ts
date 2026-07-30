@@ -20,21 +20,44 @@ export function renderMarkdown(src: string): string {
   s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
-  // 3. Découpage par blocs séparés d'une ligne vide
+  // 3. Découpage par blocs séparés d'une ligne vide, puis lecture ligne à ligne.
+  // Un titre suivi immédiatement de ses puces est le cas le plus courant : le
+  // traiter au niveau du bloc entier avalerait la liste dans le titre.
   const blocks = s.split(/\n{2,}/);
   const html = blocks.map((block) => {
-    const lines = block.split('\n');
+    let out = '';
+    let items: string[] = [];
+    let para: string[] = [];
 
-    // Liste à puces (- ou *)
-    if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
-      return '<ul>' + lines.map((l) => '<li>' + l.replace(/^\s*[-*]\s+/, '') + '</li>').join('') + '</ul>';
+    const flushList = () => {
+      if (!items.length) return;
+      out += '<ul>' + items.map((i) => '<li>' + i + '</li>').join('') + '</ul>';
+      items = [];
+    };
+    const flushPara = () => {
+      if (!para.length) return;
+      out += '<p>' + para.join('<br>') + '</p>';
+      para = [];
+    };
+
+    for (const line of block.split('\n')) {
+      if (/^\s*[-*]\s+/.test(line)) {
+        flushPara();
+        items.push(line.replace(/^\s*[-*]\s+/, ''));
+      } else if (/^###\s+/.test(line)) {
+        flushList(); flushPara();
+        out += '<h4>' + line.replace(/^###\s+/, '') + '</h4>';
+      } else if (/^##\s+/.test(line)) {
+        flushList(); flushPara();
+        out += '<h3>' + line.replace(/^##\s+/, '') + '</h3>';
+      } else if (line.trim()) {
+        flushList();
+        para.push(line);
+      }
     }
-    // Titres
-    if (/^###\s+/.test(block)) return '<h4>' + block.replace(/^###\s+/, '') + '</h4>';
-    if (/^##\s+/.test(block)) return '<h3>' + block.replace(/^##\s+/, '') + '</h3>';
-
-    // Paragraphe (sauts de ligne simples -> <br>)
-    return '<p>' + lines.join('<br>') + '</p>';
+    flushList();
+    flushPara();
+    return out;
   }).join('');
 
   return html;

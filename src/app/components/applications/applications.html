@@ -87,6 +87,13 @@
                     <span class="ac-status" [class]="getStatusBadgeClass(app.status)">
                       <i class="bi" [class]="getStatusIcon(app.status)"></i> {{ getStatusLabel(app.status) }}
                     </span>
+                    @if (app.qualificationScore != null) {
+                      <!-- Part des reponses conformes aux attentes fixees a la publication. -->
+                      <span class="ac-qualif" [class.full]="app.qualificationScore === 100" [class.low]="app.qualificationScore < 50"
+                            title="Réponses conformes aux critères de l'offre">
+                        <i class="bi bi-patch-check"></i> {{ app.qualificationScore }} % des critères
+                      </span>
+                    }
                   </div>
                 </div>
                 @if (app.jobOffer) {
@@ -97,6 +104,12 @@
                 }
                 <div class="ac-meta">
                   <span><i class="bi bi-calendar3"></i> {{ app.appliedAt | date:'dd MMM yyyy' }}</span>
+                  @if (app.city) { <span><i class="bi bi-geo-alt"></i> {{ app.city }}</span> }
+                  @if (fichierUrl(app.resumeUrl); as cv) {
+                    <a [href]="cv" target="_blank" rel="noopener" class="ac-cv" (click)="$event.stopPropagation()"><i class="bi bi-file-earmark-person"></i> CV</a>
+                  }
+                  @if (app.availableFrom) { <span><i class="bi bi-calendar-check"></i> Dispo. {{ app.availableFrom | date:'dd/MM/yyyy' }}</span> }
+                  @if (app.salaryExpectation) { <span><i class="bi bi-cash-coin"></i> {{ app.salaryExpectation }}</span> }
                   @if (app.coverLetter) { <span><i class="bi bi-file-text"></i> Lettre</span> }
                   @if (app.recruiterNotes) { <span class="ac-has-notes"><i class="bi bi-sticky-fill"></i> Notes</span> }
                   @if (getScreeningAnswers(app).length) { <span><i class="bi bi-patch-question"></i> {{ getScreeningAnswers(app).length }} réponse{{ getScreeningAnswers(app).length > 1 ? 's' : '' }}</span> }

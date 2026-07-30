@@ -174,11 +174,11 @@
                   <button class="btn-spring full-w" [disabled]="applying()" (click)="easyApplyNow()">
                     @if (applying()) { <span class="sp"></span> Envoi… } @else { <i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée }
                   </button>
-                  <button class="btn-light full-w" style="margin-top:0.5rem" (click)="openApply()"><i class="bi bi-pencil"></i> Postuler avec lettre</button>
+                  <a class="btn-light full-w" style="margin-top:0.5rem" [routerLink]="['/offres', j.id, 'postuler']"><i class="bi bi-pencil"></i> Candidature détaillée</a>
                 } @else {
                   <h3>Intéressé par ce poste ?</h3>
-                  <p>Envoyez votre candidature en quelques clics.</p>
-                  <button class="btn-spring full-w" (click)="openApply()"><i class="bi bi-send-fill"></i> Postuler maintenant</button>
+                  <p>{{ hasScreening(j) ? 'Le recruteur pose quelques questions de présélection.' : 'Envoyez votre candidature en quelques étapes.' }}</p>
+                  <a class="btn-spring full-w" [routerLink]="['/offres', j.id, 'postuler']"><i class="bi bi-send-fill"></i> Postuler maintenant</a>
                 }
               } @else {
                 <h3>Espace recruteur</h3>
@@ -303,10 +303,6 @@
       }
     </div>
   </section>
-
-  @if (showApplyModal()) {
-    <app-apply-modal [jobId]="j.id" [jobTitle]="j.title" [screeningQuestions]="j.screeningQuestions" (close)="closeApply()" (applied)="onApplicationSent()" />
-  }
 
   @if (reportOpen()) {
     <div class="modal-overlay" (click)="closeReport()">

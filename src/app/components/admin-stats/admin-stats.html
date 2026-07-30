@@ -1,254 +1,291 @@
-<app-console-shell space="admin">
-  <div head>
-    <h1>Statistiques de la <span class="em">plateforme</span></h1>
-    <p class="console-head__sub">Analyse complète de l'activité, des utilisateurs, des offres et des candidatures.</p>
-  </div>
-</app-console-shell>
+<div class="container ad-page">
 
-<section class="stats-page">
-  <div class="container">
-
-    @if (loading()) {
-      <div class="stats-loading"><div class="spinner"></div></div>
-    } @else if (data(); as d) {
-
-      <!-- ═══ KPI CARDS ═══ -->
-      <div class="kpi-grid animate-in" style="animation-delay:.05s">
-        <div class="kpi card">
-          <div class="kpi-ico bg-brand"><i class="bi bi-people-fill"></i></div>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ d.totalUsers | number }}</span>
-            <span class="kpi-lbl">Utilisateurs</span>
-            <span class="kpi-sub"><i class="bi bi-arrow-up-right"></i> {{ d.usersLast7d }} cette semaine</span>
-          </div>
-        </div>
-        <div class="kpi card">
-          <div class="kpi-ico bg-blue"><i class="bi bi-person-check-fill"></i></div>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ d.totalCandidates | number }}</span>
-            <span class="kpi-lbl">Candidats</span>
-          </div>
-        </div>
-        <div class="kpi card">
-          <div class="kpi-ico bg-ink"><i class="bi bi-building-fill"></i></div>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ d.totalRecruiters | number }}</span>
-            <span class="kpi-lbl">Recruteurs</span>
-          </div>
-        </div>
-        <div class="kpi card">
-          <div class="kpi-ico bg-green"><i class="bi bi-broadcast kpi-online-dot"></i></div>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ d.onlineNow }}</span>
-            <span class="kpi-lbl">En ligne</span>
-          </div>
-        </div>
-        <div class="kpi card">
-          <div class="kpi-ico bg-brand"><i class="bi bi-briefcase-fill"></i></div>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ d.activeOffers | number }}</span>
-            <span class="kpi-lbl">Offres actives</span>
-            <span class="kpi-sub"><i class="bi bi-arrow-up-right"></i> {{ d.offersLast30d }} ce mois</span>
-          </div>
-        </div>
-        <div class="kpi card">
-          <div class="kpi-ico bg-blue"><i class="bi bi-send-fill"></i></div>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ d.totalApplications | number }}</span>
-            <span class="kpi-lbl">Candidatures</span>
-            <span class="kpi-sub"><i class="bi bi-arrow-up-right"></i> {{ d.appsLast7d }} cette semaine</span>
-          </div>
-        </div>
-        <div class="kpi card">
-          <div class="kpi-ico bg-amber"><i class="bi bi-eye-fill"></i></div>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ d.totalViews | number }}</span>
-            <span class="kpi-lbl">Vues totales</span>
-          </div>
-        </div>
-        <div class="kpi card">
-          <div class="kpi-ico bg-ink"><i class="bi bi-chat-dots-fill"></i></div>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ d.totalMessages | number }}</span>
-            <span class="kpi-lbl">Messages</span>
-            <span class="kpi-sub"><i class="bi bi-arrow-up-right"></i> {{ d.messagesLast30d }} ce mois</span>
-          </div>
-        </div>
-      </div>
-
-      <p class="drill-hint animate-in" style="animation-delay:.08s">
-        <i class="bi bi-hand-index-thumb" aria-hidden="true"></i>
-        Cliquez sur un segment d'un graphique pour ouvrir la liste correspondante.
+  <!-- ═══ EN-TÊTE ═══ -->
+  <header class="ad-head">
+    <div class="ad-head__text">
+      <h1>Statistiques de la plateforme</h1>
+      <p class="ad-head__sub">
+        Activité, offres, candidatures, comptes et échanges. Chaque section se charge
+        quand on l'ouvre.
       </p>
-
-      
-      <!-- Onglets : on ne monte que les graphiques regardes -->
-      <div class="tabs st-tabs animate-in" role="tablist" aria-label="Sections statistiques">
-        @for (o of onglets; track o.cle) {
-          <button class="tab" role="tab"
-                  [class.is-active]="onglet() === o.cle"
-                  [attr.aria-selected]="onglet() === o.cle"
-                  (click)="changerOnglet(o.cle)">
-            <i class="bi" [class]="o.icon" aria-hidden="true"></i> {{ o.label }}
-          </button>
-        }
-        @if (chargementSection()) { <span class="st-busy" aria-hidden="true"></span> }
+    </div>
+    @if (chargementSection()) {
+      <div class="ad-head__actions">
+        <span class="st-loading"><span class="ad-busy" aria-hidden="true"></span> Chargement…</span>
       </div>
-
-      @if (onglet() === 'apercu') {
-<!-- ═══ SECTION : ACTIVITE GLOBALE ═══ -->
-      <div class="sec-head animate-in" style="animation-delay:.1s">
-        <span class="sec-ico"><i class="bi bi-activity"></i></span>
-        <h2>Activité globale</h2>
-        <span class="sec-note">30 derniers jours</span>
-      </div>
-      <div class="chart-row">
-        <div class="chart-card card chart-full animate-in" style="animation-delay:.12s">
-          <div class="chart-head">
-            <h3>Tendances — offres, candidatures, inscriptions</h3>
-            <!-- Trois courbes, donc trois destinations : le lien unique
-                 des autres cartes ne suffirait pas ici. -->
-            <span class="drill-link drill-link--multi">
-              <a routerLink="/admin/offres">Offres</a>
-              <a routerLink="/admin/candidatures">Candidatures</a>
-              <a routerLink="/admin/utilisateurs">Inscriptions</a>
-            </span>
-          </div>
-          <div class="chart-box chart-lg"><canvas #activityChart></canvas></div>
-        </div>
-      </div>
-      }
-
-      @if (onglet() === 'utilisateurs') {
-<!-- ═══ SECTION : UTILISATEURS ═══ -->
-      <div class="sec-head animate-in" style="animation-delay:.15s">
-        <span class="sec-ico"><i class="bi bi-people"></i></span>
-        <h2>Utilisateurs</h2>
-      </div>
-      <div class="chart-row">
-        <div class="chart-card card animate-in" style="animation-delay:.17s">
-          <div class="chart-head"><h3>Inscriptions par jour</h3><a routerLink="/admin/utilisateurs" class="drill-link">Utilisateurs <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #registrationsChart></canvas></div>
-        </div>
-      </div>
-
-      <!-- Carte de France (pleine largeur) -->
-      <div class="map-card card animate-in" style="animation-delay:.19s">
-        <div class="map-header">
-          <h3><span class="sec-ico"><i class="bi bi-geo-alt-fill"></i></span> Origine géographique</h3>
-          <div class="map-tabs">
-            <button class="map-tab" [class.active]="activeMapLayer() === 'candidates'" (click)="switchMapLayer('candidates')">
-              <span class="map-tab-dot" style="background:#0e5c43"></span> Candidats
-            </button>
-            <button class="map-tab" [class.active]="activeMapLayer() === 'recruiters'" (click)="switchMapLayer('recruiters')">
-              <span class="map-tab-dot" style="background:#2563a8"></span> Recruteurs
-            </button>
-            <button class="map-tab" [class.active]="activeMapLayer() === 'offers'" (click)="switchMapLayer('offers')">
-              <span class="map-tab-dot" style="background:#e06a34"></span> Offres
-            </button>
-          </div>
-        </div>
-        <div class="map-wrap" #mapContainer></div>
-      </div>
-      }
-
-      @if (onglet() === 'offres') {
-<!-- ═══ SECTION : OFFRES D'EMPLOI ═══ -->
-      <div class="sec-head animate-in" style="animation-delay:.22s">
-        <span class="sec-ico"><i class="bi bi-briefcase"></i></span>
-        <h2>Offres d'emploi</h2>
-      </div>
-      <div class="chart-row">
-        <div class="chart-card card animate-in" style="animation-delay:.24s">
-          <div class="chart-head"><h3>Publications par jour</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #offersDayChart></canvas></div>
-        </div>
-        <div class="chart-card card animate-in" style="animation-delay:.26s">
-          <div class="chart-head"><h3>Top 12 des catégories</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #categoryChart></canvas></div>
-        </div>
-      </div>
-      <div class="chart-row">
-        <div class="chart-card card animate-in" style="animation-delay:.28s">
-          <div class="chart-head"><h3>Types de contrat</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #contractChart></canvas></div>
-        </div>
-        <div class="chart-card card animate-in" style="animation-delay:.3s">
-          <div class="chart-head"><h3>Niveau d'expérience requis</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #experienceChart></canvas></div>
-        </div>
-      </div>
-      <div class="chart-row">
-        <div class="chart-card card animate-in" style="animation-delay:.32s">
-          <div class="chart-head"><span class="chart-ico"><i class="bi bi-geo-alt-fill"></i></span><h3>Géographie des offres par ville</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-tall"><canvas #locationsChart></canvas></div>
-        </div>
-        <div class="chart-card card animate-in" style="animation-delay:.34s">
-          <div class="chart-head"><span class="chart-ico"><i class="bi bi-currency-euro"></i></span><h3>Salaires moyens — top 12 des catégories</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-tall"><canvas #salaryChart></canvas></div>
-        </div>
-      </div>
-      <div class="chart-row">
-        <div class="chart-card card animate-in" style="animation-delay:.36s">
-          <div class="chart-head"><h3>Top entreprises qui recrutent</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #topCompaniesChart></canvas></div>
-        </div>
-        <div class="chart-card card animate-in" style="animation-delay:.38s">
-          <div class="chart-head"><span class="chart-ico"><i class="bi bi-fire"></i></span><h3>Top offres les plus consultées</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-tall"><canvas #topViewedChart></canvas></div>
-        </div>
-      </div>
-      }
-
-      @if (onglet() === 'candidatures') {
-<!-- ═══ SECTION : CANDIDATURES ═══ -->
-      <div class="sec-head animate-in" style="animation-delay:.4s">
-        <span class="sec-ico"><i class="bi bi-send"></i></span>
-        <h2>Candidatures</h2>
-      </div>
-      <div class="chart-row">
-        <div class="chart-card card animate-in" style="animation-delay:.42s">
-          <div class="chart-head"><h3>Répartition par statut</h3><a routerLink="/admin/candidatures" class="drill-link">Toutes les candidatures <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #statusChart></canvas></div>
-        </div>
-        <div class="chart-card card animate-in" style="animation-delay:.44s">
-          <div class="chart-head"><h3>Candidatures par jour</h3><a routerLink="/admin/candidatures" class="drill-link">Toutes les candidatures <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #appsDayChart></canvas></div>
-        </div>
-      </div>
-      <div class="chart-row">
-        <div class="chart-card card animate-in" style="animation-delay:.46s">
-          <div class="chart-head"><h3>Source des candidatures</h3><a routerLink="/admin/candidatures" class="drill-link">Toutes les candidatures <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #sourceChart></canvas></div>
-        </div>
-        <div class="chart-card card animate-in" style="animation-delay:.48s">
-          <div class="chart-head"><span class="chart-ico"><i class="bi bi-funnel-fill"></i></span><h3>Taux de conversion par entreprise</h3><a routerLink="/admin/offres" class="drill-link">Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-md"><canvas #conversionChart></canvas></div>
-        </div>
-      </div>
-      }
-
-      @if (onglet() === 'echanges') {
-<!-- ═══ SECTION : ENTRETIENS & MESSAGERIE ═══ -->
-      <div class="sec-head animate-in" style="animation-delay:.5s">
-        <span class="sec-ico"><i class="bi bi-calendar-event"></i></span>
-        <h2>Entretiens &amp; messagerie</h2>
-      </div>
-      <div class="chart-row chart-row-3">
-        <div class="chart-card card animate-in" style="animation-delay:.52s">
-          <div class="chart-head"><h3>Entretiens par type</h3><a routerLink="/admin/entretiens" class="drill-link">Tous les entretiens <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-sm"><canvas #interviewTypeChart></canvas></div>
-        </div>
-        <div class="chart-card card animate-in" style="animation-delay:.54s">
-          <div class="chart-head"><h3>Entretiens par statut</h3><a routerLink="/admin/entretiens" class="drill-link">Tous les entretiens <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
-          <div class="chart-box chart-sm"><canvas #interviewStatusChart></canvas></div>
-        </div>
-        <div class="chart-card card animate-in" style="animation-delay:.56s">
-          <div class="chart-head"><h3>Messages par jour</h3></div>
-          <div class="chart-box chart-sm"><canvas #messagesDayChart></canvas></div>
-        </div>
-      </div>
-      }
     }
+  </header>
+
+  <!-- ═══ CHIFFRES ═══ -->
+  <!-- Affichés sur tous les onglets : ce sont les repères qui donnent
+       l'échelle de ce qu'on regarde en dessous. -->
+  <div class="ad-kpis">
+    <app-stat-tile
+      label="Utilisateurs" icon="bi-people"
+      [value]="data()?.totalUsers ?? 0"
+      [delta]="data()?.usersLast30d ?? null"
+      [note]="(data()?.usersLast7d ?? 0) + ' cette semaine'"
+      [accent]="SERIES[0]" [loading]="loading()" route="/admin/utilisateurs" />
+
+    <app-stat-tile
+      label="Offres actives" icon="bi-briefcase"
+      [value]="data()?.activeOffers ?? 0"
+      [delta]="data()?.offersLast30d ?? null"
+      [note]="(data()?.remoteOffers ?? 0) + ' en télétravail'"
+      [accent]="SERIES[1]" [loading]="loading()" route="/admin/offres" />
+
+    <app-stat-tile
+      label="Candidatures" icon="bi-file-earmark-text"
+      [value]="data()?.totalApplications ?? 0"
+      [delta]="data()?.appsLast30d ?? null"
+      [note]="(data()?.appsLast7d ?? 0) + ' cette semaine'"
+      [accent]="SERIES[2]" [loading]="loading()" route="/admin/candidatures" />
+
+    <app-stat-tile
+      label="Vues cumulées" icon="bi-eye"
+      [value]="data()?.totalViews ?? 0"
+      [accent]="SERIES[6]" [loading]="loading()" />
   </div>
-</section>
+
+  <p class="ad-hint">
+    <i class="bi bi-hand-index-thumb" aria-hidden="true"></i>
+    Cliquez un segment pour ouvrir la liste correspondante ; le bouton
+    <i class="bi bi-table" aria-hidden="true"></i> affiche les valeurs en toutes lettres.
+  </p>
+
+  <!-- ═══ ONGLETS ═══ -->
+  <nav class="ad-tabs" role="tablist" aria-label="Sections statistiques">
+    @for (o of onglets; track o.cle) {
+      <button class="ad-tab" role="tab" type="button"
+              [class.is-active]="onglet() === o.cle"
+              [attr.aria-selected]="onglet() === o.cle"
+              (click)="changerOnglet(o.cle)">
+        <i class="bi" [class]="o.icon" aria-hidden="true"></i> {{ o.label }}
+      </button>
+    }
+  </nav>
+
+  <!-- ═══ VUE D'ENSEMBLE ═══ -->
+  @if (onglet() === 'apercu') {
+    <div class="ad-grid">
+      <app-viz-card
+        class="span-all"
+        title="Activité des trente derniers jours"
+        sub="Offres, candidatures et inscriptions, sur une seule échelle."
+        icon="bi-activity"
+        height="clamp(260px, 36vh, 400px)"
+        [config]="activiteConfig()"
+        [rows]="activiteRows()"
+        rowsLabel="Jour" rowsNote="Détail" rowsValue="Total"
+        [loading]="chargementSection()" />
+    </div>
+  }
+
+  <!-- ═══ OFFRES ═══ -->
+  @if (onglet() === 'offres') {
+    <div class="ad-grid">
+      <app-viz-card
+        title="Publications par jour" sub="Trente derniers jours."
+        icon="bi-calendar3" height="240px"
+        [config]="offresJourConfig()" [rows]="rows('offersByDay')"
+        rowsLabel="Jour" rowsValue="Offres"
+        drillLabel="Toutes les offres" drillRoute="/admin/offres"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Catégories les plus représentées"
+        sub="Les douze premières, sur plus de quinze cents libellés."
+        icon="bi-tags" height="300px"
+        [config]="categoriesConfig()" [rows]="rows('offersByCategory')"
+        rowsLabel="Catégorie" rowsValue="Offres"
+        drillLabel="Toutes les offres" drillRoute="/admin/offres"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Types de contrat" sub="Part de chaque contrat dans le catalogue actif."
+        icon="bi-file-earmark-ruled" height="250px"
+        [config]="contratsConfig()" [rows]="rows('offersByContract')"
+        rowsLabel="Contrat" rowsValue="Offres"
+        drillLabel="Toutes les offres" drillRoute="/admin/offres"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Expérience requise"
+        sub="Des paliers ordonnés, du plus clair au plus foncé."
+        icon="bi-bar-chart-steps" height="250px"
+        [config]="experienceConfig()" [rows]="experienceRows()"
+        rowsLabel="Niveau" rowsValue="Offres"
+        drillLabel="Toutes les offres" drillRoute="/admin/offres"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Villes qui recrutent le plus" sub="Les quinze premières."
+        icon="bi-geo-alt" height="330px"
+        [config]="villesConfig()" [rows]="rows('offersByLocation', 20)"
+        rowsLabel="Ville" rowsValue="Offres"
+        drillLabel="Toutes les offres" drillRoute="/admin/offres"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Salaires moyens par catégorie"
+        sub="Minimum moyen, puis amplitude jusqu'au maximum."
+        icon="bi-currency-euro" height="330px"
+        [config]="salairesConfig()" [rows]="salairesRows()"
+        rowsLabel="Catégorie" rowsNote="Amplitude" rowsValue="Fourchette"
+        drillLabel="Toutes les offres" drillRoute="/admin/offres"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Entreprises qui recrutent le plus" sub="Les dix premières."
+        icon="bi-buildings" height="280px"
+        [config]="entreprisesConfig()" [rows]="rows('topCompanies')"
+        rowsLabel="Entreprise" rowsValue="Offres"
+        drillLabel="Toutes les offres" drillRoute="/admin/offres"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Offres les plus consultées" sub="Les dix premières, par nombre de vues."
+        icon="bi-fire" height="280px"
+        [config]="vuesConfig()" [rows]="vuesRows()"
+        rowsLabel="Offre" rowsNote="Entreprise" rowsValue="Vues"
+        drillLabel="Trier par vues" drillRoute="/admin/offres" [drillParams]="{ tri: 'views' }"
+        [loading]="chargementSection()" />
+    </div>
+  }
+
+  <!-- ═══ CANDIDATURES ═══ -->
+  @if (onglet() === 'candidatures') {
+    <div class="ad-grid">
+      <app-viz-card
+        title="Répartition par statut"
+        sub="Où en sont les dossiers déposés."
+        icon="bi-pie-chart" height="250px"
+        [config]="statutsConfig()" [rows]="statutsRows()"
+        rowsLabel="Statut" rowsNote="Part" rowsValue="Nombre"
+        drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Candidatures par jour" sub="Trente derniers jours."
+        icon="bi-calendar3" height="250px"
+        [config]="candJourConfig()" [rows]="rows('appsByDay')"
+        rowsLabel="Jour" rowsValue="Candidatures"
+        drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Provenance" sub="Par quel chemin la candidature est arrivée."
+        icon="bi-signpost-split" height="250px"
+        [config]="sourcesConfig()" [rows]="rows('appsBySource')"
+        rowsLabel="Source" rowsValue="Candidatures"
+        drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Taux de conversion par entreprise"
+        sub="Candidatures rapportées aux vues des offres de l'entreprise."
+        icon="bi-funnel" height="250px"
+        [config]="conversionConfig()" [rows]="conversionRows()"
+        rowsLabel="Entreprise" rowsValue="Conversion"
+        drillLabel="Toutes les offres" drillRoute="/admin/offres"
+        [loading]="chargementSection()" />
+    </div>
+  }
+
+  <!-- ═══ UTILISATEURS ═══ -->
+  @if (onglet() === 'utilisateurs') {
+    <div class="ad-grid">
+      <app-viz-card
+        title="Inscriptions par jour" sub="Trente derniers jours."
+        icon="bi-person-plus" height="250px"
+        [config]="inscriptionsConfig()" [rows]="rows('registrationsByDay')"
+        rowsLabel="Jour" rowsValue="Inscriptions"
+        drillLabel="Tous les comptes" drillRoute="/admin/utilisateurs"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Villes les plus représentées" sub="Les quinze premières, tous rôles confondus."
+        icon="bi-geo" height="250px"
+        [config]="villesUsersConfig()" [rows]="rows('usersByCity')"
+        rowsLabel="Ville" rowsValue="Comptes"
+        drillLabel="Tous les comptes" drillRoute="/admin/utilisateurs"
+        [loading]="chargementSection()" />
+    </div>
+
+    <!-- ═══ CARTE ═══ -->
+    <section class="ad-panel st-map">
+      <header class="ad-panel__head">
+        <span class="ad-panel__ico"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i></span>
+        <h3>Origine géographique</h3>
+
+        <!-- Une seule couche à la fois : trois nuages de pastilles superposés
+             sur les mêmes villes ne se lisent plus. -->
+        <div class="st-layers" role="group" aria-label="Couche affichée">
+          @for (c of couches; track c.cle) {
+            <button type="button" class="st-layer" [class.is-active]="coucheActive() === c.cle"
+                    [attr.aria-pressed]="coucheActive() === c.cle"
+                    (click)="changerCouche(c.cle)">
+              <span class="st-layer__dot" [style.background]="c.color" aria-hidden="true"></span>
+              {{ c.label }}
+            </button>
+          }
+        </div>
+      </header>
+
+      <div class="st-map__host" #mapHost></div>
+
+      <!-- Une carte ne se parcourt ni au clavier ni au lecteur d'écran :
+           les mêmes chiffres sont ici, en toutes lettres. -->
+      <details class="st-map__table">
+        <summary>
+          <i class="bi bi-table" aria-hidden="true"></i>
+          Voir les valeurs en tableau ({{ villesCouche().length }} villes)
+        </summary>
+        <div class="st-map__rows">
+          <table class="vz-table">
+            <thead><tr><th>Ville</th><th class="ta-r">Nombre</th></tr></thead>
+            <tbody>
+              @for (v of villesCouche(); track v.label) {
+                <tr>
+                  <th scope="row">
+                    <span class="vz-dot" [style.background]="v.color" aria-hidden="true"></span>
+                    {{ v.label }}
+                  </th>
+                  <td class="ta-r vz-val">{{ nf(+v.value) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+  }
+
+  <!-- ═══ ENTRETIENS ET MESSAGERIE ═══ -->
+  @if (onglet() === 'echanges') {
+    <div class="ad-grid">
+      <app-viz-card
+        title="Entretiens par type" sub="Sur place, à distance, téléphonique…"
+        icon="bi-camera-video" height="240px"
+        [config]="typesEntretienConfig()" [rows]="rows('interviewsByType')"
+        rowsLabel="Type" rowsValue="Entretiens"
+        drillLabel="Tous les entretiens" drillRoute="/admin/entretiens"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Entretiens par statut" sub="Où en sont les entretiens programmés."
+        icon="bi-calendar-check" height="240px"
+        [config]="statutsEntretienConfig()" [rows]="rows('interviewsByStatus')"
+        rowsLabel="Statut" rowsValue="Entretiens"
+        drillLabel="Tous les entretiens" drillRoute="/admin/entretiens"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Messages par jour" sub="Trente derniers jours de messagerie."
+        icon="bi-chat-dots" height="240px"
+        [config]="messagesConfig()" [rows]="rows('messagesByDay')"
+        rowsLabel="Jour" rowsValue="Messages"
+        [loading]="chargementSection()" />
+    </div>
+  }
+</div>

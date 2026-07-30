@@ -1,19 +1,23 @@
-<app-console-shell space="admin">
-  <div head>
-    <a routerLink="/admin/utilisateurs" class="back-link">
-      <i class="bi bi-arrow-left" aria-hidden="true"></i> Utilisateurs
-    </a>
-    @if (user(); as u) {
-      <h1>{{ u.firstName }} <span class="em">{{ u.lastName }}</span></h1>
-      <p class="console-head__sub">{{ u.title || roleLabel(u.role) }} · Inscrit le {{ u.createdAt | date:'dd MMMM yyyy' }}</p>
-    } @else {
-      <h1>Fiche <span class="em">utilisateur</span></h1>
-    }
-  </div>
-</app-console-shell>
-
-<section class="aud-page">
+<section class="ad-page">
   <div class="container">
+
+    <header class="ad-head">
+      <div class="ad-head__text">
+        <!-- Une fiche s'ouvre depuis une liste : le chemin du retour se
+             pose avant le titre, pas dans un coin. -->
+        <a routerLink="/admin/utilisateurs" class="back-link">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i> Utilisateurs
+        </a>
+        @if (user(); as u) {
+          <h1>{{ u.firstName }} {{ u.lastName }}</h1>
+          <p class="ad-head__sub">
+            {{ u.title || roleLabel(u.role) }} · Inscrit le {{ u.createdAt | date: 'dd MMMM yyyy' }}
+          </p>
+        } @else {
+          <h1>Fiche utilisateur</h1>
+        }
+      </div>
+    </header>
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>

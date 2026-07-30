@@ -11,7 +11,6 @@ import { BookmarkService } from '../../services/bookmark.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
 import { JobOffer } from '../../models/job-offer.model';
-import { ApplyModal } from '../apply-modal/apply-modal';
 import { MarkdownPipe } from '../../utils/markdown.pipe';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
 import { EmployerNamePipe, estEmployeurGenerique } from '../../pipes/employer-name.pipe';
@@ -20,7 +19,7 @@ import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-job-detail',
-  imports: [RouterLink, FormsModule, ApplyModal, MarkdownPipe, DatePipe, EmployerNamePipe],
+  imports: [RouterLink, FormsModule, MarkdownPipe, DatePipe, EmployerNamePipe],
   templateUrl: './job-detail.html',
   styleUrl: './job-detail.scss',
 })
@@ -43,7 +42,6 @@ export class JobDetail implements OnInit {
   activity = signal<{ hires30d: number; responsive: boolean } | null>(null);
   market = signal<{ avg: number; verdict: 'above' | 'in' | 'below' } | null>(null);
   stars5 = [1, 2, 3, 4, 5];
-  showApplyModal = signal(false);
   loading = signal(true);
   noteContent = '';
   noteSaving = false;
@@ -150,9 +148,6 @@ export class JobDetail implements OnInit {
     return { above: 'au-dessus du marché', in: 'dans la fourchette du marché', below: 'en dessous du marché' }[v] || '';
   }
 
-  openApply() { this.showApplyModal.set(true); }
-  closeApply() { this.showApplyModal.set(false); }
-
   easyApplyNow() {
     const j = this.job();
     if (!j) return;
@@ -167,18 +162,6 @@ export class JobDetail implements OnInit {
         this.applying.set(false);
         this.toastr.error(err.error?.message || err.error || "Échec de la candidature");
       },
-    });
-  }
-
-  onApplicationSent() {
-    this.showApplyModal.set(false);
-    this.applied.set(true);
-    Swal.fire({
-      icon: 'success',
-      title: 'Candidature envoyée !',
-      text: 'Votre candidature a ete transmise avec succes.',
-      confirmButtonColor: '#1657c4',
-      confirmButtonText: 'Parfait',
     });
   }
 

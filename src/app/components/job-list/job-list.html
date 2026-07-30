@@ -288,7 +288,7 @@
                     @else { <i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée }
                   </button>
                 } @else {
-                  <a class="btn-primary" [routerLink]="['/offres', job.id]"><i class="bi bi-send"></i> Postuler</a>
+                  <a class="btn-primary" [routerLink]="['/offres', job.id, 'postuler']"><i class="bi bi-send"></i> Postuler</a>
                 }
                 <button class="btn-secondary" (click)="shareJob(job)"><i class="bi bi-share"></i> Partager</button>
                 <button class="dp-icon-btn" (click)="openReport(job)" title="Signaler"><i class="bi bi-flag"></i></button>

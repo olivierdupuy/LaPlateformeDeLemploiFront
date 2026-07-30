@@ -5,7 +5,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AdminService } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
-import { ConsoleShell } from '../console-shell/console-shell';
 import { companyColor } from '../../utils/job.utils';
 import { fichierUrl } from '../../utils/fichiers';
 
@@ -60,7 +59,7 @@ const CV_SECTIONS: { key: string; label: string }[] = [
 
 @Component({
   selector: 'app-admin-user-detail',
-  imports: [ConsoleShell, RouterLink, FormsModule, DatePipe],
+  imports: [RouterLink, FormsModule, DatePipe],
   templateUrl: './admin-user-detail.html',
   styleUrl: './admin-user-detail.scss',
 })

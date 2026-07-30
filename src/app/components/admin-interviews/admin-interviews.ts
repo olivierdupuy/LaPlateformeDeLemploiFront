@@ -3,10 +3,10 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
-import { ConsoleShell } from '../console-shell/console-shell';
 import { Pager } from '../pager/pager';
 import { companyColor } from '../../utils/job.utils';
 import { pagedQuery } from '../../utils/paged-query';
+import { STATUS } from '../../viz/palette';
 
 /**
  * Explorateur d'entretiens : troisième destination de forage, pour les
@@ -24,19 +24,20 @@ const FILTER_LABELS: Record<string, string> = {
   q: 'Recherche',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  Proposed: 'Proposé',
-  Accepted: 'Accepté',
-  Completed: 'Terminé',
-  Cancelled: 'Annulé',
-};
-
-const STATUS_BADGE: Record<string, string> = {
-  Proposed: 'badge-yellow',
-  Accepted: 'badge-green',
-  Completed: 'badge-blue',
-  Cancelled: 'badge-red',
-};
+/**
+ * Les quatre etats d'un entretien.
+ *
+ * Les couleurs viennent de l'echelle d'etat de la palette, pas des
+ * teintes de series : « annule » doit porter le meme rouge qu'un refus
+ * partout ailleurs dans le panneau. Chacun s'affiche avec son icone —
+ * la couleur seule ne dit rien a qui ne la distingue pas.
+ */
+const ETATS = [
+  { cle: 'Proposed', label: 'Proposé', pluriel: 'Proposés', facette: 'proposed', color: STATUS.warning, icon: 'bi-hourglass-split' },
+  { cle: 'Accepted', label: 'Accepté', pluriel: 'Acceptés', facette: 'accepted', color: STATUS.good, icon: 'bi-check-circle' },
+  { cle: 'Completed', label: 'Terminé', pluriel: 'Terminés', facette: 'completed', color: STATUS.info, icon: 'bi-flag' },
+  { cle: 'Cancelled', label: 'Annulé', pluriel: 'Annulés', facette: 'cancelled', color: STATUS.critical, icon: 'bi-x-circle' },
+];
 
 interface InterviewRow {
   id: number;
@@ -62,7 +63,7 @@ interface InterviewFacets {
 
 @Component({
   selector: 'app-admin-interviews',
-  imports: [ConsoleShell, RouterLink, FormsModule, DatePipe, Pager],
+  imports: [RouterLink, FormsModule, DatePipe, Pager],
   templateUrl: './admin-interviews.html',
   styleUrl: './admin-interviews.scss',
 })
@@ -70,9 +71,21 @@ export class AdminInterviews {
   private admin = inject(AdminService);
 
   companyColor = companyColor;
-  statusLabel = (s: string) => STATUS_LABELS[s] ?? s;
-  statusBadge = (s: string) => STATUS_BADGE[s] ?? '';
+  statusLabel = (s: string) => ETATS.find((e) => e.cle === s)?.label ?? s;
   isPast = (iso: string) => new Date(iso).getTime() < Date.now();
+
+  protected readonly etats = ETATS;
+
+  /** Icone, libelle et couleur d'un statut d'entretien. */
+  etat(statut: string) {
+    return ETATS.find((e) => e.cle === statut) ?? null;
+  }
+
+  /** Le compte d'une facette, adresse par le nom de son etat. */
+  facette(cle: string): number {
+    const nom = ETATS.find((e) => e.cle === cle)?.facette as keyof InterviewFacets | undefined;
+    return nom ? this.q.facets()[nom] : 0;
+  }
 
   q = pagedQuery<InterviewRow, InterviewFacets>({
     fetch: (p) => this.admin.listInterviews(p),

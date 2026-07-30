@@ -209,6 +209,7 @@
 .oc-inactive { color: var(--red);   background: var(--red-bg); }
 .oc-pending  { color: var(--amber); background: var(--amber-bg); }
 .oc-rejected { color: var(--red);   background: var(--red-bg); }
+.oc-draft    { color: var(--muted); background: var(--paper-2); }
 
 .oc-featured {
   color: var(--spring-600);
@@ -314,7 +315,7 @@
   &:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-tint); }
 }
 
-.oc-btn-renew {
+.oc-btn-renew, .oc-btn-resume {
   border-color: var(--brand);
   color: var(--brand);
   background: var(--brand-tint);

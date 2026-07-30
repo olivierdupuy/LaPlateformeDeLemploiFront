@@ -10,7 +10,6 @@ import { ToastrService } from 'ngx-toastr';
 import { companyColor } from '../../utils/job.utils';
 import { dayLabel } from '../../utils/day-filter';
 import { pagedQuery } from '../../utils/paged-query';
-import { ConsoleShell } from '../console-shell/console-shell';
 import { Pager } from '../pager/pager';
 
 const FILTER_LABELS: Record<string, string> = {
@@ -48,7 +47,7 @@ interface UserFacets {
 
 @Component({
   selector: 'app-admin-users',
-  imports: [DatePipe, ConsoleShell, RouterLink, FormsModule, Pager],
+  imports: [DatePipe, RouterLink, FormsModule, Pager],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.scss',
 })

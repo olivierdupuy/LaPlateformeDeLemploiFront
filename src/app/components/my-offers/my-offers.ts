@@ -25,7 +25,7 @@ export class MyOffers implements OnInit {
 
   offers = signal<JobOffer[]>([]);
   loading = signal(true);
-  filter = signal<'all' | 'active' | 'expired' | 'pending' | 'rejected'>('all');
+  filter = signal<'all' | 'active' | 'expired' | 'pending' | 'rejected' | 'draft'>('all');
   scope = signal<'mine' | 'team'>('mine');
   team = signal<{ company: string | null; members: { name: string; role: string; isMe: boolean; offerCount: number }[] }>({ company: null, members: [] });
 
@@ -34,23 +34,36 @@ export class MyOffers implements OnInit {
   statsData = signal<any>(null);
   statsLoading = signal(false);
 
+  // Un brouillon est inactif par construction : sans cette exclusion, il serait
+  // compte parmi les offres expirees.
+  private isExpired = (o: JobOffer) =>
+    !o.isDraft && !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected';
+
   filtered = computed(() => {
     const f = this.filter();
     if (f === 'active') return this.offers().filter(o => o.isActive && o.moderationStatus === 'Approved');
-    if (f === 'expired') return this.offers().filter(o => !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected');
-    if (f === 'pending') return this.offers().filter(o => o.moderationStatus === 'Pending');
+    if (f === 'expired') return this.offers().filter(this.isExpired);
+    if (f === 'pending') return this.offers().filter(o => !o.isDraft && o.moderationStatus === 'Pending');
     if (f === 'rejected') return this.offers().filter(o => o.moderationStatus === 'Rejected');
+    if (f === 'draft') return this.offers().filter(o => o.isDraft);
     return this.offers();
   });
 
   counts = computed(() => ({
     total: this.offers().length,
     active: this.offers().filter(o => o.isActive && o.moderationStatus === 'Approved').length,
-    expired: this.offers().filter(o => !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected').length,
-    pending: this.offers().filter(o => o.moderationStatus === 'Pending').length,
+    expired: this.offers().filter(this.isExpired).length,
+    pending: this.offers().filter(o => !o.isDraft && o.moderationStatus === 'Pending').length,
     rejected: this.offers().filter(o => o.moderationStatus === 'Rejected').length,
+    drafts: this.offers().filter(o => o.isDraft).length,
     totalApps: this.offers().reduce((s, o) => s + (o.applications?.length || 0), 0),
   }));
+
+  /** Ou mene la carte : un brouillon n'a pas de page publique, il se reprend. */
+  cardLink(o: JobOffer): (string | number)[] | null {
+    if (o.isDraft) return ['/recruteur/offres', o.id, 'modifier'];
+    return o.moderationStatus === 'Approved' ? ['/offres', o.id] : null;
+  }
 
   ngOnInit() {
     this.loadOffers();
@@ -121,7 +134,7 @@ export class MyOffers implements OnInit {
     this.recruiterService.duplicateOffer(offer.id).subscribe({
       next: (dup) => {
         this.toastr.success('Offre dupliquée');
-        this.router.navigate(['/recruteur/offres', dup.id]);
+        this.router.navigate(['/recruteur/offres', dup.id, 'modifier']);
       },
       error: () => this.toastr.error('Erreur'),
     });

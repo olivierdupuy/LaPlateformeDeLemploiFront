@@ -3,11 +3,10 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin.service';
 import { ToastrService } from 'ngx-toastr';
-import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-admin-announcements',
-  imports: [DatePipe, FormsModule, ConsoleShell],
+  imports: [DatePipe, FormsModule],
   templateUrl: './admin-announcements.html',
   styleUrl: './admin-announcements.scss',
 })

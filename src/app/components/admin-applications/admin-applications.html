@@ -1,15 +1,16 @@
-<app-console-shell space="admin">
-  <div head>
-    <h1>Toutes les <span class="em">candidatures</span></h1>
-    <p class="console-head__sub">Le flux complet des candidatures déposées sur la plateforme.</p>
-  </div>
-  <div actions>
-    <span class="mod-count u-mono">{{ q.total() }} candidature{{ q.total() > 1 ? 's' : '' }}</span>
-  </div>
-</app-console-shell>
+<div class="container ad-page">
 
-<section class="aap-page">
-  <div class="container">
+  <header class="ad-head">
+    <div class="ad-head__text">
+      <h1>Toutes les candidatures</h1>
+      <p class="ad-head__sub">Le flux complet des candidatures déposées sur la plateforme.</p>
+    </div>
+    <div class="ad-head__actions">
+      <span class="ad-count">{{ q.total() }} candidature{{ q.total() > 1 ? 's' : '' }}</span>
+    </div>
+  </header>
+
+  <div class="aap-body">
 
     @if (activeFilters().length) {
       <div class="filter-bar animate-in">
@@ -27,42 +28,36 @@
       </div>
     }
 
-    <div class="aap-counters animate-in" style="animation-delay:.05s">
-      <button class="aapc" (click)="q.clearAll()">
-        <span class="aapc-val u-mono">{{ q.facets().total }}</span>
-        <span class="aapc-lbl">Total</span>
+    <!-- Chaque tuile compte, et le clic applique ce qu'elle compte.
+         La pastille porte l'état, le mot à côté le nomme. -->
+    <div class="ad-facets animate-in" style="animation-delay:.05s">
+      <button class="ad-facet" [class.is-active]="!activeFilters().length" (click)="q.clearAll()">
+        <span class="ad-facet__val">{{ q.facets().total }}</span>
+        <span class="ad-facet__lbl">Total</span>
       </button>
-      <button class="aapc" (click)="q.setParam('statut', 'Pending')">
-        <span class="aapc-val u-mono aapc-amber">{{ q.facets().pending }}</span>
-        <span class="aapc-lbl">En attente</span>
-      </button>
-      <button class="aapc" (click)="q.setParam('statut', 'Reviewed')">
-        <span class="aapc-val u-mono aapc-blue">{{ q.facets().reviewed }}</span>
-        <span class="aapc-lbl">Examinées</span>
-      </button>
-      <button class="aapc" (click)="q.setParam('statut', 'Accepted')">
-        <span class="aapc-val u-mono aapc-green">{{ q.facets().accepted }}</span>
-        <span class="aapc-lbl">Acceptées</span>
-      </button>
-      <button class="aapc" (click)="q.setParam('statut', 'Rejected')">
-        <span class="aapc-val u-mono aapc-red">{{ q.facets().rejected }}</span>
-        <span class="aapc-lbl">Refusées</span>
-      </button>
-      <div class="aapc aapc--static">
-        <span class="aapc-val u-mono">{{ handled() }}%</span>
-        <span class="aapc-lbl">Traitées</span>
+      @for (s of etats; track s.cle) {
+        <button class="ad-facet" (click)="q.setParam('statut', s.cle)">
+          <span class="ad-facet__val">{{ facette(s.cle) }}</span>
+          <span class="ad-facet__lbl">
+            <span class="ad-facet__dot" [style.background]="s.color"></span> {{ s.pluriel }}
+          </span>
+        </button>
+      }
+      <div class="ad-facet ad-facet--static">
+        <span class="ad-facet__val">{{ handled() }} %</span>
+        <span class="ad-facet__lbl">Traitées</span>
       </div>
     </div>
 
-    <div class="aap-tools animate-in" style="animation-delay:.1s">
-      <div class="aap-search">
+    <div class="ad-tools animate-in" style="animation-delay:.1s">
+      <div class="ad-search">
         <i class="bi bi-search" aria-hidden="true"></i>
         <input type="search" [ngModel]="search" (ngModelChange)="search = $event"
                placeholder="Candidat, e-mail, offre ou entreprise…"
                aria-label="Rechercher dans les candidatures" />
-        @if (q.loading()) { <span class="aap-busy" aria-hidden="true"></span> }
+        @if (q.loading()) { <span class="ad-busy" aria-hidden="true"></span> }
       </div>
-      <label class="aap-sort">
+      <label class="ad-field">
         <span>Trier par</span>
         <select [ngModel]="sort" (ngModelChange)="sort = $event" aria-label="Trier les candidatures">
           <option value="recent">Plus récentes</option>
@@ -91,7 +86,7 @@
         }
       </div>
     } @else {
-      <div class="table-wrap animate-in" [class.is-busy]="q.loading()" style="animation-delay:.15s">
+      <div class="table-wrap animate-in" [class.is-refreshing]="q.loading()" style="animation-delay:.15s">
         <table class="data">
           <thead>
             <tr>
@@ -133,10 +128,13 @@
                   } @else { <span class="aap-gone">—</span> }
                 </td>
                 <td>
-                  <a class="badge" [class]="statusBadge(a.status)"
-                     [routerLink]="['/admin/candidatures']" [queryParams]="{ statut: a.status }">
-                    {{ statusLabel(a.status) }}
-                  </a>
+                  @if (etat(a.status); as e) {
+                    <a class="ad-state" [routerLink]="['/admin/candidatures']"
+                       [queryParams]="{ statut: a.status }">
+                      <i class="bi" [class]="e.icon" [style.color]="e.color" aria-hidden="true"></i>
+                      {{ e.label }}
+                    </a>
+                  }
                 </td>
                 <td class="u-mono aap-date">{{ a.appliedAt | date:'dd/MM/yy' }}</td>
                 <td>
@@ -157,13 +155,13 @@
                     </div>
                   </td>
                 <td>
-                  <div class="aap-actions">
+                  <div class="ad-acts">
                     <a [routerLink]="['/admin/candidatures']" [queryParams]="{ offre: a.jobOfferId }"
-                       class="aap-act" title="Les autres candidatures sur cette offre">
+                       class="ad-act" title="Les autres candidatures sur cette offre">
                       <i class="bi bi-diagram-2" aria-hidden="true"></i>
                     </a>
                     @if (a.resumeUrl) {
-                      <a [href]="fichierUrl(a.resumeUrl)" target="_blank" rel="noopener" class="aap-act" title="Ouvrir le CV">
+                      <a [href]="fichierUrl(a.resumeUrl)" target="_blank" rel="noopener" class="ad-act" title="Ouvrir le CV">
                         <i class="bi bi-file-earmark-person" aria-hidden="true"></i>
                       </a>
                     }
@@ -181,4 +179,4 @@
         (pageChange)="q.setPage($event)" (pageSizeChange)="q.setPageSize($event)" />
     }
   </div>
-</section>
+</div>

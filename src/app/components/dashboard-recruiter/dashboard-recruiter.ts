@@ -17,7 +17,11 @@ export class DashboardRecruiter implements OnInit {
 
   data = signal<any>(null);
   loading = signal(true);
-  private charts: Chart[] = [];
+  // `Chart` sans parametre se fige sur l'union de tous les types de
+  // graphiques, et un `Chart<'bar'>` precis ne s'y range pas. Le tableau
+  // ne sert qu'a liberer les graphiques a la destruction : il n'a pas
+  // besoin de connaitre leur type.
+  private charts: Chart<any>[] = [];
 
   @ViewChild('offersChart') offersCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('statusChart') statusCanvas!: ElementRef<HTMLCanvasElement>;
@@ -60,8 +64,11 @@ export class DashboardRecruiter implements OnInit {
     if (d.candidaturesParStatut?.length) {
       const colors: Record<string, string> = { 'En attente': '#b57408', 'Examinées': '#93bcf4', 'Acceptées': '#12855e', 'Refusées': '#e42b2f' };
       const total = d.candidaturesParStatut.reduce((s: number, i: any) => s + i.value, 0);
-      this.charts.push(new Chart(this.statusCanvas.nativeElement, {
-        type: 'doughnut',
+      // Le graphique passe par une variable : dans un `push` direct, le
+      // type du tableau sert de contexte et efface le type precis de la
+      // configuration — `cutout` n'existe alors plus.
+      const statuts = new Chart(this.statusCanvas.nativeElement, {
+        type: 'doughnut' as const,
         data: {
           labels: d.candidaturesParStatut.map((i: any) => i.label),
           datasets: [{ data: d.candidaturesParStatut.map((i: any) => i.value), backgroundColor: d.candidaturesParStatut.map((i: any) => colors[i.label] || '#5a6b85'), borderWidth: 2, borderColor: '#fff' }],
@@ -78,14 +85,15 @@ export class DashboardRecruiter implements OnInit {
             const cx = (chartArea.left + chartArea.right) / 2;
             const cy = (chartArea.top + chartArea.bottom) / 2;
             c.save(); c.textAlign = 'center'; c.textBaseline = 'middle';
-            c.font = "700 1.4rem 'DM Mono', sans-serif"; c.fillStyle = '#0c1b33';
+            c.font = "700 1.4rem 'IBM Plex Mono', sans-serif"; c.fillStyle = '#17263a';
             c.fillText(String(total), cx, cy - 7);
-            c.font = "500 0.7rem 'DM Mono', sans-serif"; c.fillStyle = '#5a6b85';
+            c.font = "500 0.7rem 'IBM Plex Mono', sans-serif"; c.fillStyle = '#56718f';
             c.fillText('Total', cx, cy + 13);
             c.restore();
           }
         }],
-      }));
+      });
+      this.charts.push(statuts);
     }
   }
 

@@ -2,11 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin.service';
 import { ToastrService } from 'ngx-toastr';
-import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-admin-settings',
-  imports: [FormsModule, ConsoleShell],
+  imports: [FormsModule],
   templateUrl: './admin-settings.html',
   styleUrl: './admin-settings.scss',
 })

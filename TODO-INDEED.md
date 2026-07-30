@@ -34,6 +34,32 @@ Raffinements de niche encore ouverts (le reste de la parité Indeed est livré) 
 
 ---
 
+## ✅ Tunnels « Postuler » et « Déposer une offre » (2026-07-29, builds verts)
+
+Les deux parcours clés d'Indeed, jusque-là traités par une modale et un formulaire en 3 étapes, sont désormais des tunnels complets.
+
+### Postuler à une offre de la plateforme — `/offres/:id/postuler`
+Composant `apply-flow` (chargé à la demande). Les offres importées (**France Travail**, Arbeitnow, Remotive) n'y entrent pas : elles renvoient au formulaire du site d'origine.
+
+1. **Coordonnées** — prénom, nom, e-mail, téléphone, ville (pré-remplis depuis le profil)
+2. **CV** — CV du profil / téléversement d'un PDF (5 Mo) / sans CV si l'offre l'autorise, + lien vers le CV en ligne
+3. **Questions du recruteur** — étape masquée s'il n'y en a pas ; types oui-non, choix, nombre, texte
+4. **Lettre de motivation** — facultative, avec aide à la rédaction
+5. **Informations complémentaires** — disponibilité, prétentions (facultatives)
+6. **Vérification** — récapitulatif, « Modifier » par section, mention de transmission
+7. **Confirmation** — prochaines étapes, lien vers le suivi, postes similaires
+
+Transverse : barre de progression, fil d'étapes cliquable, **brouillon local** repris à la réouverture, revalidation complète avant envoi, redirection connexion → retour au tunnel (`?redirect=`).
+
+### Déposer une offre — `/recruteur/offres/nouvelle`
+Composant `job-form` en sept étapes : **Le poste** (intitulé, entreprise, nombre de postes) · **Lieu** (sur site / hybride / télétravail, ville, adresse) · **Contrat** (type, durée, horaires, heures/semaine, prise de poste, expérience, formation, langues) · **Rémunération** (fourchette + périodicité, primes et avantages en pastilles) · **Description** (markdown, compétences, à propos) · **Candidatures** (adresse de réception, date limite, CV obligatoire, candidature simplifiée, questions de présélection avec **réponse attendue**, réponse automatique) · **Aperçu** de l'annonce telle que la voient les candidats.
+
+**Brouillons** : « Enregistrer en brouillon » à toute étape ; invisible des candidats, repris depuis « Mes offres » (filtre + badge). Une duplication d'offre crée désormais un brouillon.
+
+Back : champs `Openings`, `WorkplaceType`, `Address`, `SalaryPeriod`, `SupplementalPay`, `ContractDuration`, `HoursPerWeek`, `StartDate`, `ApplicationEmail`, `RequireResume`, `IsDraft` sur `JobOffer` ; `City` et `QualificationScore` sur `Application` ; contrôles serveur (CV exigé, réponses obligatoires, brouillon non candidatable) et **score d'adéquation** affiché au recruteur. Migration EF `ApplyAndPostFlows`.
+
+---
+
 ## 1. Recherche d'emploi (SERP)
 
 - [x] ✅ **Double champ de recherche** : mots-clés / intitulé / entreprise **+** lieu (deux champs séparés)

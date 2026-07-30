@@ -1,0 +1,169 @@
+// ═══════════════════════════════════════════════
+//  TUILE DE CHIFFRE
+// ═══════════════════════════════════════════════
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.st {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  height: 100%;
+  padding: 0.9rem 1rem;
+  // La tuile se mesure elle-même : c'est sa largeur, pas celle de la
+  // fenêtre, qui décide si l'étincelle a la place de tenir.
+  container-type: inline-size;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t);
+}
+
+.st--link:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+
+  .st-go { opacity: 1; transform: translateX(0); }
+}
+
+// Filet de rubrique : il identifie la tuile, il ne juge pas sa valeur.
+.st-stripe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--st-accent);
+}
+
+.st-ico {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--st-accent) 12%, transparent);
+  color: var(--st-accent);
+  font-size: 0.95rem;
+}
+
+.st-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.st-label {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+// Chiffres proportionnels : a cette taille, une chasse fixe ferait bailler
+// un « 121 ». La chasse fixe est reservee aux colonnes qui s'alignent.
+.st-value {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.st-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  i { font-size: 0.66rem; }
+}
+
+.st-delta__per {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--faint);
+}
+
+.st-note {
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── Etincelle ──
+// Elle donne une allure, pas des valeurs : la valeur est le chiffre a cote.
+// Elle cède donc la place au libellé quand la tuile se resserre — un
+// « UTILISATEU… » tronqué coûte plus cher qu'une courbe absente.
+.st-spark {
+  width: 62px;
+  height: 30px;
+  flex-shrink: 0;
+  align-self: flex-end;
+  opacity: 0.85;
+}
+
+@container (max-width: 268px) {
+  .st-spark { display: none; }
+}
+
+.st-go {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  color: var(--faint);
+  opacity: 0;
+  transform: translateX(-3px);
+  transition: opacity var(--t), transform var(--t);
+}
+
+// ── Attente ──
+.st-skel {
+  display: inline-block;
+  width: 3.2rem;
+  height: 1.4rem;
+  border-radius: var(--r-xs);
+  background: linear-gradient(90deg, var(--nuage-2) 25%, var(--nuage-3) 50%, var(--nuage-2) 75%);
+  background-size: 220% 100%;
+  animation: st-shimmer 1.3s var(--ease) infinite;
+}
+
+@keyframes st-shimmer {
+  to { background-position: -220% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-skel { animation: none; }
+  .st--link:hover { transform: none; }
+}
+
+@media (max-width: 560px) {
+  .st-spark { display: none; }
+}

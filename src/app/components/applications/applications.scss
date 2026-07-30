@@ -283,7 +283,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.9rem;
-  span {
+  span, a {
     font-family: var(--font-mono);
     font-size: 0.72rem;
     color: var(--muted);
@@ -294,6 +294,18 @@
   }
 }
 .ac-has-notes { color: var(--brand) !important; font-weight: 600; i { color: var(--brand); } }
+
+.ac-cv { color: var(--brand) !important; font-weight: 600; &:hover { text-decoration: underline; } }
+
+// Adequation aux criteres de preselection de l'offre
+.ac-qualif {
+  display: inline-flex; align-items: center; gap: 0.28rem; white-space: nowrap;
+  margin-top: 0.35rem; padding: 0.18rem 0.55rem; border-radius: var(--r-full);
+  font-family: var(--font-mono); font-size: 0.66rem; font-weight: 600;
+  color: var(--brand-700); background: var(--brand-100);
+  &.full { color: var(--green); background: var(--green-bg); }
+  &.low { color: var(--red); background: var(--red-bg); }
+}
 
 // Actions
 .ac-actions {

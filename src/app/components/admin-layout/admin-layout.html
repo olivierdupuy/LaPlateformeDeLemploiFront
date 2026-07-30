@@ -10,21 +10,39 @@
       </span>
     </a>
 
+    <!-- Dix sections en liste plate obligeaient à relire chaque libellé.
+         Groupées par métier, on cherche d'abord le groupe. -->
     <nav class="adm-nav">
-      @for (l of links; track l.path) {
-        <a
-          [routerLink]="l.path"
-          routerLinkActive="is-active"
-          #rla="routerLinkActive"
-          [attr.aria-current]="rla.isActive ? 'page' : null"
-          (click)="closeNav()">
-          <i class="bi" [class]="l.icon" aria-hidden="true"></i>
-          <span>{{ l.label }}</span>
-        </a>
+      @for (g of groupes; track g.label) {
+        <div class="adm-group">
+          <span class="adm-group__label">{{ g.label }}</span>
+          @for (l of g.links; track l.path) {
+            <a
+              [routerLink]="l.path"
+              routerLinkActive="is-active"
+              #rla="routerLinkActive"
+              [attr.aria-current]="rla.isActive ? 'page' : null"
+              (click)="closeNav()">
+              <i class="bi" [class]="l.icon" aria-hidden="true"></i>
+              <span>{{ l.label }}</span>
+              <!-- Une file d'attente qu'il faut ouvrir pour savoir si elle est
+                   vide n'est pas une file d'attente. -->
+              @if (compte(l); as n) {
+                <span class="adm-count" [attr.aria-label]="n + ' en attente'">{{ n }}</span>
+              }
+            </a>
+          }
+        </div>
       }
     </nav>
 
     <div class="adm-side__foot">
+      <button class="adm-cmd" type="button" (click)="ouvrirPalette()">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <span>Aller à…</span>
+        <kbd>Ctrl</kbd><kbd>K</kbd>
+      </button>
+
       <a routerLink="/" class="adm-back" (click)="closeNav()">
         <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Voir le site
       </a>
@@ -58,7 +76,7 @@
 
       <!-- Fil d'Ariane : où l'on est, sans avoir à relire la barre latérale -->
       <nav class="adm-crumb" aria-label="Fil d'Ariane">
-        <span class="adm-topbar__tag">Administration</span>
+        <span class="adm-topbar__tag">{{ groupeCourant() || 'Administration' }}</span>
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
         <strong>{{ section() }}</strong>
       </nav>
@@ -73,8 +91,15 @@
       </form>
 
       <div class="adm-topbar__actions">
-        <a routerLink="/admin/moderation" class="adm-tb-act" title="File de modération">
+        <button class="adm-tb-act" type="button" (click)="ouvrirPalette()"
+                title="Aller à… (Ctrl+K)" aria-label="Ouvrir la palette de commandes">
+          <i class="bi bi-command" aria-hidden="true"></i>
+        </button>
+        <a routerLink="/admin/moderation" class="adm-tb-act adm-tb-act--badge" title="File de modération">
           <i class="bi bi-check2-square" aria-hidden="true"></i>
+          @if (aModerer()) {
+            <span class="adm-tb-dot" [attr.aria-label]="aModerer() + ' offres à modérer'"></span>
+          }
         </a>
         <a routerLink="/" class="adm-tb-act" title="Voir le site public">
           <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
@@ -92,4 +117,48 @@
     <!-- ═══ BARRE D'ÉTAT ═══ -->
     <app-admin-statusbar />
   </div>
+
+  <!-- ═══ PALETTE DE COMMANDES ═══ -->
+  <!-- Un outil où l'on passe ses journées se navigue au clavier. -->
+  @if (paletteOuverte()) {
+    <div class="cmdk" role="dialog" aria-modal="true" aria-label="Aller à une section">
+      <button class="cmdk__scrim" (click)="fermerPalette()" tabindex="-1" aria-hidden="true"></button>
+
+      <div class="cmdk__box">
+        <div class="cmdk__field">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <input #paletteInput type="text" role="combobox" aria-expanded="true"
+                 aria-controls="cmdk-liste" aria-autocomplete="list"
+                 placeholder="Aller à une section…"
+                 [value]="paletteQuery()"
+                 (input)="majPaletteQuery($any($event.target).value)" />
+          <kbd>Échap</kbd>
+        </div>
+
+        @if (!resultats().length) {
+          <p class="cmdk__void">Aucune section ne correspond à « {{ paletteQuery() }} ».</p>
+        } @else {
+          <ul class="cmdk__list" id="cmdk-liste" role="listbox">
+            @for (r of resultats(); track r.path; let i = $index) {
+              <li role="option" [attr.aria-selected]="i === paletteIndex()">
+                <button type="button" class="cmdk__item" [class.is-on]="i === paletteIndex()"
+                        (mouseenter)="paletteIndex.set(i)" (click)="activer(r)">
+                  <i class="bi" [class]="r.icon" aria-hidden="true"></i>
+                  <span>{{ r.label }}</span>
+                  @if (compte(r); as n) { <span class="adm-count">{{ n }}</span> }
+                  <i class="bi bi-arrow-return-left cmdk__go" aria-hidden="true"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+
+        <footer class="cmdk__foot">
+          <span><kbd>↑</kbd><kbd>↓</kbd> naviguer</span>
+          <span><kbd>↵</kbd> ouvrir</span>
+          <span><kbd>Échap</kbd> fermer</span>
+        </footer>
+      </div>
+    </div>
+  }
 </div>

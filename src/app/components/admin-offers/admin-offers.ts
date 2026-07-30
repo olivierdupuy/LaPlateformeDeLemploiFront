@@ -3,11 +3,11 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
-import { ConsoleShell } from '../console-shell/console-shell';
 import { Pager } from '../pager/pager';
 import { companyColor } from '../../utils/job.utils';
 import { pagedQuery } from '../../utils/paged-query';
 import { dayLabel } from '../../utils/day-filter';
+import { MODERATION_STATUS, STATUS } from '../../viz/palette';
 
 /**
  * Explorateur d'offres : la destination des graphiques du panneau.
@@ -33,10 +33,13 @@ const FILTER_LABELS: Record<string, string> = {
   jour: 'Publiée le',
 };
 
+// Les libelles et les couleurs d'etat viennent de la palette : le meme
+// vert doit dire « approuvee » ici, sur le tableau de bord et dans la
+// file de moderation.
 const MODERATION_LABELS: Record<string, string> = {
-  Approved: 'Approuvée',
-  Pending: 'En attente',
-  Rejected: 'Rejetée',
+  Approved: MODERATION_STATUS['Approved'].label,
+  Pending: MODERATION_STATUS['Pending'].label,
+  Rejected: MODERATION_STATUS['Rejected'].label,
 };
 
 /** Ce que le serveur renvoie pour le tableau — pas l'offre entière. */
@@ -64,7 +67,7 @@ interface OfferFacets {
 
 @Component({
   selector: 'app-admin-offers',
-  imports: [ConsoleShell, RouterLink, FormsModule, DatePipe, Pager],
+  imports: [RouterLink, FormsModule, DatePipe, Pager],
   templateUrl: './admin-offers.html',
   styleUrl: './admin-offers.scss',
 })
@@ -73,6 +76,14 @@ export class AdminOffers {
 
   companyColor = companyColor;
   moderationLabel = (s?: string) => MODERATION_LABELS[s ?? ''] ?? s ?? 'En attente';
+
+  /** Les teintes des tuiles de filtre, pour que la pastille dise l'etat. */
+  protected readonly ETAT = STATUS;
+
+  /** Icone, libelle et couleur d'un statut de moderation. */
+  etat(statut?: string) {
+    return MODERATION_STATUS[statut || 'Pending'] ?? MODERATION_STATUS['Pending'];
+  }
 
   /**
    * Les noms de l'URL sont en français pour rester lisibles ; l'API garde

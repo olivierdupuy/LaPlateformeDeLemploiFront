@@ -7,11 +7,10 @@ import { JobOfferService } from '../../services/job-offer';
 import { JobReport } from '../../models/job-offer.model';
 import { CompanyReviewService } from '../../services/company-review.service';
 import { ToastrService } from 'ngx-toastr';
-import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-admin-moderation',
-  imports: [DatePipe, SlicePipe, FormsModule, RouterLink, ConsoleShell],
+  imports: [DatePipe, SlicePipe, FormsModule, RouterLink],
   templateUrl: './admin-moderation.html',
   styleUrl: './admin-moderation.scss',
 })

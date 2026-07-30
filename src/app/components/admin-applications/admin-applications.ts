@@ -3,12 +3,12 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
-import { ConsoleShell } from '../console-shell/console-shell';
 import { Pager } from '../pager/pager';
 import { companyColor } from '../../utils/job.utils';
 import { fichierUrl } from '../../utils/fichiers';
 import { pagedQuery } from '../../utils/paged-query';
 import { dayLabel } from '../../utils/day-filter';
+import { APPLICATION_STATUS } from '../../viz/palette';
 
 /**
  * Explorateur de candidatures : le pendant de l'explorateur d'offres.
@@ -30,19 +30,19 @@ const FILTER_LABELS: Record<string, string> = {
   jour: 'Déposée le',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  Pending: 'En attente',
-  Reviewed: 'Examinée',
-  Accepted: 'Acceptée',
-  Rejected: 'Refusée',
-};
-
-const STATUS_BADGE: Record<string, string> = {
-  Pending: 'badge-yellow',
-  Reviewed: 'badge-blue',
-  Accepted: 'badge-green',
-  Rejected: 'badge-red',
-};
+/**
+ * Les quatre etats, dans l'ordre du parcours.
+ *
+ * Libelles, icones et couleurs viennent de la palette : le meme vert doit
+ * dire « acceptee » ici, sur le tableau de bord et dans les statistiques.
+ * Le pluriel est propre aux tuiles de filtre, qui comptent des dossiers.
+ */
+const ETATS = [
+  { cle: 'Pending', pluriel: 'En attente', facette: 'pending' },
+  { cle: 'Reviewed', pluriel: 'Examinées', facette: 'reviewed' },
+  { cle: 'Accepted', pluriel: 'Acceptées', facette: 'accepted' },
+  { cle: 'Rejected', pluriel: 'Refusées', facette: 'rejected' },
+].map((e) => ({ ...e, color: APPLICATION_STATUS[e.cle].color }));
 
 interface ApplicationRow {
   id: number;
@@ -68,7 +68,7 @@ interface ApplicationFacets {
 
 @Component({
   selector: 'app-admin-applications',
-  imports: [ConsoleShell, RouterLink, FormsModule, DatePipe, Pager],
+  imports: [RouterLink, FormsModule, DatePipe, Pager],
   templateUrl: './admin-applications.html',
   styleUrl: './admin-applications.scss',
 })
@@ -78,8 +78,20 @@ export class AdminApplications {
   companyColor = companyColor;
   /** Le CV est servi par l'API, pas par le site. */
   fichierUrl = fichierUrl;
-  statusLabel = (s: string) => STATUS_LABELS[s] ?? s;
-  statusBadge = (s: string) => STATUS_BADGE[s] ?? '';
+  statusLabel = (s: string) => APPLICATION_STATUS[s]?.label ?? s;
+
+  protected readonly etats = ETATS;
+
+  /** Icone, libelle et couleur d'un statut de candidature. */
+  etat(statut: string) {
+    return APPLICATION_STATUS[statut] ?? null;
+  }
+
+  /** Le compte d'une facette, adresse par le nom de son etat. */
+  facette(cle: string): number {
+    const nom = ETATS.find((e) => e.cle === cle)?.facette as keyof ApplicationFacets | undefined;
+    return nom ? this.q.facets()[nom] : 0;
+  }
 
   q = pagedQuery<ApplicationRow, ApplicationFacets>({
     fetch: (p) => this.admin.listApplications(p),

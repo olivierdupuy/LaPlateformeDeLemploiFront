@@ -37,10 +37,11 @@ export class CvService {
     return this.http.post<CvSectionCreate[]>(`${this.apiUrl}/generate-ai`, { additionalContext });
   }
 
-  parseFile(file: File): Observable<CvSectionCreate[]> {
+  /** Analyse un CV et renvoie les sections extraites. */
+  parseFile(file: File): Observable<ParsedCv> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<CvSectionCreate[]>(`${this.apiUrl}/parse-file`, formData);
+    return this.http.post<ParsedCv>(`${this.apiUrl}/parse-file`, formData);
   }
 
   /** Analyse un CV et renvoie des champs de profil pré-remplis. */
@@ -49,6 +50,12 @@ export class CvService {
     formData.append('file', file);
     return this.http.post<ProfileDraft>(`${this.apiUrl}/parse-profile`, formData);
   }
+}
+
+export interface ParsedCv {
+  sections: CvSectionCreate[];
+  /** Le CV dépassait la longueur transmise au modèle : sa fin n'a pas été analysée. */
+  truncated: boolean;
 }
 
 export interface ProfileDraft {

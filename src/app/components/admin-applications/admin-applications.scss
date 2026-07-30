@@ -1,119 +1,10 @@
-.aap-page {
-  padding: clamp(1.5rem, 3vw, 2.25rem) 0 4rem;
-}
+// ═══════════════════════════════════════════════
+//  EXPLORATEUR DE CANDIDATURES
+//  L'en-tête, les tuiles de filtre, la barre d'outils et les actions de
+//  ligne viennent du kit `.ad-*`. Ne restent ici que les cellules propres
+//  à ce tableau.
+// ═══════════════════════════════════════════════
 
-.mod-count {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-// ── Compteurs ──
-.aap-counters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0.6rem;
-  margin-bottom: 1.1rem;
-}
-
-.aapc {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.85rem 1rem;
-  text-align: left;
-  background: var(--canvas);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  transition: border-color var(--t), box-shadow var(--t);
-
-  &:hover { border-color: var(--ciel); box-shadow: var(--shadow-xs); }
-
-  &--static { cursor: default; &:hover { border-color: var(--line); box-shadow: none; } }
-}
-
-.aapc-val {
-  font-size: 1.4rem;
-  font-weight: 500;
-  letter-spacing: -0.05em;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-.aapc-green { color: var(--green); }
-.aapc-amber { color: var(--amber); }
-.aapc-red   { color: var(--red); }
-.aapc-blue  { color: var(--blue); }
-
-.aapc-lbl {
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-}
-
-// ── Recherche et tri ──
-.aap-tools {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-}
-
-.aap-search {
-  position: relative;
-  flex: 1;
-  min-width: 240px;
-
-  i {
-    position: absolute;
-    left: 0.85rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.85rem;
-    color: var(--muted);
-    pointer-events: none;
-  }
-
-  input {
-    width: 100%;
-    padding: 0.6rem 0.9rem 0.6rem 2.3rem;
-    font-size: 0.88rem;
-    background: var(--canvas);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-sm);
-    transition: border-color var(--t);
-    &:focus { border-color: var(--bleu-600); outline: none; }
-  }
-}
-
-.aap-sort {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  span {
-    font-family: var(--font-mono);
-    font-size: 0.56rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-  }
-
-  select {
-    padding: 0.55rem 0.8rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    background: var(--canvas);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-sm);
-  }
-}
-
-// ── Tableau ──
 .aap-cand {
   display: flex;
   align-items: center;
@@ -161,7 +52,7 @@
 }
 
 // Une offre disparue laisse une ligne orpheline : il faut le dire, pas
-// laisser une case vide qu'on prendrait pour un defaut d'affichage.
+// laisser une case vide qu'on prendrait pour un défaut d'affichage.
 .aap-gone {
   font-size: 0.82rem;
   font-style: italic;
@@ -186,49 +77,6 @@
 .aap-seen { color: var(--green); font-weight: 600; }
 .aap-unseen { color: var(--muted); }
 
-.aap-actions {
-  display: flex;
-  gap: 0.2rem;
-  justify-content: flex-end;
-}
-
-.aap-act {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--r-xs);
-  font-size: 0.85rem;
-  color: var(--muted);
-  transition: color var(--t), background var(--t);
-  &:hover { color: var(--bleu-600); background: var(--bleu-100); }
-}
-
-// ── Chargement d'une nouvelle page ──
-// Le tableau precedent reste lisible mais recule : le remplacer par un
-// spinner ferait clignoter la page a chaque changement de critere.
-.table-wrap.is-busy {
-  opacity: 0.55;
-  pointer-events: none;
-  transition: opacity 0.15s var(--ease-out);
-}
-
-.aap-busy {
-  position: absolute;
-  right: 0.8rem;
-  top: 50%;
-  width: 13px;
-  height: 13px;
-  margin-top: -6.5px;
-  border: 2px solid var(--line-strong);
-  border-top-color: var(--bleu-600);
-  border-radius: 50%;
-  animation: aap-spin 0.7s linear infinite;
-}
-
-@keyframes aap-spin { to { transform: rotate(360deg); } }
-
-@media (prefers-reduced-motion: reduce) {
-  .aap-busy { animation-duration: 2s; }
-}
+// L'état de la ligne est un lien vers la liste filtrée : il doit réagir
+// comme tel, sans se déguiser en bouton.
+a.ad-state:hover { color: var(--bleu-700); text-decoration: underline; }

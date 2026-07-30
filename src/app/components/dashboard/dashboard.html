@@ -1,121 +1,289 @@
-<app-console-shell space="admin">
-  <div head>
-    <h1>Tableau de <span class="em">bord</span></h1>
-    <p class="console-head__sub">Vue d'ensemble de l'activité sur la plateforme.</p>
-  </div>
-</app-console-shell>
+<div class="container ad-page">
 
-<section class="dash-page">
-  <div class="container">
-
-    <!-- Chiffres clés : chacun ouvre la liste qu'il compte -->
-    <div class="stat-cards">
-      <a routerLink="/admin/offres" [queryParams]="{ statut: 'Approved' }"
-         class="sc card animate-in" style="animation-delay:.05s">
-        <span class="card-stripe" style="background:var(--brand)"></span>
-        <div class="sc-icon bg-brand"><i class="bi bi-briefcase"></i></div>
-        <div class="sc-body">
-          <span class="sc-val u-mono">{{ stats().totalOffers }}</span>
-          <span class="sc-lbl">Offres actives</span>
-        </div>
-        <i class="bi bi-arrow-right sc-go" aria-hidden="true"></i>
-      </a>
-      <a routerLink="/admin/candidatures" class="sc card animate-in" style="animation-delay:.1s">
-        <span class="card-stripe" style="background:var(--blue)"></span>
-        <div class="sc-icon bg-blue"><i class="bi bi-people"></i></div>
-        <div class="sc-body">
-          <span class="sc-val u-mono">{{ stats().totalApplications }}</span>
-          <span class="sc-lbl">Candidatures</span>
-        </div>
-        <i class="bi bi-arrow-right sc-go" aria-hidden="true"></i>
-      </a>
-      <a routerLink="/entreprises" class="sc card animate-in" style="animation-delay:.15s">
-        <span class="card-stripe" style="background:var(--amber)"></span>
-        <div class="sc-icon bg-amber"><i class="bi bi-building"></i></div>
-        <div class="sc-body">
-          <span class="sc-val u-mono">{{ stats().totalCompanies }}</span>
-          <span class="sc-lbl">Entreprises</span>
-        </div>
-        <i class="bi bi-arrow-right sc-go" aria-hidden="true"></i>
-      </a>
-      <a routerLink="/admin/offres" [queryParams]="{ teletravail: 1 }"
-         class="sc card animate-in" style="animation-delay:.2s">
-        <span class="card-stripe" style="background:var(--green)"></span>
-        <div class="sc-icon bg-green"><i class="bi bi-wifi"></i></div>
-        <div class="sc-body">
-          <span class="sc-val u-mono">{{ stats().remoteOffers }}</span>
-          <span class="sc-lbl">Télétravail</span>
-        </div>
-        <i class="bi bi-arrow-right sc-go" aria-hidden="true"></i>
-      </a>
+  <!-- ═══ EN-TÊTE ═══ -->
+  <header class="ad-head">
+    <div class="ad-head__text">
+      <h1>Tableau de bord</h1>
+      <p class="ad-head__sub">
+        Ce qui a bougé sur trente jours, et ce qui attend une décision.
+      </p>
     </div>
 
-    @if (loading()) {
-      <div class="empty-box"><div class="spinner"></div></div>
-    } @else if (detailed(); as d) {
-      <p class="drill-hint animate-in" style="animation-delay:.22s">
-        <i class="bi bi-hand-index-thumb" aria-hidden="true"></i>
-        Cliquez sur un segment d'un graphique pour ouvrir la liste correspondante.
-      </p>
+    <div class="ad-head__actions">
+      <!-- La présence en direct est la seule mesure instantanée de la page :
+           elle a droit à sa propre pastille, hors des tuiles de trente jours. -->
+      <span class="dash-live" [class.is-idle]="!enLigne()">
+        <span class="dash-live__dot" aria-hidden="true"></span>
+        <strong>{{ enLigne() }}</strong> en ligne
+      </span>
+      <a routerLink="/admin/statistiques" class="btn-secondary btn-sm">
+        <i class="bi bi-bar-chart-line" aria-hidden="true"></i> Statistiques détaillées
+      </a>
+    </div>
+  </header>
 
-      <div class="charts-grid">
+  <!-- ═══ CHIFFRES ═══ -->
+  <div class="ad-kpis">
+    <app-stat-tile
+      label="Utilisateurs" icon="bi-people"
+      [value]="apercu()?.totalUsers ?? 0"
+      [delta]="apercu()?.usersLast30d ?? null"
+      [note]="(apercu()?.usersLast7d ?? 0) + ' cette semaine'"
+      [trend]="sparkInscriptions()"
+      [accent]="SERIES[0]"
+      [loading]="chargeApercu()"
+      route="/admin/utilisateurs" />
 
-        <!-- Offres par categorie -->
-        <div class="chart-card card animate-in" style="animation-delay:.25s">
-          <div class="chart-head">
-            <span class="chart-ico"><i class="bi bi-bar-chart"></i></span>
-            <h3>Offres par catégorie</h3>
-            <a routerLink="/admin/offres" class="drill-link">
-              Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i>
-            </a>
-          </div>
-          <div class="chart-container chart-h-bar">
-            <canvas #categoryChart></canvas>
-          </div>
-        </div>
+    <app-stat-tile
+      label="Offres actives" icon="bi-briefcase"
+      [value]="apercu()?.activeOffers ?? 0"
+      [delta]="apercu()?.offersLast30d ?? null"
+      [note]="(apercu()?.expiredOffers ?? 0) + ' expirées'"
+      [trend]="sparkOffres()"
+      [accent]="SERIES[1]"
+      [loading]="chargeApercu()"
+      route="/admin/offres" [params]="{ statut: 'Approved' }" />
 
-        <!-- Candidatures par statut -->
-        <div class="chart-card card animate-in" style="animation-delay:.3s">
-          <div class="chart-head">
-            <span class="chart-ico"><i class="bi bi-pie-chart"></i></span>
-            <h3>Candidatures par statut</h3>
-            <a routerLink="/admin/candidatures" class="drill-link">
-              Toutes les candidatures <i class="bi bi-arrow-right" aria-hidden="true"></i>
-            </a>
-          </div>
-          <div class="chart-container chart-doughnut">
-            <canvas #statusChart></canvas>
-          </div>
-        </div>
+    <app-stat-tile
+      label="Candidatures" icon="bi-file-earmark-text"
+      [value]="apercu()?.totalApplications ?? 0"
+      [delta]="apercu()?.appsLast30d ?? null"
+      [note]="(apercu()?.appsLast7d ?? 0) + ' cette semaine'"
+      [trend]="sparkCandidatures()"
+      [accent]="SERIES[2]"
+      [loading]="chargeApercu()"
+      route="/admin/candidatures" />
 
-        <!-- Top entreprises -->
-        <div class="chart-card card animate-in" style="animation-delay:.35s">
-          <div class="chart-head">
-            <span class="chart-ico"><i class="bi bi-building"></i></span>
-            <h3>Top entreprises</h3>
-            <a routerLink="/entreprises" class="drill-link">
-              Annuaire <i class="bi bi-arrow-right" aria-hidden="true"></i>
-            </a>
-          </div>
-          <div class="chart-container chart-h-bar">
-            <canvas #companyChart></canvas>
-          </div>
-        </div>
+    <app-stat-tile
+      label="Entretiens" icon="bi-calendar-event"
+      [value]="apercu()?.totalInterviews ?? 0"
+      [accent]="SERIES[4]"
+      [loading]="chargeApercu()"
+      route="/admin/entretiens" />
 
-        <!-- Par type de contrat -->
-        <div class="chart-card card animate-in" style="animation-delay:.4s">
-          <div class="chart-head">
-            <span class="chart-ico"><i class="bi bi-diagram-3"></i></span>
-            <h3>Types de contrat</h3>
-            <a routerLink="/admin/offres" class="drill-link">
-              Toutes les offres <i class="bi bi-arrow-right" aria-hidden="true"></i>
-            </a>
-          </div>
-          <div class="chart-container chart-polar">
-            <canvas #contractChart></canvas>
-          </div>
-        </div>
-      </div>
-    }
+    <app-stat-tile
+      label="Vues cumulées" icon="bi-eye"
+      [value]="apercu()?.totalViews ?? 0"
+      note="Sur toutes les offres"
+      [accent]="SERIES[6]"
+      [loading]="chargeApercu()" />
+
+    <app-stat-tile
+      label="Messages" icon="bi-chat-dots"
+      [value]="apercu()?.totalMessages ?? 0"
+      [delta]="apercu()?.messagesLast30d ?? null"
+      [accent]="SERIES[7]"
+      [loading]="chargeApercu()" />
   </div>
-</section>
+
+  <p class="ad-hint">
+    <i class="bi bi-hand-index-thumb" aria-hidden="true"></i>
+    Cliquez un point ou un segment pour ouvrir la liste correspondante. Le bouton
+    <i class="bi bi-table" aria-hidden="true"></i> de chaque carte affiche les valeurs en toutes lettres.
+  </p>
+
+  <!-- ═══ ACTIVITÉ ═══ -->
+  <div class="ad-grid dash-main">
+    <app-viz-card
+      class="span-2"
+      title="Activité des trente derniers jours"
+      sub="Offres publiées, candidatures et inscriptions, sur une seule échelle."
+      icon="bi-activity"
+      height="clamp(230px, 30vh, 320px)"
+      [config]="activiteConfig()"
+      [rows]="activiteRows()"
+      rowsLabel="Jour" rowsNote="Détail" rowsValue="Total"
+      drillLabel="Journal" drillRoute="/admin/activite"
+      [loading]="chargeSuite()"
+      empty="Aucune activité enregistrée sur la période." />
+
+    <!-- ═══ ENTONNOIR ═══ -->
+    <!-- Ni histogramme ni Chart.js : entre les vues et les acceptations il y a
+         quatre ordres de grandeur, la barre encoderait un trait d'un pixel.
+         Elle porte donc le taux de passage, le chiffre absolu se lit à côté. -->
+    <section class="ad-panel dash-funnel">
+      <header class="ad-panel__head">
+        <span class="ad-panel__ico"><i class="bi bi-funnel" aria-hidden="true"></i></span>
+        <h3>Parcours de candidature</h3>
+        @if (tauxGlobal() !== null) {
+          <span class="dash-funnel__rate" title="Part des vues qui aboutissent à une acceptation">
+            {{ tauxGlobal()! < 0.1 ? '< 0,1' : (tauxGlobal()! | number: '1.0-2') }} %
+            <span>bout en bout</span>
+          </span>
+        }
+      </header>
+
+      <div class="ad-panel__body">
+        @if (!entonnoir().length) {
+          <div class="ad-void">
+            <i class="bi bi-funnel" aria-hidden="true"></i>
+            <p>Les chiffres du parcours arrivent avec l'aperçu.</p>
+          </div>
+        } @else {
+          <ol class="fun">
+            @for (e of entonnoir(); track e.label; let i = $index) {
+              <li class="fun-step">
+                <a class="fun-link" [routerLink]="e.route" [queryParams]="e.params ?? null">
+                  <span class="fun-ico" [style.background]="e.color" aria-hidden="true">
+                    <i class="bi" [class]="e.icon"></i>
+                  </span>
+
+                  <span class="fun-txt">
+                    <span class="fun-label">{{ e.label }}</span>
+                    <span class="fun-value">{{ nf(e.value) }}</span>
+                  </span>
+
+                  <span class="fun-meter">
+                    <!-- La jauge mesure le passage depuis l'étape d'avant, pas la
+                         part du total : c'est la seule lecture honnête ici. -->
+                    <span class="fun-meter__track">
+                      @if (e.rate !== null) {
+                        <span class="fun-meter__fill"
+                              [style.width.%]="Math.max(e.rate, 1.2)"
+                              [style.background]="e.color"></span>
+                      }
+                    </span>
+                    <span class="fun-meter__lbl">
+                      @if (i === 0) {
+                        point de départ
+                      } @else if (e.rate === null) {
+                        <!-- Étape précédente vide : le taux n'est pas nul, il
+                             n'existe pas. -->
+                        étape précédente non renseignée
+                      } @else {
+                        {{ e.rate < 0.1 && e.rate > 0 ? '< 0,1' : (e.rate | number: '1.0-1') }} %
+                        de l'étape précédente
+                      }
+                    </span>
+                  </span>
+                </a>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    </section>
+
+    <!-- ═══ STATUTS ═══ -->
+    <app-viz-card
+      title="Candidatures par statut"
+      sub="Où en sont les dossiers déposés."
+      icon="bi-pie-chart"
+      height="230px"
+      [config]="statutsConfig()"
+      [rows]="statutsRows()"
+      rowsLabel="Statut" rowsNote="Part" rowsValue="Nombre"
+      drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
+      [loading]="chargeSuite()" />
+
+    <!-- ═══ PROVENANCE ═══ -->
+    <app-viz-card
+      title="Provenance des candidatures"
+      sub="Par quel chemin la candidature est arrivée."
+      icon="bi-signpost-split"
+      height="230px"
+      [config]="sourcesConfig()"
+      [rows]="sourcesRows()"
+      rowsLabel="Source" rowsValue="Candidatures"
+      drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
+      [loading]="chargeSuite()" />
+
+    <!-- ═══ RÔLES ═══ -->
+    <app-viz-card
+      title="Comptes par rôle"
+      sub="Les rôles sont exclusifs."
+      icon="bi-person-badge"
+      height="230px"
+      [config]="rolesConfig()"
+      [rows]="rolesRows()"
+      rowsLabel="Rôle" rowsNote="Part" rowsValue="Comptes"
+      drillLabel="Tous les comptes" drillRoute="/admin/utilisateurs"
+      [loading]="chargeApercu()" />
+  </div>
+
+  <!-- ═══ CE QUI ATTEND UNE DÉCISION ═══ -->
+  <div class="ad-grid ad-grid--2 dash-todo">
+
+    <section class="ad-panel">
+      <header class="ad-panel__head">
+        <span class="ad-panel__ico"><i class="bi bi-check2-square" aria-hidden="true"></i></span>
+        <h3>File de modération</h3>
+        @if (fileModeration().length) {
+          <span class="dash-badge" [style.background]="STATUS.warning">
+            {{ fileModeration().length }}{{ fileModeration().length >= 6 ? '+' : '' }}
+          </span>
+        }
+        <a routerLink="/admin/moderation" class="vz-drill">
+          Modérer <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+      </header>
+
+      <div class="ad-panel__body ad-panel__body--flush">
+        @if (chargeSuite()) {
+          <div class="ad-void"><span class="spinner"></span></div>
+        } @else if (!fileModeration().length) {
+          <div class="ad-void">
+            <i class="bi bi-check-circle" aria-hidden="true"></i>
+            <p>Rien en attente. La file est vide.</p>
+          </div>
+        } @else {
+          <div class="ad-list">
+            @for (o of fileModeration(); track o.id) {
+              <a class="ad-item" [routerLink]="['/offres', o.id]">
+                <span class="ad-av" [style.background]="'var(--bleu-100)'"
+                      [style.color]="'var(--bleu-700)'">
+                  {{ (o.company || '?').charAt(0) }}
+                </span>
+                <span class="ad-item__txt">
+                  <strong>{{ o.title }}</strong>
+                  <span>{{ o.company }} · {{ o.location || 'Lieu non précisé' }}</span>
+                </span>
+                <span class="ad-item__when">{{ o.createdAt | date: 'dd/MM' }}</span>
+              </a>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="ad-panel">
+      <header class="ad-panel__head">
+        <span class="ad-panel__ico"><i class="bi bi-clock-history" aria-hidden="true"></i></span>
+        <h3>Dernières actions</h3>
+        <a routerLink="/admin/activite" class="vz-drill">
+          Journal complet <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+      </header>
+
+      <div class="ad-panel__body ad-panel__body--flush">
+        @if (chargeSuite()) {
+          <div class="ad-void"><span class="spinner"></span></div>
+        } @else if (!journal().length) {
+          <div class="ad-void">
+            <i class="bi bi-clock-history" aria-hidden="true"></i>
+            <p>Aucune action enregistrée pour l'instant.</p>
+          </div>
+        } @else {
+          <div class="ad-list">
+            @for (l of journal(); track l.id) {
+              <div class="ad-item">
+                <!-- L'icône double la couleur : une pastille seule ne dit rien
+                     à qui ne distingue pas le vert du rouge. -->
+                <span class="ad-av dash-log__ico"
+                      [style.background]="couleurAction(l.action) + '1f'"
+                      [style.color]="couleurAction(l.action)">
+                  <i class="bi" [class]="iconeAction(l.action)" aria-hidden="true"></i>
+                </span>
+                <span class="ad-item__txt">
+                  <strong>{{ l.description || l.action }}</strong>
+                  <span>{{ l.userFullName || 'Système' }}</span>
+                </span>
+                <span class="ad-item__when">{{ l.createdAt | date: 'dd/MM HH:mm' }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</div>

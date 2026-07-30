@@ -2,23 +2,7 @@
 //  ADMIN — Moderation des offres
 // ═══════════════════════════════════
 
-.mod-page {
-  padding: 2.75rem 0 5rem;
-  background: var(--paper);
-  min-height: 100vh;
-}
-
 // ── Header ──
-.mod-count {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--brand-700);
-  background: var(--brand-100);
-  padding: 0.35rem 0.75rem;
-  border-radius: var(--r-full);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
 
 // ── Tabs ──
 .tabs {
@@ -223,7 +207,6 @@
 
 // ── Responsive ──
 @media (max-width: 640px) {
-  .mod-page { padding: 1.25rem 0 3.5rem; }
   .oc-top { flex-direction: column; }
   .oc-badges { order: -1; }
   .oc-actions button,

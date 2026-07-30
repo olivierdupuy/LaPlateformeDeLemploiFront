@@ -1,0 +1,47 @@
+<!-- Une tuile qui mene quelque part est un lien ; les autres restent du texte.
+     Un <button> qui ne fait rien au clavier serait un piege a tabulation. -->
+@if (to(); as route) {
+  <a class="st st--link" [routerLink]="route" [queryParams]="params()"
+     [style.--st-accent]="accent()">
+    <ng-container *ngTemplateOutlet="body" />
+    <i class="bi bi-arrow-right st-go" aria-hidden="true"></i>
+  </a>
+} @else {
+  <div class="st" [style.--st-accent]="accent()">
+    <ng-container *ngTemplateOutlet="body" />
+  </div>
+}
+
+<ng-template #body>
+  <span class="st-stripe" aria-hidden="true"></span>
+
+  <span class="st-ico" aria-hidden="true"><i class="bi" [class]="icon()"></i></span>
+
+  <span class="st-text">
+    <span class="st-label">{{ label() }}</span>
+
+    <span class="st-value-row">
+      @if (loading()) {
+        <span class="st-skel" aria-hidden="true"></span>
+        <span class="sr-only">Chargement</span>
+      } @else {
+        <span class="st-value">{{ display() }}</span>
+      }
+
+      @if (deltaState(); as d) {
+        <!-- La fleche double la couleur : l'ecart ne repose pas sur la teinte seule. -->
+        <span class="st-delta" [style.color]="d.color">
+          <i class="bi" [class]="d.icon" aria-hidden="true"></i>
+          {{ d.text }}
+          <span class="st-delta__per">/ {{ deltaPeriod() }}</span>
+        </span>
+      }
+    </span>
+
+    @if (note()) { <span class="st-note">{{ note() }}</span> }
+  </span>
+
+  @if (trend().length > 1) {
+    <span class="st-spark" aria-hidden="true"><canvas #spark></canvas></span>
+  }
+</ng-template>

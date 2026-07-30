@@ -1,0 +1,225 @@
+// ═══════════════════════════════════════════════
+//  CARTE DE GRAPHIQUE
+//  Le trace est la seule chose qui a le droit de parler fort.
+// ═══════════════════════════════════════════════
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+// Une carte peut demander plus d'une colonne de la grille qui l'accueille.
+:host(.span-2) { grid-column: span 2; }
+:host(.span-all) { grid-column: 1 / -1; }
+
+.vz {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: border-color var(--t), box-shadow var(--t);
+
+  &:hover { border-color: var(--line-strong); box-shadow: var(--shadow-xs); }
+}
+
+// ── En-tete ──
+// L'icone, le titre et les outils tiennent sur une ligne ; le sous-titre
+// passe dessous, sur toute la largeur. Ranger le sous-titre dans la
+// colonne du titre etranglait celle-ci sur les cartes etroites : le titre
+// se coupait en deux lignes et le lien de forage etait repousse.
+.vz-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.15rem 0.6rem;
+  padding: 0.85rem 1rem 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.vz-ico {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs);
+  background: var(--bleu-100);
+  color: var(--bleu-700);
+  font-size: 0.8rem;
+}
+
+.vz-title {
+  min-width: 0;
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+}
+
+// Le sous-titre occupe la seconde ligne de la grille, de bord a bord.
+.vz-sub {
+  grid-column: 1 / -1;
+  margin-top: 0.05rem;
+  font-size: 0.73rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.vz-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.vz-tool {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-xs);
+  font-size: 0.82rem;
+  color: var(--muted);
+  transition: color var(--t), background var(--t);
+
+  &:hover { color: var(--bleu-700); background: var(--bleu-100); }
+  &[aria-pressed='true'] { color: var(--bleu-700); background: var(--bleu-100); }
+}
+
+.vz-drill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--r-full);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: color var(--t), background var(--t);
+
+  i { font-size: 0.68rem; transition: transform var(--t); }
+
+  &:hover {
+    color: var(--bleu-700);
+    background: var(--bleu-100);
+    i { transform: translateX(2px); }
+  }
+}
+
+// ── Corps ──
+.vz-body {
+  flex: 1;
+  min-height: 0;
+  padding: 0.9rem 1rem 1rem;
+
+  // Le rafraichissement retient le trace precedent en retrait plutot que
+  // de le remplacer par un squelette : la page ne saute pas.
+  &.is-busy { opacity: 0.5; transition: opacity 0.15s var(--ease-out); }
+}
+
+// La hauteur declaree comprend la bande des graduations : la fixer sur le
+// seul trace donne une carte qui se met a defiler sur trois pixels d'axe.
+.vz-plot {
+  position: relative;
+  height: var(--vz-h, 260px);
+}
+
+.vz-wait,
+.vz-empty {
+  height: var(--vz-h, 260px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--faint);
+
+  i { font-size: 1.5rem; opacity: 0.5; }
+  p { font-size: 0.82rem; color: var(--muted); text-align: center; }
+}
+
+// ── Vue tableau : le jumeau lisible de chaque graphique ──
+.vz-table-wrap {
+  height: var(--vz-h, 260px);
+  overflow-y: auto;
+  margin: -0.2rem -0.2rem 0;
+  padding: 0 0.2rem;
+}
+
+.vz-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.3rem 0.5rem 0.45rem;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  tbody th {
+    font-weight: 600;
+    color: var(--ink);
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--nuage-2);
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover { background: var(--nuage); }
+}
+
+// L'identite arrive par la pastille posee a cote du texte, jamais en
+// coloriant le texte : une teinte claire est illisible en lettres.
+.vz-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.vz-note {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+// Les colonnes de chiffres s'alignent : c'est le seul endroit ou les
+// chiffres a chasse fixe servent.
+.vz-val {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.ta-r { text-align: right; }

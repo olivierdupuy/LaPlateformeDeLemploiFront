@@ -3,144 +3,252 @@
     <a routerLink="/recruteur/offres" class="jfh-back">
       <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à mes offres
     </a>
-    <h1>{{ isEdit() ? 'Modifier l\'offre' : 'Publier une offre' }}</h1>
-    <p class="console-head__sub">{{ isEdit() ? 'Mettez à jour les informations de cette offre.' : 'Décrivez le poste pour attirer les meilleurs profils.' }}</p>
+    <h1>{{ isEdit() ? (wasDraft() ? 'Reprendre le brouillon' : 'Modifier l\'offre') : 'Publier une offre' }}</h1>
+    <p class="console-head__sub">
+      {{ isEdit()
+        ? (wasDraft() ? 'Complétez cette offre puis publiez-la quand elle est prête.' : 'Mettez à jour les informations de cette offre.')
+        : 'Sept étapes pour décrire le poste et recevoir les bonnes candidatures.' }}
+    </p>
   </div>
 </app-console-shell>
 
-<!-- ═══ STEPPER ═══ -->
+<!-- ═══ PROGRESSION ═══ -->
 <section class="jf-stepper">
   <div class="container">
+    <div class="jf-progress-bar"><span [style.width.%]="progress()"></span></div>
     <div class="stepper animate-in" style="animation-delay:.06s">
-      <button type="button" class="step" [class.active]="currentStep() === 1" [class.done]="currentStep() > 1" (click)="goStep(1)">
-        <span class="step-num">1</span><span class="step-label">Informations</span>
-      </button>
-      <div class="step-line" [class.done]="currentStep() > 1"></div>
-      <button type="button" class="step" [class.active]="currentStep() === 2" [class.done]="currentStep() > 2" (click)="goStep(2)">
-        <span class="step-num">2</span><span class="step-label">Détails</span>
-      </button>
-      <div class="step-line" [class.done]="currentStep() > 2"></div>
-      <button type="button" class="step" [class.active]="currentStep() === 3" (click)="goStep(3)">
-        <span class="step-num">3</span><span class="step-label">Publication</span>
-      </button>
+      @for (s of steps; track s.key; let i = $index) {
+        <button type="button" class="step" [class.active]="i === stepIndex()" [class.done]="i < stepIndex()" (click)="goStep(i)">
+          <span class="step-num">
+            @if (i < stepIndex()) { <i class="bi bi-check-lg"></i> } @else { {{ i + 1 }} }
+          </span>
+          <span class="step-label">{{ s.label }}</span>
+        </button>
+      }
     </div>
   </div>
 </section>
 
-<!-- ═══ FORM ═══ -->
+<!-- ═══ FORMULAIRE ═══ -->
 <section class="jf-content">
   <div class="container">
-    <form (ngSubmit)="submit()" class="jf-form animate-in" style="animation-delay:.1s">
+    <div class="jf-form animate-in" style="animation-delay:.1s">
 
-      <!-- STEP 1: Informations principales -->
-      @if (currentStep() === 1) {
-        <div class="jf-card">
+      @if (errors().length) {
+        <div class="jf-errors" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <ul>@for (e of errors(); track e) { <li>{{ e }}</li> }</ul>
+        </div>
+      }
+
+      @if (wasDraft()) {
+        <div class="jf-draft-note">
+          <i class="bi bi-pencil-square"></i>
+          <span>Ce brouillon n'est visible que de vous. Il ne partira aux candidats qu'après publication.</span>
+        </div>
+      }
+
+      <div class="jf-card">
+
+        <!-- ÉTAPE 1 : Le poste -->
+        @if (currentStep() === 'poste') {
           <div class="jfc-head">
             <span class="ed-pill">01</span>
-            <div>
-              <h2>Informations principales</h2>
-              <p>L'essentiel du poste, visible en tête de l'annonce.</p>
-            </div>
+            <div><h2>Le poste</h2><p>L'intitulé est le premier filtre des candidats : restez concret.</p></div>
           </div>
           <div class="jfc-body">
-            <div class="form-group span-2">
+            <div class="form-group">
               <label>Intitulé du poste *</label>
-              <input type="text" placeholder="ex: Developpeur Full Stack Angular / .NET" [(ngModel)]="form.title" name="title" required />
+              <input type="text" placeholder="ex : Développeur Full Stack Angular / .NET" [(ngModel)]="form.title" name="title" />
+              <span class="jf-hint">Évitez les titres internes (« Ingénieur niveau 3 ») : personne ne les recherche.</span>
             </div>
             <div class="form-row">
-              <div class="form-group"><label>Entreprise *</label><input type="text" placeholder="ex: TechCorp" [(ngModel)]="form.company" name="company" required /></div>
-              <div class="form-group"><label>Localisation *</label><input type="text" placeholder="ex: Paris" [(ngModel)]="form.location" name="location" required /></div>
+              <div class="form-group"><label>Entreprise *</label><input type="text" placeholder="ex : TechCorp" [(ngModel)]="form.company" name="company" /></div>
+              <div class="form-group">
+                <label>Nombre de postes à pourvoir</label>
+                <input type="number" min="1" max="99" [(ngModel)]="form.openings" name="openings" />
+              </div>
             </div>
+            <div class="form-group">
+              <label>Catégorie</label>
+              <select [(ngModel)]="form.category" name="category">@for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }</select>
+            </div>
+          </div>
+        }
+
+        <!-- ÉTAPE 2 : Lieu de travail -->
+        @if (currentStep() === 'lieu') {
+          <div class="jfc-head">
+            <span class="ed-pill">02</span>
+            <div><h2>Lieu de travail</h2><p>Le lieu sert à la recherche par ville et par rayon.</p></div>
+          </div>
+          <div class="jfc-body">
+            <div class="form-group">
+              <label>Type de lieu de travail</label>
+              <div class="jf-radios">
+                @for (w of workplaceTypes; track w) {
+                  <button type="button" class="jf-radio" [class.active]="form.workplaceType === w" (click)="form.workplaceType = w">
+                    <i class="bi" [class.bi-building]="w === 'Sur site'" [class.bi-shuffle]="w === 'Hybride'" [class.bi-house-door]="w === 'Télétravail'"></i>
+                    {{ w }}
+                  </button>
+                }
+              </div>
+              <span class="jf-hint">« Hybride » et « Télétravail » font apparaître l'offre dans le filtre télétravail.</span>
+            </div>
+            <div class="form-group">
+              <label>Ville ou région *</label>
+              <input type="text" placeholder="ex : Marseille" [(ngModel)]="form.location" name="location" />
+            </div>
+            <div class="form-group">
+              <label>Adresse précise</label>
+              <input type="text" placeholder="ex : 12 rue de la République, 13001 Marseille" [(ngModel)]="form.address" name="address" />
+              <span class="jf-hint">Facultative — affichée sur la fiche de l'offre, utile pour les postes sur site.</span>
+            </div>
+          </div>
+        }
+
+        <!-- ÉTAPE 3 : Contrat -->
+        @if (currentStep() === 'contrat') {
+          <div class="jfc-head">
+            <span class="ed-pill">03</span>
+            <div><h2>Type de poste</h2><p>Contrat, rythme et profil attendu.</p></div>
+          </div>
+          <div class="jfc-body">
             <div class="form-row">
               <div class="form-group"><label>Type de contrat</label>
                 <select [(ngModel)]="form.contractType" name="contractType">@for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }</select>
               </div>
-              <div class="form-group"><label>Catégorie</label>
-                <select [(ngModel)]="form.category" name="category">@for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }</select>
-              </div>
-            </div>
-            <div class="form-group span-2">
-              <label>Description du poste *</label>
-              <textarea placeholder="Décrivez les missions, le profil recherché, l'environnement de travail..." [(ngModel)]="form.description" name="description" rows="7" required></textarea>
-              <span class="jf-hint"><i class="bi bi-markdown"></i> Mise en forme : **gras**, *italique*, « - » pour les listes, ## pour les sous-titres.</span>
-            </div>
-          </div>
-          <div class="jfc-actions">
-            <div></div>
-            <button type="button" class="btn-primary" (click)="nextStep()">Suivant <i class="bi bi-arrow-right"></i></button>
-          </div>
-        </div>
-      }
-
-      <!-- STEP 2: Details et avantages -->
-      @if (currentStep() === 2) {
-        <div class="jf-card">
-          <div class="jfc-head">
-            <span class="ed-pill">02</span>
-            <div>
-              <h2>Détails et avantages</h2>
-              <p>Précisez la remuneration, les compétences et les avantages.</p>
-            </div>
-          </div>
-          <div class="jfc-body">
-            <div class="form-row">
-              <div class="form-group"><label>Rémunération (texte)</label><input type="text" placeholder="ex: 45K - 55K EUR" [(ngModel)]="form.salary" name="salary" /></div>
-              <div class="form-group"><label>Compétences (virgules)</label><input type="text" placeholder="Angular, .NET, TypeScript" [(ngModel)]="form.tags" name="tags" /></div>
-            </div>
-            <div class="form-row">
-              <div class="form-group"><label>Salaire minimum (EUR/an)</label><input type="number" placeholder="35000" [(ngModel)]="form.minSalary" name="minSalary" /></div>
-              <div class="form-group"><label>Salaire maximum (EUR/an)</label><input type="number" placeholder="50000" [(ngModel)]="form.maxSalary" name="maxSalary" /></div>
-            </div>
-            <div class="form-row">
-              <div class="form-group"><label>Niveau d'expérience</label>
-                <select [(ngModel)]="form.experienceRequired" name="experienceRequired">
-                  <option value="">Non specifie</option>
-                  @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
-                </select>
-              </div>
-              <div class="form-group"><label>Formation requise</label>
-                <select [(ngModel)]="form.educationLevel" name="educationLevel">
-                  <option value="">Non specifie</option>
-                  @for (l of educationLevels; track l) { <option [value]="l">{{ l }}</option> }
-                </select>
+              <div class="form-group">
+                <label>Durée du contrat</label>
+                <input type="text" placeholder="ex : 6 mois" [(ngModel)]="form.contractDuration" name="contractDuration" [disabled]="form.contractType === 'CDI'" />
+                <span class="jf-hint">{{ form.contractType === 'CDI' ? 'Sans objet pour un CDI.' : 'Pour les CDD, stages et alternances.' }}</span>
               </div>
             </div>
             <div class="form-row">
               <div class="form-group"><label>Horaires de travail</label>
                 <select [(ngModel)]="form.workSchedule" name="workSchedule">
-                  <option value="">Non specifie</option>
+                  <option value="">Non spécifié</option>
                   @for (w of workSchedules; track w) { <option [value]="w">{{ w }}</option> }
                 </select>
               </div>
-              <div class="form-group"><label>Langues demandées (séparées par virgules)</label>
-                <input type="text" placeholder="Francais, Anglais..." [(ngModel)]="form.languages" name="languages" />
+              <div class="form-group">
+                <label>Heures par semaine</label>
+                <input type="number" min="1" max="60" placeholder="35" [(ngModel)]="form.hoursPerWeek" name="hoursPerWeek" />
               </div>
             </div>
-            <div class="form-group span-2">
-              <label>Avantages (séparés par virgules)</label>
-              <input type="text" placeholder="Teletravail, Tickets restaurant, RTT, Mutuelle..." [(ngModel)]="form.benefits" name="benefits" />
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date de prise de poste souhaitée</label>
+                <input type="date" [(ngModel)]="form.startDate" name="startDate" />
+              </div>
+              <div class="form-group"><label>Niveau d'expérience</label>
+                <select [(ngModel)]="form.experienceRequired" name="experienceRequired">
+                  <option value="">Non spécifié</option>
+                  @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
+                </select>
+              </div>
             </div>
-            <div class="form-group span-2">
-              <label>A propos de l'entreprise</label>
-              <textarea placeholder="Décrivez votre entreprise, sa culture, ses valeurs..." [(ngModel)]="form.companyDescription" name="companyDescription" rows="3"></textarea>
+            <div class="form-row">
+              <div class="form-group"><label>Formation requise</label>
+                <select [(ngModel)]="form.educationLevel" name="educationLevel">
+                  <option value="">Non spécifié</option>
+                  @for (l of educationLevels; track l) { <option [value]="l">{{ l }}</option> }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Langues demandées</label>
+                <input type="text" placeholder="Français, Anglais…" [(ngModel)]="form.languages" name="languages" />
+              </div>
             </div>
           </div>
-          <div class="jfc-actions">
-            <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Précédent</button>
-            <button type="button" class="btn-primary" (click)="nextStep()">Suivant <i class="bi bi-arrow-right"></i></button>
-          </div>
-        </div>
-      }
+        }
 
-      <!-- STEP 3: Options et publication -->
-      @if (currentStep() === 3) {
-        <div class="jf-card">
+        <!-- ÉTAPE 4 : Rémunération -->
+        @if (currentStep() === 'salaire') {
           <div class="jfc-head">
-            <span class="ed-pill">03</span>
-            <div>
-              <h2>Options et publication</h2>
-              <p>Derniers reglages avant la mise en ligne.</p>
+            <span class="ed-pill">04</span>
+            <div><h2>Rémunération et avantages</h2><p>Les offres chiffrées reçoivent nettement plus de candidatures.</p></div>
+          </div>
+          <div class="jfc-body">
+            <div class="form-row jf-salary-row">
+              <div class="form-group"><label>Salaire minimum</label><input type="number" placeholder="35000" [(ngModel)]="form.minSalary" name="minSalary" /></div>
+              <div class="form-group"><label>Salaire maximum</label><input type="number" placeholder="50000" [(ngModel)]="form.maxSalary" name="maxSalary" /></div>
+              <div class="form-group"><label>Périodicité</label>
+                <select [(ngModel)]="form.salaryPeriod" name="salaryPeriod">
+                  @for (p of salaryPeriods; track p.value) { <option [value]="p.value">{{ p.label }}</option> }
+                </select>
+              </div>
             </div>
+            @if (salaryPreview) {
+              <p class="jf-salary-preview"><i class="bi bi-eye"></i> Les candidats liront : <strong>{{ salaryPreview }}</strong></p>
+            }
+
+            <div class="form-group">
+              <label>Mention libre de rémunération</label>
+              <input type="text" placeholder="ex : selon profil + variable" [(ngModel)]="form.salary" name="salary" />
+              <span class="jf-hint">Utilisée telle quelle si vous ne renseignez pas de fourchette.</span>
+            </div>
+
+            <div class="form-group">
+              <label>Primes et compléments</label>
+              <div class="jf-chips">
+                @for (p of commonSupplementalPay; track p) {
+                  <button type="button" class="jf-chip" [class.active]="hasSupplemental(p)" (click)="toggleSupplemental(p)">
+                    <i class="bi" [class.bi-plus-lg]="!hasSupplemental(p)" [class.bi-check-lg]="hasSupplemental(p)"></i> {{ p }}
+                  </button>
+                }
+              </div>
+              <input type="text" placeholder="Autres primes, séparées par des virgules" [(ngModel)]="form.supplementalPay" name="supplementalPay" />
+            </div>
+
+            <div class="form-group">
+              <label>Avantages</label>
+              <div class="jf-chips">
+                @for (b of commonBenefits; track b) {
+                  <button type="button" class="jf-chip" [class.active]="hasBenefit(b)" (click)="toggleBenefit(b)">
+                    <i class="bi" [class.bi-plus-lg]="!hasBenefit(b)" [class.bi-check-lg]="hasBenefit(b)"></i> {{ b }}
+                  </button>
+                }
+              </div>
+              <input type="text" placeholder="Autres avantages, séparés par des virgules" [(ngModel)]="form.benefits" name="benefits" />
+            </div>
+          </div>
+        }
+
+        <!-- ÉTAPE 5 : Description -->
+        @if (currentStep() === 'description') {
+          <div class="jfc-head">
+            <span class="ed-pill">05</span>
+            <div><h2>Description du poste</h2><p>Missions, profil recherché, environnement de travail.</p></div>
+          </div>
+          <div class="jfc-body">
+            <div class="form-group">
+              <label>Description *</label>
+              <textarea [(ngModel)]="form.description" name="description" rows="12"
+                        placeholder="## Vos missions&#10;- …&#10;&#10;## Profil recherché&#10;- …&#10;&#10;## Ce que nous proposons&#10;- …"></textarea>
+              <span class="jf-hint">
+                <i class="bi bi-markdown"></i> Mise en forme : **gras**, *italique*, « - » pour les listes, ## pour les sous-titres.
+                — {{ form.description.length }} caractères
+              </span>
+            </div>
+            <div class="form-group">
+              <label>Compétences recherchées</label>
+              <input type="text" placeholder="Angular, .NET, TypeScript" [(ngModel)]="form.tags" name="tags" />
+              <span class="jf-hint">Séparées par des virgules, affichées en étiquettes sur l'annonce.</span>
+            </div>
+            <div class="form-group">
+              <label>À propos de l'entreprise</label>
+              <textarea [(ngModel)]="form.companyDescription" name="companyDescription" rows="4"
+                        placeholder="Votre activité, votre taille, votre culture…"></textarea>
+            </div>
+          </div>
+        }
+
+        <!-- ÉTAPE 6 : Candidatures -->
+        @if (currentStep() === 'candidatures') {
+          <div class="jfc-head">
+            <span class="ed-pill">06</span>
+            <div><h2>Réception des candidatures</h2><p>Comment les candidats postulent et ce que vous leur demandez.</p></div>
           </div>
           <div class="jfc-body">
 
@@ -154,11 +262,30 @@
               </div>
             }
 
+            <div class="form-row">
+              <div class="form-group">
+                <label>Adresse de réception</label>
+                <input type="email" placeholder="recrutement@entreprise.fr" [(ngModel)]="form.applicationEmail" name="applicationEmail" />
+                <span class="jf-hint">Si cette adresse correspond à un compte de la plateforme, cette personne sera notifiée à chaque candidature.</span>
+              </div>
+              <div class="form-group">
+                <label>Date limite de candidature</label>
+                <input type="date" [(ngModel)]="form.expiresAt" name="expiresAt" />
+                <span class="jf-hint">Passé ce délai, l'offre est retirée automatiquement.</span>
+              </div>
+            </div>
+
             <div class="options-grid">
-              <label class="opt-card" [class.active]="form.isRemote">
-                <input type="checkbox" [(ngModel)]="form.isRemote" name="isRemote" />
-                <div class="opt-icon"><i class="bi bi-wifi"></i></div>
-                <div class="opt-text"><strong>Télétravail</strong><span>Le poste est ouvert au télétravail</span></div>
+              <label class="opt-card" [class.active]="form.requireResume">
+                <input type="checkbox" [(ngModel)]="form.requireResume" name="requireResume" />
+                <div class="opt-icon"><i class="bi bi-file-earmark-text-fill"></i></div>
+                <div class="opt-text"><strong>CV obligatoire</strong><span>Impossible de postuler sans CV</span></div>
+                <i class="bi bi-check-lg opt-check"></i>
+              </label>
+              <label class="opt-card" [class.active]="form.easyApply">
+                <input type="checkbox" [(ngModel)]="form.easyApply" name="easyApply" />
+                <div class="opt-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                <div class="opt-text"><strong>Candidature simplifiée</strong><span>Postulation en 1 clic avec le profil</span></div>
                 <i class="bi bi-check-lg opt-check"></i>
               </label>
               <label class="opt-card" [class.active]="form.isUrgent">
@@ -167,13 +294,7 @@
                 <div class="opt-text"><strong>Urgent</strong><span>Recrutement prioritaire</span></div>
                 <i class="bi bi-check-lg opt-check"></i>
               </label>
-              <label class="opt-card" [class.active]="form.easyApply">
-                <input type="checkbox" [(ngModel)]="form.easyApply" name="easyApply" />
-                <div class="opt-icon"><i class="bi bi-lightning-charge-fill"></i></div>
-                <div class="opt-text"><strong>Candidature simplifiée</strong><span>Postulation en 1 clic sur la plateforme</span></div>
-                <i class="bi bi-check-lg opt-check"></i>
-              </label>
-              @if (isEdit() && !showModerationNotice) {
+              @if (isEdit() && !wasDraft() && !showModerationNotice) {
                 <label class="opt-card" [class.active]="form.isActive">
                   <input type="checkbox" [(ngModel)]="form.isActive" name="isActive" />
                   <div class="opt-icon opt-active"><i class="bi bi-check-circle-fill"></i></div>
@@ -183,66 +304,194 @@
               }
             </div>
 
-            <!-- Questions de preselection -->
+            <!-- Questions de présélection -->
             <div class="jf-screening">
               <div class="jf-screening-head">
                 <div>
                   <label class="jf-screening-title">Questions de présélection</label>
-                  <span class="jf-screening-hint">Posées au candidat au moment de la candidature (optionnel).</span>
+                  <span class="jf-screening-hint">Posées au candidat pendant sa candidature. Une réponse attendue permet de mesurer son adéquation.</span>
                 </div>
                 <button type="button" class="btn-ghost" (click)="addQuestion()"><i class="bi bi-plus-lg"></i> Ajouter</button>
               </div>
-              @for (q of screeningQuestionsList; track $index) {
-                <div class="jf-screening-row">
-                  <span class="jf-q-num u-mono">Q{{ $index + 1 }}</span>
-                  <input type="text" placeholder="ex: Avez-vous le permis B ?" [(ngModel)]="screeningQuestionsList[$index]" [name]="'sq' + $index" />
-                  <button type="button" class="jf-q-remove" (click)="removeQuestion($index)" title="Supprimer"><i class="bi bi-x-lg"></i></button>
+
+              @for (q of screeningQuestionsList; track trackByIndex($index); let qi = $index) {
+                <div class="jf-q-card">
+                  <div class="jf-q-top">
+                    <span class="jf-q-num u-mono">Q{{ qi + 1 }}</span>
+                    <input type="text" class="jf-q-text" placeholder="ex : Avez-vous le permis B ?" [(ngModel)]="q.text" [name]="'sq' + qi" />
+                    <button type="button" class="jf-q-remove" (click)="removeQuestion(qi)" title="Supprimer"><i class="bi bi-x-lg"></i></button>
+                  </div>
+
+                  <div class="jf-q-row">
+                    <div class="form-group">
+                      <label>Type de réponse</label>
+                      <select [(ngModel)]="q.type" [name]="'sqType' + qi" (ngModelChange)="onQuestionTypeChange(q)">
+                        @for (t of screeningTypes; track t) { <option [value]="t">{{ screeningTypeLabels[t] }}</option> }
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Réponse attendue</label>
+                      @if (q.type === 'boolean' || q.type === 'choice') {
+                        <select [(ngModel)]="q.idealAnswer" [name]="'sqIdeal' + qi">
+                          <option value="">Aucune préférence</option>
+                          @for (opt of answerOptions(q); track opt) { <option [value]="opt">{{ opt }}</option> }
+                        </select>
+                      } @else {
+                        <input type="text" placeholder="Laisser vide si aucune" [(ngModel)]="q.idealAnswer" [name]="'sqIdeal' + qi" />
+                      }
+                    </div>
+                    <label class="jf-q-required">
+                      <input type="checkbox" [(ngModel)]="q.required" [name]="'sqReq' + qi" />
+                      <span>Réponse obligatoire</span>
+                    </label>
+                  </div>
+
+                  @if (q.type === 'choice') {
+                    <div class="jf-q-options">
+                      <label>Réponses proposées</label>
+                      @for (opt of q.options; track trackByIndex($index); let oi = $index) {
+                        <div class="jf-q-option">
+                          <input type="text" placeholder="ex : Moins de 2 ans" [(ngModel)]="q.options[oi]" [name]="'sqOpt' + qi + '_' + oi" />
+                          <button type="button" class="jf-q-remove" (click)="removeOption(q, oi)"><i class="bi bi-x-lg"></i></button>
+                        </div>
+                      }
+                      <button type="button" class="btn-ghost jf-q-addopt" (click)="addOption(q)"><i class="bi bi-plus-lg"></i> Ajouter une réponse</button>
+                    </div>
+                  }
                 </div>
               } @empty {
                 <p class="jf-screening-empty">Aucune question. Les candidats postuleront directement.</p>
               }
             </div>
 
-            <!-- Reponse automatique -->
+            <!-- Réponse automatique -->
             <div class="jf-screening">
               <div class="jf-screening-head">
                 <div>
                   <label class="jf-screening-title">Réponse automatique</label>
-                  <span class="jf-screening-hint">Message envoyé au candidat dès réception de sa candidature (optionnel).</span>
+                  <span class="jf-screening-hint">Message envoyé au candidat dès réception de sa candidature (facultatif).</span>
                 </div>
               </div>
               <textarea class="jf-autoreply" [(ngModel)]="form.autoReplyMessage" name="autoReplyMessage" rows="3" maxlength="500"
-                placeholder="ex: Merci pour votre candidature ! Nous revenons vers vous sous 5 jours ouvrés."></textarea>
-            </div>
-
-            <!-- Resume -->
-            <div class="jf-resume">
-              <h3><span class="eyebrow">Recapitulatif</span></h3>
-              <div class="res-grid">
-                <div class="res-item"><span class="res-label">Poste</span><span class="res-val">{{ form.title || '—' }}</span></div>
-                <div class="res-item"><span class="res-label">Entreprise</span><span class="res-val">{{ form.company || '—' }}</span></div>
-                <div class="res-item"><span class="res-label">Lieu</span><span class="res-val">{{ form.location || '—' }}</span></div>
-                <div class="res-item"><span class="res-label">Contrat</span><span class="res-val">{{ form.contractType }}</span></div>
-                <div class="res-item"><span class="res-label">Catégorie</span><span class="res-val">{{ form.category }}</span></div>
-                @if (form.salary) { <div class="res-item"><span class="res-label">Salaire</span><span class="res-val res-teal">{{ form.salary }}</span></div> }
-                @if (form.experienceRequired) { <div class="res-item"><span class="res-label">Expérience</span><span class="res-val">{{ form.experienceRequired }}</span></div> }
-                @if (form.educationLevel) { <div class="res-item"><span class="res-label">Formation</span><span class="res-val">{{ form.educationLevel }}</span></div> }
-              </div>
+                placeholder="ex : Merci pour votre candidature ! Nous revenons vers vous sous 5 jours ouvrés."></textarea>
             </div>
           </div>
-          <div class="jfc-actions">
+        }
+
+        <!-- ÉTAPE 7 : Aperçu -->
+        @if (currentStep() === 'apercu') {
+          <div class="jfc-head">
+            <span class="ed-pill">07</span>
+            <div><h2>Aperçu de l'annonce</h2><p>Voici ce que verront les candidats.</p></div>
+          </div>
+          <div class="jfc-body">
+            <div class="jf-preview">
+              <div class="jfp-head">
+                <h3>{{ form.title || 'Intitulé du poste' }}</h3>
+                <p class="jfp-company">
+                  {{ form.company || 'Entreprise' }} <span class="jfp-dot">·</span> {{ form.location || 'Lieu' }}
+                  @if (form.openings > 1) { <span class="jfp-dot">·</span> {{ form.openings }} postes }
+                </p>
+                <div class="jfp-badges">
+                  <span class="badge badge-blue">{{ form.contractType }}</span>
+                  @if (form.workplaceType) { <span class="badge badge-purple">{{ form.workplaceType }}</span> }
+                  @if (form.workSchedule) { <span class="badge">{{ form.workSchedule }}</span> }
+                  @if (form.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
+                  @if (form.easyApply) { <span class="badge badge-easy"><i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée</span> }
+                </div>
+                @if (salaryPreview) { <p class="jfp-salary"><i class="bi bi-cash-coin"></i> {{ salaryPreview }}</p> }
+              </div>
+
+              <div class="jfp-facts">
+                @if (form.address) { <div><span>Adresse</span><strong>{{ form.address }}</strong></div> }
+                @if (form.contractDuration && form.contractType !== 'CDI') { <div><span>Durée</span><strong>{{ form.contractDuration }}</strong></div> }
+                @if (form.hoursPerWeek) { <div><span>Temps de travail</span><strong>{{ form.hoursPerWeek }} h / semaine</strong></div> }
+                @if (form.startDate) { <div><span>Prise de poste</span><strong>{{ form.startDate }}</strong></div> }
+                @if (form.experienceRequired) { <div><span>Expérience</span><strong>{{ form.experienceRequired }}</strong></div> }
+                @if (form.educationLevel) { <div><span>Formation</span><strong>{{ form.educationLevel }}</strong></div> }
+                @if (previewLanguages.length) { <div><span>Langues</span><strong>{{ previewLanguages.join(', ') }}</strong></div> }
+                <div><span>CV</span><strong>{{ form.requireResume ? 'Obligatoire' : 'Facultatif' }}</strong></div>
+              </div>
+
+              @if (previewBenefits.length || previewSupplemental.length) {
+                <div class="jfp-block">
+                  <h4>Avantages</h4>
+                  <div class="jfp-chips">
+                    @for (b of previewBenefits; track b) { <span class="jfp-chip">{{ b }}</span> }
+                    @for (p of previewSupplemental; track p) { <span class="jfp-chip jfp-chip-pay">{{ p }}</span> }
+                  </div>
+                </div>
+              }
+
+              <div class="jfp-block">
+                <h4>Description du poste</h4>
+                @if (form.description) {
+                  <div class="jfp-desc" [innerHTML]="form.description | markdown"></div>
+                } @else {
+                  <p class="jfp-empty">Aucune description — les candidats ne sauront pas à quoi s'attendre.</p>
+                }
+              </div>
+
+              @if (previewTags.length) {
+                <div class="jfp-block">
+                  <h4>Compétences</h4>
+                  <div class="jfp-chips">@for (t of previewTags; track t) { <span class="jfp-chip">{{ t }}</span> }</div>
+                </div>
+              }
+
+              @if (form.companyDescription) {
+                <div class="jfp-block">
+                  <h4>À propos de {{ form.company }}</h4>
+                  <p class="jfp-about">{{ form.companyDescription }}</p>
+                </div>
+              }
+
+              @if (screeningQuestionsList.length) {
+                <div class="jfp-block">
+                  <h4>Questions posées au candidat</h4>
+                  <ol class="jfp-questions">
+                    @for (q of screeningQuestionsList; track trackByIndex($index)) {
+                      <li>
+                        {{ q.text || 'Question sans intitulé' }}
+                        <span class="jfp-qmeta">
+                          {{ screeningTypeLabels[q.type] }}@if (q.required) { · obligatoire }@if (q.idealAnswer) { · attendu : {{ q.idealAnswer }} }
+                        </span>
+                      </li>
+                    }
+                  </ol>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="jfc-actions">
+          @if (stepIndex() > 0) {
             <button type="button" class="btn-secondary" (click)="prevStep()"><i class="bi bi-arrow-left"></i> Précédent</button>
-            <button type="submit" class="btn-primary btn-publish" [disabled]="submitting">
-              @if (submitting) { <span class="sp"></span> } @else { <i class="bi" [class.bi-send]="showModerationNotice" [class.bi-check-lg]="!showModerationNotice"></i> }
-              {{ isEdit()
-                ? (showModerationNotice ? 'Soumettre les modifications' : 'Enregistrer les modifications')
-                : (showModerationNotice ? 'Soumettre a validation' : 'Publier l\'offre')
-              }}
+          } @else {
+            <a routerLink="/recruteur/offres" class="btn-secondary">Annuler</a>
+          }
+
+          <div class="jfc-actions-right">
+            <button type="button" class="btn-ghost" [disabled]="savingDraft()" (click)="saveDraft()">
+              @if (savingDraft()) { <span class="sp"></span> } @else { <i class="bi bi-save"></i> }
+              Enregistrer en brouillon
             </button>
+            @if (isLastStep()) {
+              <button type="button" class="btn-primary btn-publish" [disabled]="submitting()" (click)="submit()">
+                @if (submitting()) { <span class="sp"></span> } @else { <i class="bi" [class.bi-send]="showModerationNotice" [class.bi-check-lg]="!showModerationNotice"></i> }
+                {{ isEdit() && !wasDraft()
+                  ? (showModerationNotice ? 'Soumettre les modifications' : 'Enregistrer les modifications')
+                  : (showModerationNotice ? 'Soumettre à validation' : 'Publier l\'offre')
+                }}
+              </button>
+            } @else {
+              <button type="button" class="btn-primary" (click)="nextStep()">Suivant <i class="bi bi-arrow-right"></i></button>
+            }
           </div>
         </div>
-      }
-
-    </form>
+      </div>
+    </div>
   </div>
 </section>

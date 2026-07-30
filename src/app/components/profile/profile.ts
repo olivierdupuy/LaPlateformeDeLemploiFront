@@ -145,15 +145,19 @@ export class Profile implements OnInit {
     if (res.isConfirmed) {
       Swal.fire({
         title: 'Analyse IA en cours...',
-        html: 'Extraction des sections de votre CV.<br>Cela peut prendre quelques secondes.',
+        html: 'Extraction des sections de votre CV.<br>Comptez jusqu\'à une minute selon la longueur du CV.',
         allowOutsideClick: false,
         allowEscapeKey: false,
         showConfirmButton: false,
         didOpen: () => Swal.showLoading(),
       });
       this.cvService.parseFile(file).subscribe({
-        next: (sections) => {
+        next: (res) => {
+          const sections = res.sections ?? [];
           if (sections.length === 0) { Swal.close(); this.toastr.warning('Aucune section extraite'); return; }
+          if (res.truncated) {
+            this.toastr.warning("Le CV était trop long : sa fin n'a pas été analysée.", 'Analyse partielle');
+          }
           this.cvService.deleteAll().subscribe({
             next: () => {
               this.cvService.createBatch(sections).subscribe({

@@ -27,6 +27,19 @@ export interface JobOffer {
   latitude?: number;
   longitude?: number;
   screeningQuestions?: string;
+  autoReplyMessage?: string;
+  // Depot d'offre (tunnel type Indeed)
+  openings?: number;
+  workplaceType?: string;
+  address?: string;
+  salaryPeriod?: string;
+  supplementalPay?: string;
+  contractDuration?: string;
+  hoursPerWeek?: number;
+  startDate?: string;
+  applicationEmail?: string;
+  requireResume?: boolean;
+  isDraft?: boolean;
   externalUrl?: string;
   externalSource?: string;
   moderationStatus?: string;
@@ -50,6 +63,9 @@ export interface Application {
   salaryExpectation?: string;
   source?: string;
   screeningAnswers?: string;
+  city?: string;
+  /** Part des criteres de preselection satisfaits (%), calculee a l'envoi. */
+  qualificationScore?: number;
   appliedAt: string;
   /** Le candidat a range la candidature : elle sort de sa vue active. */
   isArchived?: boolean;

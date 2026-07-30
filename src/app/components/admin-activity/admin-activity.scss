@@ -2,20 +2,6 @@
 //  ADMIN — Journal d'activite
 // ═══════════════════════════════════
 
-.act-page { padding: 2.75rem 0 5rem; background: var(--paper); min-height: 100vh; }
-
-.act-count {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--brand-700);
-  background: var(--brand-100);
-  border-radius: var(--r-full);
-  white-space: nowrap;
-}
-
 // ── Filters bar ──
 .filters {
   display: flex;
@@ -149,7 +135,6 @@
 
 // ── Responsive ──
 @media (max-width: 640px) {
-  .act-page { padding: 1.75rem 0 3.5rem; }
   .filters { padding: 1.1rem 1.1rem; }
   .filter-field { min-width: 100%; }
   .btn-reset { width: 100%; }

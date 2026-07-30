@@ -110,12 +110,19 @@ export class CvBuilder implements OnInit {
     this.parsingFile.set(true);
     this.aiModalTitle.set('Sections extraites du CV');
     this.cvService.parseFile(file).subscribe({
-      next: (s) => {
+      next: (res) => {
         this.parsingFile.set(false);
+        const s = res.sections ?? [];
         this.aiSections.set(s);
         this.aiSelected.set(s.map(() => true));
         this.aiOpen.set(true);
         this.toastr.success(`${s.length} sections extraites du fichier`);
+        if (res.truncated) {
+          this.toastr.warning(
+            "Le CV était trop long : sa fin n'a pas été analysée. Vérifiez les dernières sections.",
+            'Analyse partielle',
+          );
+        }
       },
       error: (err) => {
         this.parsingFile.set(false);
