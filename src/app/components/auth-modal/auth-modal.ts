@@ -365,8 +365,12 @@ export class AuthModal {
       chapeau: 'C’est la fiche que les candidats consultent avant de postuler.' },
     { titre: 'Ce que verront les candidats',
       chapeau: 'Une offre adossée à une entreprise décrite ne reçoit pas les mêmes candidatures.' },
+    // Le sort d'une offre dépend du réglage « require_moderation », que
+    // le serveur applique à la création : sous modération, elle naît
+    // « en attente » et reste invisible jusqu'à relecture. Annoncer une
+    // parution immédiate ferait guetter une offre qui ne paraît pas.
     { titre: 'Prêt à publier',
-      chapeau: 'Votre compte est prêt. Vos offres paraîtront dès leur enregistrement.' },
+      chapeau: 'Votre compte est prêt. Il reste une chose à faire.' },
   ];
 
   private get etapesDuRole() {

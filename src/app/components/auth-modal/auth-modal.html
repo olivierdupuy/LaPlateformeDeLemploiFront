@@ -601,6 +601,21 @@
               </div>
 
               @if (estRecruteur) {
+                <!-- Dire ce qui attend l'offre. Sous modération, elle naît
+                     « en attente » et reste invisible jusqu'à relecture :
+                     laisser croire à une parution immédiate ferait guetter
+                     une annonce qui ne vient pas. -->
+                <p class="am-remarque">
+                  <i class="bi" [class.bi-hourglass-split]="platform.requireModeration"
+                     [class.bi-lightning-charge]="!platform.requireModeration" aria-hidden="true"></i>
+                  @if (platform.requireModeration) {
+                    Vos offres sont relues avant publication. La première met
+                    généralement moins d'une journée à paraître.
+                  } @else {
+                    Vos offres paraissent dès leur enregistrement.
+                  }
+                </p>
+
                 <div class="am-sorties">
                   <button type="button" class="btn-primary am-valider"
                           (click)="terminer('/recruteur/offres/nouvelle')">
