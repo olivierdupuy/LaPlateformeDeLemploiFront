@@ -12,6 +12,7 @@ import { ScreeningQuestion, answerOptions, parseScreeningQuestions } from '../..
 import { EmployerNamePipe } from '../../pipes/employer-name.pipe';
 import { companyColor, getContractBadgeClass, salaryLabel } from '../../utils/job.utils';
 import { fichierUrl } from '../../utils/fichiers';
+import { AuthModalService } from '../../services/auth-modal.service';
 
 type StepKey = 'contact' | 'resume' | 'questions' | 'letter' | 'extras' | 'review';
 type ResumeChoice = 'profile' | 'upload' | 'none';
@@ -59,6 +60,7 @@ const DRAFT_PREFIX = 'lpde.candidature.';
   styleUrl: './apply-flow.scss',
 })
 export class ApplyFlow implements OnInit {
+  authModale = inject(AuthModalService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobService = inject(JobOfferService);
@@ -126,8 +128,11 @@ export class ApplyFlow implements OnInit {
     }
 
     if (!this.auth.isLoggedIn()) {
+      // La modale s'ouvre par-dessus l'offre et y ramene une fois
+      // l'identite etablie : on ne perd plus l'annonce en chemin.
       this.toastr.info('Connectez-vous pour postuler à cette offre.');
-      this.router.navigate(['/login'], { queryParams: { redirect: `/offres/${id}/postuler` } });
+      this.authModale.ouvrir('connexion', { redirect: `/offres/${id}/postuler` });
+      this.router.navigate(['/offres', id]);
       return;
     }
 

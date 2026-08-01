@@ -1,0 +1,392 @@
+@if (modale.ouverte()) {
+  <!-- Le voile ferme au clic, mais l'écoute du clavier vit ici : les
+       touches remontent depuis le champ qui a le curseur, et poser
+       l'écoute sur le panneau seul manquerait celles qui partent du
+       bouton de fermeture. -->
+  <div class="am-voile" (click)="fermer()" (keydown)="auClavier($event)">
+    <div #panneau class="am-panneau" role="dialog" aria-modal="true"
+         aria-labelledby="am-titre" (click)="$event.stopPropagation()">
+
+      <!-- ═══════════ PANNEAU DE MARQUE ═══════════
+           Décoratif au sens strict : tout ce qu'il porte est redit ou
+           inutile au formulaire. Il disparaît sous 900 px sans rien
+           retirer au parcours. -->
+      <aside class="am-marque" aria-hidden="true">
+        <span class="am-marque__halo"></span>
+
+        <span class="am-marque__logo brand-lockup brand-lockup--dark">
+          <img src="/images/logo-lpde.svg" alt="" width="52" height="52" />
+          <span class="brand-lockup__word">
+            <b>La plateforme</b><span>de l'emploi</span>
+          </span>
+        </span>
+
+        <div class="am-marque__corps">
+          <span class="am-marque__oeil">{{ marque().oeil }}</span>
+          <p class="am-marque__titre">
+            {{ marque().titre }} <span class="am-marque__em">{{ marque().accent }}</span>
+          </p>
+          <p class="am-marque__lead">{{ marque().lead }}</p>
+          <ul class="am-marque__points">
+            @for (p of marque().points; track p) {
+              <li><i class="bi bi-check-lg"></i> {{ p }}</li>
+            }
+          </ul>
+        </div>
+      </aside>
+
+      <!-- ═══════════ FORMULAIRE ═══════════ -->
+      <div class="am-corps">
+        <button type="button" class="am-fermer" (click)="fermer()" aria-label="Fermer">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+
+        <header class="am-tete">
+          <h2 id="am-titre">{{ titre() }}</h2>
+          <p>{{ chapeau() }}</p>
+        </header>
+
+        <!-- On arrive souvent d'une candidature interrompue. Nommer la
+             destination évite de croire qu'on a perdu ce qu'on faisait. -->
+        @if (reprise(); as label) {
+          <p class="am-reprise">
+            <i class="bi bi-arrow-return-left" aria-hidden="true"></i>
+            <span>Après connexion : <strong>{{ label }}</strong></span>
+          </p>
+        }
+
+        @switch (modale.vue()) {
+
+          <!-- ─────────── CONNEXION ─────────── -->
+          @case ('connexion') {
+            @if (defi()) {
+              <!-- Deuxième temps : le mot de passe était bon, il ne suffit
+                   pas. La même conversation se poursuit. -->
+              <div class="am-2fa">
+                <!-- L'intro dit où va le code, jamais qu'il est parti :
+                     c'est le serveur qui le sait, et la note juste en
+                     dessous le rapporte. Affirmer l'envoi ici, puis le
+                     redire là, donnait deux fois la même phrase quand
+                     tout allait bien — et se contredisait quand non. -->
+                <p class="am-2fa__intro">
+                  <i class="bi" [class.bi-shield-lock]="methode() !== 'Sms'"
+                     [class.bi-phone]="methode() === 'Sms'" aria-hidden="true"></i>
+                  @if (methode() === 'Sms') {
+                    <span>Ce compte demande un second facteur. Le code part par SMS@if (destinataire()) {<span> au <strong>{{ destinataire() }}</strong></span>}.</span>
+                  } @else {
+                    <span>Ce compte demande un second facteur. Saisissez le code affiché par
+                    votre application d'authentification.</span>
+                  }
+                </p>
+
+                <!-- Ce que l'envoi a donné, dit tel quel : plus de crédit,
+                     opérateur qui refuse, délai entre deux envois. Sans
+                     cette phrase, on attend un SMS qui ne viendra pas. -->
+                @if (motSms(); as m) { <p class="am-2fa__note">{{ m }}</p> }
+
+                <form (ngSubmit)="verifier()" class="am-form">
+                  <div class="am-champ">
+                    <label for="auth-code">Code à six chiffres</label>
+                    <input id="auth-code" type="text" inputmode="numeric" autocomplete="one-time-code"
+                           maxlength="12" class="am-code" placeholder="123456"
+                           [(ngModel)]="code" name="code" required />
+                  </div>
+
+                  <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
+                    @if (occupe()) { <span class="sp"></span> Vérification… } @else { Continuer }
+                  </button>
+                </form>
+
+                @if (methode() === 'Sms') {
+                  <button type="button" class="am-lien-discret" (click)="renvoyer()" [disabled]="renvoiEnCours()">
+                    <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                    {{ renvoiEnCours() ? 'Envoi…' : 'Renvoyer un code' }}
+                  </button>
+                }
+
+                <p class="am-aide">
+                  Téléphone perdu ou hors de portée ? Saisissez à la place l'un de vos
+                  <strong>codes de secours</strong> dans le même champ.
+                </p>
+
+                <button type="button" class="am-retour" (click)="quitterDefi()">
+                  <i class="bi bi-arrow-left" aria-hidden="true"></i> Revenir au mot de passe
+                </button>
+              </div>
+            } @else {
+              @if (bloque(); as m) {
+                <p class="am-bloque">
+                  <i class="bi bi-lock-fill" aria-hidden="true"></i><span>{{ m }}</span>
+                </p>
+              }
+
+              <form (ngSubmit)="connecter()" class="am-form">
+                <div class="am-champ">
+                  <label for="auth-email">Adresse e-mail</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-envelope" aria-hidden="true"></i>
+                    <input id="auth-email" type="email" autocomplete="email" placeholder="vous&#64;exemple.fr"
+                           [(ngModel)]="identifiants.email" name="email" required />
+                  </div>
+                </div>
+
+                <div class="am-champ">
+                  <div class="am-champ__tete">
+                    <label for="auth-mdp">Mot de passe</label>
+                    <button type="button" class="am-oubli" (click)="allerA('oubli')">Mot de passe oublié ?</button>
+                  </div>
+                  <div class="am-saisie">
+                    <i class="bi bi-lock" aria-hidden="true"></i>
+                    <input id="auth-mdp" [type]="voirMotDePasse() ? 'text' : 'password'"
+                           autocomplete="current-password" placeholder="Votre mot de passe"
+                           [(ngModel)]="identifiants.motDePasse" name="motDePasse" required />
+                    <button type="button" class="am-oeil" (click)="voirMotDePasse.set(!voirMotDePasse())"
+                            [attr.aria-pressed]="voirMotDePasse()"
+                            [attr.aria-label]="voirMotDePasse() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+                      <i class="bi" [class.bi-eye]="!voirMotDePasse()" [class.bi-eye-slash]="voirMotDePasse()"
+                         aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
+                  @if (occupe()) { <span class="sp"></span> Connexion… } @else { Se connecter }
+                </button>
+              </form>
+
+              <app-google-signin-button (authentifie)="entrerParGoogle($event)" />
+              <app-linkedin-signin-button />
+
+              <p class="am-bascule">
+                Pas encore de compte ?
+                <button type="button" (click)="allerA('inscription')">
+                  Créer un compte <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
+              </p>
+            }
+          }
+
+          <!-- ─────────── INSCRIPTION ─────────── -->
+          @case ('inscription') {
+            @if (!platform.allowRegistration) {
+              <p class="am-bloque">
+                <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                <span>Les inscriptions sont momentanément fermées. Revenez d'ici peu.</span>
+              </p>
+            }
+
+            <form (ngSubmit)="creer()" class="am-form">
+              <!-- Le rôle d'abord : il commande la suite du formulaire et
+                   tout l'espace derrière. Le demander en dernier ferait
+                   remplir six champs avant de savoir lesquels comptaient. -->
+              <fieldset class="am-roles">
+                <legend>Vous êtes</legend>
+                <button type="button" class="am-role" [class.est-choisi]="inscription.role === 'Candidate'"
+                        (click)="choisirRole('Candidate')" [attr.aria-pressed]="inscription.role === 'Candidate'">
+                  <i class="bi bi-search" aria-hidden="true"></i>
+                  <b>Candidat</b>
+                  <span>Je cherche un poste</span>
+                </button>
+                <button type="button" class="am-role" [class.est-choisi]="inscription.role === 'Recruiter'"
+                        (click)="choisirRole('Recruiter')" [attr.aria-pressed]="inscription.role === 'Recruiter'">
+                  <i class="bi bi-briefcase" aria-hidden="true"></i>
+                  <b>Recruteur</b>
+                  <span>Je recrute</span>
+                </button>
+              </fieldset>
+
+              <div class="am-duo">
+                <div class="am-champ">
+                  <label for="auth-prenom">Prénom</label>
+                  <div class="am-saisie">
+                    <input id="auth-prenom" type="text" autocomplete="given-name" placeholder="Camille"
+                           [(ngModel)]="inscription.prenom" name="prenom" required />
+                  </div>
+                </div>
+                <div class="am-champ">
+                  <label for="auth-nom">Nom</label>
+                  <div class="am-saisie">
+                    <input id="auth-nom" type="text" autocomplete="family-name" placeholder="Durand"
+                           [(ngModel)]="inscription.nom" name="nom" required />
+                  </div>
+                </div>
+              </div>
+
+              @if (inscription.role === 'Recruiter') {
+                <div class="am-champ">
+                  <label for="auth-entreprise">Entreprise</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-building" aria-hidden="true"></i>
+                    <input id="auth-entreprise" type="text" autocomplete="organization"
+                           placeholder="Nom de votre entreprise"
+                           [(ngModel)]="inscription.entreprise" name="entreprise" />
+                  </div>
+                </div>
+              }
+
+              <div class="am-champ">
+                <label for="auth-email-i">Adresse e-mail</label>
+                <div class="am-saisie">
+                  <i class="bi bi-envelope" aria-hidden="true"></i>
+                  <input id="auth-email-i" type="email" autocomplete="email" placeholder="vous&#64;exemple.fr"
+                         [(ngModel)]="inscription.email" name="emailInscription" required />
+                </div>
+              </div>
+
+              <div class="am-champ">
+                <label for="auth-mdp-i">Mot de passe</label>
+                <div class="am-saisie">
+                  <i class="bi bi-lock" aria-hidden="true"></i>
+                  <input id="auth-mdp-i" [type]="voirMotDePasse() ? 'text' : 'password'"
+                         autocomplete="new-password" placeholder="Huit caractères au minimum"
+                         [(ngModel)]="inscription.motDePasse" name="motDePasseInscription" required />
+                  <button type="button" class="am-oeil" (click)="voirMotDePasse.set(!voirMotDePasse())"
+                          [attr.aria-pressed]="voirMotDePasse()"
+                          [attr.aria-label]="voirMotDePasse() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+                    <i class="bi" [class.bi-eye]="!voirMotDePasse()" [class.bi-eye-slash]="voirMotDePasse()"
+                       aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                <!-- La jauge répond pendant la frappe, là où le retour ne
+                     coûte rien. Sans elle on apprend au moment de valider
+                     que le compte est refusé. -->
+                @if (forceInscription.rang; as rang) {
+                  <div class="am-jauge" [attr.data-rang]="rang">
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                  <p class="am-jauge__mot">{{ forceInscription.texte }}</p>
+                }
+              </div>
+
+              <button type="submit" class="btn-primary am-valider"
+                      [disabled]="occupe() || !platform.allowRegistration">
+                @if (occupe()) { <span class="sp"></span> Création… } @else { Créer mon compte }
+              </button>
+            </form>
+
+            <p class="am-mentions">
+              En créant un compte, vous acceptez nos
+              <a href="/cgu" target="_blank" rel="noopener">conditions d'utilisation</a> et notre
+              <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.
+            </p>
+
+            <p class="am-bascule">
+              Vous avez déjà un compte ?
+              <button type="button" (click)="allerA('connexion')">
+                Se connecter <i class="bi bi-arrow-right" aria-hidden="true"></i>
+              </button>
+            </p>
+          }
+
+          <!-- ─────────── MOT DE PASSE OUBLIÉ ─────────── -->
+          @case ('oubli') {
+            @if (fait()) {
+              <div class="am-issue" [class.est-echec]="echec()">
+                <i class="bi" [class.bi-envelope-check]="!echec()" [class.bi-exclamation-triangle]="echec()"
+                   aria-hidden="true"></i>
+                <p>{{ message() }}</p>
+              </div>
+              <button type="button" class="am-retour" (click)="allerA('connexion')">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> Revenir à la connexion
+              </button>
+            } @else {
+              <form (ngSubmit)="demanderLien()" class="am-form">
+                <div class="am-champ">
+                  <label for="auth-oubli">Adresse e-mail</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-envelope" aria-hidden="true"></i>
+                    <input id="auth-oubli" type="email" autocomplete="email" placeholder="vous&#64;exemple.fr"
+                           [(ngModel)]="emailOubli" name="emailOubli" required />
+                  </div>
+                </div>
+                <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
+                  @if (occupe()) { <span class="sp"></span> Envoi… } @else { Envoyer le lien }
+                </button>
+              </form>
+              <button type="button" class="am-retour" (click)="allerA('connexion')">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> Revenir à la connexion
+              </button>
+            }
+          }
+
+          <!-- ─────────── NOUVEAU MOT DE PASSE ─────────── -->
+          @case ('reinitialisation') {
+            @if (fait()) {
+              <div class="am-issue" [class.est-echec]="echec()">
+                <i class="bi" [class.bi-shield-check]="!echec()" [class.bi-exclamation-triangle]="echec()"
+                   aria-hidden="true"></i>
+                <p>{{ message() }}</p>
+              </div>
+              @if (echec()) {
+                <button type="button" class="am-retour" (click)="allerA('oubli')">
+                  <i class="bi bi-arrow-left" aria-hidden="true"></i> Demander un nouveau lien
+                </button>
+              }
+            } @else {
+              <form (ngSubmit)="reinitialiserMotDePasse()" class="am-form">
+                <div class="am-champ">
+                  <label for="auth-nouveau">Nouveau mot de passe</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-lock" aria-hidden="true"></i>
+                    <input id="auth-nouveau" [type]="voirMotDePasse() ? 'text' : 'password'"
+                           autocomplete="new-password" placeholder="Huit caractères au minimum"
+                           [(ngModel)]="nouveau" name="nouveau" required />
+                    <button type="button" class="am-oeil" (click)="voirMotDePasse.set(!voirMotDePasse())"
+                            [attr.aria-pressed]="voirMotDePasse()"
+                            [attr.aria-label]="voirMotDePasse() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+                      <i class="bi" [class.bi-eye]="!voirMotDePasse()" [class.bi-eye-slash]="voirMotDePasse()"
+                         aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  @if (forceNouveau.rang; as rang) {
+                    <div class="am-jauge" [attr.data-rang]="rang">
+                      <span></span><span></span><span></span><span></span>
+                    </div>
+                    <p class="am-jauge__mot">{{ forceNouveau.texte }}</p>
+                  }
+                </div>
+
+                <div class="am-champ">
+                  <label for="auth-confirme">Répétez-le</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                    <input id="auth-confirme" [type]="voirMotDePasse() ? 'text' : 'password'"
+                           autocomplete="new-password" placeholder="Le même, pour écarter la faute de frappe"
+                           [(ngModel)]="confirmation" name="confirmation" required />
+                  </div>
+                  @if (confirmation && nouveau !== confirmation) {
+                    <p class="am-discordance">Les deux saisies diffèrent.</p>
+                  }
+                </div>
+
+                <button type="submit" class="btn-primary am-valider" [disabled]="occupe() || !nouveauValide">
+                  @if (occupe()) { <span class="sp"></span> Enregistrement… } @else { Enregistrer }
+                </button>
+              </form>
+            }
+          }
+
+          <!-- ─────────── CONFIRMATION D'ADRESSE ─────────── -->
+          @case ('confirmation') {
+            @if (occupe()) {
+              <div class="am-issue">
+                <span class="sp sp--grand"></span>
+                <p>Vérification du lien…</p>
+              </div>
+            } @else if (fait()) {
+              <div class="am-issue" [class.est-echec]="echec()">
+                <i class="bi" [class.bi-patch-check]="!echec()" [class.bi-exclamation-triangle]="echec()"
+                   aria-hidden="true"></i>
+                <p>{{ message() }}</p>
+              </div>
+              <button type="button" class="btn-primary am-valider" (click)="fermer()">
+                Continuer sur le site
+              </button>
+            }
+          }
+        }
+      </div>
+    </div>
+  </div>
+}

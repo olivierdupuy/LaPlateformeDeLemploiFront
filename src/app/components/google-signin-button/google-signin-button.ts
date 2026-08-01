@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, ElementRef, ViewChild, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { AfterViewInit, Component, ElementRef, ViewChild, inject, output } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../services/auth.service';
+import { AuthResponse } from '../../models/auth.model';
 import { environment } from '../../../environments/environment';
 
 declare const google: any;
@@ -27,8 +27,10 @@ declare const google: any;
 })
 export class GoogleSignInButton implements AfterViewInit {
   private auth = inject(AuthService);
-  private router = inject(Router);
   private toastr = inject(ToastrService);
+
+  /** Ce que Google a rendu, à charge de l'appelant d'en tirer la suite. */
+  authentifie = output<AuthResponse>();
 
   enabled = !!environment.googleClientId;
   @ViewChild('btn') btn?: ElementRef<HTMLElement>;
@@ -62,9 +64,18 @@ export class GoogleSignInButton implements AfterViewInit {
     }
   }
 
+  /**
+   * Le bouton établit l'identité, il n'en tire pas les conséquences.
+   *
+   * Il naviguait lui-même vers l'accueil sans regarder si le serveur
+   * réclamait un second facteur : sur un compte protégé, la réponse ne
+   * portait pas de jeton, rien n'était enregistré, et l'on repartait
+   * « connecté » sans l'être. La couche d'authentification sait, elle,
+   * ouvrir le deuxième temps et où conduire ensuite.
+   */
   private handle(resp: any) {
     this.auth.googleSignIn(resp.credential).subscribe({
-      next: () => { this.toastr.success('Connecté avec Google'); this.router.navigate(['/']); },
+      next: (r) => this.authentifie.emit(r),
       error: (e) => this.toastr.error(e.error?.message || 'Échec de la connexion Google'),
     });
   }

@@ -16,11 +16,9 @@ import { CompanyDetail } from './components/company-detail/company-detail';
 import { Dashboard } from './components/dashboard/dashboard';
 import { DashboardRecruiter } from './components/dashboard-recruiter/dashboard-recruiter';
 import { DashboardCandidate } from './components/dashboard-candidate/dashboard-candidate';
-import { Login } from './components/login/login';
 import { Security } from './components/security/security';
-import { PasswordRecovery } from './components/password-recovery/password-recovery';
 import { Newsletter } from './components/newsletter/newsletter';
-import { Register } from './components/register/register';
+import { AuthRoute } from './components/auth-modal/auth-route';
 import { Profile } from './components/profile/profile';
 import { AdminUsers } from './components/admin-users/admin-users';
 import { AdminStats } from './components/admin-stats/admin-stats';
@@ -73,16 +71,21 @@ export const routes: Routes = [
   },
   { path: 'entreprises', component: CompanyList },
   { path: 'entreprises/:name', component: CompanyDetail },
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
+  // ── Authentification ──
+  // Ces routes n'affichent plus de page : elles ouvrent la couche
+  // d'authentification par-dessus l'accueil. Elles subsistent parce
+  // qu'elles sont des points d'arrivee — LinkedIn renvoie sur /login, et
+  // les liens deja partis par courriel pointent ici.
+  { path: 'login', component: AuthRoute, data: { vue: 'connexion' } },
+  { path: 'register', component: AuthRoute, data: { vue: 'inscription' } },
 
   // ── Recuperation ──
   // Trois moments d'un meme parcours, servis par un composant unique :
   // le mode vient de la route. Les adresses sont celles que les courriels
   // fabriquent — les changer ici casserait les liens deja envoyes.
-  { path: 'mot-de-passe-oublie', component: PasswordRecovery, data: { mode: 'oubli' } },
-  { path: 'reinitialiser-mot-de-passe', component: PasswordRecovery, data: { mode: 'reinitialisation' } },
-  { path: 'confirmer-email', component: PasswordRecovery, data: { mode: 'confirmation' } },
+  { path: 'mot-de-passe-oublie', component: AuthRoute, data: { vue: 'oubli' } },
+  { path: 'reinitialiser-mot-de-passe', component: AuthRoute, data: { vue: 'reinitialisation' } },
+  { path: 'confirmer-email', component: AuthRoute, data: { vue: 'confirmation' } },
 
   // ── Lettre d'information ──
   // Ouvertes sans compte, la desinscription surtout : quelqu'un qu'on force

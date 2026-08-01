@@ -17,6 +17,7 @@ import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../
 import { EmployerNamePipe, estEmployeurGenerique } from '../../pipes/employer-name.pipe';
 import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
+import { AuthModalService } from '../../services/auth-modal.service';
 
 @Component({
   selector: 'app-job-detail',
@@ -25,6 +26,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrl: './job-detail.scss',
 })
 export class JobDetail implements OnInit {
+  authModale = inject(AuthModalService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private jobService = inject(JobOfferService);

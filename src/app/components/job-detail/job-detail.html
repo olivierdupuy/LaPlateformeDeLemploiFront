@@ -199,8 +199,13 @@
             } @else {
               <h3>Vous souhaitez postuler ?</h3>
               <p>Connectez-vous ou créez un compte candidat pour envoyer votre candidature.</p>
-              <a routerLink="/login" class="btn-spring full-w"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a>
-              <a routerLink="/register" class="btn-light full-w" style="margin-top:0.5rem"><i class="bi bi-person-plus"></i> Créer un compte</a>
+              <button type="button" class="btn-spring full-w" (click)="authModale.ouvrir('connexion')">
+                <i class="bi bi-box-arrow-in-right"></i> Se connecter
+              </button>
+              <button type="button" class="btn-light full-w" style="margin-top:0.5rem"
+                      (click)="authModale.ouvrir('inscription')">
+                <i class="bi bi-person-plus"></i> Créer un compte
+              </button>
             }
           </div>
 

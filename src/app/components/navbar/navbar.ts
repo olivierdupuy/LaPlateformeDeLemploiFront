@@ -4,6 +4,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BookmarkService } from '../../services/bookmark.service';
 import { AuthService } from '../../services/auth.service';
+import { AuthModalService } from '../../services/auth-modal.service';
 import { NotificationService } from '../../services/notification.service';
 import { MessageService } from '../../services/message.service';
 import { I18nService } from '../../services/i18n.service';
@@ -20,6 +21,7 @@ import { Subscription } from 'rxjs';
 export class Navbar implements OnInit, OnDestroy {
   bookmarkService = inject(BookmarkService);
   auth = inject(AuthService);
+  authModale = inject(AuthModalService);
   i18n = inject(I18nService);
   notifService = inject(NotificationService);
   messageService = inject(MessageService);

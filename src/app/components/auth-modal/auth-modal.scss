@@ -1,0 +1,569 @@
+// ═══════════════════════════════════════════════
+//  La couche d'authentification
+//
+//  Deux panneaux : la marque à gauche sur fond profond, le formulaire à
+//  droite sur le blanc des surfaces. Le premier est strictement
+//  décoratif — il disparaît sous 900 px sans rien retirer au parcours.
+// ═══════════════════════════════════════════════
+
+.am-voile {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;             // au-dessus de la barre de navigation collante
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 21, 36, 0.55);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.16s ease both;
+}
+
+.am-panneau {
+  display: grid;
+  grid-template-columns: 21.5rem 1fr;
+  width: 100%;
+  max-width: 58.75rem;       // 940 px
+  max-height: 92vh;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--canvas);
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn 0.22s var(--ease-out) both;
+}
+
+// ── Panneau de marque ──
+.am-marque {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem 1.9rem;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--bleu-800) 0%, var(--bleu-900) 100%);
+  color: var(--on-dark);
+}
+
+// Une lueur froide décale le dégradé et l'empêche de paraître plat.
+.am-marque__halo {
+  position: absolute;
+  top: -30%;
+  right: -35%;
+  width: 24rem;
+  height: 24rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(58, 128, 140, 0.42) 0%, transparent 68%);
+  pointer-events: none;
+}
+
+.am-marque__logo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  img { width: 2.6rem; height: 2.6rem; }
+}
+
+// Centré dans ce qui reste sous le logo, plutôt que collé en bas : d'une
+// vue à l'autre le panneau change de hauteur, et « espace entre » faisait
+// glisser le discours du milieu vers le pied selon la vue affichée.
+.am-marque__corps {
+  position: relative;
+  margin-block: auto;
+}
+
+.am-marque__oeil {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--bleu-300);
+  margin-bottom: 0.7rem;
+}
+
+.am-marque__titre {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-display, var(--font));
+  font-size: 1.65rem;
+  line-height: 1.18;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.am-marque__em {
+  display: block;
+  color: var(--bleu-300);
+}
+
+.am-marque__lead {
+  margin: 0 0 1.5rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--on-dark-muted);
+}
+
+.am-marque__points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    font-size: 0.83rem;
+    line-height: 1.5;
+    color: var(--on-dark);
+  }
+
+  i {
+    flex-shrink: 0;
+    margin-top: 0.08rem;
+    font-size: 0.9rem;
+    color: var(--bleu-300);
+  }
+}
+
+// ── Corps ──
+.am-corps {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  // « safe » et non « center » seul : une vue plus haute que le panneau —
+  // l'inscription, sur un écran court — verrait sinon son haut rogné, et
+  // le premier champ deviendrait inatteignable au défilement.
+  justify-content: safe center;
+  padding: 2rem 2.1rem 1.9rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.am-fermer {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: background var(--t), color var(--t);
+
+  &:hover { background: var(--nuage); color: var(--ink); }
+}
+
+.am-tete {
+  margin-bottom: 1.35rem;
+  padding-right: 2.2rem;      // le bouton de fermeture
+
+  h2 {
+    margin: 0 0 0.35rem;
+    font-family: var(--font-display, var(--font));
+    font-size: 1.42rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+}
+
+.am-reprise {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 1.2rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--r-sm);
+  background: var(--bleu-tint);
+  border: 1px solid color-mix(in oklab, var(--brand) 16%, transparent);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+
+  i { flex-shrink: 0; color: var(--brand); }
+  strong { color: var(--ink); font-weight: 600; }
+}
+
+// ── Formulaire ──
+.am-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.am-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+
+  label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+}
+
+.am-champ__tete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.am-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.am-saisie {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  > i {
+    position: absolute;
+    left: 0.8rem;
+    font-size: 0.95rem;
+    color: var(--faint);
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.68rem 0.85rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--canvas);
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--ink);
+    transition: border-color var(--t), box-shadow var(--t);
+
+    &::placeholder { color: var(--faint); }
+
+    &:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px var(--brand-ring);
+    }
+  }
+
+  // Le champ se décale seulement quand une icône l'occupe.
+  > i + input { padding-left: 2.35rem; }
+  &:has(> .am-oeil) input { padding-right: 2.6rem; }
+}
+
+.am-oeil {
+  position: absolute;
+  right: 0.45rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background var(--t), color var(--t);
+
+  &:hover { background: var(--nuage); color: var(--ink); }
+}
+
+.am-oubli,
+.am-lien-discret {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.79rem;
+  color: var(--brand);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover { color: var(--brand-700); }
+  &:disabled { color: var(--faint); cursor: default; text-decoration: none; }
+}
+
+.am-valider {
+  width: 100%;
+  margin-top: 0.2rem;
+  justify-content: center;
+}
+
+// ── Choix du rôle ──
+.am-roles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    padding: 0;
+    margin-bottom: 0.38rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+}
+
+.am-role {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--t), background var(--t), box-shadow var(--t);
+
+  i { font-size: 1rem; color: var(--faint); margin-bottom: 0.15rem; transition: color var(--t); }
+  b { font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+  span { font-size: 0.75rem; color: var(--muted); }
+
+  &:hover { border-color: var(--brand-300); }
+
+  &.est-choisi {
+    border-color: var(--brand);
+    background: var(--bleu-tint);
+    box-shadow: 0 0 0 1px var(--brand);
+
+    i { color: var(--brand); }
+  }
+}
+
+// ── Jauge de solidité ──
+.am-jauge {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+  margin-top: 0.45rem;
+
+  span {
+    height: 3px;
+    border-radius: var(--r-full);
+    background: var(--line);
+    transition: background var(--t);
+  }
+
+  // Le remplissage dit le rang ; la couleur ne fait que l'appuyer.
+  &[data-rang='1'] span:nth-child(-n + 1) { background: var(--danger); }
+  &[data-rang='2'] span:nth-child(-n + 2) { background: var(--rouge); }
+  &[data-rang='3'] span:nth-child(-n + 3) { background: var(--brand-400); }
+  &[data-rang='4'] span { background: var(--brand); }
+}
+
+.am-jauge__mot {
+  margin: 0.35rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.am-discordance {
+  margin: 0.3rem 0 0;
+  font-size: 0.77rem;
+  color: var(--danger);
+}
+
+// ── Second facteur ──
+.am-2fa {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.am-2fa__intro {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+
+  i { flex-shrink: 0; color: var(--brand); }
+  strong { color: var(--ink); white-space: nowrap; }
+}
+
+.am-2fa__note {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--r-sm);
+  background: var(--nuage);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+// Un code se lit chiffre par chiffre : l'espacement et le chasse-fixe
+// évitent de relire trois fois pour vérifier une saisie.
+.am-code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 1.3rem !important;
+  letter-spacing: 0.32em;
+  text-align: center;
+  padding-left: 0.85rem !important;
+}
+
+.am-aide {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--muted);
+
+  strong { color: var(--ink-soft); }
+}
+
+.am-retour {
+  align-self: center;
+  margin-top: 0.7rem;
+  border: 0;
+  background: none;
+  padding: 0.3rem;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+
+  &:hover { color: var(--ink); }
+}
+
+// ── Messages ──
+.am-bloque {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--r-sm);
+  background: var(--danger-100);
+  border: 1px solid color-mix(in oklab, var(--danger) 30%, transparent);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink);
+
+  i { flex-shrink: 0; margin-top: 0.1rem; color: var(--danger); }
+}
+
+.am-issue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.6rem 1rem;
+  text-align: center;
+
+  > i { font-size: 2.1rem; color: var(--brand); }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  &.est-echec > i { color: var(--danger); }
+}
+
+.sp--grand {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-width: 3px;
+}
+
+.am-mentions {
+  margin: 0.9rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--muted);
+  text-align: center;
+
+  a { color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
+}
+
+.am-bascule {
+  margin: 1.1rem 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.84rem;
+  color: var(--muted);
+  text-align: center;
+
+  button {
+    border: 0;
+    background: none;
+    padding: 0;
+    margin-left: 0.25rem;
+    font: inherit;
+    font-weight: 600;
+    color: var(--brand);
+    cursor: pointer;
+
+    &:hover { color: var(--brand-700); }
+    i { font-size: 0.78rem; }
+  }
+}
+
+// ═══════════ Adaptations ═══════════
+
+// Le panneau de marque coûte de la largeur sans rien porter d'utile :
+// il s'efface le premier.
+@media (max-width: 900px) {
+  .am-panneau { grid-template-columns: 1fr; max-width: 30rem; }
+  .am-marque { display: none; }
+}
+
+// En dessous, la modale cesse d'être une fenêtre et devient l'écran :
+// une boîte flottante sur un téléphone ne laisse voir qu'une bande de
+// contexte inutile, et le clavier virtuel la recouvre à moitié.
+@media (max-width: 560px) {
+  .am-voile { padding: 0; align-items: stretch; }
+
+  .am-panneau {
+    max-width: none;
+    max-height: none;
+    min-height: 100%;
+    border-radius: 0;
+    animation: fadeIn 0.16s ease both;
+  }
+
+  // Centrer verticalement a du sens dans une fenêtre ; sur un écran
+  // entier, cela creuse un vide en haut et en bas et repousse le premier
+  // champ sous le pouce.
+  .am-corps {
+    justify-content: flex-start;
+    padding: 1.5rem 1.25rem 2rem;
+  }
+
+  .am-duo { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-voile,
+  .am-panneau { animation: none; }
+}

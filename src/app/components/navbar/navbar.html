@@ -49,8 +49,10 @@
            de l'ecran sur un telephone : le site devenait non navigable. -->
       @if (!auth.isLoggedIn()) {
         <div class="nav-auth-mobile">
-          <a routerLink="/login" class="btn-secondary btn-block" (click)="closeMobile()">{{ i18n.t('nav.login') }}</a>
-          <a routerLink="/register" class="btn-primary btn-block" (click)="closeMobile()">{{ i18n.t('nav.register') }}</a>
+          <button type="button" class="btn-secondary btn-block"
+                  (click)="closeMobile(); authModale.ouvrir('connexion')">{{ i18n.t('nav.login') }}</button>
+          <button type="button" class="btn-primary btn-block"
+                  (click)="closeMobile(); authModale.ouvrir('inscription')">{{ i18n.t('nav.register') }}</button>
         </div>
       }
     </div>
@@ -249,8 +251,8 @@
           }
         </div>
       } @else {
-        <a routerLink="/login" class="btn-login">{{ i18n.t('nav.login') }}</a>
-        <a routerLink="/register" class="btn-register">{{ i18n.t('nav.register') }}</a>
+        <button type="button" class="btn-login" (click)="authModale.ouvrir('connexion')">{{ i18n.t('nav.login') }}</button>
+        <button type="button" class="btn-register" (click)="authModale.ouvrir('inscription')">{{ i18n.t('nav.register') }}</button>
       }
 
       <button

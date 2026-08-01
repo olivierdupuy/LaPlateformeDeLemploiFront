@@ -1079,6 +1079,11 @@ table.data {
 }
 .modal-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.6rem; }
 
+/* Une couche ouverte fige ce qu'il y a dessous. Sans cela, la molette
+   fait défiler la page derrière la modale : on croit agir sur le
+   formulaire, et c'est l'arrière-plan qui bouge. */
+body.a-modale-ouverte { overflow: hidden; }
+
 /* Tiroir latéral */
 .drawer-overlay {
   position: fixed; inset: 0; background: rgba(0, 21, 36, 0.4);

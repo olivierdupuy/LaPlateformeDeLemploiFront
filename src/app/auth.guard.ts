@@ -1,22 +1,43 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { AuthModalService } from './services/auth-modal.service';
 import { ToastrService } from 'ngx-toastr';
 import { map, of, catchError } from 'rxjs';
 
-export const authGuard: CanActivateFn = () => {
-  const auth = inject(AuthService);
-  const router = inject(Router);
+/**
+ * Demander l'identité sans faire quitter la page.
+ *
+ * La garde renvoyait vers /login : on perdait l'écran d'où l'on venait,
+ * et la connexion faite, on atterrissait à l'accueil sans savoir ce
+ * qu'on était venu chercher. Refuser la navigation suffit — la page
+ * courante reste affichée — et la modale s'ouvre par-dessus en retenant
+ * la destination pour y conduire ensuite.
+ */
+function demanderIdentite(cible: string) {
   const toastr = inject(ToastrService);
+  const modale = inject(AuthModalService);
+  const router = inject(Router);
+
+  toastr.warning('Connectez-vous pour accéder à cette page.');
+  modale.ouvrir('connexion', { redirect: cible });
+
+  // Refuser suffit quand une page est déjà affichée : elle reste, et la
+  // modale se pose dessus. Mais sur un lien ouvert directement — un
+  // favori, une adresse collée — rien n'a encore été rendu : refuser
+  // laisserait une modale flottant sur du vide. On donne alors l'accueil
+  // pour toile de fond.
+  return router.navigated ? false : router.createUrlTree(['/']);
+}
+
+export const authGuard: CanActivateFn = (_r, state) => {
+  const auth = inject(AuthService);
 
   if (auth.isLoggedIn()) return true;
-
-  toastr.warning('Veuillez vous connecter');
-  router.navigate(['/login']);
-  return false;
+  return demanderIdentite(state.url);
 };
 
-export const recruiterGuard: CanActivateFn = () => {
+export const recruiterGuard: CanActivateFn = (_r, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const toastr = inject(ToastrService);
@@ -24,8 +45,7 @@ export const recruiterGuard: CanActivateFn = () => {
   if (auth.isRecruiter()) return true;
 
   if (!auth.isLoggedIn()) {
-    toastr.warning('Veuillez vous connecter');
-    router.navigate(['/login']);
+    return demanderIdentite(state.url);
   } else if (auth.isAdmin()) {
     // Un administrateur n'a rien a faire dans l'espace recruteur :
     // on le renvoie vers sa console.
@@ -37,7 +57,7 @@ export const recruiterGuard: CanActivateFn = () => {
   return false;
 };
 
-export const adminGuard: CanActivateFn = () => {
+export const adminGuard: CanActivateFn = (_r, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const toastr = inject(ToastrService);
@@ -45,8 +65,7 @@ export const adminGuard: CanActivateFn = () => {
   if (auth.isAdmin()) return true;
 
   if (!auth.isLoggedIn()) {
-    toastr.warning('Veuillez vous connecter');
-    router.navigate(['/login']);
+    return demanderIdentite(state.url);
   } else {
     toastr.error('Accès réservé aux administrateurs');
     router.navigate(['/']);

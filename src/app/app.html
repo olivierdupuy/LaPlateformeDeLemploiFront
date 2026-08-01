@@ -24,6 +24,12 @@
     </main>
     <app-footer />
   }
+
+  <!-- L'authentification est une couche, pas une page : elle se pose sur
+       ce qui est affiché plutôt que de le remplacer. Rendue hors du
+       branchement d'administration, elle reste disponible aux gardes,
+       qui s'en servent depuis n'importe quelle route. -->
+  <app-auth-modal />
 }
 <!-- Le bandeau de consentement s'adresse aux visiteurs du site. Dans le
      panneau d'administration, derrière une authentification, il n'ajoute

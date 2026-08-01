@@ -7,6 +7,7 @@ import { PlatformService } from '../../services/platform.service';
 import { JobOffer, JobStats, CompanyInfo } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
 import { EmployerNamePipe } from '../../pipes/employer-name.pipe';
+import { AuthModalService } from '../../services/auth-modal.service';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +16,7 @@ import { EmployerNamePipe } from '../../pipes/employer-name.pipe';
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
+  authModale = inject(AuthModalService);
   private jobService = inject(JobOfferService);
   private router = inject(Router);
   platform = inject(PlatformService);
