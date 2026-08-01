@@ -11,6 +11,40 @@
       </div>
     </header>
 
+    <!-- ═══ ÉTAT DU SERVICE ═══
+         Avant les réglages, ce qui tourne. Une console qui laisse
+         découvrir une panne par un visiteur n'a pas fait son travail. -->
+    @if (sante(); as s) {
+      <section class="sante" [attr.data-etat]="s.etat">
+        <div class="sante__head">
+          <span class="sante__pastille" aria-hidden="true"></span>
+          <h2>État du service — {{ s.etat }}</h2>
+        </div>
+        <ul class="sante__liste">
+          @for (c of s.controles; track c.quoi) {
+            <li [attr.data-etat]="c.etat">
+              <span class="sante__quoi">{{ c.quoi }}</span>
+              <span class="sante__detail">{{ c.detail }}</span>
+            </li>
+          }
+          @for (t of s.taches; track t.service) {
+            <li [attr.data-etat]="t.etat === 'sain' || t.etat === 'en attente' ? 'sain' : 'dégradé'">
+              <span class="sante__quoi">tâche « {{ t.service }} »</span>
+              <span class="sante__detail">{{ t.etat }}{{ t.detail ? ' — ' + t.detail : '' }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    } @else if (santeMuette()) {
+      <section class="sante" data-etat="dégradé">
+        <div class="sante__head">
+          <span class="sante__pastille" aria-hidden="true"></span>
+          <h2>État du service — inconnu</h2>
+        </div>
+        <p class="sante__detail">La sonde n'a pas répondu. Rechargez la page ; si cela persiste, l'API est en peine.</p>
+      </section>
+    }
+
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
     } @else {

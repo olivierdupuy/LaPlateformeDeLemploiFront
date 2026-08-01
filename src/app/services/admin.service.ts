@@ -3,10 +3,44 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+/** Un contrôle de la sonde de santé. */
+export interface ControleSante {
+  quoi: string;
+  etat: 'sain' | 'dégradé' | 'en panne';
+  detail: string;
+}
+
+/** Une tâche de fond, et son dernier passage. */
+export interface TacheSante {
+  service: string;
+  etat: string;
+  dernierPassage: string | null;
+  detail: string | null;
+}
+
+export interface EtatDuService {
+  etat: 'sain' | 'dégradé' | 'en panne';
+  depuis: string;
+  controles: ControleSante[];
+  taches: TacheSante[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
   private api = `${environment.apiUrl}/admin`;
+
+  /**
+   * L'état du service, en détail.
+   *
+   * La sonde publique ne dit qu'un mot — « sain », « dégradé », « en
+   * panne » — car dire à qui passe que la base est injoignable est un
+   * renseignement offert. Le détail vit ici, derrière l'authentification
+   * administrateur : quel contrôle échoue, et pourquoi.
+   */
+  sante(): Observable<EtatDuService> {
+    return this.http.get<EtatDuService>(`${environment.apiUrl}/sante/detail`);
+  }
 
   /** Importer de vraies offres depuis les API publiques (Arbeitnow, Remotive, France Travail). */
   importJobs(): Observable<{ imported: number; message: string }> {

@@ -292,3 +292,74 @@
   color: var(--faint);
   word-break: break-all;
 }
+
+
+/* ══ État du service ══
+   Les trois états se lisent à la couleur avant de se lire au mot : on
+   ouvre cette page pour savoir si quelque chose cloche, pas pour lire. */
+.sante {
+  border: 1px solid var(--bordure, #e4e7e9);
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.5rem;
+  background: var(--surface, #fff);
+
+  --teinte: #1c7a4a;
+  &[data-etat='dégradé']  { --teinte: #b5651d; }
+  &[data-etat='en panne'] { --teinte: #a3052f; }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.75rem;
+
+    h2 {
+      margin: 0;
+      font-size: 0.98rem;
+      font-weight: 650;
+      color: var(--teinte);
+      text-transform: none;
+    }
+  }
+
+  &__pastille {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--teinte);
+    flex-shrink: 0;
+  }
+
+  &__liste {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    li {
+      display: grid;
+      grid-template-columns: 12rem 1fr;
+      gap: 0.15rem 0.9rem;
+      font-size: 0.86rem;
+      padding-left: 0.7rem;
+      border-left: 2px solid #1c7a4a;
+
+      &[data-etat='dégradé']  { border-left-color: #b5651d; }
+      &[data-etat='en panne'] { border-left-color: #a3052f; }
+    }
+  }
+
+  &__quoi { font-weight: 600; }
+
+  &__detail {
+    color: var(--texte-attenue, #5c757b);
+    word-break: break-word;
+  }
+
+  @media (max-width: 620px) {
+    &__liste li { grid-template-columns: 1fr; }
+  }
+}

@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AdminService } from '../../services/admin.service';
+import { AdminService, EtatDuService } from '../../services/admin.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 
@@ -177,6 +177,17 @@ export class AdminSettings implements OnInit {
   courriel = signal<{ configure: boolean; etat: string; consequence: string } | null>(null);
   essaiEnCours = signal(false);
   loading = signal(true);
+
+  /**
+   * L'état réel du service.
+   *
+   * La sonde existait sans écran pour la regarder : savoir où les
+   * documents sont rangés, ou si la sauvegarde a tourné, demandait un
+   * appel à la main. C'est précisément ce qu'une console
+   * d'administration doit épargner.
+   */
+  sante = signal<EtatDuService | null>(null);
+  santeMuette = signal(false);
   saving = signal(false);
   importing = signal(false);
 
@@ -184,6 +195,13 @@ export class AdminSettings implements OnInit {
   private origine = new Map<string, string>();
 
   ngOnInit() {
+    this.admin.sante().subscribe({
+      next: (e) => this.sante.set(e),
+      // Une sonde injoignable ne doit pas masquer les réglages : la
+      // page rend service même quand elle ne sait pas tout.
+      error: () => this.santeMuette.set(true),
+    });
+
     this.admin.etatCourriel().subscribe({
       next: (e) => this.courriel.set(e),
       error: () => this.courriel.set(null),
