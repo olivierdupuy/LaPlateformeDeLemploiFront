@@ -913,9 +913,30 @@ export class AuthModal {
       ['website', Regles.lien(s.site)],
     ])) return;
 
+    const nom = this.inscription.entreprise.trim();
+    if (!nom) {
+      this.serveur.set({ company: 'Indiquez le nom de votre entreprise.' });
+      return;
+    }
     if (!s.secteur.trim() && !s.taille && !s.ville.trim() && !s.site.trim()) { this.passer(); return; }
 
     this.occupe.set(true);
+
+    // Le nom doit d'abord vivre sur le compte : le serveur n'autorise
+    // l'écriture d'une fiche qu'à un recruteur qui déclare cette
+    // entreprise. Entré par SSO, il n'en avait aucune — il vient de la
+    // saisir ici, et sans cet enregistrement la fiche lui serait refusée.
+    const declarer = this.auth.currentUser()?.company?.trim().toLowerCase() === nom.toLowerCase()
+      ? Promise.resolve()
+      : new Promise<void>((resolve, reject) =>
+          this.auth.updateProfile({ company: nom }).subscribe({ next: () => resolve(), error: reject }));
+
+    declarer.then(() => this.ecrireFiche()).catch((e) => this.echecEtapeFacultative(e));
+  }
+
+  /** L'écriture proprement dite, une fois l'entreprise déclarée. */
+  private ecrireFiche() {
+    const s = this.societe;
     // La présentation est renvoyée telle quelle : l'omettre l'effacerait.
     this.entreprises.saveProfile(this.inscription.entreprise.trim(), {
       industry: s.secteur.trim() || undefined,

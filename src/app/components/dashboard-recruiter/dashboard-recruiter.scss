@@ -231,3 +231,18 @@
 @media (max-width: 768px) {
   .orank-row { grid-template-columns: minmax(0, 1fr) auto; .orank-bar { display: none; } }
 }
+
+/* Le rappel se lit dans la ligne, sans la dramatiser : une fiche vide
+   n'empêche pas de publier, elle diminue seulement ce que l'offre dit. */
+.qn-alerte {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--r-full);
+  background: color-mix(in oklab, var(--rouge) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--rouge) 34%, transparent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--rouge-700);
+  white-space: nowrap;
+}

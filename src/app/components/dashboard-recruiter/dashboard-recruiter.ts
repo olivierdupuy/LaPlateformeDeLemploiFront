@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ApplicationService } from '../../services/application';
 import { AuthService } from '../../services/auth.service';
+import { CompanyReviewService } from '../../services/company-review.service';
 import { ConsoleShell } from '../console-shell/console-shell';
 
 /** Une chose a traiter, posee en haut du tableau de bord. */
@@ -25,11 +26,34 @@ interface Todo {
 export class DashboardRecruiter implements OnInit {
   private appService = inject(ApplicationService);
   auth = inject(AuthService);
+  private entreprises = inject(CompanyReviewService);
+
+  /**
+   * La fiche entreprise est-elle encore vide ?
+   *
+   * L'inscription propose de la remplir, mais l'etape se passe. Sans ce
+   * rappel, une fiche vide le reste — et c'est elle que lisent les
+   * candidats avant de postuler.
+   */
+  ficheIncomplete = signal(false);
+
+  private verifierFiche() {
+    const nom = this.auth.currentUser()?.company?.trim();
+    if (!nom) return;
+    this.entreprises.getProfile(nom).subscribe({
+      next: (f) => this.ficheIncomplete.set(
+        !(f?.industry || f?.size || f?.headquarters || f?.website || f?.about)),
+      // Pas de fiche du tout : c'est le cas le plus incomplet qui soit.
+      error: () => this.ficheIncomplete.set(true),
+    });
+  }
+
 
   data = signal<any>(null);
   loading = signal(true);
 
   ngOnInit() {
+    this.verifierFiche();
     this.appService.getRecruiterStats().subscribe({
       next: (d) => { this.data.set(d); this.loading.set(false); },
       error: () => this.loading.set(false),

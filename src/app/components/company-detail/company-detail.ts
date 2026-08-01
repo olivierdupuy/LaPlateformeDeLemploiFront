@@ -132,9 +132,23 @@ export class CompanyDetail implements OnInit {
     });
   }
 
+  /**
+   * Qui peut modifier cette fiche.
+   *
+   * Le rôle ne suffit pas : « Recruiter » ouvrait la fiche de n'importe
+   * quelle société, y compris celle d'un concurrent. Le serveur le
+   * refuse désormais ; l'afficher ici quand même donnerait un bouton
+   * qui n'aboutit qu'à un refus.
+   *
+   * Plusieurs recruteurs d'une même entreprise la modifient bien tous :
+   * c'est le nom déclaré au compte qui décide, pas le compte lui-même.
+   */
   get canEditProfile(): boolean {
-    const r = this.auth.currentUser()?.role;
-    return r === 'Recruiter' || r === 'Admin';
+    const u = this.auth.currentUser();
+    if (u?.role === 'Admin') return true;
+    if (u?.role !== 'Recruiter') return false;
+    const sienne = (u.company ?? '').trim().toLowerCase();
+    return !!sienne && sienne === (this.companyName ?? '').trim().toLowerCase();
   }
   get hasProfileInfo(): boolean {
     const p = this.profile();

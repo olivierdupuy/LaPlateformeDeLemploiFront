@@ -177,6 +177,28 @@
       <div class="dr-card card animate-in" style="animation-delay:.2s">
         <div class="drc-head"><h2 class="section-title">Aller plus loin</h2></div>
         <div class="drc-body qnav">
+          <!-- La fiche entreprise n'était atteignable qu'en devinant son
+               adresse. Or l'inscription invite désormais à la remplir, et
+               elle s'affiche à côté de chaque offre : elle a sa place ici,
+               avec le rappel quand elle est encore vide. -->
+          @if (u.company) {
+            <a [routerLink]="['/entreprises', u.company]" class="qn">
+              <span class="qn-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
+              <span class="qn-text">
+                <strong>La fiche de {{ u.company }}</strong>
+                <span>
+                  @if (ficheIncomplete()) {
+                    Encore vide — c'est elle que lisent les candidats avant de postuler
+                  } @else {
+                    Ce que les candidats voient à côté de vos offres
+                  }
+                </span>
+              </span>
+              @if (ficheIncomplete()) { <span class="qn-alerte">À compléter</span> }
+              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
+            </a>
+          }
+
           <a routerLink="/candidats" class="qn">
             <span class="qn-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
             <span class="qn-text">
