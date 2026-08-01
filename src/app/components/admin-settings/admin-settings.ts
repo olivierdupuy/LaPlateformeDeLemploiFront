@@ -79,6 +79,14 @@ const REGLAGES: Record<string, Reglage> = {
     effet: (v) =>
       `Une offre déposée aujourd’hui cesse de paraître dans ${v || '0'} jours, sauf prolongation par son auteur.`,
   },
+  newsletter_auto_redaction: {
+    libelle: 'Rédaction automatique de la lettre',
+    icone: 'bi-stars',
+    effet: (v) =>
+      v === 'true'
+        ? 'Chaque semaine, un brouillon de lettre est préparé par centre d’intérêt à partir des offres réellement parues. Rien ne part sans votre clic.'
+        : 'Les lettres restent entièrement écrites à la main.',
+  },
   max_applications_per_candidate: {
     libelle: 'Candidatures par candidat',
     icone: 'bi-send-check',
@@ -125,6 +133,13 @@ const FAMILLES: Famille[] = [
     icone: 'bi-send',
     intro: 'Les limites posées aux candidats.',
     cles: ['max_applications_per_candidate'],
+  },
+  {
+    cle: 'lettre',
+    titre: 'Lettre d’information',
+    icone: 'bi-envelope-paper',
+    intro: 'Ce que la plateforme prépare toute seule.',
+    cles: ['newsletter_auto_redaction'],
   },
   {
     cle: 'communication',
