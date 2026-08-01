@@ -29,14 +29,29 @@
         </p>
 
         <div class="ft-newsletter">
-          <label class="nl-label" for="ft-email">Recevoir les nouvelles offres par email</label>
-          <div class="nl-form">
-            <input #emailInput id="ft-email" type="email" autocomplete="email" placeholder="vous@exemple.fr" />
-            <button (click)="subscribeNewsletter(emailInput)" aria-label="S'inscrire aux alertes emploi">
-              <i class="bi bi-arrow-right" aria-hidden="true"></i>
-            </button>
-          </div>
-          <span class="nl-note">Une alerte par jour au maximum. Désinscription en un clic.</span>
+          @if (nlMessage(); as m) {
+            <!-- La demande est partie : le formulaire n'a plus rien à faire
+                 là, et le message dit qu'il reste un clic à donner. -->
+            <p class="nl-fait">
+              <i class="bi bi-envelope-check" aria-hidden="true"></i>
+              <span>{{ m }}</span>
+            </p>
+          } @else {
+            <label class="nl-label" for="ft-email">Recevoir la lettre d'information</label>
+            <div class="nl-form">
+              <input #emailInput id="ft-email" type="email" autocomplete="email"
+                     placeholder="vous&#64;exemple.fr" (keyup.enter)="subscribeNewsletter(emailInput)" />
+              <button (click)="subscribeNewsletter(emailInput)" [disabled]="nlEnvoi()"
+                      aria-label="S'abonner à la lettre d'information">
+                <i class="bi" [class.bi-arrow-right]="!nlEnvoi()"
+                   [class.bi-hourglass-split]="nlEnvoi()" aria-hidden="true"></i>
+              </button>
+            </div>
+            <span class="nl-note">
+              Sans compte, et sans engagement : désinscription en un clic depuis chaque message.
+              <a routerLink="/newsletter">En savoir plus</a>
+            </span>
+          }
         </div>
 
         <div class="ft-social">

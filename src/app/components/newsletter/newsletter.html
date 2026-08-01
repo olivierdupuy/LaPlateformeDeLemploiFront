@@ -1,0 +1,160 @@
+<section class="nlp-page">
+  <div class="nlp-shell animate-in">
+
+    <div class="nlp-card">
+      <span class="nlp-ico" [class.est-echec]="echec()">
+        <i class="bi"
+           [class.bi-envelope-paper]="mode === 'inscription'"
+           [class.bi-envelope-check]="mode === 'confirmation'"
+           [class.bi-envelope-slash]="mode === 'desinscription'"
+           aria-hidden="true"></i>
+      </span>
+
+      <h1>{{ titre }}</h1>
+      <p class="nlp-chapeau">{{ chapeau }}</p>
+
+      <!-- ═══ APRÈS COUP ═══
+           La même zone sert au succès et à l'échec : ce qui change est le
+           ton et la suite proposée, pas l'endroit où l'on regarde. -->
+      @if (fait()) {
+        <div class="nlp-issue" [class.est-echec]="echec()">
+          <i class="bi" [class.bi-check-circle-fill]="!echec()"
+             [class.bi-exclamation-triangle-fill]="echec()"></i>
+          <p>{{ message() }}</p>
+        </div>
+
+        @if (mode === 'inscription' && !echec()) {
+          <p class="nlp-note">
+            Le message peut mettre une minute à arriver, et se ranger parmi les indésirables.
+            Sans ce clic, vous ne recevrez rien — c'est ce qui garantit que personne ne peut
+            vous abonner à votre place.
+          </p>
+        }
+
+        <div class="nlp-suite">
+          @if (echec() && mode === 'confirmation') {
+            <a routerLink="/newsletter" class="btn-primary full-w">Reprendre l'abonnement</a>
+          }
+          <a routerLink="/" class="nlp-retour">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à l'accueil
+          </a>
+        </div>
+      }
+
+      <!-- ═══ S'ABONNER ═══ -->
+      @if (!fait() && mode === 'inscription') {
+        <form (ngSubmit)="abonner()" class="nlp-form">
+          <label class="nlp-fld">
+            <span>Votre adresse e-mail</span>
+            <input type="email" autocomplete="email" placeholder="vous&#64;exemple.fr"
+                   [(ngModel)]="email" name="email" required autofocus />
+          </label>
+
+          <div class="nlp-duo">
+            <label class="nlp-fld">
+              <span>Prénom <small>facultatif</small></span>
+              <input type="text" autocomplete="given-name" placeholder="Camille"
+                     [(ngModel)]="prenom" name="prenom" />
+            </label>
+            <label class="nlp-fld">
+              <span>Ville <small>facultatif</small></span>
+              <input type="text" autocomplete="address-level2" placeholder="Lyon"
+                     [(ngModel)]="ville" name="ville" />
+            </label>
+          </div>
+
+          <!-- Les centres d'intérêt ne sont pas un formulaire de plus : ils
+               décident de ce qu'on recevra. Sans eux, tout le monde reçoit
+               tout, et se désabonne. -->
+          <div class="nlp-cat">
+            <span class="nlp-cat__t">
+              Ce qui vous intéresse <small>facultatif — sans choix, vous recevrez tout</small>
+            </span>
+            <div class="nlp-cat__liste">
+              @for (c of categories; track c) {
+                <button type="button" class="nlp-puce" [class.is-on]="choisies().includes(c)"
+                        (click)="basculer(c)" [attr.aria-pressed]="choisies().includes(c)">
+                  {{ c }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <label class="nlp-accord">
+            <input type="checkbox" [(ngModel)]="consentement" name="consentement" />
+            <span>
+              J'accepte de recevoir la lettre d'information de La Plateforme de l'emploi.
+              Je peux m'en retirer en un clic depuis n'importe quel message.
+              <a routerLink="/confidentialite" target="_blank">Comment mes données sont traitées</a>
+            </span>
+          </label>
+
+          <button type="submit" class="btn-primary full-w" [disabled]="occupe()">
+            @if (occupe()) { <span class="sp"></span> Envoi… } @else { Recevoir la lettre }
+          </button>
+        </form>
+      }
+
+      <!-- ═══ CONFIRMATION EN COURS ═══ -->
+      @if (!fait() && mode === 'confirmation') {
+        <div class="nlp-attente"><div class="spinner"></div><p>Vérification du lien…</p></div>
+      }
+
+      <!-- ═══ SE RETIRER ═══ -->
+      @if (!fait() && mode === 'desinscription') {
+        @if (adresseMasquee(); as adr) {
+          @if (dejaRetire()) {
+            <div class="nlp-issue">
+              <i class="bi bi-check-circle-fill"></i>
+              <p>L'adresse <strong>{{ adr }}</strong> est déjà retirée. Vous ne recevez plus rien de notre part.</p>
+            </div>
+            <a routerLink="/" class="nlp-retour">
+              <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à l'accueil
+            </a>
+          } @else {
+            <p class="nlp-cible">
+              L'adresse concernée est <strong>{{ adr }}</strong>.
+            </p>
+
+            <!-- Le motif est proposé, jamais exigé : une désinscription qui
+                 pose des conditions n'est pas une désinscription. -->
+            <div class="nlp-motifs">
+              <span class="nlp-motifs__t">Si vous voulez bien nous dire pourquoi <small>facultatif</small></span>
+              @for (m of motifs; track m) {
+                <button type="button" class="nlp-puce" [class.is-on]="motif === m"
+                        (click)="motif = motif === m ? '' : m">{{ m }}</button>
+              }
+            </div>
+
+            <div class="nlp-choix">
+              <button class="btn-primary" (click)="desabonner()" [disabled]="occupe()">
+                @if (occupe()) { <span class="sp"></span> Retrait… }
+                @else { <i class="bi bi-envelope-slash"></i> Ne plus rien recevoir }
+              </button>
+              <button class="btn-ghost" (click)="garder()" [disabled]="occupe()">
+                Finalement, je reste abonné
+              </button>
+            </div>
+
+            <p class="nlp-note">
+              Se retirer de la lettre n'affecte ni votre compte, ni vos candidatures, ni les
+              messages liés à votre sécurité — ceux-là continueront de vous parvenir.
+            </p>
+          }
+        } @else {
+          <div class="nlp-attente"><div class="spinner"></div></div>
+        }
+      }
+    </div>
+
+    <!-- Ce qu'on reçoit, et à quelle fréquence. La question se pose avant
+         de donner son adresse, pas après. -->
+    @if (mode === 'inscription' && !fait()) {
+      <ul class="nlp-promesses">
+        <li><i class="bi bi-calendar3"></i> Une lettre par mois, pas davantage</li>
+        <li><i class="bi bi-cursor"></i> Retrait en un clic, sans se connecter</li>
+        <li><i class="bi bi-shield-check"></i> Votre adresse n'est ni vendue ni cédée</li>
+      </ul>
+    }
+  </div>
+</section>

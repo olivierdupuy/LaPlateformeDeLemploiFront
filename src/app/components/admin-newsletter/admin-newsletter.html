@@ -1,0 +1,401 @@
+<section class="ad-page anl-page">
+  <div class="container">
+
+    <header class="ad-head">
+      <div class="ad-head__text">
+        <h1>Lettre d'information</h1>
+        <p class="ad-head__sub">
+          Une campagne partie ne se rattrape pas. Tout ce qui précède l'envoi — le décompte,
+          l'aperçu, l'essai — existe pour que les erreurs se voient avant, et non dans le
+          rapport d'échec.
+        </p>
+      </div>
+      <button class="btn-primary" (click)="nouvelle()">
+        <i class="bi bi-pencil-square" aria-hidden="true"></i> Écrire une lettre
+      </button>
+    </header>
+
+    <!-- ═══ CE QUI EMPÊCHERAIT D'ENVOYER ═══
+         Deux pannes ne se voient autrement qu'après coup, une fois la
+         campagne partie et perdue. Elles se disent ici, en tête. -->
+    @if (etat(); as e) {
+      @if (!e.configure || e.avertissements.length) {
+        <div class="anl-alerte" [class.est-bloquant]="!e.configure">
+          <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+          <div>
+            <b>{{ e.consequence }}</b>
+            @if (!e.configure) {
+              <p>Aucune clé Brevo n'est configurée sur ce serveur.</p>
+            }
+            @for (a of e.avertissements; track a) { <p>{{ a }}</p> }
+          </div>
+        </div>
+      }
+
+      <div class="anl-etat animate-in">
+        <span class="anl-etat__x">
+          <b class="u-mono">{{ e.abonnes }}</b><i>abonnés joignables</i>
+        </span>
+        @if (e.creditsRestants !== null && e.creditsRestants !== undefined) {
+          <span class="anl-etat__x" [class.est-bas]="e.creditsRestants < e.abonnes">
+            <b class="u-mono">{{ e.creditsRestants }}</b><i>crédits chez Brevo</i>
+          </span>
+        }
+        <span class="anl-etat__src">
+          <i class="bi" [class.bi-check-circle-fill]="e.expediteurValide"
+             [class.bi-x-circle-fill]="!e.expediteurValide"
+             [class.est-mauvais]="!e.expediteurValide" aria-hidden="true"></i>
+          {{ e.expediteur }}
+          <small>{{ e.expediteurValide ? 'validé chez Brevo' : 'non validé' }}</small>
+        </span>
+      </div>
+    }
+
+    <!-- ═══ SECTIONS ═══ -->
+    <div class="tabs anl-tabs animate-in" role="tablist">
+      <button class="tab" [class.is-active]="onglet() === 'campagnes'" (click)="onglet.set('campagnes')" role="tab">
+        <i class="bi bi-send" aria-hidden="true"></i> Campagnes
+        <span class="tab-n u-mono">{{ campagnes().length }}</span>
+      </button>
+      <button class="tab" [class.is-active]="onglet() === 'abonnes'" (click)="onglet.set('abonnes')" role="tab">
+        <i class="bi bi-people" aria-hidden="true"></i> Abonnés
+        <span class="tab-n u-mono">{{ facettes()?.total ?? 0 }}</span>
+      </button>
+      @if (onglet() === 'redaction') {
+        <button class="tab is-active" role="tab">
+          <i class="bi bi-pencil" aria-hidden="true"></i> Rédaction
+        </button>
+      }
+    </div>
+
+    @if (chargement()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    }
+
+    <!-- ═══════════ CAMPAGNES ═══════════ -->
+    @if (!chargement() && onglet() === 'campagnes') {
+      @if (!campagnes().length) {
+        <div class="empty-box card animate-in">
+          <i class="bi bi-envelope-paper"></i>
+          <h3>Aucune campagne</h3>
+          <p>Écrivez la première : elle partira à vos abonnés confirmés.</p>
+          <button class="btn-primary" (click)="nouvelle()">Écrire une lettre</button>
+        </div>
+      } @else {
+        <div class="anl-liste animate-in">
+          @for (c of campagnes(); track c.id) {
+            <article class="anl-camp card" [class.est-brouillon]="c.status === 'Draft'">
+              <div class="anl-camp__tete">
+                <h3 (click)="ouvrir(c)">{{ c.subject || '(sans objet)' }}</h3>
+                <span class="badge"
+                      [class.badge-yellow]="c.status === 'Draft'"
+                      [class.badge-blue]="c.status === 'Sending'"
+                      [class.badge-green]="c.status === 'Sent'">
+                  {{ c.status === 'Draft' ? 'Brouillon' : c.status === 'Sending' ? 'Envoi en cours' : 'Envoyée' }}
+                </span>
+              </div>
+
+              @if (decrireSegment(c); as seg) {
+                <p class="anl-camp__seg"><i class="bi bi-funnel"></i> {{ seg }}</p>
+              } @else {
+                <p class="anl-camp__seg"><i class="bi bi-funnel"></i> tous les abonnés</p>
+              }
+
+              @if (c.status === 'Sending') {
+                <!-- Une barre plutôt qu'un nombre : on veut voir que ça
+                     avance, pas calculer de tête. -->
+                <div class="anl-jauge">
+                  <span class="anl-jauge__piste">
+                    <span class="anl-jauge__part"
+                          [style.width.%]="c.recipients ? (c.delivered * 100 / c.recipients) : 0"></span>
+                  </span>
+                  <small>{{ c.delivered }} / {{ c.recipients }} — il reste {{ c.restants }} message(s)</small>
+                </div>
+              } @else if (c.status === 'Sent') {
+                <p class="anl-camp__bilan">
+                  <b>{{ c.delivered }}</b> remis
+                  @if (c.failed) { <span class="anl-echec">· {{ c.failed }} en échec</span> }
+                  <span class="anl-camp__date">le {{ c.sentAt | date:'dd/MM/yy à HH:mm' }}</span>
+                </p>
+              } @else {
+                <p class="anl-camp__bilan anl-camp__date">
+                  créé le {{ c.createdAt | date:'dd/MM/yy' }}
+                  @if (c.createdByName) { <span> par {{ c.createdByName }}</span> }
+                </p>
+              }
+
+              <div class="anl-camp__act">
+                @if (c.status === 'Draft') {
+                  <button class="btn-ghost" (click)="ouvrir(c)">
+                    <i class="bi bi-pencil"></i> Reprendre
+                  </button>
+                } @else {
+                  <button class="btn-ghost" (click)="voirResultats(c)">
+                    <i class="bi bi-bar-chart"></i> Résultats
+                  </button>
+                }
+                @if (c.status === 'Sending') {
+                  <button class="btn-ghost anl-danger" (click)="arreter(c)">
+                    <i class="bi bi-stop-circle"></i> Arrêter
+                  </button>
+                } @else {
+                  <button class="btn-ghost anl-danger" (click)="supprimer(c)">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    }
+
+    <!-- ═══════════ ABONNÉS ═══════════ -->
+    @if (!chargement() && onglet() === 'abonnes') {
+      <div class="animate-in">
+        @if (facettes(); as f) {
+          <!-- Les facettes filtrent autant qu'elles informent : « 1 240
+               abonnés » ne dit pas combien attendent encore de confirmer. -->
+          <div class="anl-facettes">
+            <button class="ad-facet" [class.is-active]="!filtreStatut" (click)="filtrer('')">
+              <b class="u-mono">{{ f.total }}</b><i>en tout</i>
+            </button>
+            <button class="ad-facet" [class.is-active]="filtreStatut === 'Confirmed'" (click)="filtrer('Confirmed')">
+              <b class="u-mono">{{ f.confirmes }}</b><i>confirmés</i>
+            </button>
+            <button class="ad-facet" [class.is-active]="filtreStatut === 'Pending'" (click)="filtrer('Pending')">
+              <b class="u-mono">{{ f.enAttente }}</b><i>en attente</i>
+            </button>
+            <button class="ad-facet" [class.is-active]="filtreStatut === 'Unsubscribed'" (click)="filtrer('Unsubscribed')">
+              <b class="u-mono">{{ f.desabonnes }}</b><i>désabonnés</i>
+            </button>
+            @if (f.injoignables) {
+              <button class="ad-facet ad-facet--alert" [class.is-active]="filtreStatut === 'Bounced'" (click)="filtrer('Bounced')">
+                <b class="u-mono">{{ f.injoignables }}</b><i>injoignables</i>
+              </button>
+            }
+          </div>
+        }
+
+        <div class="anl-barre">
+          <input type="search" placeholder="Chercher une adresse, un nom, une ville…"
+                 [(ngModel)]="recherche" (keyup.enter)="chargerAbonnes()" aria-label="Rechercher" />
+          <button class="btn-ghost" (click)="chargerAbonnes()"><i class="bi bi-search"></i></button>
+          <button class="btn-ghost" (click)="exporter()">
+            <i class="bi bi-download"></i> Exporter
+          </button>
+        </div>
+
+        @if (!abonnes().length) {
+          <div class="empty-box card">
+            <i class="bi bi-people"></i>
+            <h3>Aucun abonné ne correspond</h3>
+            <p>Élargissez la recherche, ou retirez le filtre.</p>
+          </div>
+        } @else {
+          <div class="table-wrap">
+            <table class="data">
+              <thead>
+                <tr>
+                  <th>Adresse</th><th>Statut</th><th>Origine</th><th>Ville</th>
+                  <th>Centres d'intérêt</th><th>Consentement</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (a of abonnes(); track a.id) {
+                  <tr>
+                    <td>
+                      {{ a.email }}
+                      @if (a.firstName || a.lastName) {
+                        <span class="anl-sub anl-bloc">{{ a.firstName }} {{ a.lastName }}</span>
+                      }
+                      @if (a.membre) { <span class="badge badge-blue">membre</span> }
+                    </td>
+                    <td><span class="badge" [class]="statutClasse(a.status)">{{ statutLibelle(a.status) }}</span></td>
+                    <td class="anl-sub">{{ a.source }}</td>
+                    <td class="anl-sub">{{ a.city || '—' }}</td>
+                    <td>
+                      @if (a.categories) {
+                        @for (c of a.categories.split(','); track c) { <span class="tag">{{ c }}</span> }
+                      } @else { <span class="anl-sub">tout</span> }
+                    </td>
+                    <td>
+                      <!-- La preuve, pas la date seule : la CNIL demande de
+                           pouvoir dire quand, et depuis où. -->
+                      <span class="u-mono anl-date">{{ a.consentAt | date:'dd/MM/yy' }}</span>
+                      @if (a.consentIp) { <span class="anl-sub anl-bloc u-mono">{{ a.consentIp }}</span> }
+                    </td>
+                    <td>
+                      @if (a.status !== 'Unsubscribed') {
+                        <button class="anl-act anl-danger" (click)="retirer(a)" title="Retirer cette adresse">
+                          <i class="bi bi-envelope-slash"></i>
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (totalAbonnes() > abonnes().length) {
+            <p class="anl-tronque">
+              {{ abonnes().length }} lignes affichées sur {{ totalAbonnes() }}. Affinez la recherche pour voir le reste.
+            </p>
+          }
+        }
+      </div>
+    }
+
+    <!-- ═══════════ RÉDACTION ═══════════ -->
+    @if (onglet() === 'redaction') {
+      <div class="anl-redaction animate-in">
+
+        <div class="anl-red__corps">
+          <fieldset class="anl-set card">
+            <legend>Le message</legend>
+
+            <label class="anl-fld">
+              <span>Objet</span>
+              <input type="text" [(ngModel)]="sujet" placeholder="Les offres du mois près de chez vous" />
+            </label>
+
+            <label class="anl-fld">
+              <span>Ligne d'aperçu <small>affichée par les messageries à côté de l'objet</small></span>
+              <input type="text" [(ngModel)]="apercuTexte" placeholder="Ce qui recrute dans votre région" />
+            </label>
+
+            <label class="anl-fld">
+              <span>Contenu <small>HTML accepté</small></span>
+              <textarea rows="14" [(ngModel)]="corps"
+                        placeholder="<p>Bonjour {{ '{{' }}prenom{{ '}}' }},</p>&#10;<p>Voici les offres qui bougent…</p>"></textarea>
+            </label>
+
+            @if (etat(); as e) {
+              <div class="anl-champs">
+                <span class="anl-champs__t">Champs de fusion</span>
+                @for (c of e.champs; track c.cle) {
+                  <span class="anl-champ" [title]="c.description">
+                    <code>{{ champ(c.cle) }}</code>
+                  </span>
+                }
+              </div>
+            }
+          </fieldset>
+        </div>
+
+        <aside class="anl-red__rail">
+          <!-- ═══ À QUI ═══ -->
+          <div class="anl-bloc">
+            <span class="anl-bloc__t">À qui</span>
+
+            <div class="anl-groupe">
+              <small>Rôle</small>
+              <div class="anl-puces">
+                @for (r of roles; track r.cle) {
+                  <button class="anl-puce" [class.is-on]="rolesChoisis().includes(r.cle)"
+                          (click)="basculerRole(r.cle)">{{ r.libelle }}</button>
+                }
+              </div>
+            </div>
+
+            <div class="anl-groupe">
+              <small>Centres d'intérêt</small>
+              <div class="anl-puces">
+                @for (c of categories; track c) {
+                  <button class="anl-puce" [class.is-on]="catsChoisies().includes(c)"
+                          (click)="basculerCat(c)">{{ c }}</button>
+                }
+              </div>
+            </div>
+
+            <label class="anl-fld anl-fld--mince">
+              <span>Villes <small>séparées par des virgules</small></span>
+              <input type="text" [(ngModel)]="villes" (ngModelChange)="compterDiffere()" placeholder="Lyon, Nantes" />
+            </label>
+
+            <label class="anl-fld anl-fld--mince">
+              <span>Départements</span>
+              <input type="text" [(ngModel)]="departements" (ngModelChange)="compterDiffere()" placeholder="34, 69, 2A" />
+            </label>
+
+            <div class="anl-groupe">
+              <small>Activité</small>
+              <div class="anl-puces">
+                @for (a of activites; track a.cle) {
+                  <button class="anl-puce" [class.is-on]="activite === a.cle"
+                          [title]="a.aide" (click)="activite = a.cle; compter()">{{ a.libelle }}</button>
+                }
+              </div>
+            </div>
+
+            <!-- Le décompte en direct : sans lui, on découvre au moment de
+                 l'envoi qu'on écrit à trois personnes, ou à tout le monde. -->
+            <div class="anl-compte" [class.est-vide]="destinataires() === 0">
+              <b class="u-mono">{{ destinataires() === null ? '—' : destinataires() }}</b>
+              <span>{{ messageCiblage() || 'destinataires' }}</span>
+            </div>
+          </div>
+
+          <!-- ═══ AVANT D'ENVOYER ═══ -->
+          <div class="anl-bloc">
+            <span class="anl-bloc__t">Avant d'envoyer</span>
+            <button class="btn-ghost anl-plein" (click)="enregistrer()" [disabled]="occupe()">
+              <i class="bi bi-save"></i> Enregistrer le brouillon
+            </button>
+            <button class="btn-ghost anl-plein" (click)="voirApercu()" [disabled]="occupe()">
+              <i class="bi bi-eye"></i> Voir l'aperçu
+            </button>
+            <button class="btn-ghost anl-plein" (click)="essai()" [disabled]="occupe()">
+              <i class="bi bi-send-check"></i> M'envoyer un essai
+            </button>
+            <button class="btn-primary anl-plein" (click)="envoyer()"
+                    [disabled]="occupe() || !destinataires()">
+              <i class="bi bi-send"></i> Envoyer
+            </button>
+            <button class="anl-retour" (click)="onglet.set('campagnes')">Revenir aux campagnes</button>
+          </div>
+        </aside>
+      </div>
+    }
+
+    <!-- ═══ APERÇU ═══ -->
+    @if (apercuSur(); as html) {
+      <div class="anl-modale" (click)="fermerApercu()">
+        <div class="anl-modale__in" (click)="$event.stopPropagation()">
+          <div class="anl-modale__tete">
+            <div>
+              <b>Aperçu</b>
+              <small>{{ apercuRendu() }}</small>
+            </div>
+            <button class="anl-act" (click)="fermerApercu()"><i class="bi bi-x-lg"></i></button>
+          </div>
+
+          <!-- Un champ de fusion vide ne casse pas l'envoi : il creuse un
+               trou dans la phrase, que personne ne voit avant que tout soit
+               parti. On le chiffre donc ici. -->
+          @if (lacunes().length) {
+            <div class="anl-lacunes">
+              <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+              <div>
+                <b>Certains destinataires n'ont pas ces informations</b>
+                @for (l of lacunes(); track l.champ) {
+                  <p>
+                    <code>{{ champ(l.champ) }}</code> sera vide pour
+                    <b>{{ l.manquant }}</b> personne{{ l.manquant > 1 ? 's' : '' }} sur {{ l.total }}
+                    — attention aux virgules orphelines.
+                  </p>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- « sandbox » vide : ni script, ni formulaire, ni acces a la
+               page qui l'englobe. C'est ce qui rend sur de montrer le
+               message sans le desinfecter. -->
+          <iframe class="anl-modale__vue" [srcdoc]="html" sandbox=""
+                  title="Aperçu du message"></iframe>
+        </div>
+      </div>
+    }
+  </div>
+</section>

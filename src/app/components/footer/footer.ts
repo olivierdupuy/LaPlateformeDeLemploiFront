@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Router, RouterLink } from '@angular/router';
 import { PlatformService } from '../../services/platform.service';
 import { I18nService } from '../../services/i18n.service';
+import { NewsletterService } from '../../services/newsletter.service';
 
 @Component({
   selector: 'app-footer',
@@ -11,6 +12,11 @@ import { I18nService } from '../../services/i18n.service';
   styleUrl: './footer.scss',
 })
 export class Footer {
+  private lettre = inject(NewsletterService);
+
+  /** Une fois la demande partie, le formulaire cède la place au message. */
+  nlEnvoi = signal(false);
+  nlMessage = signal<string | null>(null);
   platform = inject(PlatformService);
   i18n = inject(I18nService);
   year = new Date().getFullYear();
@@ -32,14 +38,33 @@ export class Footer {
    * enregistrée, qui demande un compte. On conduit donc à l'inscription
    * avec l'adresse déjà saisie, plutôt que de simuler un envoi.
    */
+  /**
+   * L'abonnement à la lettre d'information.
+   *
+   * Ce formulaire collectait une adresse puis renvoyait vers l'inscription :
+   * il ne promettait rien qu'il tenait. Personne n'a jamais été abonné par
+   * lui, et les adresses saisies étaient perdues à la redirection.
+   *
+   * Il abonne maintenant pour de bon — et n'exige pas de créer un compte,
+   * ce qui était la vraie raison pour laquelle la promesse ne tenait pas.
+   */
   subscribeNewsletter(input: HTMLInputElement) {
     const email = input.value.trim();
     if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       this.toastr.warning('Veuillez entrer une adresse email valide');
       return;
     }
-    input.value = '';
-    this.toastr.info('Créez votre compte pour recevoir vos alertes.', 'Plus qu’une étape');
-    this.router.navigate(['/register'], { queryParams: { email, alertes: 1 } });
+    this.nlEnvoi.set(true);
+    this.lettre.abonner({ email, source: 'Footer' }).subscribe({
+      next: (r) => {
+        this.nlEnvoi.set(false);
+        this.nlMessage.set(r.message);
+        input.value = '';
+      },
+      error: (e) => {
+        this.nlEnvoi.set(false);
+        this.toastr.error(e?.error?.message ?? 'L’abonnement n’a pas pu être enregistré.');
+      },
+    });
   }
 }

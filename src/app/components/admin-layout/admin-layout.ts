@@ -91,6 +91,7 @@ export class AdminLayout {
         { path: '/admin/offres', label: 'Offres', icon: 'bi-briefcase', alias: ['emplois', 'annonces d\'emploi'] },
         { path: '/admin/moderation', label: 'Modération', icon: 'bi-check2-square', alias: ['valider', 'approuver', 'rejeter'], compteur: 'moderation' },
         { path: '/admin/annonces', label: 'Annonces', icon: 'bi-megaphone', alias: ['bandeau', 'message'] },
+        { path: '/admin/newsletter', label: 'Newsletter', icon: 'bi-envelope-paper', alias: ['lettre', 'campagne', 'abonnes', 'brevo'] },
       ],
     },
     {

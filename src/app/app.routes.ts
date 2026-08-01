@@ -19,6 +19,7 @@ import { DashboardCandidate } from './components/dashboard-candidate/dashboard-c
 import { Login } from './components/login/login';
 import { Security } from './components/security/security';
 import { PasswordRecovery } from './components/password-recovery/password-recovery';
+import { Newsletter } from './components/newsletter/newsletter';
 import { Register } from './components/register/register';
 import { Profile } from './components/profile/profile';
 import { AdminUsers } from './components/admin-users/admin-users';
@@ -30,6 +31,7 @@ import { AdminOfferDetail } from './components/admin-offer-detail/admin-offer-de
 import { AdminApplications } from './components/admin-applications/admin-applications';
 import { AdminInterviews } from './components/admin-interviews/admin-interviews';
 import { AdminUserDetail } from './components/admin-user-detail/admin-user-detail';
+import { AdminNewsletter } from './components/admin-newsletter/admin-newsletter';
 import { HiringCompanies } from './components/hiring-companies/hiring-companies';
 import { JobMarket } from './components/job-market/job-market';
 import { AdminAnnouncements } from './components/admin-announcements/admin-announcements';
@@ -81,6 +83,16 @@ export const routes: Routes = [
   { path: 'mot-de-passe-oublie', component: PasswordRecovery, data: { mode: 'oubli' } },
   { path: 'reinitialiser-mot-de-passe', component: PasswordRecovery, data: { mode: 'reinitialisation' } },
   { path: 'confirmer-email', component: PasswordRecovery, data: { mode: 'confirmation' } },
+
+  // ── Lettre d'information ──
+  // Ouvertes sans compte, la desinscription surtout : quelqu'un qu'on force
+  // a se connecter pour ne plus rien recevoir a un autre bouton sous la
+  // main, celui qui nous signale comme indesirable. Les adresses sont
+  // celles que les courriels fabriquent : les changer casserait les liens
+  // deja partis.
+  { path: 'newsletter', component: Newsletter, data: { mode: 'inscription' } },
+  { path: 'newsletter/confirmer', component: Newsletter, data: { mode: 'confirmation' } },
+  { path: 'newsletter/desinscription', component: Newsletter, data: { mode: 'desinscription' } },
   { path: 'suivi', component: TrackApplications },
 
   // Authenticated
@@ -146,6 +158,7 @@ export const routes: Routes = [
       { path: 'utilisateurs/:id', component: AdminUserDetail },
       { path: 'annonces', component: AdminAnnouncements },
       { path: 'activite', component: AdminActivity },
+      { path: 'newsletter', component: AdminNewsletter },
       { path: 'parametres', component: AdminSettings },
     ],
   },

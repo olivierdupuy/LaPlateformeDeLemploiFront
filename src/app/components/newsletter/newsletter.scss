@@ -1,0 +1,277 @@
+// ═══════════════════════════════════════════════
+//  LETTRE D'INFORMATION — CÔTÉ VISITEUR
+//  Trois moments d'un même parcours : s'abonner, confirmer, se retirer.
+//  Un gabarit étroit et centré : on n'arrive ici que pour une chose.
+// ═══════════════════════════════════════════════
+
+.nlp-page {
+  padding: clamp(1.5rem, 5vw, 3rem) 0 4rem;
+  min-height: 60vh;
+}
+
+.nlp-shell {
+  width: 100%;
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.nlp-card {
+  padding: 1.9rem 1.7rem 1.7rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+}
+
+.nlp-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 0.85rem;
+  border-radius: 50%;
+  background: var(--bleu-100);
+  color: var(--bleu-700);
+  font-size: 1.2rem;
+
+  &.est-echec { background: color-mix(in oklab, var(--danger) 10%, transparent); color: var(--danger); }
+}
+
+.nlp-chapeau {
+  max-width: 40ch;
+  margin: 0.5rem auto 1.4rem;
+  font-size: 0.89rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+// ── Formulaire ──
+// Aligné à gauche : un champ centré se remplit mal, et l'œil perd le
+// début de la ligne à chaque saisie.
+.nlp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  text-align: left;
+}
+
+.nlp-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.nlp-fld {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  > span {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+
+    small { font-size: 0.72rem; font-weight: 400; color: var(--faint); }
+  }
+
+  input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--canvas);
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color var(--t), box-shadow var(--t);
+    &:focus { border-color: var(--bleu-600); box-shadow: 0 0 0 3px var(--bleu-tint); }
+    &::placeholder { color: var(--faint); }
+  }
+}
+
+// ── Centres d'intérêt ──
+// Ce ne sont pas des cases de plus : elles décident de ce qu'on recevra.
+// Sans elles, tout le monde reçoit tout, et se désabonne.
+.nlp-cat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+
+  &__t {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    small { font-size: 0.72rem; font-weight: 400; color: var(--faint); }
+  }
+
+  &__liste { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+}
+
+.nlp-puce {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--canvas);
+  font-size: 0.81rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background var(--t), border-color var(--t), color var(--t);
+
+  &:hover { border-color: var(--bleu-500); color: var(--bleu-700); }
+
+  &.is-on {
+    background: var(--bleu-600);
+    border-color: var(--bleu-600);
+    color: #fff;
+  }
+}
+
+// ── Consentement ──
+// Jamais cochée d'avance : une case pré-cochée ne vaut pas consentement,
+// et la CNIL le dit en toutes lettres.
+.nlp-accord {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--nuage);
+  cursor: pointer;
+
+  input { margin-top: 0.15rem; width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--bleu-600); }
+
+  span { font-size: 0.8rem; line-height: 1.55; color: var(--ink-soft); }
+  a { color: var(--bleu-600); text-decoration: underline; }
+}
+
+// ── Issue ──
+.nlp-issue {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  border-radius: var(--r-sm);
+  background: color-mix(in oklab, var(--green) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--green) 25%, transparent);
+
+  i { flex-shrink: 0; color: var(--green); font-size: 1rem; }
+  p { font-size: 0.86rem; line-height: 1.6; color: var(--ink-soft); }
+
+  &.est-echec {
+    background: color-mix(in oklab, var(--danger) 7%, transparent);
+    border-color: color-mix(in oklab, var(--danger) 25%, transparent);
+    i { color: var(--danger); }
+  }
+}
+
+.nlp-note {
+  margin-top: 0.9rem;
+  text-align: left;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.nlp-suite { display: flex; flex-direction: column; gap: 0.9rem; align-items: center; }
+
+.nlp-retour {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  &:hover { color: var(--bleu-600); }
+}
+
+// ── Désinscription ──
+.nlp-cible {
+  margin-bottom: 1.1rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  strong { font-family: var(--font-mono); font-size: 0.86rem; color: var(--ink); }
+}
+
+.nlp-motifs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 1.2rem;
+  text-align: left;
+
+  &__t {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    width: 100%;
+    margin-bottom: 0.1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    small { font-size: 0.72rem; font-weight: 400; color: var(--faint); }
+  }
+}
+
+// Le retrait d'abord, mais sans piège : le bouton qui garde l'abonnement
+// reste visible et lisible. Un « annuler » grisé ferait douter.
+.nlp-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  button { width: 100%; justify-content: center; }
+}
+
+.nlp-attente {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1.2rem 0;
+  p { font-size: 0.85rem; color: var(--muted); }
+}
+
+// ── Ce qu'on promet ──
+// La question se pose avant de donner son adresse, pas après.
+.nlp-promesses {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0 0.4rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    i { color: var(--bleu-500); font-size: 0.9rem; }
+  }
+}
+
+@media (max-width: 460px) {
+  .nlp-duo { grid-template-columns: 1fr; }
+}

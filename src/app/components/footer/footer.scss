@@ -298,3 +298,25 @@ footer {
 @media (max-width: 420px) {
   .ft-grid { grid-template-columns: 1fr; }
 }
+
+// Une fois la demande partie, le formulaire cède la place : il reste un
+// clic à donner, dans la boîte mail, et c'est cela qu'il faut dire.
+.nl-fait {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--r-sm);
+  background: rgba(255, 236, 209, 0.08);
+  border: 1px solid rgba(255, 236, 209, 0.18);
+  font-size: 0.82rem;
+  line-height: 1.55;
+
+  i { flex-shrink: 0; margin-top: 0.1rem; color: var(--bleu-300); }
+}
+
+.nl-note a {
+  color: inherit;
+  text-decoration: underline;
+  &:hover { color: var(--bleu-300); }
+}

@@ -1,0 +1,454 @@
+// ═══════════════════════════════════════════════
+//  LETTRE D'INFORMATION — CONSOLE
+//  Une campagne partie ne se rattrape pas : tout ce qui précède l'envoi
+//  occupe donc plus de place que le bouton d'envoi lui-même.
+// ═══════════════════════════════════════════════
+
+.anl-page { padding-bottom: 3rem; }
+
+// ── Ce qui empêcherait d'envoyer ──
+.anl-alerte {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.9rem 1.05rem;
+  margin-bottom: 1rem;
+  border-radius: var(--r-md);
+  background: color-mix(in oklab, var(--danger) 6%, transparent);
+  border: 1px solid color-mix(in oklab, var(--danger) 28%, transparent);
+
+  i { flex-shrink: 0; color: var(--danger); font-size: 1.05rem; }
+  b { display: block; font-size: 0.9rem; color: var(--ink); }
+  p { margin-top: 0.3rem; font-size: 0.83rem; line-height: 1.6; color: var(--ink-soft); }
+
+  &.est-bloquant { border-width: 2px; }
+}
+
+.anl-etat {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.1rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+
+  &__x {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+
+    b { font-size: 1.25rem; font-weight: 500; letter-spacing: -0.03em; color: var(--ink); }
+    i {
+      font-family: var(--font-mono);
+      font-style: normal;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--muted);
+    }
+
+    // Moins de crédits que d'abonnés : la campagne s'arrêtera en chemin.
+    &.est-bas b { color: var(--danger); }
+    &.est-bas i { color: var(--danger); }
+  }
+
+  &__src {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+    font-size: 0.83rem;
+    color: var(--ink-soft);
+
+    i { color: var(--green); &.est-mauvais { color: var(--danger); } }
+    small { color: var(--muted); }
+  }
+}
+
+.anl-tabs { margin-bottom: 1.1rem; }
+
+// ── Campagnes ──
+.anl-liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
+  gap: 0.8rem;
+}
+
+.anl-camp {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem;
+  &:hover { transform: none; box-shadow: var(--shadow-xs); }
+
+  // Un brouillon se distingue d'un envoi : l'un se retouche, l'autre non.
+  &.est-brouillon { border-style: dashed; }
+
+  &__tete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.6rem;
+
+    h3 {
+      font-size: 0.97rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--ink);
+      cursor: pointer;
+      &:hover { color: var(--bleu-600); }
+    }
+  }
+
+  &__seg {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.79rem;
+    color: var(--muted);
+    i { font-size: 0.75rem; }
+  }
+
+  &__bilan {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    b { font-weight: 600; color: var(--ink); }
+  }
+
+  &__date { font-size: 0.78rem; color: var(--muted); margin-left: 0.35rem; }
+
+  &__act {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.3rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--line);
+    button { font-size: 0.82rem; }
+  }
+}
+
+.anl-echec { color: var(--danger); }
+
+// Une barre plutôt qu'un nombre : on veut voir que ça avance.
+.anl-jauge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  &__piste {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--nuage-3);
+    overflow: hidden;
+  }
+
+  &__part {
+    display: block;
+    height: 100%;
+    background: var(--bleu-600);
+    transition: width 0.4s var(--ease);
+  }
+
+  small { font-size: 0.77rem; color: var(--muted); }
+}
+
+// ── Abonnés ──
+.anl-facettes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+.anl-barre {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--canvas);
+    font-size: 0.88rem;
+    color: var(--ink);
+    outline: none;
+    &:focus { border-color: var(--bleu-600); }
+  }
+}
+
+.anl-sub { font-size: 0.8rem; color: var(--muted); }
+.anl-bloc { display: block; margin-top: 0.1rem; }
+.anl-date { font-size: 0.8rem; }
+.anl-tronque { margin-top: 0.6rem; font-size: 0.8rem; color: var(--muted); }
+
+.anl-act {
+  padding: 0.3rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color var(--t), border-color var(--t);
+  &:hover { color: var(--bleu-600); border-color: var(--line-strong); }
+}
+
+.anl-danger:hover {
+  color: var(--danger) !important;
+  border-color: var(--danger) !important;
+  background: color-mix(in oklab, var(--danger) 6%, transparent);
+}
+
+// ── Rédaction ──
+.anl-redaction {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 1rem;
+  align-items: start;
+}
+
+.anl-set {
+  padding: 1.2rem 1.3rem 1.4rem;
+  &:hover { transform: none; box-shadow: var(--shadow-xs); }
+
+  legend {
+    padding-right: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+}
+
+.anl-fld {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.9rem;
+
+  > span {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    font-size: 0.79rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    small { font-size: 0.72rem; font-weight: 400; color: var(--faint); }
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--canvas);
+    font-size: 0.88rem;
+    font-family: inherit;
+    color: var(--ink);
+    outline: none;
+    transition: border-color var(--t);
+    &:focus { border-color: var(--bleu-600); }
+  }
+
+  textarea {
+    font-family: var(--font-mono);
+    font-size: 0.83rem;
+    line-height: 1.6;
+    resize: vertical;
+  }
+
+  &--mince { margin-top: 0.75rem; }
+}
+
+.anl-champs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--line);
+
+  &__t {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--muted);
+  }
+}
+
+.anl-champ code {
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--r-xs);
+  background: var(--nuage);
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--bleu-700);
+  cursor: help;
+}
+
+// ── Rail ──
+.anl-red__rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  position: sticky;
+  top: calc(var(--nav-now) + 1rem);
+}
+
+.anl-bloc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.95rem 1rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+
+  &__t {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+}
+
+.anl-groupe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  small { font-size: 0.74rem; color: var(--faint); }
+}
+
+.anl-puces { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+.anl-puce {
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--canvas);
+  font-size: 0.77rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background var(--t), border-color var(--t), color var(--t);
+
+  &:hover { border-color: var(--bleu-500); color: var(--bleu-700); }
+  &.is-on { background: var(--bleu-600); border-color: var(--bleu-600); color: #fff; }
+}
+
+// Le décompte en direct. Sans lui, on découvre au moment de l'envoi qu'on
+// écrit à trois personnes — ou à tout le monde.
+.anl-compte {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--r-sm);
+  background: var(--bleu-100);
+  border: 1px solid var(--bleu-300);
+
+  b { font-size: 1.35rem; font-weight: 500; letter-spacing: -0.03em; color: var(--bleu-900); }
+  span { font-size: 0.78rem; line-height: 1.45; color: var(--ink-soft); }
+
+  &.est-vide {
+    background: color-mix(in oklab, var(--danger) 6%, transparent);
+    border-color: color-mix(in oklab, var(--danger) 25%, transparent);
+    b { color: var(--danger); }
+  }
+}
+
+.anl-plein { width: 100%; justify-content: center; font-size: 0.85rem; }
+
+.anl-retour {
+  padding: 0.3rem 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+  &:hover { color: var(--bleu-600); }
+}
+
+// ── Aperçu ──
+.anl-modale {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 21, 36, 0.55);
+  animation: anl-fade 0.15s var(--ease);
+
+  &__in {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 44rem;
+    max-height: 88vh;
+    background: var(--canvas);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  &__tete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid var(--line);
+
+    b { font-size: 0.92rem; color: var(--ink); }
+    small { display: block; margin-top: 0.1rem; font-size: 0.76rem; color: var(--muted); }
+  }
+
+  // Dans un cadre isolé : le message porte ses propres styles, et on veut
+  // les voir tels qu'une messagerie les rendra, sans que ceux du site
+  // s'en mêlent.
+  &__vue {
+    flex: 1;
+    min-height: 24rem;
+    border: 0;
+    background: #fff;
+  }
+}
+
+@keyframes anl-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.anl-lacunes {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.75rem 1.1rem;
+  background: color-mix(in oklab, var(--danger) 5%, transparent);
+  border-bottom: 1px solid var(--line);
+
+  i { flex-shrink: 0; color: var(--danger); }
+  b { font-size: 0.84rem; color: var(--ink); }
+  p { margin-top: 0.2rem; font-size: 0.79rem; line-height: 1.55; color: var(--ink-soft); }
+  code { font-family: var(--font-mono); font-size: 0.76rem; color: var(--bleu-700); }
+}
+
+// ── Adaptation ──
+@media (max-width: 1100px) {
+  .anl-redaction { grid-template-columns: 1fr; }
+  .anl-red__rail { position: static; }
+}
+
+@media (max-width: 620px) {
+  .anl-etat__src { margin-left: 0; width: 100%; }
+}
