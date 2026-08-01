@@ -10,6 +10,7 @@ import * as L from 'leaflet';
 import { BookmarkService } from '../../services/bookmark.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
+import { PlatformService } from '../../services/platform.service';
 import { SeoService } from '../../services/seo.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { MarkdownPipe } from '../../utils/markdown.pipe';
@@ -37,6 +38,7 @@ export class JobDetail implements OnInit {
   bookmarkService = inject(BookmarkService);
   private candidateService = inject(CandidateFeaturesService);
   auth = inject(AuthService);
+  platform = inject(PlatformService);
   private seo = inject(SeoService);
 
   job = signal<JobOffer | null>(null);
@@ -48,6 +50,49 @@ export class JobDetail implements OnInit {
   stars5 = [1, 2, 3, 4, 5];
   loading = signal(true);
   noteContent = '';
+
+  /**
+   * Ce qui empechera la candidature, dit avant le tunnel.
+   *
+   * Le serveur verifie tout au moment de l'envoi, et il a raison de le
+   * faire — le client ne fait jamais foi. Mais l'apprendre apres avoir
+   * redige une lettre est une perte seche : cette candidature-la ne se
+   * refera pas.
+   */
+  candidaturesDeposees = signal<number | null>(null);
+
+  /** Le recruteur exige un CV, et le profil n'en porte aucun. */
+  get cvManquant(): boolean {
+    const j = this.job();
+    if (!j?.requireResume) return false;
+    return !this.auth.currentUser()?.resumeUrl;
+  }
+
+  /** Le plafond de candidatures du compte est atteint. */
+  get quotaAtteint(): boolean {
+    const max = this.platform.maxApplications;
+    const n = this.candidaturesDeposees();
+    return max > 0 && n !== null && n >= max;
+  }
+
+  get quotaMax(): number { return this.platform.maxApplications; }
+
+  /**
+   * Le compte des candidatures deja deposees.
+   *
+   * Interroge seulement quand il sert : sans plafond configure, la
+   * question n'a pas de reponse utile, et l'appel serait gaspille sur
+   * chaque fiche consultee.
+   */
+  private compterCandidatures() {
+    if (this.platform.maxApplications <= 0) return;
+    if (!this.auth.isLoggedIn() || this.auth.currentUser()?.role !== 'Candidate') return;
+    this.appService.getCandidateStats().subscribe({
+      next: (st: any) => this.candidaturesDeposees.set(st?.totalCandidatures ?? null),
+      // Sans ce compte on n'annonce rien : le serveur reste seul juge.
+      error: () => this.candidaturesDeposees.set(null),
+    });
+  }
   /**
    * Signal et non propriété simple : l'application tourne sans zone.js,
    * et une écriture faite depuis un rappel HTTP n'y déclenche aucun
@@ -111,6 +156,7 @@ export class JobDetail implements OnInit {
   }
 
   ngOnInit() {
+    this.compterCandidatures();
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.jobService.getById(id).subscribe({
       next: (job) => {

@@ -180,6 +180,30 @@
                   <h3>Candidature envoyée</h3>
                   <p>Votre candidature a bien été transmise au recruteur.</p>
                   <a routerLink="/suivi" class="btn-light full-w"><i class="bi bi-clipboard-check"></i> Suivre mes candidatures</a>
+                } @else if (quotaAtteint) {
+                  <!-- Le serveur refuserait l'envoi ; autant le dire ici, plutot
+                       qu'apres six ecrans et une lettre redigee. -->
+                  <h3>Plafond de candidatures atteint</h3>
+                  <p>
+                    Vous avez {{ quotaMax }} candidatures en cours, le maximum autorisé.
+                    Dès qu'un recruteur en traite une, vous pourrez postuler à nouveau.
+                  </p>
+                  <a routerLink="/suivi" class="btn-light full-w">
+                    <i class="bi bi-clipboard-check"></i> Voir mes candidatures
+                  </a>
+                } @else if (cvManquant) {
+                  <h3>Ce recruteur demande un CV</h3>
+                  <p>
+                    Il en exige un pour cette offre, et votre profil n'en porte pas
+                    encore. Quelques minutes suffisent, et il resservira pour toutes
+                    vos candidatures.
+                  </p>
+                  <a routerLink="/mon-cv" class="btn-spring full-w">
+                    <i class="bi bi-file-earmark-text"></i> Composer mon CV
+                  </a>
+                  <a routerLink="/profil" class="btn-light full-w" style="margin-top:0.5rem">
+                    <i class="bi bi-upload"></i> J'ai déjà un CV à déposer
+                  </a>
                 } @else if (j.easyApply && !hasScreening(j)) {
                   <h3>Intéressé par ce poste ?</h3>
                   <p>Postulez en 1 clic avec votre profil et votre CV.</p>
