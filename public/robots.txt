@@ -1,0 +1,43 @@
+# La plateforme de l'emploi
+#
+# Le plan de site est généré par l'API : le catalogue change à chaque
+# import, un fichier statique serait périmé le lendemain. Google et Bing
+# acceptent un plan servi depuis un autre hôte dès lors qu'il est déclaré
+# ici, dans le robots.txt du site qu'il décrit.
+
+User-agent: *
+Allow: /
+
+# Espaces authentifiés : rien à y indexer, et les explorer consomme le
+# budget d'exploration au détriment des offres.
+Disallow: /admin
+Disallow: /recruteur
+Disallow: /profil
+Disallow: /suivi
+Disallow: /favoris
+Disallow: /mon-cv
+Disallow: /messages
+Disallow: /entretiens
+Disallow: /candidatures
+Disallow: /candidats
+Disallow: /recherches
+Disallow: /mon-metier
+Disallow: /qui-recrute
+Disallow: /tableau-de-bord
+Disallow: /login
+Disallow: /register
+Disallow: /mot-de-passe-oublie
+Disallow: /reinitialiser
+
+# Le tunnel de candidature n'a de sens qu'une fois l'offre choisie ; il
+# n'apporte rien en résultat de recherche et duplique la fiche.
+Disallow: /*/postuler
+
+# Les combinaisons de filtres se comptent par milliers pour un même
+# catalogue. La page canonique reste /offres ; ces variantes ne doivent
+# pas dévorer l'exploration.
+Disallow: /*?*page=
+Disallow: /*?*tri=
+Disallow: /*?*taille=
+
+Sitemap: https://api.laplateformedelemploi.com/api/seo/sitemap.xml

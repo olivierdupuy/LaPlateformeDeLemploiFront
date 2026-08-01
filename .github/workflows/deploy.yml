@@ -72,6 +72,23 @@ jobs:
                     </conditions>
                     <action type="Redirect" url="https://{HTTP_HOST}/{R:1}" redirectType="Permanent" />
                   </rule>
+                  <!-- Le plan de site est genere par l'API : le catalogue
+                       change a chaque import, un fichier statique serait
+                       perime le lendemain. Sans cette regle, /sitemap.xml
+                       n'etant pas un fichier sur le disque, la regle
+                       Angular ci-dessous le renverrait vers index.html —
+                       un moteur y lirait du HTML au lieu du XML attendu.
+                       La redirection est permanente : c'est bien la
+                       ressource qui vit ailleurs. -->
+                  <rule name="Plan de site vers l API" stopProcessing="true">
+                    <match url="^sitemap\.xml$" />
+                    <action type="Redirect" url="https://api.laplateformedelemploi.com/api/seo/sitemap.xml" redirectType="Permanent" />
+                  </rule>
+                  <rule name="Plans de site enfants vers l API" stopProcessing="true">
+                    <match url="^sitemaps/(.+)$" />
+                    <action type="Redirect" url="https://api.laplateformedelemploi.com/api/seo/sitemaps/{R:1}" redirectType="Permanent" />
+                  </rule>
+
                   <rule name="Angular Routes" stopProcessing="true">
                     <match url=".*" />
                     <conditions logicalGrouping="MatchAll">

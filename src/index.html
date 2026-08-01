@@ -2,9 +2,71 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>La plateforme de l'emploi</title>
+  <title>Offres d'emploi en France | La plateforme de l'emploi</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Ces valeurs sont celles du document servi, avant que l'application
+       ne démarre. Un robot qui n'exécute pas le JavaScript — Bing le fait
+       mal, beaucoup d'autres pas du tout — ne verra jamais rien d'autre :
+       elles doivent donc tenir seules. Le service de référencement les
+       remplace page par page dès que l'application tourne. -->
+  <meta name="description" content="Des milliers d'offres d'emploi rassemblées au même endroit : CDI, CDD, alternance, stage et télétravail. Postulez et suivez chaque candidature jusqu'à la réponse.">
+  <link rel="canonical" href="https://www.laplateformedelemploi.com/">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="author" content="La plateforme de l'emploi">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="La plateforme de l'emploi">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Offres d'emploi en France">
+  <meta property="og:description" content="Des milliers d'offres d'emploi rassemblées au même endroit. Postulez et suivez chaque candidature jusqu'à la réponse.">
+  <meta property="og:url" content="https://www.laplateformedelemploi.com/">
+  <meta property="og:image" content="https://www.laplateformedelemploi.com/icon-512.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Offres d'emploi en France">
+  <meta name="twitter:description" content="Des milliers d'offres d'emploi rassemblées au même endroit.">
+  <meta name="twitter:image" content="https://www.laplateformedelemploi.com/icon-512.png">
+
+  <!-- L'API sert toutes les données de l'application : ouvrir la
+       connexion pendant l'analyse du document économise un aller-retour
+       sur le premier écran, que Google mesure. -->
+  <link rel="preconnect" href="https://api.laplateformedelemploi.com" crossorigin>
+  <link rel="dns-prefetch" href="https://api.laplateformedelemploi.com">
+
+  <!-- Identité du site et recherche interne. La seconde autorise Google à
+       afficher un champ de recherche sous le résultat de la page d'accueil. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.laplateformedelemploi.com/#organisation",
+        "name": "La plateforme de l'emploi",
+        "url": "https://www.laplateformedelemploi.com/",
+        "logo": "https://www.laplateformedelemploi.com/icon-512.png",
+        "areaServed": { "@type": "Country", "name": "France" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.laplateformedelemploi.com/#site",
+        "url": "https://www.laplateformedelemploi.com/",
+        "name": "La plateforme de l'emploi",
+        "inLanguage": "fr-FR",
+        "publisher": { "@id": "https://www.laplateformedelemploi.com/#organisation" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://www.laplateformedelemploi.com/offres?search={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  }
+  </script>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">

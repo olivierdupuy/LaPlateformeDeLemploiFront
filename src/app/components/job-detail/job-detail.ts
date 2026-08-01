@@ -10,6 +10,7 @@ import * as L from 'leaflet';
 import { BookmarkService } from '../../services/bookmark.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
+import { SeoService } from '../../services/seo.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { MarkdownPipe } from '../../utils/markdown.pipe';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
@@ -34,6 +35,7 @@ export class JobDetail implements OnInit {
   bookmarkService = inject(BookmarkService);
   private candidateService = inject(CandidateFeaturesService);
   auth = inject(AuthService);
+  private seo = inject(SeoService);
 
   job = signal<JobOffer | null>(null);
   similarJobs = signal<JobOffer[]>([]);
@@ -61,12 +63,51 @@ export class JobDetail implements OnInit {
   companyColor = companyColor;
   estGenerique = estEmployeurGenerique;
 
+  /**
+   * Ce que les moteurs retiendront de cette offre.
+   *
+   * C'est la page la plus nombreuse du site — cent vingt mille — et la
+   * seule qui puisse entrer dans l'encart « Google for Jobs ». Le
+   * balisage `JobPosting` en est la condition unique.
+   */
+  private declarerSeo(job: JobOffer) {
+    const lieu = job.location ? ` — ${job.location}` : '';
+    const employeur = estEmployeurGenerique(job.company) ? '' : ` chez ${job.company}`;
+
+    // La description de l'annonce fait le resume affiche sous le lien.
+    // Coupee au mot, jamais au milieu d'un mot.
+    const brut = (job.description || '').replace(/\s+/g, ' ').trim();
+    const resume = brut.length > 155 ? brut.slice(0, 152).replace(/\s+\S*$/, '') + '…' : brut;
+
+    this.seo.set({
+      title: `${job.title}${employeur}${lieu}`,
+      description: resume || `Offre ${job.contractType || ''} ${job.title}${lieu}. Postulez sur La plateforme de l'emploi.`.trim(),
+      canonicalPath: `/offres/${job.id}`,
+      type: 'article',
+      image: job.companyLogoUrl || undefined,
+    });
+
+    const blocs: object[] = [
+      this.seo.breadcrumb([
+        { nom: 'Accueil', chemin: '/' },
+        { nom: "Offres d'emploi", chemin: '/offres' },
+        { nom: job.title, chemin: `/offres/${job.id}` },
+      ]),
+    ];
+    // Une annonce trop maigre n'est pas balisee : mieux vaut aucune
+    // donnee structuree qu'une donnee que Google rejettera.
+    const annonce = this.seo.jobPosting(job as any);
+    if (annonce) blocs.push(annonce);
+    this.seo.structuredData(blocs);
+  }
+
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.jobService.getById(id).subscribe({
       next: (job) => {
         this.job.set(job);
         this.loading.set(false);
+        this.declarerSeo(job);
         this.loadSimilarJobs(job);
         // Employeur non communique : les appels par nom d'entreprise n'auraient
         // aucun sens ici, ils ramasseraient des milliers d'offres sans lien entre

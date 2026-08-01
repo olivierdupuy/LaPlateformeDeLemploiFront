@@ -8,8 +8,84 @@ import { ImpersonationBanner } from './components/impersonation-banner/impersona
 import { PlatformService } from './services/platform.service';
 import { AuthService } from './services/auth.service';
 import { SignalRService } from './services/signalr.service';
+import { SeoService } from './services/seo.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
+
+/**
+ * Tout ce qui vit derrière une authentification. Le préfixe suffit :
+ * `/admin` couvre l'ensemble du panneau.
+ */
+const PREFIXES_PRIVES = [
+  '/login', '/register', '/mot-de-passe-oublie', '/reinitialiser',
+  '/profil', '/suivi', '/favoris', '/mon-cv', '/recherches', '/messages',
+  '/entretiens', '/candidatures', '/mon-metier', '/qui-recrute',
+  '/tableau-de-bord', '/recruteur', '/admin', '/candidats',
+];
+
+const TITRES_PRIVES: Record<string, string> = {
+  '/login': 'Connexion',
+  '/register': 'Inscription',
+  '/profil': 'Mon profil',
+  '/suivi': 'Mes candidatures',
+  '/favoris': 'Mes favoris',
+  '/mon-cv': 'Mon CV',
+  '/messages': 'Messages',
+};
+
+/**
+ * Le plancher des pages publiques. Titre et description sont écrits pour
+ * être lus dans une page de résultats, pas pour répéter le nom du site :
+ * c'est cette ligne qui décide du clic.
+ */
+const PAGES_PUBLIQUES: Record<string, { title: string; description: string }> = {
+  '/': {
+    title: "Offres d'emploi en France",
+    description:
+      "Des milliers d'offres d'emploi rassemblées au même endroit : CDI, CDD, alternance, stage et télétravail. Postulez et suivez chaque candidature jusqu'à la réponse.",
+  },
+  '/offres': {
+    title: "Offres d'emploi",
+    description:
+      "Recherchez parmi des milliers d'offres d'emploi par métier, ville, contrat et salaire. Alertes par email et suivi de vos candidatures.",
+  },
+  '/parcourir': {
+    title: 'Parcourir les métiers et les villes',
+    description:
+      "Explorez les offres d'emploi par métier, secteur, type de contrat et ville. Trouvez qui recrute près de chez vous.",
+  },
+  '/entreprises': {
+    title: 'Les entreprises qui recrutent',
+    description:
+      'Découvrez les entreprises qui recrutent en France : leurs offres en cours, leurs avis et leurs implantations.',
+  },
+  '/salaires': {
+    title: 'Salaires par métier',
+    description:
+      'Combien gagne-t-on dans votre métier ? Salaires annuels observés sur les offres réellement publiées, par intitulé de poste.',
+  },
+  '/guide': {
+    title: 'Guide des carrières',
+    description:
+      "Conseils pratiques pour votre recherche d'emploi : CV, lettre de motivation, entretien, négociation salariale et reconversion.",
+  },
+  '/evenements': {
+    title: "Événements emploi et salons de recrutement",
+    description:
+      'Salons, forums et job datings : les rendez-vous pour rencontrer des recruteurs en France.',
+  },
+};
+
+/**
+ * Plancher des pages de détail, le temps que l'API réponde. Ordonné du
+ * plus précis au plus général : `/salaires/metier` avant `/salaires`.
+ */
+const TITRES_SECTIONS: [string, string][] = [
+  ['/salaires/metier/', 'Salaire du métier'],
+  ['/offres/', "Offre d'emploi"],
+  ['/entreprises/', 'Entreprise qui recrute'],
+  ['/guide/', 'Guide des carrières'],
+];
 
 @Component({
   selector: 'app-root',
@@ -22,6 +98,7 @@ export class App implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
   private signalR = inject(SignalRService);
+  private seo = inject(SeoService);
 
   get isAdmin(): boolean { return this.auth.isAdmin(); }
 
@@ -75,9 +152,69 @@ export class App implements OnInit {
     return url.split('?')[0].split('#')[0];
   }
 
+  /**
+   * Référencement par défaut, à chaque navigation.
+   *
+   * Deux problèmes se règlent ici plutôt que dans vingt composants.
+   *
+   * D'abord l'espace connecté : un profil, une messagerie, un tableau de
+   * bord n'ont rien à faire dans un index. Les déclarer un par un
+   * laisserait tôt ou tard passer une page — la liste des routes privées
+   * est le seul endroit qui les connaît toutes.
+   *
+   * Ensuite la rémanence : sans valeur par défaut, une page qui ne dit
+   * rien d'elle-même garde le titre et la description de la précédente.
+   * On revenait d'une offre vers l'accueil en gardant « Développeur Java
+   * chez TechCorp » dans l'onglet.
+   *
+   * Les pages publiques appellent ensuite le service pour préciser leur
+   * cas ; ce qui suit n'est qu'un plancher.
+   */
+  private declarerSeoParDefaut() {
+    const appliquer = (url: string) => {
+      const chemin = this.stripQuery(url);
+
+      // Les données structurées de la page quittée sont retirées à chaque
+      // navigation, et non par la page qui les a posées : seule la fiche
+      // d'offre en écrit, et rien ne les enlevait en la quittant. On
+      // passait d'une offre aux salaires en gardant une annonce déclarée
+      // dans l'en-tête — Google aurait lu une offre d'emploi sur une page
+      // de statistiques.
+      this.seo.structuredData([]);
+
+      const prive = PREFIXES_PRIVES.some((p) => chemin === p || chemin.startsWith(p + '/'));
+      if (prive) {
+        this.seo.privee(TITRES_PRIVES[chemin] ?? 'Mon espace');
+        return;
+      }
+
+      const page = PAGES_PUBLIQUES[chemin];
+      if (page) {
+        this.seo.set({ ...page, canonicalPath: chemin });
+        return;
+      }
+
+      // Page publique de détail — une offre, une entreprise, un métier.
+      // Elle précisera son cas dès que l'API aura répondu ; en attendant,
+      // ce plancher évite de garder le titre de la page précédente, et
+      // tient si la requête échoue.
+      this.seo.set({
+        title: TITRES_SECTIONS.find(([p]) => chemin.startsWith(p))?.[1] ?? '',
+        description: PAGES_PUBLIQUES['/'].description,
+        canonicalPath: chemin,
+      });
+    };
+
+    appliquer(this.router.url);
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe((e) => appliquer(e.urlAfterRedirects));
+  }
+
   ngOnInit() {
     this.platform.load();
     this.scrollToTopOnPageChange();
+    this.declarerSeoParDefaut();
 
     // La connexion temps réel appartient à l'application, pas à une barre
     // de navigation : elle était ouverte par la navbar publique, que le
