@@ -185,7 +185,25 @@ export class SeoService {
     if (!o.description || o.description.trim().length < 120) return null;
 
     const unite = { an: 'YEAR', mois: 'MONTH', heure: 'HOUR' }[o.salaryPeriod || 'an'] ?? 'YEAR';
-    const [ville, ...reste] = (o.location || '').split(/\s*[-–]\s*/).reverse();
+
+    /**
+     * Le lieu arrive au format « 95 - Marly-la-Ville » : un code de
+     * département, un séparateur, une commune.
+     *
+     * Un premier découpage coupait sur tous les tirets et ne gardait que
+     * le dernier morceau — d'où « Ville » pour Marly-la-Ville, « Provence »
+     * pour Aix-en-Provence, « Mer » pour Boulogne-sur-Mer. Une part
+     * considérable des communes françaises portent un tiret ; on aurait
+     * déclaré à Google une localité fausse sur des dizaines de milliers
+     * d'annonces.
+     *
+     * Le séparateur se distingue des tirets du nom par ses espaces.
+     */
+    // `2A`/`2B` pour la Corse ne sont pas des nombres : une expression qui
+    // n'attend que des chiffres laisse « 2A - Ajaccio » intact et déclare
+    // le code départemental dans le nom de la commune.
+    const decoupe = (o.location || '').match(/^\s*(?:\d{2,3}|2[AB])\s+[-–]\s+(.+)$/i);
+    const ville = (decoupe ? decoupe[1] : o.location || '').trim();
 
     const bloc: Record<string, unknown> = {
       '@context': 'https://schema.org',
@@ -210,8 +228,10 @@ export class SeoService {
         address: {
           '@type': 'PostalAddress',
           addressCountry: 'FR',
-          ...(ville ? { addressLocality: ville.trim() } : {}),
-          ...(reste.length ? { addressRegion: reste.reverse().join(' ').trim() } : {}),
+          ...(ville ? { addressLocality: ville } : {}),
+          // Pas d'`addressRegion` : le catalogue ne porte qu'un code de
+          // département, qui n'est ni une région ni un code postal.
+          // Le déclarer comme tel serait une donnée fausse de plus.
           ...(o.address ? { streetAddress: o.address } : {}),
         },
       },
