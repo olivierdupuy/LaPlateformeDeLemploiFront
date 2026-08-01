@@ -356,6 +356,153 @@
   }
 }
 
+// ══════════════════════════════
+//  Inscription en étapes
+// ══════════════════════════════
+
+// La progression se lit avant le titre : elle répond à « combien encore ? »
+// que l'on se pose en arrivant sur un deuxième écran.
+.am-pas {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: -0.35rem 0 1.15rem;
+}
+
+.am-pas__jalons {
+  display: flex;
+  gap: 0.3rem;
+  flex: 1;
+
+  span {
+    flex: 1;
+    height: 3px;
+    border-radius: var(--r-full);
+    background: var(--line);
+    transition: background var(--t);
+  }
+
+  // Fait et courant se distinguent : sans quoi on ne sait pas où l'on est,
+  // seulement combien il reste.
+  .est-fait { background: var(--brand-300); }
+  .est-courant { background: var(--brand); }
+}
+
+.am-pas__mot {
+  flex-shrink: 0;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.am-pas__nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 0.9rem;
+}
+
+// ── Consentements ──
+// Jamais pré-cochés, et assez d'espace pour que la phrase se lise : une
+// case dont on ne lit pas le libellé n'est pas un consentement.
+.am-accord {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+  align-items: start;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+
+  &:hover { border-color: var(--brand-300); }
+  &:has(input:checked) { border-color: var(--brand); background: var(--bleu-tint); }
+
+  input {
+    margin-top: 0.15rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: var(--brand);
+    cursor: pointer;
+  }
+
+  span {
+    font-size: 0.83rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  b {
+    display: block;
+    margin-bottom: 0.15rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+}
+
+// ── Secteurs ──
+.am-secteurs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.am-secteurs__t {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+
+  small {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.74rem;
+    font-weight: 400;
+    color: var(--muted);
+  }
+}
+
+.am-secteurs__liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.am-puce {
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  background: var(--canvas);
+  font-size: 0.79rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color var(--t), background var(--t), color var(--t);
+
+  &:hover { border-color: var(--brand-300); }
+
+  &.est-on {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #fff;
+  }
+}
+
+// ── Écran de sortie ──
+.am-sorties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+
+  .am-valider { margin-top: 0; }
+}
+
+@media (max-width: 560px) {
+  .am-sorties { grid-template-columns: 1fr; }
+}
+
 // ── Jauge de solidité ──
 .am-jauge {
   display: grid;

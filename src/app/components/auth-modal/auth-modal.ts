@@ -9,6 +9,8 @@ import { GoogleSignInButton } from '../google-signin-button/google-signin-button
 import { LinkedinSignInButton } from '../linkedin-signin-button/linkedin-signin-button';
 import { AuthResponse } from '../../models/auth.model';
 import { Regles, erreursDuServeur } from '../../utils/validation';
+import { CATEGORIES } from '../../utils/categories';
+import { NewsletterService } from '../../services/newsletter.service';
 
 /**
  * Toute l'authentification, en une couche posée sur la page.
@@ -34,6 +36,7 @@ export class AuthModal {
   private toastr = inject(ToastrService);
   modale = inject(AuthModalService);
   platform = inject(PlatformService);
+  private lettre = inject(NewsletterService);
 
   private panneau = viewChild<ElementRef<HTMLElement>>('panneau');
 
@@ -60,8 +63,84 @@ export class AuthModal {
   motSms = signal<string | null>(null);
   renvoiEnCours = signal(false);
 
-  // ── Inscription ──
+  // ══════════════════════════════
+  //  Inscription
+  // ══════════════════════════════
+
   inscription = { prenom: '', nom: '', email: '', motDePasse: '', role: 'Candidate', entreprise: '' };
+
+  /**
+   * L'inscription d'un candidat se fait en trois temps.
+   *
+   * Un état interne de la vue, pas une vue de plus : c'est la même
+   * inscription qui se poursuit, exactement comme le second facteur est
+   * un temps de la connexion et non un écran à part.
+   *
+   * Le compte est créé à la fin de l'étape 1, jamais à la fin du
+   * parcours. Accumuler les réponses pour tout envoyer à la fin
+   * perdrait l'inscription à chaque abandon — c'est-à-dire précisément
+   * là où découper en étapes est censé aider. Après l'étape 1, fermer
+   * la fenêtre ne coûte plus rien : le compte existe, le courriel de
+   * confirmation est parti, la session est ouverte.
+   *
+   * Un recruteur n'y passe pas : ses champs utiles sont l'entreprise et
+   * l'offre, pas le métier recherché.
+   */
+  etape = signal(1);
+  readonly categories = CATEGORIES;
+
+  /** Étape 2 — ce qu'on cherche. */
+  recherche = { metier: '', ville: '', experience: '' };
+
+  /**
+   * Étape 3 — être trouvé, être prévenu.
+   *
+   * Les deux cases ne partent pas du même endroit, et c'est voulu.
+   *
+   * La visibilité auprès des recruteurs est **déjà active** sur un
+   * compte candidat : c'est le comportement de la plateforme depuis
+   * toujours. Une case décochée mentirait — et, laissée telle quelle,
+   * masquerait le profil de quiconque n'y touche pas, à rebours de ce
+   * qu'il veut et de ce qui se passait avant que cette étape existe.
+   * Elle reflète donc l'état réel du compte ; la décocher est un retrait
+   * délibéré.
+   *
+   * L'abonnement à la lettre, lui, ne part jamais coché : c'est un
+   * consentement à recevoir des messages, et le pré-cocher serait
+   * indéfendable autant que contraire au RGPD.
+   */
+  visibleRecruteurs = true;
+  lettreConsentie = false;
+  choisies = signal<string[]>([]);
+
+  /**
+   * Les deux étapes facultatives sont escamotées quand la modale a été
+   * ouverte pour finir une candidature : faire remplir des centres
+   * d'intérêt à quelqu'un qui allait postuler, c'est le perdre.
+   */
+  private get parcoursCourt(): boolean {
+    return (this.modale.contexte().redirect ?? '').includes('/postuler');
+  }
+
+  /** Combien d'étapes on annonce — deux si le parcours est écourté. */
+  get totalEtapes(): number { return this.parcoursCourt ? 2 : 3; }
+
+  /** Un recruteur garde le formulaire d'un seul tenant. */
+  get enEtapes(): boolean { return this.inscription.role === 'Candidate'; }
+
+  /** Les jalons de la barre de progression. */
+  get jalons(): number[] {
+    return Array.from({ length: this.totalEtapes }, (_, i) => i + 1);
+  }
+
+  /** L'erreur du serveur sur le nombre d'années, s'il y en a une. */
+  get errExperience() { return this.serveur()['experienceYears'] ?? null; }
+  get errMetier() { return this.erreur('title', () => Regles.texteCourt(this.recherche.metier, 'Le métier recherché', { max: 150, obligatoire: false })); }
+  get errVille() { return this.erreur('city', () => Regles.texteCourt(this.recherche.ville, 'La ville', { obligatoire: false })); }
+
+  basculerCategorie(c: string) {
+    this.choisies.update((l) => (l.includes(c) ? l.filter((x) => x !== c) : [...l, c]));
+  }
 
 
   /**
@@ -129,6 +208,11 @@ export class AuthModal {
     this.serveur.set({});
     this.siteWeb = '';
     this.ouvertA = Date.now();
+    this.etape.set(1);
+    this.recherche = { metier: '', ville: '', experience: '' };
+    this.visibleRecruteurs = true;
+    this.lettreConsentie = false;
+    this.choisies.set([]);
 
     const c = this.modale.contexte();
 
@@ -173,7 +257,20 @@ export class AuthModal {
     this.declencheur = null;
   }
 
+  /**
+   * Fermer.
+   *
+   * Passé l'étape 1, le compte existe et la session est ouverte : la
+   * croix et la touche Échap valent alors « j'ai fini », pas « annule ».
+   * On conduit donc là où l'on allait, comme le ferait l'écran de
+   * sortie — sans quoi quelqu'un qui referme au lieu de cliquer
+   * « Terminer » resterait planté sur la page d'où il venait, sans
+   * comprendre qu'il est désormais connecté.
+   */
   fermer() {
+    const enCoursDInscription = this.modale.vue() === 'inscription'
+                                && this.enEtapes && this.etape() > 1;
+    if (enCoursDInscription) { this.terminer(); return; }
     this.modale.fermer();
   }
 
@@ -213,21 +310,40 @@ export class AuthModal {
   //  Habillage
   // ══════════════════════════════
 
-  titre = computed(() => ({
-    connexion: 'Connexion',
-    inscription: 'Créer un compte',
-    oubli: 'Mot de passe oublié',
-    reinitialisation: 'Nouveau mot de passe',
-    confirmation: 'Confirmation de votre adresse',
-  }[this.modale.vue() ?? 'connexion']));
+  /** Les étapes de l'inscription ont leur propre titre : c'est ce qui dit
+   *  qu'on avance, plus sûrement qu'un compteur. */
+  private readonly etapesCandidat = [
+    { titre: 'Votre recherche',
+      chapeau: 'Trois champs, et les offres qu’on vous montrera cesseront d’être au hasard.' },
+    { titre: 'Être trouvé, être prévenu',
+      chapeau: 'Deux choix indépendants, que vous pourrez changer à tout moment.' },
+    { titre: 'Bienvenue',
+      chapeau: 'Votre compte est prêt. Il reste une chose à faire.' },
+  ];
 
-  chapeau = computed(() => ({
-    connexion: 'Accédez à vos candidatures, vos offres enregistrées et vos messages.',
-    inscription: 'Quelques secondes suffisent, et rien ne vous engage.',
-    oubli: 'Indiquez l’adresse de votre compte : nous vous enverrons un lien pour en choisir un nouveau.',
-    reinitialisation: 'Il remplacera l’ancien immédiatement, et déconnectera tous vos appareils.',
-    confirmation: 'Nous vérifions le lien que vous venez d’ouvrir.',
-  }[this.modale.vue() ?? 'connexion']));
+  titre = computed(() => {
+    if (this.modale.vue() === 'inscription' && this.etape() > 1)
+      return this.etapesCandidat[this.etape() - 2].titre;
+    return {
+      connexion: 'Connexion',
+      inscription: 'Créer un compte',
+      oubli: 'Mot de passe oublié',
+      reinitialisation: 'Nouveau mot de passe',
+      confirmation: 'Confirmation de votre adresse',
+    }[this.modale.vue() ?? 'connexion'];
+  });
+
+  chapeau = computed(() => {
+    if (this.modale.vue() === 'inscription' && this.etape() > 1)
+      return this.etapesCandidat[this.etape() - 2].chapeau;
+    return {
+      connexion: 'Accédez à vos candidatures, vos offres enregistrées et vos messages.',
+      inscription: 'Quelques secondes suffisent, et rien ne vous engage.',
+      oubli: 'Indiquez l’adresse de votre compte : nous vous enverrons un lien pour en choisir un nouveau.',
+      reinitialisation: 'Il remplacera l’ancien immédiatement, et déconnectera tous vos appareils.',
+      confirmation: 'Nous vérifions le lien que vous venez d’ouvrir.',
+    }[this.modale.vue() ?? 'connexion'];
+  });
 
   /**
    * Le panneau de marque suit la vue.
@@ -494,6 +610,17 @@ export class AuthModal {
     }
 
     this.occupe.set(false);
+
+    // Entré par Google ou LinkedIn depuis « Créer un compte » : l'étape 1
+    // est franchie sans avoir été affichée — le fournisseur a donné le
+    // nom, et l'adresse est déjà vérifiée. Le parcours reprend donc à
+    // l'étape 2 plutôt que de se refermer sur un profil vide.
+    if (this.modale.vue() === 'inscription' && this.enEtapes && this.etape() === 1) {
+      this.toastr.success(mot);
+      this.allerEtape(2);
+      return;
+    }
+
     this.toastr.success(mot);
     const suite = this.modale.contexte().redirect;
     this.modale.fermer();
@@ -603,13 +730,146 @@ export class AuthModal {
       password: f.motDePasse, role: f.role, company: f.entreprise.trim(),
       siteWeb: this.siteWeb, msSaisie: this.msSaisie,
     }).subscribe({
-      next: (r) => this.apresAuthentification(r, 'Bienvenue — votre compte est créé.'),
+      next: (r) => {
+        // Un recruteur en a fini : son formulaire est d'un seul tenant.
+        if (!this.enEtapes) {
+          this.apresAuthentification(r, 'Bienvenue — votre compte est créé.');
+          return;
+        }
+        // Un candidat continue. Le compte existe désormais : ce qui suit
+        // enrichit, et un abandon ne perd plus rien.
+        this.occupe.set(false);
+        this.toastr.success('Votre compte est créé. Encore deux questions, si vous voulez.');
+        this.allerEtape(2);
+      },
       error: (e) => {
         this.occupe.set(false);
         this.serveur.set(erreursDuServeur(e));
         this.toastr.error(e.error?.message || 'La création du compte a échoué.');
       },
     });
+  }
+
+  // ══════════════════════════════
+  //  Les étapes qui suivent le compte
+  // ══════════════════════════════
+
+  /**
+   * Change d'étape et remet le clavier au bon endroit.
+   *
+   * Le curseur se pose sur le premier champ de l'étape atteinte : sans
+   * cela il resterait sur un bouton qui vient de disparaître, et la
+   * frappe suivante n'écrirait nulle part.
+   */
+  private allerEtape(n: number) {
+    this.etape.set(n);
+    this.touche = {};
+    this.soumis.set(false);
+    this.serveur.set({});
+
+    // La case de visibilité montre ce que le compte vaut réellement, et
+    // non ce qu'on aimerait lui faire dire.
+    if (n === 3) this.visibleRecruteurs = this.auth.currentUser()?.isSearchable ?? true;
+    setTimeout(() => {
+      const p = this.panneau()?.nativeElement;
+      p?.querySelector<HTMLElement>('input:not([type=hidden]):not([disabled]):not([tabindex="-1"])')?.focus();
+    });
+  }
+
+  /** Revenir en arrière ne doit rien effacer de ce qui a été saisi. */
+  precedent() {
+    if (this.etape() > 2) this.allerEtape(this.etape() - 1);
+  }
+
+  /**
+   * Passer une étape facultative.
+   *
+   * Le bouton existe et se voit : une étape qu'on ne peut pas passer
+   * n'est pas facultative, quoi qu'en dise le titre.
+   */
+  passer() {
+    this.allerEtape(this.parcoursCourt && this.etape() === 2 ? 4 : this.etape() + 1);
+  }
+
+  /** Étape 2 — le métier, la ville, l'expérience. */
+  enregistrerRecherche() {
+    const r = this.recherche;
+    if (!this.valide([
+      ['title', Regles.texteCourt(r.metier, 'Le métier recherché', { max: 150, obligatoire: false })],
+      ['city', Regles.texteCourt(r.ville, 'La ville', { obligatoire: false })],
+    ])) return;
+
+    // Tout vide : inutile d'appeler le serveur pour ne rien changer.
+    const annees = r.experience === '' ? null : Number(r.experience);
+    if (!r.metier.trim() && !r.ville.trim() && annees === null) { this.passer(); return; }
+
+    if (annees !== null && (Number.isNaN(annees) || annees < 0 || annees > 70)) {
+      this.serveur.set({ experienceYears: 'Indiquez un nombre d’années entre 0 et 70.' });
+      return;
+    }
+
+    this.occupe.set(true);
+    this.auth.updateProfile({
+      title: r.metier.trim() || undefined,
+      city: r.ville.trim() || undefined,
+      experienceYears: annees,
+    }).subscribe({
+      next: () => { this.occupe.set(false); this.passer(); },
+      error: (e) => this.echecEtapeFacultative(e),
+    });
+  }
+
+  /** Étape 3 — visibilité auprès des recruteurs, et centres d'intérêt. */
+  enregistrerPreferences() {
+    this.occupe.set(true);
+
+    const abonnement = this.lettreConsentie
+      ? this.lettre.abonner({
+          email: this.inscription.email.trim() || this.auth.currentUser()?.email || '',
+          prenom: this.inscription.prenom.trim() || undefined,
+          ville: this.recherche.ville.trim() || undefined,
+          categories: this.choisies().join(',') || undefined,
+          source: 'Inscription',
+        })
+      : null;
+
+    this.auth.updateProfile({ isSearchable: this.visibleRecruteurs }).subscribe({
+      next: () => {
+        if (!abonnement) { this.occupe.set(false); this.allerEtape(4); return; }
+        abonnement.subscribe({
+          next: () => { this.occupe.set(false); this.allerEtape(4); },
+          // L'abonnement n'est pas le sujet de l'inscription : s'il
+          // échoue, on le dit et l'on avance. La page « Lettre
+          // d'information » reste là pour réessayer.
+          error: (e) => {
+            this.occupe.set(false);
+            this.toastr.warning(e?.error?.message ?? 'L’abonnement à la lettre n’a pas abouti.');
+            this.allerEtape(4);
+          },
+        });
+      },
+      error: (e) => this.echecEtapeFacultative(e),
+    });
+  }
+
+  /**
+   * Un échec sur une étape facultative ne doit enfermer personne.
+   *
+   * Le compte est déjà créé : le pire qui puisse arriver est de ne pas
+   * enregistrer une préférence. On le dit, et « Passer » reste offert.
+   */
+  private echecEtapeFacultative(e: unknown) {
+    this.occupe.set(false);
+    const err = e as { error?: { message?: string } };
+    this.serveur.set(erreursDuServeur(e));
+    this.toastr.error(err?.error?.message ?? 'Cet enregistrement n’a pas abouti. Vous pourrez le reprendre depuis votre profil.');
+  }
+
+  /** L'écran de sortie : on referme là où l'on est entré. */
+  terminer(destination?: string) {
+    const suite = destination ?? this.modale.contexte().redirect;
+    this.modale.fermer();
+    if (suite) this.router.navigateByUrl(suite);
   }
 
   // ══════════════════════════════

@@ -177,6 +177,21 @@
 
           <!-- ─────────── INSCRIPTION ─────────── -->
           @case ('inscription') {
+            <!-- La progression annonce la brievete du parcours. Sans elle,
+                 arriver sur un deuxieme ecran apres avoir cru en finir
+                 donne le sentiment d'une demande sans fin. -->
+            @if (enEtapes && etape() <= totalEtapes) {
+              <div class="am-pas">
+                <div class="am-pas__jalons" aria-hidden="true">
+                  @for (n of jalons; track n) {
+                    <span [class.est-fait]="n < etape()" [class.est-courant]="n === etape()"></span>
+                  }
+                </div>
+                <span class="am-pas__mot">Étape {{ etape() }} sur {{ totalEtapes }}</span>
+              </div>
+            }
+
+            @if (etape() === 1) {
             @if (!platform.allowRegistration) {
               <p class="am-bloque">
                 <i class="bi bi-lock-fill" aria-hidden="true"></i>
@@ -306,12 +321,157 @@
               <a href="/confidentialite" target="_blank" rel="noopener">politique de confidentialité</a>.
             </p>
 
+            <!-- Google et LinkedIn franchissent l'étape 1 sans l'afficher :
+                 le fournisseur donne le nom, et l'adresse est déjà vérifiée. -->
+            <app-google-signin-button (authentifie)="entrerParGoogle($event)" />
+            <app-linkedin-signin-button />
+
             <p class="am-bascule">
               Vous avez déjà un compte ?
               <button type="button" (click)="allerA('connexion')">
                 Se connecter <i class="bi bi-arrow-right" aria-hidden="true"></i>
               </button>
             </p>
+            }
+
+            <!-- ══ ÉTAPE 2 — Votre recherche ══
+                 Trois champs sur un écran, pas trois écrans. C'est ce qui
+                 permet aux alertes d'être justes et à la recherche des
+                 recruteurs de renvoyer autre chose qu'un nom. -->
+            @if (etape() === 2) {
+              <form (ngSubmit)="enregistrerRecherche()" class="am-form">
+                <div class="am-champ">
+                  <label for="auth-metier">Le métier que vous cherchez</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input id="auth-metier" type="text" placeholder="Développeur web, aide-soignant, conducteur…"
+                           maxlength="150" data-champ="title" [attr.aria-invalid]="!!errMetier"
+                           [(ngModel)]="recherche.metier" name="metier"
+                           (blur)="touche['title'] = true" (input)="effacer('title')" />
+                  </div>
+                  @if (errMetier; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                </div>
+
+                <div class="am-duo">
+                  <div class="am-champ">
+                    <label for="auth-ville">Où</label>
+                    <div class="am-saisie">
+                      <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                      <input id="auth-ville" type="text" autocomplete="address-level2" placeholder="Montpellier"
+                             maxlength="100" data-champ="city" [attr.aria-invalid]="!!errVille"
+                             [(ngModel)]="recherche.ville" name="ville"
+                             (blur)="touche['city'] = true" (input)="effacer('city')" />
+                    </div>
+                    @if (errVille; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                  </div>
+                  <div class="am-champ">
+                    <label for="auth-experience">Années d'expérience</label>
+                    <div class="am-saisie">
+                      <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+                      <input id="auth-experience" type="number" inputmode="numeric" min="0" max="70"
+                             placeholder="3" data-champ="experienceYears"
+                             [attr.aria-invalid]="!!errExperience"
+                             [(ngModel)]="recherche.experience" name="experience"
+                             (input)="effacer('experienceYears')" />
+                    </div>
+                    @if (errExperience; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
+                  @if (occupe()) { <span class="sp"></span> Enregistrement… } @else { Continuer }
+                </button>
+              </form>
+
+              <div class="am-pas__nav">
+                <button type="button" class="am-retour" (click)="passer()" [disabled]="occupe()">
+                  Passer cette étape
+                </button>
+              </div>
+            }
+
+            <!-- ══ ÉTAPE 3 — Être trouvé, être prévenu ══
+                 Deux consentements distincts, ni l'un ni l'autre pré-coché :
+                 être cherchable et recevoir des messages ne sont pas la
+                 même chose, et les confondre serait indéfendable. -->
+            @if (etape() === 3) {
+              <form (ngSubmit)="enregistrerPreferences()" class="am-form">
+                <label class="am-accord">
+                  <input type="checkbox" [(ngModel)]="visibleRecruteurs" name="visibleRecruteurs" />
+                  <span>
+                    <b>Mon profil est visible des recruteurs.</b>
+                    Ils peuvent vous trouver et vous écrire — c'est le réglage par défaut
+                    d'un compte candidat. Décochez pour rester invisible ; vous pourrez
+                    revenir dessus depuis votre profil.
+                  </span>
+                </label>
+
+                <label class="am-accord">
+                  <input type="checkbox" [(ngModel)]="lettreConsentie" name="lettreConsentie" />
+                  <span>
+                    <b>Recevoir les offres qui me correspondent par e-mail.</b>
+                    Un message par semaine au plus, et un lien pour vous retirer dans chacun.
+                  </span>
+                </label>
+
+                @if (lettreConsentie) {
+                  <div class="am-secteurs">
+                    <span class="am-secteurs__t">
+                      Ce qui vous intéresse
+                      <small>facultatif — sans choix, vous recevrez tout</small>
+                    </span>
+                    <div class="am-secteurs__liste">
+                      @for (c of categories; track c) {
+                        <button type="button" class="am-puce" [class.est-on]="choisies().includes(c)"
+                                (click)="basculerCategorie(c)"
+                                [attr.aria-pressed]="choisies().includes(c)">{{ c }}</button>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
+                  @if (occupe()) { <span class="sp"></span> Enregistrement… } @else { Terminer }
+                </button>
+              </form>
+
+              <div class="am-pas__nav">
+                <button type="button" class="am-retour" (click)="precedent()" [disabled]="occupe()">
+                  <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
+                </button>
+                <button type="button" class="am-retour" (click)="passer()" [disabled]="occupe()">
+                  Passer cette étape
+                </button>
+              </div>
+            }
+
+            <!-- ══ ÉCRAN DE SORTIE ══ -->
+            @if (etape() === 4) {
+              <div class="am-issue">
+                <i class="bi bi-patch-check" aria-hidden="true"></i>
+                <p>
+                  Il reste une chose : nous venons d'envoyer un message à
+                  <strong>{{ inscription.email || 'votre adresse' }}</strong>.
+                  Le clic qu'il contient confirme que l'adresse est bien la vôtre —
+                  c'est elle qui vous rendra votre compte si vous perdez le mot de passe.
+                </p>
+              </div>
+
+              <div class="am-sorties">
+                <button type="button" class="btn-primary am-valider" (click)="terminer('/mon-cv')">
+                  <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Composer mon CV
+                </button>
+                <button type="button" class="btn-secondary am-valider" (click)="terminer('/offres')">
+                  <i class="bi bi-search" aria-hidden="true"></i> Voir les offres
+                </button>
+              </div>
+
+              <div class="am-pas__nav">
+                <button type="button" class="am-retour" (click)="terminer()">
+                  Plus tard — revenir au site
+                </button>
+              </div>
+            }
           }
 
           <!-- ─────────── MOT DE PASSE OUBLIÉ ─────────── -->

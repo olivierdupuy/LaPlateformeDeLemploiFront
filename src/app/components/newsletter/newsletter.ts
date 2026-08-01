@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { NewsletterService } from '../../services/newsletter.service';
 import { AuthService } from '../../services/auth.service';
 import { Regles, erreursDuServeur } from '../../utils/validation';
+import { CATEGORIES } from '../../utils/categories';
 
 /**
  * La lettre d'information, côté visiteur.
@@ -20,12 +21,6 @@ import { Regles, erreursDuServeur } from '../../utils/validation';
  * signale comme indésirable.
  */
 type Mode = 'inscription' | 'confirmation' | 'desinscription';
-
-/** Les catégories proposées à l'abonnement, dans l'ordre des grands secteurs. */
-const CATEGORIES = [
-  'Tech', 'Santé', 'Commerce', 'Bâtiment', 'Industrie', 'Transport',
-  'Hôtellerie-restauration', 'Éducation', 'Finance', 'Design',
-];
 
 @Component({
   selector: 'app-newsletter',
