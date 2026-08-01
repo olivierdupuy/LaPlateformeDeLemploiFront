@@ -275,3 +275,33 @@
 @media (max-width: 460px) {
   .nlp-duo { grid-template-columns: 1fr; }
 }
+
+// L'erreur se lit sous le champ qu'elle vise. Un bandeau en haut du
+// formulaire obligerait à chercher lequel des cinq champs il désigne.
+.nlp-erreur {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin: 0.32rem 0 0;
+  font-size: 0.77rem;
+  line-height: 1.45;
+  font-weight: 400;
+  color: var(--danger);
+
+  &::before {
+    content: '\f33a';                 // bootstrap-icons : exclamation-circle
+    font-family: 'bootstrap-icons';
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+}
+
+// La couleur seule ne se voit pas de tous : le contour la double.
+.nlp-fld input[aria-invalid='true'] {
+  border-color: var(--danger);
+
+  &:focus {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--danger) 22%, transparent);
+  }
+}

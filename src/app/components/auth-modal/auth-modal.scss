@@ -384,6 +384,38 @@
   color: var(--muted);
 }
 
+// L'erreur se lit sous le champ qu'elle vise, jamais ailleurs : un
+// bandeau en haut du formulaire oblige à chercher lequel des huit champs
+// il désigne.
+.am-erreur {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin: 0.32rem 0 0;
+  font-size: 0.77rem;
+  line-height: 1.45;
+  color: var(--danger);
+
+  &::before {
+    content: '\f33a';                 // bootstrap-icons : exclamation-circle
+    font-family: 'bootstrap-icons';
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+}
+
+// Le champ fautif se signale aussi par son contour : la couleur seule ne
+// se voit pas de tous, et l'erreur peut se trouver hors de l'écran.
+.am-saisie input[aria-invalid='true'],
+input.am-code[aria-invalid='true'] {
+  border-color: var(--danger);
+
+  &:focus {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--danger) 22%, transparent);
+  }
+}
+
 .am-discordance {
   margin: 0.3rem 0 0;
   font-size: 0.77rem;

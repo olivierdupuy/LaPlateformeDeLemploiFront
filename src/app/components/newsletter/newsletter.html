@@ -47,19 +47,28 @@
           <label class="nlp-fld">
             <span>Votre adresse e-mail</span>
             <input type="email" autocomplete="email" placeholder="vous&#64;exemple.fr"
-                   [(ngModel)]="email" name="email" required autofocus />
+                   maxlength="254" data-champ="email" [attr.aria-invalid]="!!errEmail"
+                   [(ngModel)]="email" name="email" autofocus
+                   (blur)="touche['email'] = true" (input)="effacer('email')" />
+            @if (errEmail; as e) { <p class="nlp-erreur" role="alert">{{ e }}</p> }
           </label>
 
           <div class="nlp-duo">
             <label class="nlp-fld">
               <span>Prénom <small>facultatif</small></span>
               <input type="text" autocomplete="given-name" placeholder="Camille"
-                     [(ngModel)]="prenom" name="prenom" />
+                     maxlength="100" data-champ="prenom" [attr.aria-invalid]="!!errPrenom"
+                     [(ngModel)]="prenom" name="prenom"
+                     (blur)="touche['prenom'] = true" (input)="effacer('prenom')" />
+              @if (errPrenom; as e) { <p class="nlp-erreur" role="alert">{{ e }}</p> }
             </label>
             <label class="nlp-fld">
               <span>Ville <small>facultatif</small></span>
               <input type="text" autocomplete="address-level2" placeholder="Lyon"
-                     [(ngModel)]="ville" name="ville" />
+                     maxlength="200" data-champ="ville" [attr.aria-invalid]="!!errVille"
+                     [(ngModel)]="ville" name="ville"
+                     (blur)="touche['ville'] = true" (input)="effacer('ville')" />
+              @if (errVille; as e) { <p class="nlp-erreur" role="alert">{{ e }}</p> }
             </label>
           </div>
 
@@ -88,6 +97,11 @@
               <a routerLink="/confidentialite" target="_blank">Comment mes données sont traitées</a>
             </span>
           </label>
+
+          <!-- Le consentement ne se pré-coche pas, et son absence se dit
+               à part : « adresse invalide » sur une case oubliée enverrait
+               chercher une faute de frappe qui n'existe pas. -->
+          @if (errConsentement; as e) { <p class="nlp-erreur" role="alert">{{ e }}</p> }
 
           <button type="submit" class="btn-primary full-w" [disabled]="occupe()">
             @if (occupe()) { <span class="sp"></span> Envoi… } @else { Recevoir la lettre }

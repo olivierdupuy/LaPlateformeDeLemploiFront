@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { NewsletterService } from '../../services/newsletter.service';
 import { AuthService } from '../../services/auth.service';
+import { Regles, erreursDuServeur } from '../../utils/validation';
 
 /**
  * La lettre d'information, côté visiteur.
@@ -91,17 +92,65 @@ export class Newsletter implements OnInit {
     this.choisies.update((l) => (l.includes(c) ? l.filter((x) => x !== c) : [...l, c]));
   }
 
+  /**
+   * Ce qui ne va pas, champ par champ.
+   *
+   * Accesseurs et non « computed » : ils lisent des propriétés
+   * ordinaires, qui ne notifient rien. Un calcul mémoïsé s'évaluerait
+   * une fois et ne bougerait plus.
+   *
+   * Rien ne s'affiche tant qu'on n'a pas quitté le champ ou tenté
+   * d'envoyer : reprocher une adresse incomplète à la deuxième lettre
+   * saisie, c'est parler à quelqu'un qui n'a pas fini.
+   */
+  touche: Record<string, boolean> = {};
+  soumis = signal(false);
+  serveur = signal<Record<string, string>>({});
+
+  private erreur(champ: string, regle: () => string | null): string | null {
+    const duServeur = this.serveur()[champ];
+    if (duServeur) return duServeur;
+    return (this.touche[champ] || this.soumis()) ? regle() : null;
+  }
+
+  get errEmail() { return this.erreur('email', () => Regles.email(this.email)); }
+  get errPrenom() {
+    return this.erreur('prenom', () => Regles.texteCourt(this.prenom, 'Le prénom', { obligatoire: false }));
+  }
+  get errVille() {
+    return this.erreur('ville', () => Regles.texteCourt(this.ville, 'La ville', { max: 200, obligatoire: false }));
+  }
+  get errConsentement() {
+    return this.soumis() && !this.consentement
+      ? 'Cochez la case pour donner votre accord.' : null;
+  }
+
+  effacer(champ: string) {
+    const s = this.serveur();
+    if (s[champ]) {
+      const { [champ]: _, ...reste } = s;
+      this.serveur.set(reste);
+    }
+  }
+
   get valide(): boolean {
-    return /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(this.email.trim()) && this.consentement;
+    return !Regles.email(this.email)
+        && !Regles.texteCourt(this.prenom, 'Le prénom', { obligatoire: false })
+        && !Regles.texteCourt(this.ville, 'La ville', { max: 200, obligatoire: false })
+        && this.consentement;
   }
 
   abonner() {
+    this.serveur.set({});
+    this.soumis.set(true);
     if (!this.valide) {
-      // On distingue les deux refus : « adresse invalide » sur une case à
-      // cocher oubliée enverrait chercher une faute de frappe qui n'existe pas.
-      this.toastr.warning(
-        this.consentement ? 'Cette adresse ne semble pas valide.'
-                          : 'Cochez la case pour donner votre accord.');
+      // Le curseur va sur le premier champ fautif : faire chercher lequel
+      // bloque est le meilleur moyen de faire abandonner un formulaire.
+      const premier = this.errEmail ? 'email' : this.errPrenom ? 'prenom'
+                    : this.errVille ? 'ville' : null;
+      if (premier) {
+        setTimeout(() => document.querySelector<HTMLElement>(`[data-champ="${premier}"]`)?.focus());
+      }
       return;
     }
     this.occupe.set(true);
@@ -119,6 +168,7 @@ export class Newsletter implements OnInit {
       },
       error: (e) => {
         this.occupe.set(false);
+        this.serveur.set(erreursDuServeur(e));
         this.toastr.error(e?.error?.message ?? 'L’abonnement n’a pas pu être enregistré.');
       },
     });

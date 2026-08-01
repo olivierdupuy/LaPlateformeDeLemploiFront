@@ -89,7 +89,10 @@
                     <label for="auth-code">Code à six chiffres</label>
                     <input id="auth-code" type="text" inputmode="numeric" autocomplete="one-time-code"
                            maxlength="12" class="am-code" placeholder="123456"
-                           [(ngModel)]="code" name="code" required />
+                           data-champ="code" [attr.aria-invalid]="!!errCode"
+                           [(ngModel)]="code" name="code"
+                           (blur)="touche['code'] = true" (input)="effacer('code')" />
+                    @if (errCode; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                   </div>
 
                   <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
@@ -126,8 +129,11 @@
                   <div class="am-saisie">
                     <i class="bi bi-envelope" aria-hidden="true"></i>
                     <input id="auth-email" type="email" autocomplete="email" placeholder="vous&#64;exemple.fr"
-                           [(ngModel)]="identifiants.email" name="email" required />
+                           maxlength="254" data-champ="email" [attr.aria-invalid]="!!errEmail"
+                           [(ngModel)]="identifiants.email" name="email"
+                           (blur)="touche['email'] = true" (input)="effacer('email')" />
                   </div>
+                  @if (errEmail; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                 </div>
 
                 <div class="am-champ">
@@ -139,7 +145,9 @@
                     <i class="bi bi-lock" aria-hidden="true"></i>
                     <input id="auth-mdp" [type]="voirMotDePasse() ? 'text' : 'password'"
                            autocomplete="current-password" placeholder="Votre mot de passe"
-                           [(ngModel)]="identifiants.motDePasse" name="motDePasse" required />
+                           maxlength="128" data-champ="password" [attr.aria-invalid]="!!errMotDePasse"
+                           [(ngModel)]="identifiants.motDePasse" name="motDePasse"
+                           (blur)="touche['password'] = true" (input)="effacer('password')" />
                     <button type="button" class="am-oeil" (click)="voirMotDePasse.set(!voirMotDePasse())"
                             [attr.aria-pressed]="voirMotDePasse()"
                             [attr.aria-label]="voirMotDePasse() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
@@ -147,6 +155,7 @@
                          aria-hidden="true"></i>
                     </button>
                   </div>
+                  @if (errMotDePasse; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                 </div>
 
                 <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
@@ -200,15 +209,21 @@
                   <label for="auth-prenom">Prénom</label>
                   <div class="am-saisie">
                     <input id="auth-prenom" type="text" autocomplete="given-name" placeholder="Camille"
-                           [(ngModel)]="inscription.prenom" name="prenom" required />
+                           maxlength="100" data-champ="firstName" [attr.aria-invalid]="!!errPrenom"
+                           [(ngModel)]="inscription.prenom" name="prenom"
+                           (blur)="touche['firstName'] = true" (input)="effacer('firstName')" />
                   </div>
+                  @if (errPrenom; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                 </div>
                 <div class="am-champ">
                   <label for="auth-nom">Nom</label>
                   <div class="am-saisie">
                     <input id="auth-nom" type="text" autocomplete="family-name" placeholder="Durand"
-                           [(ngModel)]="inscription.nom" name="nom" required />
+                           maxlength="100" data-champ="lastName" [attr.aria-invalid]="!!errNom"
+                           [(ngModel)]="inscription.nom" name="nom"
+                           (blur)="touche['lastName'] = true" (input)="effacer('lastName')" />
                   </div>
+                  @if (errNom; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                 </div>
               </div>
 
@@ -219,8 +234,11 @@
                     <i class="bi bi-building" aria-hidden="true"></i>
                     <input id="auth-entreprise" type="text" autocomplete="organization"
                            placeholder="Nom de votre entreprise"
-                           [(ngModel)]="inscription.entreprise" name="entreprise" />
+                           maxlength="200" data-champ="company" [attr.aria-invalid]="!!errEntreprise"
+                           [(ngModel)]="inscription.entreprise" name="entreprise"
+                           (blur)="touche['company'] = true" (input)="effacer('company')" />
                   </div>
+                  @if (errEntreprise; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                 </div>
               }
 
@@ -229,8 +247,11 @@
                 <div class="am-saisie">
                   <i class="bi bi-envelope" aria-hidden="true"></i>
                   <input id="auth-email-i" type="email" autocomplete="email" placeholder="vous&#64;exemple.fr"
-                         [(ngModel)]="inscription.email" name="emailInscription" required />
+                         maxlength="254" data-champ="email" [attr.aria-invalid]="!!errEmailInscription"
+                         [(ngModel)]="inscription.email" name="emailInscription"
+                         (blur)="touche['email'] = true" (input)="effacer('email')" />
                 </div>
+                @if (errEmailInscription; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
               </div>
 
               <div class="am-champ">
@@ -239,7 +260,9 @@
                   <i class="bi bi-lock" aria-hidden="true"></i>
                   <input id="auth-mdp-i" [type]="voirMotDePasse() ? 'text' : 'password'"
                          autocomplete="new-password" placeholder="Huit caractères au minimum"
-                         [(ngModel)]="inscription.motDePasse" name="motDePasseInscription" required />
+                         maxlength="128" data-champ="password" [attr.aria-invalid]="!!errMotDePasseInscription"
+                         [(ngModel)]="inscription.motDePasse" name="motDePasseInscription"
+                         (blur)="touche['password'] = true" (input)="effacer('password')" />
                   <button type="button" class="am-oeil" (click)="voirMotDePasse.set(!voirMotDePasse())"
                           [attr.aria-pressed]="voirMotDePasse()"
                           [attr.aria-label]="voirMotDePasse() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
@@ -251,6 +274,8 @@
                 <!-- La jauge répond pendant la frappe, là où le retour ne
                      coûte rien. Sans elle on apprend au moment de valider
                      que le compte est refusé. -->
+                @if (errMotDePasseInscription; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+
                 @if (forceInscription.rang; as rang) {
                   <div class="am-jauge" [attr.data-rang]="rang">
                     <span></span><span></span><span></span><span></span>
@@ -297,8 +322,11 @@
                   <div class="am-saisie">
                     <i class="bi bi-envelope" aria-hidden="true"></i>
                     <input id="auth-oubli" type="email" autocomplete="email" placeholder="vous&#64;exemple.fr"
-                           [(ngModel)]="emailOubli" name="emailOubli" required />
+                           maxlength="254" data-champ="email" [attr.aria-invalid]="!!errEmailOubli"
+                           [(ngModel)]="emailOubli" name="emailOubli"
+                           (blur)="touche['email'] = true" (input)="effacer('email')" />
                   </div>
+                  @if (errEmailOubli; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                 </div>
                 <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
                   @if (occupe()) { <span class="sp"></span> Envoi… } @else { Envoyer le lien }
@@ -331,7 +359,9 @@
                     <i class="bi bi-lock" aria-hidden="true"></i>
                     <input id="auth-nouveau" [type]="voirMotDePasse() ? 'text' : 'password'"
                            autocomplete="new-password" placeholder="Huit caractères au minimum"
-                           [(ngModel)]="nouveau" name="nouveau" required />
+                           maxlength="128" data-champ="nouveauMotDePasse" [attr.aria-invalid]="!!errNouveau"
+                           [(ngModel)]="nouveau" name="nouveau"
+                           (blur)="touche['nouveauMotDePasse'] = true" (input)="effacer('nouveauMotDePasse')" />
                     <button type="button" class="am-oeil" (click)="voirMotDePasse.set(!voirMotDePasse())"
                             [attr.aria-pressed]="voirMotDePasse()"
                             [attr.aria-label]="voirMotDePasse() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
@@ -339,6 +369,8 @@
                          aria-hidden="true"></i>
                     </button>
                   </div>
+                  @if (errNouveau; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+
                   @if (forceNouveau.rang; as rang) {
                     <div class="am-jauge" [attr.data-rang]="rang">
                       <span></span><span></span><span></span><span></span>
@@ -353,11 +385,11 @@
                     <i class="bi bi-lock-fill" aria-hidden="true"></i>
                     <input id="auth-confirme" [type]="voirMotDePasse() ? 'text' : 'password'"
                            autocomplete="new-password" placeholder="Le même, pour écarter la faute de frappe"
-                           [(ngModel)]="confirmation" name="confirmation" required />
+                           maxlength="128" data-champ="confirmation" [attr.aria-invalid]="!!errConfirmation"
+                           [(ngModel)]="confirmation" name="confirmation"
+                           (blur)="touche['confirmation'] = true" />
                   </div>
-                  @if (confirmation && nouveau !== confirmation) {
-                    <p class="am-discordance">Les deux saisies diffèrent.</p>
-                  }
+                  @if (errConfirmation; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                 </div>
 
                 <button type="submit" class="btn-primary am-valider" [disabled]="occupe() || !nouveauValide">

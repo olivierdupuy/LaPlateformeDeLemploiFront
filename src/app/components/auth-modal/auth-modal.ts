@@ -8,6 +8,7 @@ import { PlatformService } from '../../services/platform.service';
 import { GoogleSignInButton } from '../google-signin-button/google-signin-button';
 import { LinkedinSignInButton } from '../linkedin-signin-button/linkedin-signin-button';
 import { AuthResponse } from '../../models/auth.model';
+import { Regles, erreursDuServeur } from '../../utils/validation';
 
 /**
  * Toute l'authentification, en une couche posée sur la page.
@@ -106,6 +107,9 @@ export class AuthModal {
     this.nouveau = '';
     this.confirmation = '';
     this.voirMotDePasse.set(false);
+    this.touche = {};
+    this.soumis.set(false);
+    this.serveur.set({});
 
     const c = this.modale.contexte();
 
@@ -294,6 +298,94 @@ export class AuthModal {
     return 'La page que vous consultiez';
   });
 
+  // ══════════════════════════════
+  //  Contrôle des saisies
+  // ══════════════════════════════
+
+  /**
+   * Quels champs ont déjà été quittés.
+   *
+   * Objet ordinaire, écrit depuis le gabarit au « blur » : la détection
+   * de changement suit un événement de gabarit, même sans zone.js.
+   *
+   * Une erreur ne s'affiche pas pendant qu'on remplit un champ pour la
+   * première fois — souligner « adresse invalide » à la deuxième lettre
+   * saisie est un reproche adressé à quelqu'un qui n'a pas fini de
+   * parler. Elle apparaît quand on le quitte, ou quand on valide.
+   */
+  touche: Record<string, boolean> = {};
+
+  /** Vrai dès la première tentative d'envoi : tout se montre alors. */
+  soumis = signal(false);
+
+  /** Ce que le serveur a refusé, champ par champ, jusqu'à la frappe suivante. */
+  serveur = signal<Record<string, string>>({});
+
+  private montrer(champ: string): boolean {
+    return !!this.touche[champ] || this.soumis();
+  }
+
+  /** L'erreur à afficher sous un champ : la nôtre, ou celle du serveur. */
+  private erreur(champ: string, regle: () => string | null): string | null {
+    const duServeur = this.serveur()[champ];
+    if (duServeur) return duServeur;
+    return this.montrer(champ) ? regle() : null;
+  }
+
+  // Accesseurs et non « computed » : ils lisent des propriétés ordinaires,
+  // qui ne notifient rien. Un calcul mémoïsé s'évaluerait une fois et ne
+  // bougerait plus.
+  get errEmail() { return this.erreur('email', () => Regles.email(this.identifiants.email)); }
+  get errMotDePasse() {
+    return this.erreur('password', () => Regles.requis(this.identifiants.motDePasse, 'Le mot de passe'));
+  }
+  get errCode() { return this.erreur('code', () => Regles.code(this.code)); }
+
+  get errPrenom() { return this.erreur('firstName', () => Regles.texteCourt(this.inscription.prenom, 'Le prénom')); }
+  get errNom() { return this.erreur('lastName', () => Regles.texteCourt(this.inscription.nom, 'Le nom')); }
+  get errEmailInscription() { return this.erreur('email', () => Regles.email(this.inscription.email)); }
+  get errMotDePasseInscription() { return this.erreur('password', () => Regles.motDePasse(this.inscription.motDePasse)); }
+  get errEntreprise() {
+    return this.erreur('company', () => this.inscription.role === 'Recruiter'
+      ? Regles.texteCourt(this.inscription.entreprise, 'Le nom de l’entreprise', { max: 200 })
+      : null);
+  }
+
+  get errEmailOubli() { return this.erreur('email', () => Regles.email(this.emailOubli)); }
+  get errNouveau() { return this.erreur('nouveauMotDePasse', () => Regles.motDePasse(this.nouveau)); }
+  get errConfirmation() {
+    if (!this.montrer('confirmation')) return null;
+    if (!this.confirmation) return 'Répétez le mot de passe.';
+    return this.nouveau === this.confirmation ? null : 'Les deux saisies diffèrent.';
+  }
+
+  /**
+   * Vérifie la vue courante avant d'appeler le serveur.
+   *
+   * Rend vrai si tout est bon. Sinon marque tout comme vu — afin que
+   * chaque erreur s'affiche d'un coup — et pose le curseur sur le premier
+   * champ fautif : faire chercher lequel des huit champs bloque est le
+   * meilleur moyen de faire abandonner un formulaire.
+   */
+  private valide(regles: Array<[string, string | null]>): boolean {
+    this.serveur.set({});
+    this.soumis.set(true);
+    const premier = regles.find(([, err]) => err !== null);
+    if (!premier) return true;
+    setTimeout(() => this.panneau()?.nativeElement
+      .querySelector<HTMLElement>(`[data-champ="${premier[0]}"]`)?.focus());
+    return false;
+  }
+
+  /** Une saisie corrigée efface le reproche du serveur qui la visait. */
+  effacer(champ: string) {
+    const s = this.serveur();
+    if (s[champ]) {
+      const { [champ]: _, ...reste } = s;
+      this.serveur.set(reste);
+    }
+  }
+
   /**
    * Solidité du mot de passe.
    *
@@ -330,17 +422,19 @@ export class AuthModal {
   // ══════════════════════════════
 
   connecter() {
-    if (!this.identifiants.email || !this.identifiants.motDePasse) {
-      this.toastr.warning('Renseignez votre adresse et votre mot de passe.');
-      return;
-    }
+    if (!this.valide([
+      ['email', Regles.email(this.identifiants.email)],
+      ['password', Regles.requis(this.identifiants.motDePasse, 'Le mot de passe')],
+    ])) return;
+
     this.occupe.set(true);
     this.bloque.set(null);
 
-    this.auth.login({ email: this.identifiants.email, password: this.identifiants.motDePasse }).subscribe({
+    this.auth.login({ email: this.identifiants.email.trim(), password: this.identifiants.motDePasse }).subscribe({
       next: (r) => this.apresAuthentification(r, 'Connexion réussie'),
       error: (e) => {
         this.occupe.set(false);
+        this.serveur.set(erreursDuServeur(e));
         if (e.status === 423) {
           this.bloque.set(e.error?.message ?? 'Ce compte est temporairement bloqué.');
           return;
@@ -413,16 +507,16 @@ export class AuthModal {
 
   verifier() {
     const jeton = this.defi();
-    if (!jeton || this.code.replace(/[\s-]/g, '').length < 6) {
-      this.toastr.warning('Saisissez le code à six chiffres, ou l’un de vos codes de secours.');
-      return;
-    }
+    if (!jeton) return;
+    if (!this.valide([['code', Regles.code(this.code)]])) return;
+
     this.occupe.set(true);
     this.auth.verifier2fa(jeton, this.code).subscribe({
       next: (r) => this.apresAuthentification(r, 'Connexion réussie'),
       error: (e) => {
         this.occupe.set(false);
         this.code = '';
+        this.serveur.set(erreursDuServeur(e));
         // Un défi expiré ne se rattrape pas : on revient au mot de passe
         // plutôt que de laisser saisir des codes tous refusés d'avance.
         if (e.status === 401 && (e.error?.message ?? '').includes('expir')) this.defi.set(null);
@@ -469,23 +563,24 @@ export class AuthModal {
       return;
     }
     const f = this.inscription;
-    if (!f.prenom || !f.nom || !f.email || !f.motDePasse) {
-      this.toastr.warning('Remplissez les champs obligatoires.');
-      return;
-    }
-    if (f.motDePasse.length < 8) {
-      this.toastr.warning('Mot de passe : huit caractères au minimum.');
-      return;
-    }
+    if (!this.valide([
+      ['firstName', Regles.texteCourt(f.prenom, 'Le prénom')],
+      ['lastName', Regles.texteCourt(f.nom, 'Le nom')],
+      ['company', f.role === 'Recruiter'
+        ? Regles.texteCourt(f.entreprise, 'Le nom de l’entreprise', { max: 200 }) : null],
+      ['email', Regles.email(f.email)],
+      ['password', Regles.motDePasse(f.motDePasse)],
+    ])) return;
 
     this.occupe.set(true);
     this.auth.register({
-      firstName: f.prenom, lastName: f.nom, email: f.email,
-      password: f.motDePasse, role: f.role, company: f.entreprise,
+      firstName: f.prenom.trim(), lastName: f.nom.trim(), email: f.email.trim(),
+      password: f.motDePasse, role: f.role, company: f.entreprise.trim(),
     }).subscribe({
       next: (r) => this.apresAuthentification(r, 'Bienvenue — votre compte est créé.'),
       error: (e) => {
         this.occupe.set(false);
+        this.serveur.set(erreursDuServeur(e));
         this.toastr.error(e.error?.message || 'La création du compte a échoué.');
       },
     });
@@ -496,22 +591,25 @@ export class AuthModal {
   // ══════════════════════════════
 
   demanderLien() {
-    if (!this.emailOubli.includes('@')) {
-      this.toastr.warning('Saisissez votre adresse e-mail.');
-      return;
-    }
+    if (!this.valide([['email', Regles.email(this.emailOubli)]])) return;
+
     this.occupe.set(true);
-    this.auth.motDePasseOublie(this.emailOubli).subscribe({
+    this.auth.motDePasseOublie(this.emailOubli.trim()).subscribe({
       next: (r) => { this.occupe.set(false); this.fait.set(true); this.message.set(r.message); },
-      error: () => {
+      error: (e) => {
         this.occupe.set(false);
-        this.toastr.error('La demande n’a pas abouti. Réessayez dans un instant.');
+        this.serveur.set(erreursDuServeur(e));
+        this.toastr.error(e.error?.message || 'La demande n’a pas abouti. Réessayez dans un instant.');
       },
     });
   }
 
   reinitialiserMotDePasse() {
-    if (!this.nouveauValide) return;
+    if (!this.valide([
+      ['nouveauMotDePasse', Regles.motDePasse(this.nouveau)],
+      ['confirmation', this.nouveau === this.confirmation ? null : 'Les deux saisies diffèrent.'],
+    ])) return;
+
     const c = this.modale.contexte();
     this.occupe.set(true);
     this.auth.reinitialiserMotDePasse(c.id!, c.jeton!, this.nouveau).subscribe({
