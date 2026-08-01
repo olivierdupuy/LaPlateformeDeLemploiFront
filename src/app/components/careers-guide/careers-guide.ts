@@ -88,4 +88,39 @@ export class CareersGuide {
 
   categories = [...new Set(this.articles.map((a) => a.category))];
   selected = computed(() => this.articles.find((a) => a.slug === this.slug()) || null);
+
+  /** Rubrique retenue sur la page de liste ('' = toutes). */
+  filter = signal('');
+
+  /**
+   * Articles affiches par la liste. Quatre articles ne se filtrent pas
+   * vraiment, mais la rubrique dit ce qu'on va trouver avant de cliquer —
+   * et la liste grandira.
+   */
+  visible = computed(() => {
+    const f = this.filter();
+    return f ? this.articles.filter((a) => a.category === f) : this.articles;
+  });
+
+  /**
+   * Les autres articles, pour le pied de l'article courant. Une lecture
+   * qui se termine sur deux boutons se termine ; une lecture qui se
+   * termine sur trois titres continue.
+   */
+  others = computed(() => {
+    const cur = this.selected();
+    return this.articles.filter((a) => a.slug !== cur?.slug);
+  });
+
+  /** Ancre d'un intertitre, pour le sommaire lateral. */
+  anchor(heading: string): string {
+    return heading
+      .toLowerCase()
+      .normalize('NFD')
+      // Les diacritiques decomposees par NFD, retirees pour que « clarifiez »
+      // et « clarifiez » (accentue) donnent la meme ancre.
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
 }

@@ -1,13 +1,20 @@
-<section class="cd-page">
+<!-- ═══ EN-TÊTE ═══
+     Bandeau sombre, comme toutes les pages publiques : la fiche
+     entreprise commençait à froid sur le sol bleuté, sans rien qui la
+     rattache au reste du site. -->
+<section class="page-hero cd-hero">
   <div class="container">
-    <a routerLink="/entreprises" class="cd-back animate-in"><i class="bi bi-arrow-left"></i> Entreprises</a>
+    <nav class="crumbs" aria-label="Fil d'Ariane">
+      <a routerLink="/entreprises">Entreprises</a>
+      <span class="sep" aria-hidden="true">/</span>
+      <span aria-current="page">{{ companyName }}</span>
+    </nav>
 
-    <header class="cd-header animate-in" style="animation-delay:.06s">
+    <header class="cd-header">
       <div class="cd-avatar" [style.background]="companyColor(companyName).bg">
         <span [style.color]="companyColor(companyName).fg">{{ companyName.charAt(0) }}</span>
       </div>
       <div class="cd-heading">
-        <span class="eyebrow">Entreprise</span>
         <h1>{{ companyName }}</h1>
         <div class="cd-headmeta">
           <button class="cd-follow" [class.following]="following()" (click)="toggleFollow()">
@@ -32,9 +39,13 @@
         </div>
       </div>
     </header>
+  </div>
+</section>
 
+<section class="cd-page">
+  <div class="container">
     <!-- Onglets -->
-    <div class="cd-tabs animate-in" style="animation-delay:.1s" role="tablist">
+    <div class="cd-tabs animate-in" role="tablist">
       <button class="cd-tab" [class.active]="tab() === 'about'" (click)="setTab('about')">
         <i class="bi bi-info-circle"></i> À propos
       </button>

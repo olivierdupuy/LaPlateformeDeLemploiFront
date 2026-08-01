@@ -46,8 +46,9 @@
 }
 
 // ── Grilles ──
-// La courbe d'activité tient deux colonnes ; l'entonnoir, qui se lit en
-// hauteur, en tient une et se pose à côté.
+// Les deux courbes et l'entonnoir se partagent la rangée, à parts égales :
+// séparer les offres des candidatures a libéré une colonne, et
+// l'entonnoir se lit en hauteur — il n'a pas besoin de plus.
 .dash-main {
   margin-bottom: 0.85rem;
 
@@ -56,6 +57,12 @@
 
 @media (max-width: 1180px) {
   .dash-main app-viz-card.span-2 { grid-column: 1 / -1; }
+}
+
+// Six tuiles dans une grille à quatre colonnes donnaient quatre puis deux,
+// et une demi-rangée de vide. Trois par rangée : deux rangées pleines.
+@media (min-width: 1240px) {
+  .ad-kpis { grid-template-columns: repeat(3, 1fr); }
 }
 
 .dash-todo { margin-top: 0.85rem; }
@@ -185,6 +192,24 @@
   font-family: var(--font-mono);
   font-size: 0.6rem;
   color: var(--muted);
+}
+
+// Étape non emboîtée dans la précédente : la jauge est pleine mais
+// hachurée, pour qu'on ne la lise pas comme un passage réussi à 100 %.
+.fun-meter__fill.is-overflow {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.35) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.fun-meter__warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  color: var(--danger-700);
+  i { font-size: 0.62rem; }
 }
 
 // ── Pastille de compte sur un en-tête de panneau ──

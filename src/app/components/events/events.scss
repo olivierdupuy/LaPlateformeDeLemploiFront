@@ -145,7 +145,10 @@
 
 .evm-actions { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.5rem; }
 
+.ev-empty-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; }
+
 @media (max-width: 620px) {
   .ev-grid { grid-template-columns: 1fr; }
   .ev-modal .form-row { grid-template-columns: 1fr; }
+  .ev-empty-actions > * { flex: 1 1 100%; justify-content: center; }
 }

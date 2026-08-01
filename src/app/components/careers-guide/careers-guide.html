@@ -1,29 +1,76 @@
 @if (selected(); as a) {
-  <!-- ═══ ARTICLE ═══ -->
-  <article class="cg-article">
+  <!-- ═══ ARTICLE ═══
+       Bandeau sombre, puis deux colonnes : le texte à sa largeur de
+       lecture, et le sommaire qui suit le défilement. Sans lui, l'article
+       occupait 68 caractères au milieu de 1650 pixels, et rien ne disait
+       ce qu'il restait à lire. -->
+  <section class="page-hero cg-hero">
     <div class="container">
       <nav class="crumbs" aria-label="Fil d'Ariane">
         <a routerLink="/guide">Guide carrière</a>
         <span class="sep" aria-hidden="true">/</span>
         <span aria-current="page">{{ a.title }}</span>
       </nav>
-      <div class="cg-art-head animate-in">
-        <span class="badge badge-purple">{{ a.category }}</span>
-        <h1>{{ a.title }}</h1>
-        <span class="cg-read"><i class="bi bi-clock" aria-hidden="true"></i> {{ a.readMin }} min de lecture</span>
-      </div>
+      <span class="badge badge-plum cg-hero__cat">{{ a.category }}</span>
+      <h1>{{ a.title }}</h1>
+      <span class="cg-read cg-read--dark">
+        <i class="bi bi-clock" aria-hidden="true"></i> {{ a.readMin }} min de lecture
+        <span class="cg-read__sep" aria-hidden="true"></span>
+        {{ a.sections.length }} points
+      </span>
+    </div>
+  </section>
+
+  <article class="cg-article">
+    <div class="container cg-art-grid">
       <div class="cg-art-body">
+        <p class="cg-lede">{{ a.excerpt }}</p>
+
         @for (s of a.sections; track s.heading; let i = $index) {
-          <section class="cg-section animate-in" [style.animation-delay]="(i*0.05)+'s'">
-            <h2>{{ s.heading }}</h2>
+          <section class="cg-section" [id]="anchor(s.heading)">
+            <h2><span class="cg-section__n" aria-hidden="true">{{ i + 1 }}</span> {{ s.heading }}</h2>
             <p>{{ s.body }}</p>
           </section>
         }
+
+        <div class="cg-art-foot">
+          <p class="cg-art-foot__p">Assez lu ? Le meilleur moment pour appliquer ces conseils, c'est maintenant.</p>
+          <div class="cg-art-foot__a">
+            <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Trouver un emploi</a>
+            <a routerLink="/mon-cv" class="btn-secondary"><i class="bi bi-file-earmark-person"></i> Préparer mon CV</a>
+          </div>
+        </div>
       </div>
-      <div class="cg-art-foot">
-        <a routerLink="/offres" class="btn-primary"><i class="bi bi-search"></i> Trouver un emploi</a>
-        <a routerLink="/guide" class="btn-secondary"><i class="bi bi-journals"></i> Autres articles</a>
-      </div>
+
+      <!-- Sommaire + suite de lecture -->
+      <aside class="cg-aside" aria-label="Sommaire de l'article">
+        <div class="cg-toc">
+          <h2 class="cg-aside__t">Dans cet article</h2>
+          <ol>
+            @for (s of a.sections; track s.heading; let i = $index) {
+              <li>
+                <a [href]="'#' + anchor(s.heading)">
+                  <span class="cg-toc__n">{{ i + 1 }}</span>
+                  {{ s.heading }}
+                </a>
+              </li>
+            }
+          </ol>
+        </div>
+
+        <div class="cg-next">
+          <h2 class="cg-aside__t">À lire ensuite</h2>
+          @for (o of others(); track o.slug) {
+            <a [routerLink]="['/guide', o.slug]" class="cg-next__i">
+              <span class="cg-next__ic"><i class="bi" [class]="o.icon" aria-hidden="true"></i></span>
+              <span class="cg-next__tx">
+                <strong>{{ o.title }}</strong>
+                <span>{{ o.readMin }} min · {{ o.category }}</span>
+              </span>
+            </a>
+          }
+        </div>
+      </aside>
     </div>
   </article>
 } @else {
@@ -41,15 +88,30 @@
 
   <section class="cg-list-page">
     <div class="container">
+      <!-- Filtre par rubrique : il dit ce que couvre le guide avant même
+           qu'on ait lu un titre. -->
+      <div class="cg-filters" role="group" aria-label="Filtrer par rubrique">
+        <button class="chip" [class.is-active]="!filter()" [attr.aria-pressed]="!filter()"
+                (click)="filter.set('')">Tout le guide</button>
+        @for (c of categories; track c) {
+          <button class="chip" [class.is-active]="filter() === c" [attr.aria-pressed]="filter() === c"
+                  (click)="filter.set(filter() === c ? '' : c)">{{ c }}</button>
+        }
+      </div>
+
       <div class="cg-grid">
-        @for (a of articles; track a.slug; let i = $index) {
+        @for (a of visible(); track a.slug; let i = $index) {
           <a [routerLink]="['/guide', a.slug]" class="cg-card animate-in" [style.animation-delay]="(i*0.05)+'s'">
             <span class="cg-photo">
               <img [src]="a.photo" alt="" loading="lazy" width="800" height="500" />
               <span class="cg-icon"><i class="bi" [class]="a.icon" aria-hidden="true"></i></span>
             </span>
             <span class="cg-body">
-              <span class="cg-cat">{{ a.category }}</span>
+              <span class="cg-meta">
+                <span class="cg-cat">{{ a.category }}</span>
+                <span class="cg-dot" aria-hidden="true"></span>
+                <span class="cg-cat">{{ a.readMin }} min</span>
+              </span>
               <h3>{{ a.title }}</h3>
               <p>{{ a.excerpt }}</p>
               <span class="cg-more">Lire l'article <i class="bi bi-arrow-right" aria-hidden="true"></i></span>

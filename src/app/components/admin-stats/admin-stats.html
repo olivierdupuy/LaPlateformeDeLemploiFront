@@ -68,10 +68,22 @@
   <!-- ═══ VUE D'ENSEMBLE ═══ -->
   @if (onglet() === 'apercu') {
     <div class="ad-grid">
+      <!-- Deux cartes : les offres arrivent par imports de masse, les
+           candidatures par unités. Sur une échelle commune, seules les
+           offres se voyaient. -->
       <app-viz-card
-        class="span-all"
-        title="Activité des trente derniers jours"
-        sub="Offres, candidatures et inscriptions, sur une seule échelle."
+        title="Offres publiées"
+        sub="Les imports de masse, à leur propre échelle."
+        icon="bi-briefcase"
+        height="clamp(260px, 36vh, 400px)"
+        [config]="offresConfig()"
+        [rows]="offresRows()"
+        rowsLabel="Jour" rowsValue="Offres"
+        [loading]="chargementSection()" />
+
+      <app-viz-card
+        title="Candidatures et inscriptions"
+        sub="L'activité des personnes, sur trente jours."
         icon="bi-activity"
         height="clamp(260px, 36vh, 400px)"
         [config]="activiteConfig()"

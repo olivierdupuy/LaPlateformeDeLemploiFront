@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AdminService } from '../../services/admin.service';
@@ -59,7 +59,7 @@ const CV_SECTIONS: { key: string; label: string }[] = [
 
 @Component({
   selector: 'app-admin-user-detail',
-  imports: [RouterLink, FormsModule, DatePipe],
+  imports: [RouterLink, FormsModule, DatePipe, LowerCasePipe],
   templateUrl: './admin-user-detail.html',
   styleUrl: './admin-user-detail.scss',
 })
@@ -119,6 +119,33 @@ export class AdminUserDetail implements OnInit {
       interviews: this.interviews().length,
       successRate: apps.length ? Math.round((accepted / apps.length) * 100) : 0,
     };
+  });
+
+  /**
+   * Fraîcheur du compte.
+   *
+   * « Ce compte sert-il encore ? » est la première question que pose une
+   * fiche, et la page n'y répondait pas : elle affichait la date
+   * d'inscription, qui ne dit rien de l'usage. La dernière connexion est
+   * déduite du journal, faute d'une colonne dédiée.
+   *
+   * Le seuil de quatre-vingt-dix jours n'est pas une alerte : c'est le
+   * moment où l'on peut dire qu'un compte dort.
+   */
+  fraicheur = computed(() => {
+    const u = this.user();
+    const iso: string | null = u?.lastLoginAt ?? null;
+    if (!iso) return { jamais: true, texte: 'Jamais connecté', dormant: true, connexions30j: 0 };
+
+    const jours = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000));
+    const texte =
+      jours === 0 ? "Connecté aujourd'hui"
+      : jours === 1 ? 'Connecté hier'
+      : jours < 30 ? `Connecté il y a ${jours} jours`
+      : jours < 365 ? `Connecté il y a ${Math.round(jours / 30)} mois`
+      : `Connecté il y a plus d'un an`;
+
+    return { jamais: false, texte, dormant: jours > 90, connexions30j: u?.loginsLast30Days ?? 0 };
   });
 
   /** Les compétences sont stockées séparées par virgules. */

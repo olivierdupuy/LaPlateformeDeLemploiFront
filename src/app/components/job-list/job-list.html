@@ -34,68 +34,100 @@
         </div>
         <button type="submit" class="btn-primary sh-btn">Rechercher</button>
       </form>
+
+      <!-- Recherches récentes : une recherche d'emploi se reprend, elle ne
+           se retape pas. -->
+      @if (searchHistory.recent().length) {
+        <div class="sh-recent">
+          <span class="sh-recent__lbl">Vos dernières recherches</span>
+          @for (q of searchHistory.recent().slice(0, 6); track q) {
+            <button type="button" (click)="useRecentSearch(q)">
+              <i class="bi bi-clock-history" aria-hidden="true"></i> {{ q }}
+            </button>
+          }
+        </div>
+      }
     </div>
   </div>
 </section>
 
-<!-- ═══ FILTRES — sur fond clair, collants au défilement ═══ -->
+<!-- ═══ FILTRES — sur fond clair, collants au défilement ═══
+     Chaque champ garde son libellé : un menu qui affiche « CDI » tout seul
+     ne dit plus de quel critère il s'agit une fois la valeur choisie. -->
 <section class="filters-section">
   <div class="container">
-      <div class="filter-bar" role="group" aria-label="Filtres de recherche">
-        <select class="fchip" aria-label="Type de contrat" [(ngModel)]="contractType" (change)="loadJobs()">
-          <option value="">Type de contrat</option>
-          @for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }
-        </select>
+      <!-- Sur téléphone, les sept champs occupaient cinq rangées collantes,
+           soit un tiers de l'écran avant la première offre. Ils passent
+           derrière un bouton. -->
+      <button class="filters-lead" [attr.aria-expanded]="mobileFiltersOpen"
+              (click)="mobileFiltersOpen = !mobileFiltersOpen">
+        <i class="bi bi-sliders" aria-hidden="true"></i>
+        Filtres et tri
+        @if (activeFilterCount) { <span class="ftoggle__n">{{ activeFilterCount }}</span> }
+        <i class="bi bi-chevron-down filters-lead__c" [class.is-open]="mobileFiltersOpen" aria-hidden="true"></i>
+      </button>
 
-        <select class="fchip" aria-label="Télétravail ou sur site"
-                [ngModel]="isRemote === undefined ? '' : (isRemote ? 'remote' : 'onsite')"
-                (ngModelChange)="isRemote = $event === '' ? undefined : $event === 'remote'; loadJobs()">
-          <option value="">Télétravail</option>
-          <option value="remote">Télétravail</option>
-          <option value="onsite">Sur site</option>
-        </select>
+      <div class="filter-bar" [class.is-open]="mobileFiltersOpen" role="group" aria-label="Filtres de recherche">
+        <label class="ffield" [class.is-set]="contractType">
+          <span class="ffield__lbl">Contrat</span>
+          <select aria-label="Type de contrat" [(ngModel)]="contractType" (change)="loadJobs()">
+            <option value="">Tous</option>
+            @for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }
+          </select>
+        </label>
 
-        <select class="fchip" aria-label="Secteur" [(ngModel)]="category" (change)="loadJobs()">
-          <option value="">Secteur</option>
-          @for (c of categories(); track c) { <option [value]="c">{{ c }}</option> }
-        </select>
+        <!-- Critère binaire : un interrupteur, pas un menu à deux entrées -->
+        <button class="ftoggle" [class.is-on]="isRemote !== undefined"
+                [attr.aria-pressed]="isRemote !== undefined" (click)="cycleRemote()">
+          <i class="bi" [class.bi-house]="isRemote === false" [class.bi-laptop]="isRemote !== false" aria-hidden="true"></i>
+          {{ remoteLabel() }}
+        </button>
 
-        <select class="fchip" aria-label="Horaires" [(ngModel)]="workSchedule" (change)="loadJobs()">
-          <option value="">Horaires</option>
-          @for (w of workSchedules(); track w) { <option [value]="w">{{ w }}</option> }
-        </select>
+        <label class="ffield" [class.is-set]="category">
+          <span class="ffield__lbl">Secteur</span>
+          <select aria-label="Secteur" [(ngModel)]="category" (change)="loadJobs()">
+            <option value="">Tous</option>
+            @for (c of categories(); track c) { <option [value]="c">{{ c }}</option> }
+          </select>
+        </label>
 
-        <select class="fchip" aria-label="Langue" [(ngModel)]="language" (change)="loadJobs()">
-          <option value="">Langue</option>
-          @for (l of languagesList(); track l) { <option [value]="l">{{ l }}</option> }
-        </select>
+        <label class="ffield" [class.is-set]="workSchedule">
+          <span class="ffield__lbl">Horaires</span>
+          <select aria-label="Horaires" [(ngModel)]="workSchedule" (change)="loadJobs()">
+            <option value="">Tous</option>
+            @for (w of workSchedules(); track w) { <option [value]="w">{{ w }}</option> }
+          </select>
+        </label>
 
-        <select class="fchip" aria-label="Date de publication" [(ngModel)]="datePosted" (change)="loadJobs()">
-          @for (d of datePostedOptions; track d.label) { <option [ngValue]="d.value">{{ d.label }}</option> }
-        </select>
+        <label class="ffield" [class.is-set]="datePosted">
+          <span class="ffield__lbl">Publiée</span>
+          <select aria-label="Date de publication" [(ngModel)]="datePosted" (change)="loadJobs()">
+            @for (d of datePostedOptions; track d.label) { <option [ngValue]="d.value">{{ d.label }}</option> }
+          </select>
+        </label>
 
-        <select class="fchip" aria-label="Rayon autour du lieu" [(ngModel)]="radius" (change)="loadJobs()"
-                [disabled]="!location" title="Renseignez un lieu pour choisir un rayon">
-          @for (r of radiusOptions; track r.label) { <option [ngValue]="r.value">{{ r.value ? 'Rayon ' + r.label : r.label }}</option> }
-        </select>
+        <label class="ffield" [class.is-set]="radius && location" [class.is-disabled]="!location"
+               [title]="location ? 'Rayon autour de ' + location : 'Renseignez un lieu pour choisir un rayon'">
+          <span class="ffield__lbl">Rayon</span>
+          <select aria-label="Rayon autour du lieu" [(ngModel)]="radius" (change)="loadJobs()" [disabled]="!location">
+            @for (r of radiusOptions; track r.label) { <option [ngValue]="r.value">{{ r.label }}</option> }
+          </select>
+        </label>
 
-        <button class="fchip fchip-btn" [class.active]="showAdvanced || hasAdvancedFilters"
+        <button class="ftoggle" [class.is-on]="showAdvanced || hasAdvancedFilters"
                 [attr.aria-expanded]="showAdvanced" (click)="showAdvanced = !showAdvanced">
-          <i class="bi bi-sliders" aria-hidden="true"></i> Plus de filtres
-          @if (activeFilterCount) { <span class="fchip-badge">{{ activeFilterCount }}</span> }
+          <i class="bi bi-sliders" aria-hidden="true"></i> Plus de critères
+          @if (activeFilterCount) { <span class="ftoggle__n">{{ activeFilterCount }}</span> }
         </button>
 
         <div class="fb-spacer"></div>
 
-        <select class="fchip fchip-sort" aria-label="Trier les résultats" [(ngModel)]="sort" (change)="loadJobs()">
-          @for (s of sortOptions; track s.value) { <option [value]="s.value">Trier : {{ s.label }}</option> }
-        </select>
-
-        @if (activeFilterCount) {
-          <button class="fb-clear" (click)="clearFilters()">
-            <i class="bi bi-x-circle" aria-hidden="true"></i> Effacer les filtres
-          </button>
-        }
+        <label class="ffield" [class.is-set]="sort">
+          <span class="ffield__lbl">Trier</span>
+          <select aria-label="Trier les résultats" [(ngModel)]="sort" (change)="loadJobs()">
+            @for (s of sortOptions; track s.value) { <option [value]="s.value">{{ s.label }}</option> }
+          </select>
+        </label>
       </div>
 
       <!-- Filtres avancés -->
@@ -123,6 +155,29 @@
               @for (l of educationLevels(); track l) { <option [value]="l">{{ l }}</option> }
             </select>
           </div>
+          <div class="form-group">
+            <label>Langue</label>
+            <select [(ngModel)]="language" (change)="loadJobs()">
+              <option value="">Toutes</option>
+              @for (l of languagesList(); track l) { <option [value]="l">{{ l }}</option> }
+            </select>
+          </div>
+        </div>
+      }
+
+      <!-- Rappel des critères actifs : la liste doit dire pourquoi elle est courte -->
+      @if (activeCriteria.length) {
+        <div class="acrit">
+          <span class="acrit__lbl">Filtré par</span>
+          @for (c of activeCriteria; track c.key) {
+            <span class="acrit__tok">
+              <b>{{ c.label }}</b> {{ c.value }}
+              <button (click)="removeCriterion(c.key)" [attr.aria-label]="'Retirer le filtre ' + c.label">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+              </button>
+            </span>
+          }
+          <button class="filter-bar__clear" (click)="clearFilters()">Tout effacer</button>
         </div>
       }
   </div>
@@ -132,7 +187,26 @@
 <section class="offers-page">
   <div class="container">
     @if (loading()) {
-      <div class="empty-box"><div class="spinner"></div><p>Chargement des offres…</p></div>
+      <!-- Squelettes plutôt qu'un rond qui tourne : la page garde sa forme,
+           et les vraies cartes se posent sans faire sauter la mise en page. -->
+      <div class="results-toolbar"><span class="skeleton sk-line" style="width:150px;height:16px"></span></div>
+      <div class="sk-grid" aria-busy="true" aria-label="Chargement des offres">
+        @for (s of skeletons; track s) {
+          <div class="sk-card">
+            <span class="skeleton sk-line" style="width:75%;height:19px"></span>
+            <div class="sk-row">
+              <span class="skeleton sk-av"></span>
+              <span class="skeleton sk-line" style="width:45%"></span>
+            </div>
+            <div class="sk-row">
+              <span class="skeleton sk-pill"></span>
+              <span class="skeleton sk-pill" style="width:86px"></span>
+            </div>
+            <span class="skeleton sk-line"></span>
+            <span class="skeleton sk-line" style="width:60%"></span>
+          </div>
+        }
+      </div>
     } @else if (jobs().length === 0) {
       <div class="empty-box animate-in">
         <i class="bi bi-search" aria-hidden="true"></i>
@@ -164,27 +238,26 @@
         </div>
       }
 
-      <div class="offers-grid">
+      <!-- ═══ Liste + détail côte à côte ═══
+           Le gabarit fait 1650 px : de quoi lire une annonce sans quitter
+           la liste. Une offre choisie fait passer la grille en colonne
+           unique et le détail prend la place gagnée. Sous 1200 px, le même
+           détail redevient un tiroir coulissant. -->
+      <div class="results-split" [class.is-split]="!!selected()">
+        <div class="offers-grid">
           @for (job of jobs(); track job.id; let i = $index) {
-            <article class="jcard" [class.selected]="selected()?.id === job.id"
+            <article class="jcard gcard" [class.selected]="selected()?.id === job.id"
                      (click)="selectJob(job, $event)" tabindex="0" role="button"
                      [attr.aria-expanded]="selected()?.id === job.id"
                      [attr.aria-label]="job.title + ' chez ' + job.company + ' — voir le détail'"
-                     (keydown.enter)="selectJob(job)" (keydown.space)="selectJob(job)">
+                     (keydown.enter)="selectJob(job, $event)" (keydown.space)="selectJob(job, $event)">
               <div class="card-stripe" [style.background]="{'CDI':'var(--brand)','CDD':'var(--amber)','Stage':'var(--blue)','Freelance':'var(--red)','Alternance':'var(--purple)'}[job.contractType] || 'var(--brand)'"></div>
-              <div class="jcard-body">
-                <div class="jcard-top">
-                  <div class="jcard-company">
-                    <div class="jcard-avatar" [style.background]="companyColor(job.company).bg">
-                      <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
-                    </div>
-                    <div class="jcard-cmeta">
-                      <span class="jcard-cname">{{ job.company | employeur }}</span>
-                      <span class="jcard-loc"><i class="bi bi-geo-alt"></i> {{ job.location }}
-                        @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
-                      </span>
-                    </div>
-                  </div>
+              <div class="jcard-body gcard">
+                <!-- Le poste d'abord : c'est ce qu'on cherche. L'employeur
+                     vient ensuite — on filtre rarement une liste par le nom
+                     d'une société qu'on ne connaît pas encore. -->
+                <div class="jcard-head">
+                  <h3 class="jcard-title">{{ job.title }}</h3>
                   <button class="jcard-bk" (click)="$event.stopPropagation(); bookmarkService.toggle(job.id)"
                           [class.active]="bookmarkService.isBookmarked(job.id)"
                           [attr.aria-pressed]="bookmarkService.isBookmarked(job.id)"
@@ -193,7 +266,21 @@
                   </button>
                 </div>
 
-                <h3 class="jcard-title">{{ job.title }}</h3>
+                <div class="jcard-company">
+                  <div class="jcard-avatar" [style.background]="companyColor(job.company).bg">
+                    <span [style.color]="companyColor(job.company).fg">{{ job.company.charAt(0) }}</span>
+                  </div>
+                  <div class="jcard-cmeta">
+                    <span class="jcard-cname">{{ job.company | employeur }}</span>
+                    <span class="jcard-loc"><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ job.location }}
+                      @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
+                    </span>
+                  </div>
+                </div>
+
+                @if (salaryLabel(job)) {
+                  <div class="jcard-salary"><i class="bi bi-cash-stack" aria-hidden="true"></i> {{ salaryLabel(job) }}</div>
+                }
 
                 <div class="jcard-badges">
                   @if (job.isFeatured) { <span class="badge badge-sponsored"><i class="bi bi-megaphone"></i> Sponsorisée</span> }
@@ -204,20 +291,16 @@
                   @if (job.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
                 </div>
 
-                @if (salaryLabel(job)) {
-                  <div class="jcard-salary"><i class="bi bi-cash-stack"></i> {{ salaryLabel(job) }}</div>
-                }
-
                 @if (getBenefits(job).length) {
                   <div class="jcard-benefits">
-                    @for (b of getBenefits(job).slice(0, 4); track b) { <span class="perk"><i class="bi bi-check2"></i> {{ b }}</span> }
-                    @if (getBenefits(job).length > 4) { <span class="perk perk-more">+{{ getBenefits(job).length - 4 }}</span> }
+                    @for (b of getBenefits(job).slice(0, 3); track b) { <span class="perk"><i class="bi bi-check2"></i> {{ b }}</span> }
+                    @if (getBenefits(job).length > 3) { <span class="perk perk-more">+{{ getBenefits(job).length - 3 }}</span> }
                   </div>
                 }
 
                 <p class="jcard-desc">{{ job.description }}</p>
 
-                <div class="jcard-foot">
+                <div class="jcard-foot gcard__spring">
                   <span class="jcard-time u-mono">{{ getTimeAgo(job.createdAt) }}</span>
                   <div class="jcard-actions">
                     <button (click)="shareJob(job, $event)" aria-label="Partager cette offre"><i class="bi bi-share" aria-hidden="true"></i></button>
@@ -227,14 +310,14 @@
               </div>
             </article>
           }
-      </div>
 
-      @if (hasMore()) {
-        <button class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
-          @if (loadingMore()) { <span class="sp"></span> Chargement… }
-          @else { <i class="bi bi-arrow-down-circle"></i> Charger plus d'offres }
-        </button>
-      }
+          @if (hasMore()) {
+            <button class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
+              @if (loadingMore()) { <span class="sp"></span> Chargement… }
+              @else { <i class="bi bi-arrow-down-circle"></i> Charger plus d'offres ({{ jobs().length }} / {{ total() | number }}) }
+            </button>
+          }
+        </div>
 
       <!-- Tiroir détail coulissant (droite) -->
       <div class="drawer-backdrop" [class.show]="!!selected()" (click)="closeDetail()"></div>
@@ -335,6 +418,7 @@
             </div>
           }
       </aside>
+      </div><!-- /.results-split -->
 
       @if (relatedSearches().length) {
         <div class="related-searches">

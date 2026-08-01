@@ -23,6 +23,16 @@ interface Etape {
    * qu'aucun entretien n'a ete enregistre serait faux.
    */
   rate: number | null;
+  /**
+   * Vrai quand l'etape compte plus d'elements que celle d'avant.
+   *
+   * Un entonnoir suppose que chaque etape est un sous-ensemble de la
+   * precedente. Ce n'est pas le cas ici : une candidature peut etre
+   * acceptee sans qu'un entretien ait ete enregistre. Le taux depassait
+   * alors 100 % — « 300 % de l'etape precedente » — ce qui ne veut rien
+   * dire et faisait deborder la jauge.
+   */
+  overflow: boolean;
   color: string;
   icon: string;
   route: string;
@@ -117,13 +127,48 @@ export class Dashboard implements OnInit {
   //  Courbe d'activite — trois series, un seul axe
   // ═══════════════════════════════════════════
 
+  /**
+   * L'activite se lit en deux graphiques, pas en un.
+   *
+   * Les trois series partageaient un axe. Or les offres arrivent par
+   * imports de masse — cent dix-neuf mille en une journee — quand les
+   * candidatures et les inscriptions se comptent par unites. Sur une
+   * echelle lineaire commune, la courbe des offres monte au plafond et
+   * les deux autres se couchent sur le zero : le graphique n'affiche plus
+   * qu'une seule serie, les deux autres sont un trait plat.
+   *
+   * `chart-presets` pose la regle et refuse le double axe, pour une bonne
+   * raison — le calage des deux echelles est arbitraire et le lecteur y
+   * lit une correlation que la donnee ne contient pas. Le remede prevu
+   * par cette meme regle est celui-ci : deux mesures d'ordre different
+   * font deux graphiques.
+   */
+  offresConfig = computed(() => {
+    const t = this.timeline();
+    if (!t.length) return null;
+    return lines(
+      t.map((j) => j.label),
+      [{ label: 'Offres publiées', values: t.map((j) => j.offres) }],
+      {
+        drill: drilldown(
+          this.router,
+          (_i, label) => {
+            const jour = this.jourIso(label);
+            return jour ? to(['/admin/offres'], { jour }) : null;
+          },
+          { nearest: true },
+        ),
+      },
+    );
+  });
+
+  /** Les deux mesures d'activite humaine, qui elles se comparent entre elles. */
   activiteConfig = computed(() => {
     const t = this.timeline();
     if (!t.length) return null;
     return lines(
       t.map((j) => j.label),
       [
-        { label: 'Offres publiées', values: t.map((j) => j.offres) },
         { label: 'Candidatures', values: t.map((j) => j.candidatures) },
         { label: 'Inscriptions', values: t.map((j) => j.inscriptions) },
       ],
@@ -133,9 +178,9 @@ export class Dashboard implements OnInit {
           (_i, label, ds) => {
             const jour = this.jourIso(label);
             if (!jour) return null;
-            if (ds === 0) return to(['/admin/offres'], { jour });
-            if (ds === 1) return to(['/admin/candidatures'], { jour });
-            return to(['/admin/utilisateurs'], { jour });
+            return ds === 0
+              ? to(['/admin/candidatures'], { jour })
+              : to(['/admin/utilisateurs'], { jour });
           },
           { nearest: true },
         ),
@@ -143,14 +188,23 @@ export class Dashboard implements OnInit {
     );
   });
 
+  /** Vue tableau du graphique des offres. */
+  offresRows = computed<VizRow[]>(() =>
+    this.timeline()
+      .slice()
+      .reverse()
+      .map((j) => ({ label: j.label, value: j.offres })),
+  );
+
+  /** Vue tableau du graphique candidatures + inscriptions. */
   activiteRows = computed<VizRow[]>(() =>
     this.timeline()
       .slice()
       .reverse()
       .map((j) => ({
         label: j.label,
-        value: j.offres + j.candidatures + j.inscriptions,
-        note: `${j.offres} offres · ${j.candidatures} cand. · ${j.inscriptions} inscr.`,
+        value: j.candidatures + j.inscriptions,
+        note: `${j.candidatures} cand. · ${j.inscriptions} inscr.`,
       })),
   );
 
@@ -212,9 +266,13 @@ export class Dashboard implements OnInit {
 
     return brut.map((e, i) => {
       const avant = i === 0 ? e.value : brut[i - 1].value;
+      const rate = i === 0 ? 100 : avant > 0 ? (e.value / avant) * 100 : null;
       return {
         ...e,
-        rate: i === 0 ? 100 : avant > 0 ? (e.value / avant) * 100 : null,
+        rate,
+        // Un depassement n'est pas un bon score : c'est le signe que les
+        // deux etapes ne sont pas emboitees. Il se dit, il ne se chiffre pas.
+        overflow: rate !== null && rate > 100,
         color: ORDINAL[Math.min(i, ORDINAL.length - 1)],
       };
     });

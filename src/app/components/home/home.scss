@@ -52,7 +52,17 @@
   }
 }
 
-.hero-inner { position: relative; width: 100%; }
+// Deux colonnes : la promesse a gauche, sa preuve a droite. Sous 1180 px
+// le volet passe dessous ; sous 900, il disparait — le hero doit rester
+// une hauteur d'ecran, pas trois.
+.hero-inner {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
 
 // Invite de defilement : un hero pleine hauteur cache ce qui suit.
 .hero-scroll {
@@ -113,13 +123,13 @@
   gap: 0.55rem;
   margin-top: 1.15rem;
   padding: 0.7rem 0.95rem;
-  border-left: 2px solid var(--citron);
-  background: rgba(240, 161, 27, 0.07);
+  border-left: 2px solid var(--bleu-400);
+  background: rgba(255, 236, 209, 0.09);
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
   font-size: 0.88rem;
   color: var(--on-plum);
   max-width: 54ch;
-  i { color: var(--citron); margin-top: 0.15rem; }
+  i { color: var(--bleu-400); margin-top: 0.15rem; }
 }
 
 // ── Recherche ──
@@ -195,16 +205,46 @@
 
 .cats-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
+// Un intitulé de métier peut faire soixante caractères : borné, sans quoi
+// six pastilles occupent trois rangées et repoussent tout le hero.
 .cat-chip {
-  padding: 0.32rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.32rem 0.6rem 0.32rem 0.78rem;
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--on-plum);
-  background: rgba(244, 241, 222, 0.07);
-  border: 1px solid rgba(244, 241, 222, 0.13);
+  background: rgba(255, 236, 209, 0.08);
+  border: 1px solid rgba(255, 236, 209, 0.15);
   border-radius: var(--r-full);
   transition: color var(--t), background var(--t), border-color var(--t);
-  &:hover { color: var(--citron-ink); background: var(--citron); border-color: var(--citron); }
+  &:hover {
+    color: #fff;
+    background: var(--bleu-500);
+    border-color: var(--bleu-500);
+    .cat-chip__n { background: rgba(255, 255, 255, 0.22); color: #fff; }
+  }
+}
+
+.cat-chip__l {
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-chip__n {
+  flex-shrink: 0;
+  padding: 0.05rem 0.4rem;
+  border-radius: var(--r-full);
+  background: rgba(255, 236, 209, 0.12);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: var(--on-dark-muted);
+  font-variant-numeric: tabular-nums;
+  transition: background var(--t), color var(--t);
 }
 
 // ── Chiffres clés ──
@@ -215,7 +255,7 @@
   gap: clamp(1.5rem, 3.5vw, 3rem);
   margin-top: clamp(2.25rem, 4vw, 3rem);
   padding-top: 1.6rem;
-  border-top: 1px solid rgba(244, 241, 222, 0.12);
+  border-top: 1px solid rgba(255, 236, 209, 0.12);
 }
 
 .hstat {
@@ -242,35 +282,165 @@
   }
 }
 
+// ═══ Volet des offres du hero ═══
+.hero-panel {
+  min-width: 0;
+  padding: 1.15rem 1.2rem 1.2rem;
+  background: rgba(0, 21, 36, 0.42);
+  border: 1px solid rgba(255, 236, 209, 0.14);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  animation: fadeUp 0.7s var(--ease-out) 0.12s both;
+}
+
+.hp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.8rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 236, 209, 0.13);
+}
+
+.hp-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--on-dark-muted);
+}
+
+// La pastille bat : elle dit « ces offres sont d'aujourd'hui ».
+.hp-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--bleu-400);
+  box-shadow: 0 0 0 0 rgba(111, 157, 190, 0.6);
+  animation: hp-pulse 2.4s ease-out infinite;
+}
+
+@keyframes hp-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(111, 157, 190, 0.55); }
+  70% { box-shadow: 0 0 0 7px rgba(111, 157, 190, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(111, 157, 190, 0); }
+}
+
+.hp-all {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.76rem; font-weight: 600;
+  color: var(--on-dark-muted);
+  transition: color var(--t);
+  i { font-size: 0.7rem; transition: transform var(--t); }
+  &:hover { color: #fff; i { transform: translateX(2px); } }
+}
+
+.hp-list { list-style: none; }
+
+.hp-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.5rem;
+  margin: 0 -0.5rem;
+  border-radius: var(--r-sm);
+  transition: background var(--t);
+  &:hover { background: rgba(255, 236, 209, 0.08); }
+}
+
+.hp-av {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--r-xs);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700;
+}
+
+.hp-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+
+  strong {
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: #fff;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+}
+
+.hp-meta {
+  font-size: 0.75rem;
+  color: var(--on-dark-muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.hp-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.hp-when {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--on-dark-muted);
+  white-space: nowrap;
+}
+
+.hp-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  padding: 0.7rem 1rem;
+  background: rgba(255, 236, 209, 0.1);
+  border: 1px solid rgba(255, 236, 209, 0.18);
+  border-radius: var(--r-sm);
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--on-plum);
+  transition: background var(--t), border-color var(--t), color var(--t);
+  &:hover { background: var(--bleu-500); border-color: var(--bleu-500); color: #fff; }
+}
+
 // ═══ Dernières offres ═══
-.latest { padding: clamp(3rem, 6vw, 4.5rem) 0 clamp(2rem, 4vw, 3rem); }
+.latest { padding: clamp(3rem, 6vw, 4.5rem) 0 clamp(2.5rem, 5vw, 3.5rem); }
 
 .jobs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 1.15rem;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 1.1rem;
 }
 
-.job-card {
-  display: block;
-  overflow: hidden;
-}
+.job-card { overflow: hidden; }
 
 .jc-inner {
-  padding: 1.25rem 1.35rem;
+  padding: 1.15rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.62rem;
   height: 100%;
 }
 
-.jc-header { display: flex; align-items: center; gap: 0.7rem; }
+.jc-header { display: flex; align-items: center; gap: 0.6rem; }
 
 .company-av {
-  width: 38px; height: 38px;
-  border-radius: var(--r-sm);
+  width: 32px; height: 32px;
+  border-radius: var(--r-xs);
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.95rem; font-weight: 700;
+  font-size: 0.82rem; font-weight: 700;
   flex-shrink: 0;
 }
 
@@ -289,14 +459,22 @@
   i { font-size: 0.78rem; }
 }
 
+// Deux lignes au plus : sans borne, un intitule a rallonge repousse tout
+// le reste hors du premier coup d'oeil.
 .jc-title {
-  font-size: 1.06rem;
+  font-size: 1.02rem;
   font-weight: 700;
   line-height: 1.3;
+  letter-spacing: -0.02em;
   color: var(--ink);
   transition: color var(--t);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.job-card:hover .jc-title { color: var(--violet-700); }
+.job-card:hover .jc-title { color: var(--bleu-700); }
 
 .jc-desc {
   font-size: 0.85rem;
@@ -338,6 +516,154 @@
   white-space: nowrap;
 }
 
+// ═══ Explorer ═══
+// Trois colonnes de listes courtes. Le compte en bout de ligne, en chiffres
+// de chasse fixe, s'aligne seul : on compare les pistes d'un regard.
+.explore { padding: clamp(3rem, 6vw, 4.5rem) 0; }
+
+.explore-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.ex-col { min-width: 0; }
+
+.ex-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.7rem;
+  margin-bottom: 0.4rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--muted);
+  i { font-size: 0.85rem; color: var(--bleu-500); }
+}
+
+.ex-list {
+  list-style: none;
+
+  a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.6rem;
+    margin: 0 -0.6rem;
+    border-radius: var(--r-sm);
+    transition: background var(--t), color var(--t);
+    &:hover {
+      background: var(--bleu-tint);
+      .ex-label { color: var(--bleu-700); }
+    }
+  }
+}
+
+.ex-label {
+  font-size: 0.89rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: color var(--t);
+}
+
+.ex-count {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.ex-remote {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.8rem 0.95rem;
+  background: var(--bleu-100);
+  border-radius: var(--r-sm);
+  font-size: 0.86rem;
+  color: var(--bleu-800);
+  transition: background var(--t);
+
+  strong { font-family: var(--font-mono); font-weight: 500; }
+  > span { flex: 1; min-width: 0; }
+  i:first-child { color: var(--bleu-600); }
+  i:last-child { font-size: 0.8rem; transition: transform var(--t); }
+  &:hover { background: var(--bleu-200); i:last-child { transform: translateX(3px); } }
+}
+
+// ═══ Entreprises qui recrutent ═══
+.hiring { padding: clamp(3rem, 6vw, 4.5rem) 0 clamp(1rem, 2vw, 1.5rem); }
+
+// Quatre colonnes sur un gabarit large : les huit entreprises forment
+// alors deux rangees pleines plutot qu'une rangee de cinq et un reste.
+.hiring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 0.7rem;
+}
+
+.hc {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t);
+  &:hover { border-color: var(--bleu-300); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+}
+
+.hc-av {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--r-xs);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.88rem; font-weight: 700;
+}
+
+.hc-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.32;
+
+  strong {
+    font-size: 0.87rem; font-weight: 700; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  span {
+    font-size: 0.75rem; color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+}
+
+// Le nombre d'offres : la seule raison de cliquer sur une entreprise
+// qu'on ne connait pas.
+.hc-n {
+  flex-shrink: 0;
+  min-width: 32px;
+  padding: 0.14rem 0.45rem;
+  text-align: center;
+  background: var(--bleu-100);
+  color: var(--bleu-700);
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
 // ═══ Comment ça marche ═══
 .how {
   padding: clamp(2.5rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 4.5rem);
@@ -350,14 +676,22 @@
   gap: 1.15rem;
 }
 
+// `--brume` vaut la couleur du sol : les trois encarts etaient invisibles,
+// et la section n'etait plus qu'une rangee de titres flottants. Surface
+// blanche, filet, et le numero prend la taille qu'un numero merite quand
+// il annonce une sequence.
 .how-step {
   position: relative;
-  padding: 1.6rem 1.5rem;
-  background: var(--brume);
+  padding: 1.7rem 1.6rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.55rem;
+  transition: border-color var(--t), box-shadow var(--t);
+
+  &:hover { border-color: var(--bleu-300); box-shadow: var(--shadow-sm); }
 
   h3 { font-size: 1.15rem; }
 
@@ -372,16 +706,36 @@
 }
 
 .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  margin-bottom: 0.35rem;
+  border-radius: var(--r-sm);
+  background: var(--bleu-100);
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.78rem;
   font-weight: 500;
-  letter-spacing: 0.1em;
-  color: var(--violet);
+  letter-spacing: -0.02em;
+  color: var(--bleu-700);
 }
 
 // ═══ Adaptatif ═══
+// Le volet des offres passe sous le texte, puis disparait : un hero qui
+// fait trois hauteurs d'ecran sur telephone n'est plus un hero.
+@media (max-width: 1180px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .hero-panel { max-width: 560px; }
+  .hero { min-height: 0; padding-bottom: clamp(3rem, 7vh, 5rem); }
+  .hero-scroll { display: none; }
+}
+
 @media (max-width: 1080px) {
   .hero h1 { max-width: 18ch; }
+}
+
+@media (max-width: 860px) {
+  .hero-panel { display: none; }
 }
 
 @media (max-width: 780px) {

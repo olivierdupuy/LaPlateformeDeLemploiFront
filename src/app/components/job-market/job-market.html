@@ -74,9 +74,15 @@
       @if (marcheIndisponible()) {
         <div class="jm-market jm-market--vide">
           <i class="bi bi-bar-chart" aria-hidden="true"></i>
+          <!-- Le retour à la ligne du gabarit inséré une espace avant le
+               point : « pour ce métier . Essayez… ». Le point est collé au
+               dernier mot de chaque branche. -->
           <span>
-            Aucune statistique de marché pour ce métier
-            @if (departement) { dans le département {{ departement }} }.
+            @if (departement) {
+              Aucune statistique de marché pour ce métier dans le département {{ departement }}.
+            } @else {
+              Aucune statistique de marché pour ce métier.
+            }
             Essayez la France entière en laissant le département vide.
           </span>
         </div>

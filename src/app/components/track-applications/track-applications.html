@@ -88,55 +88,115 @@
           <a routerLink="/offres" class="btn-primary">Trouver une offre</a>
         </div>
       } @else {
-        <div class="trk-counters">
-          <span class="trkc"><b>{{ counts().pending }}</b> en attente</span>
-          <span class="trkc"><b>{{ counts().reviewed }}</b> examinées</span>
-          <span class="trkc"><b>{{ counts().accepted }}</b> acceptées</span>
-          <span class="trkc"><b>{{ counts().rejected }}</b> refusées</span>
+        <!-- Les compteurs filtrent : un chiffre qui ne mène nulle part
+             oblige à parcourir la liste pour trouver ce qu'il compte. -->
+        <div class="trk-tools">
+          <div class="trk-counters" role="group" aria-label="Filtrer par statut">
+            <button class="trkc" [class.is-on]="!statusFilter()" (click)="toggleStatus('')">
+              <b>{{ counts().total }}</b> toutes
+            </button>
+            <button class="trkc" [class.is-on]="statusFilter() === 'Pending'" (click)="toggleStatus('Pending')">
+              <b>{{ counts().pending }}</b> en attente
+            </button>
+            <button class="trkc" [class.is-on]="statusFilter() === 'Reviewed'" (click)="toggleStatus('Reviewed')">
+              <b>{{ counts().reviewed }}</b> examinées
+            </button>
+            <button class="trkc" [class.is-on]="statusFilter() === 'Accepted'" (click)="toggleStatus('Accepted')">
+              <b>{{ counts().accepted }}</b> acceptées
+            </button>
+            <button class="trkc" [class.is-on]="statusFilter() === 'Rejected'" (click)="toggleStatus('Rejected')">
+              <b>{{ counts().rejected }}</b> refusées
+            </button>
+          </div>
+
+          <div class="searchbar">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <label class="sr-only" for="trk-q">Rechercher parmi mes candidatures</label>
+            <input id="trk-q" type="search" placeholder="Poste ou employeur…"
+                   [ngModel]="query()" (ngModelChange)="query.set($event)" />
+          </div>
         </div>
 
+        @if (filtered().length === 0) {
+          <div class="empty-box">
+            <i class="bi bi-funnel" aria-hidden="true"></i>
+            <h3>Aucune candidature ne correspond</h3>
+            <p>Changez de statut ou effacez la recherche.</p>
+            <button class="btn-secondary" (click)="statusFilter.set(''); query.set('')">Tout afficher</button>
+          </div>
+        } @else {
         <ul class="trk-list">
-          @for (a of active(); track a.id) {
-            <li class="trk-row">
-              <span class="trk-av" [style.background]="companyColor(a.jobOffer?.company || '?').bg">
-                <span [style.color]="companyColor(a.jobOffer?.company || '?').fg">{{ (a.jobOffer?.company || '?').charAt(0) }}</span>
-              </span>
-              <span class="trk-body">
-                <a class="trk-title" [routerLink]="['/offres', a.jobOfferId]">{{ a.jobOffer?.title }}</a>
-                <span class="trk-meta">
-                  {{ a.jobOffer?.company }} · Postulé le {{ a.appliedAt | date: 'd MMM y' }}
+          @for (a of filtered(); track a.id) {
+            <li class="trk-card" [class.is-stale]="isStale(a)">
+              <div class="trk-card__head">
+                <span class="trk-av" [style.background]="companyColor(a.jobOffer?.company || '?').bg">
+                  <span [style.color]="companyColor(a.jobOffer?.company || '?').fg">{{ (a.jobOffer?.company || '?').charAt(0) }}</span>
+                </span>
+                <span class="trk-body">
+                  <a class="trk-title" [routerLink]="['/offres', a.jobOfferId]">{{ a.jobOffer?.title }}</a>
+                  <span class="trk-meta">
+                    {{ a.jobOffer?.company }}
+                    @if (a.jobOffer?.location) { · {{ a.jobOffer?.location }} }
+                  </span>
+                </span>
+                <span class="trk-side">
+                  <span class="trk-status" [class]="getStatusClass(a.status)">
+                    <i class="bi" [class]="getStatusIcon(a.status)" aria-hidden="true"></i>
+                    {{ getStatusLabel(a.status) }}
+                  </span>
+                  @if (canRemind(a)) {
+                    <button class="btn-secondary btn-sm" [disabled]="remindingId() === a.id" (click)="remind(a, $event)"
+                            title="Envoyer un rappel au recruteur">
+                      @if (remindingId() === a.id) { <span class="sp"></span> } @else { <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Relancer }
+                    </button>
+                  }
+                  <button class="icon-action" [disabled]="archivingId() === a.id"
+                          (click)="setArchived(a, true, $event)" aria-label="Ranger cette candidature"
+                          title="Ranger dans les archives">
+                    <i class="bi bi-archive" aria-hidden="true"></i>
+                  </button>
+                </span>
+              </div>
+
+              <!-- Le chemin parcouru : « En attente » depuis trois semaines
+                   ne dit pas si le dossier a seulement été ouvert. -->
+              <ol class="trk-path">
+                @for (s of stages(a); track s.label) {
+                  <li [class.is-done]="s.done" [class.is-current]="s.current">
+                    <span class="trk-path__d" aria-hidden="true"></span>
+                    <span class="trk-path__l">{{ s.label }}</span>
+                  </li>
+                }
+              </ol>
+
+              <div class="trk-card__foot">
+                <span class="trk-when">
+                  <i class="bi bi-clock" aria-hidden="true"></i>
+                  Postulé {{ sinceLabel(a.appliedAt) }} · le {{ a.appliedAt | date: 'd MMM y' }}
                 </span>
                 @if (a.reviewedAt) {
                   <span class="trk-seen">
                     <i class="bi bi-eye-fill" aria-hidden="true"></i>
-                    Consultée par le recruteur le {{ a.reviewedAt | date: 'd MMM' }}
+                    Consultée le {{ a.reviewedAt | date: 'd MMM' }}
+                  </span>
+                }
+                @if (isStale(a)) {
+                  <span class="trk-stale">
+                    <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+                    Sans réponse depuis plus de deux semaines
                   </span>
                 }
                 @if (a.jobOffer && a.jobOffer.isActive === false) {
                   <span class="trk-gone">
                     <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
-                    Cette offre n'est plus disponible
+                    Cette offre n'est plus en ligne
                   </span>
                 }
-              </span>
-              <span class="trk-side">
-                <span class="trk-status" [class]="getStatusClass(a.status)">
-                  <i class="bi" [class]="getStatusIcon(a.status)" aria-hidden="true"></i>
-                  {{ getStatusLabel(a.status) }}
-                </span>
-                @if (canRemind(a)) {
-                  <button class="btn-secondary btn-sm" [disabled]="remindingId() === a.id" (click)="remind(a, $event)">
-                    @if (remindingId() === a.id) { <span class="sp"></span> } @else { Relancer }
-                  </button>
-                }
-                <button class="icon-action" [disabled]="archivingId() === a.id"
-                        (click)="setArchived(a, true, $event)" aria-label="Ranger cette candidature">
-                  <i class="bi bi-archive" aria-hidden="true"></i>
-                </button>
-              </span>
+              </div>
             </li>
           }
         </ul>
+        }
       }
     }
 

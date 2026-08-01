@@ -9,7 +9,7 @@
       <div class="ad-head__actions">
         <div class="page-stats">
         <div class="stat">
-        <span class="stat-num u-mono">{{ q.facets().total }}</span>
+        <span class="stat-num u-mono">{{ q.facets().total | number }}</span>
         <span class="stat-lbl">utilisateur{{ q.facets().total > 1 ? 's' : '' }}</span>
         </div>
         <!-- Le compteur de présence bouge sans rechargement : il est corrigé
@@ -73,16 +73,16 @@
       </div>
       <div class="users-roles">
         <button class="chip" [class.is-active]="!activeFilters().length" (click)="q.clearAll()">
-          Tous <span class="u-mono">{{ q.facets().total }}</span>
+          Tous <span class="u-mono">{{ q.facets().total | number }}</span>
         </button>
         <button class="chip" (click)="q.setParam('role', 'Candidate')">
-          Candidats <span class="u-mono">{{ q.facets().candidates }}</span>
+          Candidats <span class="u-mono">{{ q.facets().candidates | number }}</span>
         </button>
         <button class="chip" (click)="q.setParam('role', 'Recruiter')">
-          Recruteurs <span class="u-mono">{{ q.facets().recruiters }}</span>
+          Recruteurs <span class="u-mono">{{ q.facets().recruiters | number }}</span>
         </button>
         <button class="chip" (click)="q.setParam('role', 'Admin')">
-          Administrateurs <span class="u-mono">{{ q.facets().admins }}</span>
+          Administrateurs <span class="u-mono">{{ q.facets().admins | number }}</span>
         </button>
       </div>
     </div>

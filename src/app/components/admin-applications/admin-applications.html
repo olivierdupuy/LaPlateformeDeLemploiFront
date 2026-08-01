@@ -6,7 +6,7 @@
       <p class="ad-head__sub">Le flux complet des candidatures déposées sur la plateforme.</p>
     </div>
     <div class="ad-head__actions">
-      <span class="ad-count">{{ q.total() }} candidature{{ q.total() > 1 ? 's' : '' }}</span>
+      <span class="ad-count">{{ q.total() | number }} candidature{{ q.total() > 1 ? 's' : '' }}</span>
     </div>
   </header>
 
@@ -32,7 +32,7 @@
          La pastille porte l'état, le mot à côté le nomme. -->
     <div class="ad-facets animate-in" style="animation-delay:.05s">
       <button class="ad-facet" [class.is-active]="!activeFilters().length" (click)="q.clearAll()">
-        <span class="ad-facet__val">{{ q.facets().total }}</span>
+        <span class="ad-facet__val">{{ q.facets().total | number }}</span>
         <span class="ad-facet__lbl">Total</span>
       </button>
       @for (s of etats; track s.cle) {
@@ -43,9 +43,28 @@
           </span>
         </button>
       }
+      <!-- Le seul compteur sur lequel l'exploitant peut agir : un dossier
+           laissé sans décision au-delà du délai de courtoisie. -->
+      <button class="ad-facet" [class.ad-facet--alert]="q.facets().stale > 0"
+              [class.is-active]="retard" (click)="retard = !retard">
+        <span class="ad-facet__val">{{ q.facets().stale | number }}</span>
+        <span class="ad-facet__lbl">
+          <span class="ad-facet__dot" [style.background]="q.facets().stale ? ETAT.critical : ETAT.neutral"></span>
+          Sans réponse
+        </span>
+      </button>
       <div class="ad-facet ad-facet--static">
         <span class="ad-facet__val">{{ handled() }} %</span>
         <span class="ad-facet__lbl">Traitées</span>
+      </div>
+      <!-- Le taux de traitement dit combien ; le délai dit à quelle vitesse.
+           L'un sans l'autre laisse croire qu'un flux traité est un flux
+           traité à temps. -->
+      <div class="ad-facet ad-facet--static">
+        <span class="ad-facet__val">
+          @if (delaiMoyen() !== null) { {{ delaiMoyen() }} <small>j</small> } @else { — }
+        </span>
+        <span class="ad-facet__lbl">Délai de lecture</span>
       </div>
     </div>
 
@@ -61,6 +80,7 @@
         <span>Trier par</span>
         <select [ngModel]="sort" (ngModelChange)="sort = $event" aria-label="Trier les candidatures">
           <option value="recent">Plus récentes</option>
+          <option value="oldest">Plus anciennes</option>
           <option value="candidate">Candidat</option>
           <option value="company">Entreprise</option>
           <option value="status">Statut</option>
@@ -95,6 +115,7 @@
               <th>Entreprise</th>
               <th>Statut</th>
               <th>Déposée</th>
+              <th>Ancienneté</th>
               <th>Suivi</th>
               <th><span class="sr-only">Actions</span></th>
             </tr>
@@ -137,6 +158,17 @@
                   }
                 </td>
                 <td class="u-mono aap-date">{{ a.appliedAt | date:'dd/MM/yy' }}</td>
+                <td>
+                  @if (attente(a); as w) {
+                    <span class="aap-age" [class.is-late]="w.enRetard" [class.is-closed]="!w.ouvert">
+                      @if (w.enRetard) {
+                        <i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i>
+                      }
+                      {{ dureeCourte(w.jours) }}
+                      @if (w.enRetard) { <span class="sr-only">sans réponse, au-delà du délai de {{ seuilRelance }} jours</span> }
+                    </span>
+                  }
+                </td>
                 <td>
                     <div class="aap-track">
                   <!-- La date de consultation n'existe que depuis sa mise

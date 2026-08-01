@@ -347,3 +347,44 @@
   .iv-grid { grid-template-columns: 1fr; }
   .ivc-details { gap: 0.4rem 0.7rem; }
 }
+
+// ── Jour de la semaine ──
+// « 14 août » ne dit pas si c'est un mardi, et c'est la première chose
+// qu'on regarde pour caler un rendez-vous.
+.ivc-dow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--bleu-500);
+  margin-bottom: 0.1rem;
+}
+.ivc-date-muted .ivc-dow { color: var(--faint); }
+
+// ── Décompte ──
+// Un agenda sert à savoir ce qui arrive, pas seulement ce qui est noté.
+.ivc-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  i { font-size: 0.65rem; }
+
+  // À deux jours ou moins, le rendez-vous cesse d'être une note d'agenda.
+  &.is-soon {
+    color: var(--bleu-800);
+    font-weight: 700;
+  }
+}
+
+// La carte est déjà dense : trois par rangée sur un gabarit large, plutôt
+// qu'une seule suivie de mille pixels de vide.
+.iv-grid { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); align-items: start; }

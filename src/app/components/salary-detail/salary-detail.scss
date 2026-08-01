@@ -12,8 +12,11 @@
   &:hover { color: var(--brand); gap: 0.65rem; }
 }
 
-.sd-header { margin-bottom: 1.75rem; }
-.sd-header h1 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); letter-spacing: -0.035em; margin: 0.4rem 0 0.5rem; }
+// ── Bandeau d'en-tête ──
+.sd-hero {
+  .eyebrow { margin-top: 0.6rem; }
+  .sd-count { margin-top: 0.7rem; font-size: 0.82rem; color: var(--on-dark-muted); }
+}
 .sd-count { font-size: 0.82rem; color: var(--muted); }
 
 // ── Carte principale ──
@@ -42,7 +45,16 @@
 .sd-contrib { display: flex; margin: 0 auto; }
 
 // ── Colonnes ──
-.sd-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+// `align-items: start` : le panneau « Par entreprise » ne compte souvent
+// qu'une ligne quand celui « Par lieu » en compte dix — etire, il ouvrait
+// trois cents pixels de blanc sous son unique entree.
+.sd-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
 .sd-block {
   padding: 1.5rem;
   &:hover { transform: none; box-shadow: none; border-color: var(--line); }
@@ -60,7 +72,25 @@
 }
 .sd-row-val { font-size: 0.8rem; font-weight: 600; color: var(--brand-700); text-align: right; }
 
-.sd-jobs-link { display: inline-flex; }
+// ── Appel de fin de page ──
+.sd-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: clamp(1.4rem, 3vw, 2rem);
+  background: var(--bleu-100);
+  border-radius: var(--r-lg);
+
+  h2 { font-size: clamp(1.15rem, 2.2vw, 1.5rem); color: var(--bleu-900); }
+  p { margin-top: 0.35rem; font-size: 0.9rem; color: var(--bleu-800); }
+  .btn-primary { flex-shrink: 0; }
+}
+
+@media (max-width: 640px) {
+  .sd-cta .btn-primary { width: 100%; justify-content: center; }
+}
 
 // ── Modale contribution ──
 .contrib-modal { max-width: 520px; }

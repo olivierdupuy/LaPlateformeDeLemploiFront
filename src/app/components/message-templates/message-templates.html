@@ -1,0 +1,112 @@
+<div class="mt-panel" role="dialog" aria-label="Modèles de messages">
+  <div class="mt-head">
+    <h2><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Modèles de messages</h2>
+    <button class="mt-x" (click)="close.emit()" aria-label="Fermer les modèles">
+      <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  @if (formOpen()) {
+    <!-- ═══ ÉCRITURE ═══ -->
+    <form class="mt-form" (ngSubmit)="save()">
+      <div class="form-group">
+        <label for="mt-name">Nom du modèle</label>
+        <input id="mt-name" type="text" [(ngModel)]="form.name" name="name"
+               placeholder="ex : Accusé de réception" maxlength="100" required />
+      </div>
+
+      <div class="form-group">
+        <label for="mt-cat">Rubrique</label>
+        <select id="mt-cat" [(ngModel)]="form.category" name="category">
+          @for (c of categories; track c) { <option [value]="c">{{ c }}</option> }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="mt-content">Message</label>
+        <textarea id="mt-content" [(ngModel)]="form.content" name="content" rows="7"
+                  maxlength="2000" required
+                  placeholder="Bonjour {{ '{{candidat}}' }}, nous avons bien reçu votre candidature au poste de {{ '{{poste}}' }}…"></textarea>
+        <!-- Les jetons sont remplacés à l'insertion : le modèle reste
+             générique, le message envoyé est nominatif. -->
+        <!-- Les accolades passent par une chaîne liée : écrites en entités
+             HTML, le compilateur les décode avant de chercher les
+             interpolations et croit lire une expression. -->
+        <span class="hint">
+          Jetons remplacés à l'insertion :
+          <code>{{ '{{candidat}}' }}</code>,
+          <code>{{ '{{poste}}' }}</code>,
+          <code>{{ '{{entreprise}}' }}</code>
+        </span>
+      </div>
+
+      <div class="mt-form__actions">
+        <button type="button" class="btn-secondary btn-sm" (click)="cancelForm()">Annuler</button>
+        <button type="submit" class="btn-primary btn-sm" [disabled]="saving()">
+          @if (saving()) { <span class="sp"></span> } @else { <i class="bi bi-check-lg" aria-hidden="true"></i> }
+          {{ editId() === null ? 'Créer le modèle' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  } @else {
+    <!-- ═══ BIBLIOTHÈQUE ═══ -->
+    <div class="mt-tools">
+      <div class="searchbar searchbar--sm">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="sr-only" for="mt-q">Rechercher un modèle</label>
+        <input id="mt-q" type="search" placeholder="Rechercher…"
+               [ngModel]="query()" (ngModelChange)="query.set($event)" />
+      </div>
+      <button class="btn-primary btn-sm" (click)="openCreate()">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i> Nouveau
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="mt-load"><span class="spinner"></span></div>
+    } @else if (!templates().length) {
+      <div class="mt-empty">
+        <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+        <h3>Aucun modèle</h3>
+        <p>Un accusé de réception, une invitation à un entretien, un refus courtois : écrivez-les une fois, réutilisez-les partout.</p>
+        <button class="btn-primary btn-sm" (click)="openCreate()">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i> Créer mon premier modèle
+        </button>
+      </div>
+    } @else if (!filtered().length) {
+      <div class="mt-empty mt-empty--tight">
+        <p>Aucun modèle ne correspond à « {{ query() }} ».</p>
+      </div>
+    } @else {
+      <div class="mt-list">
+        @for (g of grouped(); track g.category) {
+          <div class="mt-group">
+            <h3 class="mt-group__t">{{ g.category }}</h3>
+            @for (t of g.items; track t.id) {
+              <!-- La carte entière insère : c'est le geste courant. Modifier
+                   et supprimer restent des boutons distincts. -->
+              <button type="button" class="mt-item" (click)="choose(t)"
+                      [attr.aria-label]="'Insérer le modèle ' + t.name">
+                <span class="mt-item__tx">
+                  <strong>{{ t.name }}</strong>
+                  <span>{{ preview(t.content) }}</span>
+                </span>
+                <span class="mt-item__acts">
+                  <span class="mt-item__ins">Insérer</span>
+                  <span class="mt-ic" (click)="openEdit(t, $event)" role="button" tabindex="0"
+                        (keydown.enter)="openEdit(t, $event)" aria-label="Modifier ce modèle">
+                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                  </span>
+                  <span class="mt-ic mt-ic--del" (click)="remove(t, $event)" role="button" tabindex="0"
+                        (keydown.enter)="remove(t, $event)" aria-label="Supprimer ce modèle">
+                    <i class="bi bi-trash3" aria-hidden="true"></i>
+                  </span>
+                </span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

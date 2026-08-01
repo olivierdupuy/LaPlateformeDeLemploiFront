@@ -7,76 +7,8 @@
   gap: 1rem;
 }
 
-.st {
-  padding: 1.25rem 1.35rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.st-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.9rem;
-  min-height: 44px;
-}
-
-.st-icon {
-  width: 44px; height: 44px;
-  border-radius: var(--r-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.05rem; flex-shrink: 0;
-}
-
-.ic-brand   { background: var(--brand-100); color: var(--brand-700); }
-.ic-blue    { background: var(--blue-bg);   color: var(--blue); }
-.ic-green   { background: var(--green-bg);  color: var(--green); }
-.ic-amber   { background: var(--amber-bg);  color: var(--amber); }
-.ic-red     { background: var(--red-bg);    color: var(--red); }
-.st-val {
-  font-family: var(--font-mono);
-  font-size: 2rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  color: var(--ink);
-}
-
-.st-lbl {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  margin-top: 0.4rem;
-}
-
-.st-bar {
-  height: 4px;
-  background: var(--paper-2);
-  border-radius: var(--r-full);
-  margin-top: 0.9rem;
-  overflow: hidden;
-}
-.st-bar-fill {
-  height: 100%;
-  border-radius: var(--r-full);
-  transition: width 1s var(--ease-out);
-}
-
-.st-extra {
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 600;
-  color: var(--ink-soft);
-  background: var(--paper-2);
-  border: 1px solid var(--line);
-  padding: 0.14rem 0.5rem;
-  border-radius: var(--r-full);
-  white-space: nowrap;
-}
+// Les jauges décoratives des tuiles (`.st-bar`) ont disparu avec elles :
+// une barre remplie à « 60 % si > 0, sinon 0 % » ne mesurait rien.
 
 // ── Content ──
 .dr-content { padding: 2rem 0 4rem; }
@@ -134,7 +66,9 @@
 .chart-doughnut { height: 250px; }
 
 // ── Sidebar ──
-.dr-side { position: sticky; top: 5.5rem; }
+// `--nav-now` : la barre du site et la sous-navigation se resserrent au
+// défilement ; une valeur fixe laissait la carte flotter.
+.dr-side { position: sticky; top: calc(var(--nav-now) + 4.5rem); }
 
 .qnav { padding: 0.35rem 0.5rem; }
 
@@ -149,9 +83,9 @@
   transition: background var(--t) var(--ease);
 
   &:hover {
-    background: var(--paper);
-    strong { color: var(--brand); }
-    .qn-arrow { opacity: 1; transform: translateX(0); color: var(--brand); }
+    background: var(--bleu-tint);
+    strong { color: var(--bleu-700); }
+    .qn-arrow { opacity: 1; transform: translateX(0); color: var(--bleu-600); }
   }
 }
 
@@ -160,6 +94,8 @@
   border-radius: var(--r-sm);
   display: flex; align-items: center; justify-content: center;
   font-size: 0.95rem; flex-shrink: 0;
+  background: var(--bleu-100);
+  color: var(--bleu-700);
 }
 
 .qn-text {
@@ -196,9 +132,6 @@
   .stats-row { grid-template-columns: 1fr 1fr; }
 }
 
-@media (max-width: 768px) {
-}
-
 @media (max-width: 520px) {
   .stats-row { grid-template-columns: 1fr; }
 }
@@ -217,4 +150,84 @@
   font-size: 0.88rem;
   color: var(--muted);
   i { font-size: 1.05rem; color: var(--green); }
+}
+
+// ═══════════════════════════════════════════════
+//  À TRAITER — la file d'attente du recruteur
+//  Le panneau vivait dans une colonne de droite de 350 px, sous deux
+//  graphiques qui occupaient l'écran. Il passe devant : c'est la seule
+//  chose qu'on vient faire ici.
+// ═══════════════════════════════════════════════
+.dr-todo { padding-top: 1.75rem; }
+
+// ═══ Classement des offres ═══
+// Une liste, pas des barres : sur un graphique, l'offre à zéro n'avait
+// pas de barre et disparaissait — c'est pourtant celle qu'il faut voir.
+.orank { list-style: none; display: flex; flex-direction: column; }
+
+.orank-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(80px, 34%) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--nuage-2);
+  &:last-child { border-bottom: none; }
+}
+
+.orank-lbl {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orank-bar {
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--nuage-2);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: var(--r-full);
+    background: var(--bleu-500);
+    transition: width 0.7s var(--ease-out);
+  }
+}
+
+.orank-val {
+  min-width: 28px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+// L'offre muette : elle ne s'efface pas, elle se signale.
+.orank-row.is-zero {
+  .orank-lbl { color: var(--muted); }
+  .orank-val { color: var(--faint); }
+  .orank-bar { box-shadow: inset 0 0 0 1px var(--line-strong); background: transparent; }
+}
+
+.orank-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+  color: var(--muted);
+  i { color: var(--faint); margin-top: 0.15rem; }
+}
+
+@media (max-width: 768px) {
+  .orank-row { grid-template-columns: minmax(0, 1fr) auto; .orank-bar { display: none; } }
 }

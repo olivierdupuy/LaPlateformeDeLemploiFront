@@ -16,69 +16,85 @@
   <div class="empty-box"><div class="spinner"></div></div>
 } @else if (data(); as d) {
 
-<!-- ═══ STAT CARDS ═══ -->
+<!-- ═══ CHIFFRES CLÉS ═══
+     Quatre faits, quatre tuiles. La page en portait huit, dont
+     « Entretiens » et « Candidatures » comptés deux fois à trois cents
+     pixels d'écart. Les comptes de candidatures vivent désormais dans
+     l'entonnoir plus bas ; ces tuiles portent ce qu'il ne dit pas. -->
 <section class="dc-stats">
   <div class="container">
     <div class="stats-row">
-      <div class="st card animate-in" style="animation-delay:.05s">
-        <span class="st-stripe" style="background: var(--brand);"></span>
-        <div class="st-top">
-          <div class="st-icon ic-teal"><i class="bi bi-send-fill"></i></div>
-          <span class="st-val u-mono">{{ d.totalCandidatures }}</span>
+      <div class="kpi card animate-in" style="animation-delay:.05s">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i class="bi bi-reply" aria-hidden="true"></i></div>
+          <span class="kpi-val u-mono">{{ analytics()?.responseRate ?? 0 }}<span class="kpi-unit">%</span></span>
         </div>
-        <span class="st-lbl">Candidatures envoyées</span>
-        <div class="st-bar"><div class="st-bar-fill" style="width:100%; background: var(--brand);"></div></div>
+        <span class="kpi-lbl">Taux de réponse</span>
+        <span class="kpi-hint">Part de vos candidatures qui ont reçu une suite</span>
       </div>
 
-      <div class="st card animate-in" style="animation-delay:.1s">
-        <span class="st-stripe" style="background: var(--green);"></span>
-        <div class="st-top">
-          <div class="st-icon ic-green"><i class="bi bi-check-circle-fill"></i></div>
-          <span class="st-val u-mono">{{ d.acceptees }}</span>
+      <div class="kpi card animate-in" style="animation-delay:.1s">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i class="bi bi-check-circle" aria-hidden="true"></i></div>
+          <span class="kpi-val u-mono">{{ analytics()?.conversionRate ?? 0 }}<span class="kpi-unit">%</span></span>
         </div>
-        <span class="st-lbl">Acceptées</span>
-        <div class="st-bar"><div class="st-bar-fill" [style.width]="d.totalCandidatures > 0 ? (d.acceptees / d.totalCandidatures * 100) + '%' : '0%'" style="background: var(--green);"></div></div>
+        <span class="kpi-lbl">Taux d'acceptation</span>
+        <span class="kpi-hint">Candidatures acceptées sur candidatures envoyées</span>
       </div>
 
-      <div class="st card animate-in" style="animation-delay:.15s">
-        <span class="st-stripe" style="background: var(--blue);"></span>
-        <div class="st-top">
-          <div class="st-icon ic-blue"><i class="bi bi-calendar-event-fill"></i></div>
-          <span class="st-val u-mono">{{ d.entretiens }}</span>
+      <a routerLink="/favoris" class="kpi card animate-in" style="animation-delay:.15s">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i class="bi bi-bookmark" aria-hidden="true"></i></div>
+          <span class="kpi-val u-mono">{{ bookmarks.count() }}</span>
         </div>
-        <span class="st-lbl">Entretiens planifiés</span>
-        <div class="st-bar"><div class="st-bar-fill" [style.width]="d.entretiens > 0 ? '60%' : '0%'" style="background: var(--blue);"></div></div>
-      </div>
+        <span class="kpi-lbl">Offres enregistrées</span>
+        <span class="kpi-hint">Mises de côté pour y revenir</span>
+      </a>
 
-      <div class="st card animate-in" style="animation-delay:.2s">
-        <span class="st-stripe" style="background: var(--amber);"></span>
-        <div class="st-top">
-          <div class="st-icon ic-amber"><i class="bi bi-chat-dots-fill"></i></div>
-          <span class="st-val u-mono">{{ d.messagesNonLus }}</span>
+      <a routerLink="/recherches-sauvegardees" class="kpi card animate-in" style="animation-delay:.2s">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i class="bi bi-bookmark-star" aria-hidden="true"></i></div>
+          <span class="kpi-val u-mono">{{ d.recherches }}</span>
         </div>
-        <span class="st-lbl">Messages non lus</span>
-        <div class="st-bar"><div class="st-bar-fill" [style.width]="d.messagesNonLus > 0 ? '40%' : '0%'" style="background: var(--amber);"></div></div>
-      </div>
+        <span class="kpi-lbl">Recherches enregistrées</span>
+        <span class="kpi-hint">Les nouvelles offres arrivent par email</span>
+      </a>
     </div>
   </div>
 </section>
 
-<!-- ═══ ALERTS ═══ -->
-@if (alerts().length > 0) {
-  <section class="dc-alerts">
-    <div class="container">
-      <div class="alerts-bar animate-in" style="animation-delay:.22s">
-        <i class="bi bi-bell-fill"></i>
-        <div class="alerts-text">
-          @for (a of alerts(); track a.searchId) {
-            <span><strong>{{ a.newCount }}</strong> nouvelle{{ a.newCount > 1 ? 's' : '' }} offre{{ a.newCount > 1 ? 's' : '' }} pour "{{ a.searchLabel }}"</span>
-          }
-        </div>
-        <a routerLink="/recherches-sauvegardees" class="alerts-link">Voir <i class="bi bi-arrow-right"></i></a>
+<!-- ═══ À FAIRE ═══
+     Ce que la page devrait dire en premier : non pas « voici vos
+     chiffres », mais « voici ce qui vous attend ». Les entretiens à
+     confirmer, les messages non lus, les candidatures qui dorment. -->
+<section class="dc-todo">
+  <div class="container">
+    <div class="todo-panel animate-in">
+      <div class="todo-head">
+        <h2><i class="bi bi-list-check" aria-hidden="true"></i> À faire</h2>
+        @if (todos().length) { <span class="todo-n u-mono">{{ todos().length }}</span> }
       </div>
+
+      @if (todos().length) {
+        <ul class="todo-list">
+          @for (t of todos(); track t.key) {
+            <li class="todo-item" [class.is-due]="t.tone === 'due'">
+              <span class="todo-ic"><i class="bi" [class]="t.icon" aria-hidden="true"></i></span>
+              <span class="todo-tx">{{ t.text }}</span>
+              <a [routerLink]="t.link" class="todo-cta">{{ t.cta }} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="todo-clear">
+          <i class="bi bi-check-circle" aria-hidden="true"></i>
+          Rien en attente. Le meilleur moment pour envoyer une candidature de plus.
+          <a routerLink="/offres" class="arrow-link">Voir les offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </p>
+      }
     </div>
-  </section>
-}
+  </div>
+</section>
 
 <!-- ═══ RECOMMANDATIONS ═══ -->
 @if (recommendations().length > 0) {
@@ -117,61 +133,57 @@
 
     <!-- LEFT: Charts -->
     <div class="dc-main">
-      <!-- Analytics -->
-      @if (analytics(); as a) {
-        <div class="dc-analytics animate-in" style="animation-delay:.23s">
-          <div class="ana-kpi">
-            <div class="ak card"><span class="ak-val u-mono">{{ a.responseRate }}%</span><span class="ak-lbl">Taux de réponse</span></div>
-            <div class="ak card"><span class="ak-val u-mono">{{ a.conversionRate }}%</span><span class="ak-lbl">Taux d'acceptation</span></div>
-            <div class="ak card"><span class="ak-val u-mono">{{ a.interviewCount }}</span><span class="ak-lbl">Entretiens</span></div>
-            <div class="ak card"><span class="ak-val u-mono">{{ a.total }}</span><span class="ak-lbl">Candidatures</span></div>
+      <!-- ═══ Le parcours ═══
+           Une seule forme là où il y en avait trois (anneau, rangée de
+           chiffres, barre segmentée) pour les mêmes quatre nombres. Un
+           entonnoir, parce que c'est ainsi qu'on vit une recherche :
+           j'ai postulé, on m'a lu, on m'a reçu, on m'a répondu. -->
+      @if (d.totalCandidatures > 0) {
+        <div class="dc-card animate-in" style="animation-delay:.25s">
+          <div class="dc-card-head">
+            <h2>Votre parcours de candidature</h2>
+            <a routerLink="/suivi" class="arrow-link">Le détail <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
           </div>
-          <div class="ana-charts">
-            <div class="ana-chart-box">
-              <h4>Répartition par statut</h4>
-              <div class="ana-chart-wrap"><canvas #statusChart></canvas></div>
-            </div>
-            <div class="ana-chart-box">
-              <h4>Candidatures par mois</h4>
-              <div class="ana-chart-wrap"><canvas #monthChart></canvas></div>
-            </div>
+          <div class="dc-card-body">
+            <ol class="fn">
+              @for (s of funnel(); track s.key) {
+                <li class="fn-step">
+                  <div class="fn-top">
+                    <span class="fn-ic"><i class="bi" [class]="s.icon" aria-hidden="true"></i></span>
+                    <span class="fn-val u-mono">{{ s.value }}</span>
+                  </div>
+                  <span class="fn-lbl">{{ s.label }}</span>
+                  <div class="fn-bar"><span [style.width.%]="s.pct"></span></div>
+                  <span class="fn-pct u-mono">{{ s.pct }} %</span>
+                </li>
+              }
+            </ol>
+
+            @if (d.refusees > 0) {
+              <p class="fn-note">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                {{ d.refusees }} candidature{{ d.refusees > 1 ? 's' : '' }} refusée{{ d.refusees > 1 ? 's' : '' }}.
+                Un refus renseigne : regardez ce qui manquait au profil recherché.
+              </p>
+            }
           </div>
         </div>
       }
 
-      <!-- Repartition -->
-      <div class="dc-card animate-in" style="animation-delay:.25s">
-        <div class="dc-card-head">
-          <h2><span class="ed-pill">01</span> Suivi de vos candidatures</h2>
-        </div>
-        <div class="dc-card-body">
-          <div class="status-row">
-            @for (item of d.candidaturesParStatut; track item.label) {
-              <div class="sr-item">
-                <div class="sr-dot" [style.background]="statusColor(item.label)"></div>
-                <div class="sr-info">
-                  <span class="sr-val u-mono">{{ item.value }}</span>
-                  <span class="sr-lbl">{{ item.label }}</span>
-                </div>
-              </div>
-            }
+      <!-- Rythme, seulement s'il y a de quoi tracer une courbe -->
+      @if (hasMonthly()) {
+        <div class="dc-card animate-in" style="animation-delay:.28s">
+          <div class="dc-card-head"><h2>Candidatures par mois</h2></div>
+          <div class="dc-card-body">
+            <div class="ana-chart-wrap"><canvas #monthChart></canvas></div>
           </div>
-          @if (d.totalCandidatures > 0) {
-            <div class="progress-bar">
-              @for (item of d.candidaturesParStatut; track item.label) {
-                @if (item.value > 0) {
-                  <div class="pb-seg" [style.width]="(item.value / d.totalCandidatures * 100) + '%'" [style.background]="statusColor(item.label)" [title]="item.label + ': ' + item.value"></div>
-                }
-              }
-            </div>
-          }
         </div>
-      </div>
+      }
 
       <!-- Dernieres candidatures -->
       <div class="dc-card animate-in" style="animation-delay:.3s">
         <div class="dc-card-head">
-          <h2><span class="ed-pill">02</span> Activité recente</h2>
+          <h2><span class="ed-pill">02</span> Activité récente</h2>
           <a routerLink="/suivi" class="link-teal">Tout voir <i class="bi bi-arrow-right"></i></a>
         </div>
         <div class="dc-card-body">
@@ -202,46 +214,39 @@
       </div>
     </div>
 
-    <!-- RIGHT: Quick access -->
+    <!-- RIGHT -->
+    <!-- Sept raccourcis dont cinq figuraient déjà dans la sous-navigation
+         juste au-dessus. Ne restent que les trois pages qui n'y sont pas,
+         et ce que le tableau de bord ne montre nulle part ailleurs. -->
     <aside class="dc-side">
       <div class="dc-card animate-in" style="animation-delay:.2s">
-        <div class="dc-card-head"><h2>Accès rapide</h2></div>
-        <div class="dc-card-body quick-nav">
-          <a routerLink="/suivi" class="qn-item">
-            <div class="qn-icon ic-teal"><i class="bi bi-clipboard-check"></i></div>
-            <div class="qn-text"><strong>Mes candidatures</strong><span>Suivre mes candidatures</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/mon-cv" class="qn-item">
-            <div class="qn-icon ic-blue"><i class="bi bi-file-earmark-person"></i></div>
-            <div class="qn-text"><strong>Mon CV en ligne</strong><span>Éditer mon CV</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/favoris" class="qn-item">
-            <div class="qn-icon ic-amber"><i class="bi bi-bookmark-heart"></i></div>
-            <div class="qn-text"><strong>Mes favoris</strong><span>{{ bookmarks.count() }} offre{{ bookmarks.count() > 1 ? 's' : '' }}</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/entretiens" class="qn-item">
-            <div class="qn-icon ic-green"><i class="bi bi-calendar-event"></i></div>
-            <div class="qn-text"><strong>Entretiens</strong><span>{{ d.entretiens }} planifie{{ d.entretiens > 1 ? 's' : '' }}</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/messagerie" class="qn-item">
-            <div class="qn-icon ic-red"><i class="bi bi-chat-dots"></i></div>
-            <div class="qn-text"><strong>Messagerie</strong><span>{{ d.messagesNonLus }} non lu{{ d.messagesNonLus > 1 ? 's' : '' }}</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/recherches-sauvegardees" class="qn-item">
-            <div class="qn-icon ic-neutral"><i class="bi bi-bookmark-star"></i></div>
-            <div class="qn-text"><strong>Recherches</strong><span>{{ d.recherches }} sauvegardee{{ d.recherches > 1 ? 's' : '' }}</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
-          <a routerLink="/profil" class="qn-item">
-            <div class="qn-icon ic-teal"><i class="bi bi-person"></i></div>
-            <div class="qn-text"><strong>Mon profil</strong><span>Modifier mes informations</span></div>
-            <i class="bi bi-chevron-right qn-arrow"></i>
-          </a>
+        <div class="dc-card-head"><h2>Votre profil</h2></div>
+        <div class="dc-card-body">
+          @if (auth.currentUser(); as u) {
+            <div class="pf">
+              <span class="pf-av">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
+              <span class="pf-tx">
+                <strong>{{ u.firstName }} {{ u.lastName }}</strong>
+                <span>{{ u.title || 'Intitulé de poste non renseigné' }}</span>
+              </span>
+            </div>
+          }
+          <div class="pf-links">
+            <a routerLink="/profil" class="pf-link">
+              <i class="bi bi-person" aria-hidden="true"></i> Modifier mon profil
+              <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </a>
+            <a routerLink="/entretiens" class="pf-link">
+              <i class="bi bi-calendar-event" aria-hidden="true"></i> Mes entretiens
+              @if (d.entretiens) { <span class="pf-n">{{ d.entretiens }}</span> }
+              <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </a>
+            <a routerLink="/messagerie" class="pf-link">
+              <i class="bi bi-chat-dots" aria-hidden="true"></i> Messagerie
+              @if (d.messagesNonLus) { <span class="pf-n is-alert">{{ d.messagesNonLus }}</span> }
+              <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </a>
+          </div>
         </div>
       </div>
     </aside>

@@ -1,6 +1,7 @@
 import { Component, signal, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BookmarkService } from '../../services/bookmark.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
@@ -12,7 +13,7 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, RouterLinkActive, DatePipe],
+  imports: [RouterLink, RouterLinkActive, DatePipe, FormsModule],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
@@ -32,8 +33,24 @@ export class Navbar implements OnInit, OnDestroy {
   notifOpen = signal(false);
   userMenuOpen = signal(false);
 
+  /** Champ de recherche de la barre, actif une fois la page descendue. */
+  quickQuery = '';
+
   @HostListener('window:scroll')
-  onScroll() { this.scrolled.set(window.scrollY > 20); }
+  onScroll() {
+    const compact = window.scrollY > 120;
+    this.scrolled.set(compact);
+    // La hauteur courante de la barre vit sur <html> : les barres de
+    // filtres collantes s'y accrochent (--nav-now), et une variable CSS
+    // ne remonte pas jusqu'a la racine depuis le composant.
+    document.documentElement.classList.toggle('nav-compact', compact);
+  }
+
+  /** Recherche depuis la barre : meme destination que le champ du hero. */
+  quickSearch() {
+    const q = this.quickQuery.trim();
+    this.router.navigate(['/offres'], { queryParams: q ? { search: q } : {} });
+  }
 
   @HostListener('document:click', ['$event'])
   onDocClick(e: Event) {
@@ -46,7 +63,7 @@ export class Navbar implements OnInit, OnDestroy {
   onEscape() {
     this.notifOpen.set(false);
     this.userMenuOpen.set(false);
-    this.mobileOpen.set(false);
+    this.closeMobile();
   }
 
   ngOnInit() {
@@ -80,11 +97,22 @@ export class Navbar implements OnInit, OnDestroy {
     // la navbar — la détruire en y entrant coupait le temps réel de toute
     // l'application. La fermeture se fait à la déconnexion.
     this.subs.forEach(s => s.unsubscribe());
+    // Le panneau d'administration ne rend pas cette barre : la marque de
+    // resserrement doit partir avec elle.
+    document.documentElement.classList.remove('nav-compact');
+    document.body.classList.remove('nav-locked');
   }
 
-  toggleMobile() { this.mobileOpen.update((v) => !v); }
+  toggleMobile() {
+    this.mobileOpen.update((v) => !v);
+    // Le menu mobile occupe l'ecran : la page derriere ne doit pas defiler.
+    document.body.classList.toggle('nav-locked', this.mobileOpen());
+  }
 
-  closeMobile() { this.mobileOpen.set(false); }
+  closeMobile() {
+    this.mobileOpen.set(false);
+    document.body.classList.remove('nav-locked');
+  }
 
   toggleNotif(e: Event) {
     e.stopPropagation();

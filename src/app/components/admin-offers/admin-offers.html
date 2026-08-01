@@ -6,7 +6,7 @@
       <p class="ad-head__sub">Le catalogue complet, quel que soit son statut de modération.</p>
     </div>
     <div class="ad-head__actions">
-      <span class="ad-count">{{ q.total() }} offre{{ q.total() > 1 ? 's' : '' }}</span>
+      <span class="ad-count">{{ q.total() | number }} offre{{ q.total() > 1 ? 's' : '' }}</span>
     </div>
   </header>
 
@@ -33,37 +33,54 @@
          Les comptes portent sur l'ensemble filtré, pas sur la page affichée. -->
     <div class="ad-facets animate-in" style="animation-delay:.05s">
       <button class="ad-facet" [class.is-active]="!activeFilters().length" (click)="q.clearAll()">
-        <span class="ad-facet__val">{{ q.facets().total }}</span>
+        <span class="ad-facet__val">{{ q.facets().total | number }}</span>
         <span class="ad-facet__lbl">Total</span>
       </button>
       <button class="ad-facet" (click)="q.setParam('statut', 'Approved')">
-        <span class="ad-facet__val">{{ q.facets().approved }}</span>
+        <span class="ad-facet__val">{{ q.facets().approved | number }}</span>
         <span class="ad-facet__lbl">
           <span class="ad-facet__dot" [style.background]="ETAT.good"></span> Approuvées
         </span>
       </button>
       <button class="ad-facet" (click)="q.setParam('statut', 'Pending')">
-        <span class="ad-facet__val">{{ q.facets().pending }}</span>
+        <span class="ad-facet__val">{{ q.facets().pending | number }}</span>
         <span class="ad-facet__lbl">
           <span class="ad-facet__dot" [style.background]="ETAT.warning"></span> En attente
         </span>
       </button>
       <button class="ad-facet" (click)="q.setParam('statut', 'Rejected')">
-        <span class="ad-facet__val">{{ q.facets().rejected }}</span>
+        <span class="ad-facet__val">{{ q.facets().rejected | number }}</span>
         <span class="ad-facet__lbl">
           <span class="ad-facet__dot" [style.background]="ETAT.critical"></span> Rejetées
         </span>
       </button>
       <button class="ad-facet" (click)="q.setParam('teletravail', '1')">
-        <span class="ad-facet__val">{{ q.facets().remote }}</span>
+        <span class="ad-facet__val">{{ q.facets().remote | number }}</span>
         <span class="ad-facet__lbl">Télétravail</span>
+      </button>
+      <!-- Les offres déposées ici sont les seules dont la qualité nous
+           revient : elles se comptent à part de la reprise partenaire. -->
+      <button class="ad-facet" (click)="q.setParam('source', 'local')">
+        <span class="ad-facet__val">{{ q.facets().local | number }}</span>
+        <span class="ad-facet__lbl">Déposées ici</span>
       </button>
       <!-- Un total sans filtre associé ne doit pas se donner l'air cliquable. -->
       <div class="ad-facet ad-facet--static">
-        <span class="ad-facet__val">{{ q.facets().views }}</span>
+        <span class="ad-facet__val">{{ q.facets().views | number }}</span>
         <span class="ad-facet__lbl">Vues cumulées</span>
       </div>
     </div>
+
+    <!-- Combien d'offres n'annoncent aucune rémunération : c'est le premier
+         motif d'abandon d'une recherche, et un chiffre que l'exploitant doit
+         voir sans le calculer. -->
+    @if (q.facets().total > 0) {
+      <p class="aof-note animate-in" style="animation-delay:.07s">
+        <i class="bi bi-cash-stack" aria-hidden="true"></i>
+        <strong>{{ q.facets().noSalary | number }}</strong> offre{{ q.facets().noSalary > 1 ? 's' : '' }}
+        sans rémunération annoncée, soit {{ q.facets().noSalary / q.facets().total | percent:'1.0-0' }} du périmètre affiché.
+      </p>
+    }
 
     <!-- Une seule rangée d'outils, au-dessus de tout ce qu'elle cadre -->
     <div class="ad-tools animate-in" style="animation-delay:.1s">
@@ -74,10 +91,22 @@
         @if (q.loading()) { <span class="ad-busy" aria-hidden="true"></span> }
       </div>
       <label class="ad-field">
+        <span>Provenance</span>
+        <select [ngModel]="source" (ngModelChange)="source = $event" aria-label="Filtrer par provenance">
+          <option value="">Toutes</option>
+          <option value="local">Plateforme</option>
+          <option value="francetravail">France Travail</option>
+          <option value="arbeitnow">Arbeitnow</option>
+          <option value="remotive">Remotive</option>
+        </select>
+      </label>
+      <label class="ad-field">
         <span>Trier par</span>
         <select [ngModel]="sort" (ngModelChange)="sort = $event" aria-label="Trier les offres">
           <option value="recent">Plus récentes</option>
           <option value="views">Plus vues</option>
+          <option value="salary">Salaire décroissant</option>
+          <option value="salary_asc">Salaire croissant</option>
           <option value="title">Titre</option>
           <option value="company">Entreprise</option>
         </select>
@@ -110,6 +139,7 @@
               <th>Catégorie</th>
               <th>Contrat</th>
               <th>Lieu</th>
+              <th>Rémunération</th>
               <th>Statut</th>
               <th class="ta-r">Vues</th>
               <th>Publiée</th>
@@ -121,20 +151,42 @@
               <tr>
                 <td>
                   <div class="aof-offer">
-                    <span class="aof-av" [style.background]="companyColor(o.company).bg">
-                      <span [style.color]="companyColor(o.company).fg">{{ o.company.charAt(0) }}</span>
-                    </span>
+                    <!-- Un employeur anonyme n'a pas d'initiale à porter :
+                         « E » de « Entreprise » ne désigne personne. -->
+                    @if (employeurAnonyme(o.company)) {
+                      <span class="aof-av aof-av--anon"><i class="bi bi-building" aria-hidden="true"></i></span>
+                    } @else {
+                      <span class="aof-av" [style.background]="companyColor(o.company).bg">
+                        <span [style.color]="companyColor(o.company).fg">{{ o.company.charAt(0) }}</span>
+                      </span>
+                    }
                     <span class="aof-offer__txt">
-                      <a [routerLink]="['/offres', o.id]" class="aof-title">{{ o.title }}</a>
+                      <span class="aof-title-row">
+                        <a [routerLink]="['/offres', o.id]" class="aof-title" [title]="o.title">{{ o.title }}</a>
+                        @if (o.isUrgent) { <span class="aof-flag" title="Offre urgente"><i class="bi bi-lightning-fill" aria-hidden="true"></i></span> }
+                        @if (o.isFeatured) { <span class="aof-flag" title="Offre mise en avant"><i class="bi bi-star-fill" aria-hidden="true"></i></span> }
+                      </span>
                       <!-- L'entreprise renvoie a ses autres offres : c'est
                            la question qui suit toujours une ligne du tableau. -->
-                      <a class="aof-company" [routerLink]="['/admin/offres']"
-                         [queryParams]="{ entreprise: o.company }">{{ o.company }}</a>
+                      <span class="aof-sub">
+                        <a class="aof-company" [routerLink]="['/admin/offres']"
+                           [queryParams]="{ entreprise: o.company }">{{ o.company | employeur }}</a>
+                        <a class="aof-src" [class.aof-src--local]="!estImportee(o)"
+                           [routerLink]="['/admin/offres']"
+                           [queryParams]="{ source: o.externalSource || 'local' }"
+                           [title]="estImportee(o) ? 'Offre reprise chez un partenaire' : 'Offre déposée sur la plateforme'">
+                          {{ sourceLabel(o.externalSource) }}
+                        </a>
+                      </span>
                     </span>
                   </div>
                 </td>
                 <td>
-                  <a class="tag" [routerLink]="['/admin/offres']" [queryParams]="{ categorie: o.category }">{{ o.category }}</a>
+                  <!-- Les catégories importées portent l'intitulé ROME complet
+                       (« Animateur / Animatrice QSE - Qualité Sécurité… ») :
+                       laissé libre, il double la hauteur de chaque ligne. -->
+                  <a class="tag aof-cat" [title]="o.category"
+                     [routerLink]="['/admin/offres']" [queryParams]="{ categorie: o.category }">{{ o.category }}</a>
                 </td>
                 <td>
                   <a class="tag" [routerLink]="['/admin/offres']" [queryParams]="{ contrat: o.contractType }">{{ o.contractType }}</a>
@@ -142,6 +194,19 @@
                 <td class="aof-loc">
                   {{ o.location }}
                   @if (o.isRemote) { <span class="badge badge-blue">Télétravail</span> }
+                </td>
+                <td class="aof-pay">
+                  @if (salaryLabel(o); as pay) {
+                    <span class="aof-pay__v" [class.is-suspect]="salaireSuspect(o)">
+                      {{ pay }}
+                      @if (salaireSuspect(o)) {
+                        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"
+                           title="Montant hors des bornes du marché : l'analyse du libellé source est probablement fausse"></i>
+                      }
+                    </span>
+                  } @else {
+                    <span class="aof-pay__none">Non annoncée</span>
+                  }
                 </td>
                 <td>
                   <!-- Icône + libellé : la couleur seule ne dit rien à qui
@@ -153,7 +218,7 @@
                     </span>
                   }
                 </td>
-                <td class="ta-r u-mono">{{ o.viewCount || 0 }}</td>
+                <td class="ta-r u-mono">{{ o.viewCount || 0 | number }}</td>
                 <td class="u-mono aof-date">{{ o.createdAt | date:'dd/MM/yy' }}</td>
                 <td>
                   <div class="ad-acts">

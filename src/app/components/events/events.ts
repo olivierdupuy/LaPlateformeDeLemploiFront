@@ -34,13 +34,30 @@ export class Events implements OnInit {
   form: any = { title: '', description: '', type: 'Salon', startsAt: '', endsAt: '', isOnline: false, location: '', url: '', organizer: '' };
   types = ['Salon', 'Webinaire', 'Job dating', 'Conférence'];
 
+  /**
+   * Le premier chargement seulement : passe la main a France Travail si
+   * nous n'avons rien a montrer.
+   *
+   * La page ouvrait sur notre agenda, souvent vide, et l'onglet d'a cote
+   * portait treize mille evenements a venir. Un utilisateur qui tombe sur
+   * « Rien de prevu pour le moment » ne va pas chercher plus loin. Le
+   * basculement ne joue qu'a l'arrivee : une fois qu'on a choisi un
+   * onglet, on y reste.
+   */
+  private firstLoad = true;
+
   ngOnInit() { this.load(); }
 
   load() {
     this.loading.set(true);
     this.eventSvc.getAll(this.past()).subscribe({
-      next: (e) => { this.events.set(e); this.loading.set(false); },
-      error: () => this.loading.set(false),
+      next: (e) => {
+        this.events.set(e);
+        this.loading.set(false);
+        if (this.firstLoad && e.length === 0) this.source.set('francetravail');
+        this.firstLoad = false;
+      },
+      error: () => { this.loading.set(false); this.firstLoad = false; },
     });
   }
   setPast(v: boolean) { this.past.set(v); this.load(); }

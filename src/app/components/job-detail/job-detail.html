@@ -3,7 +3,19 @@
 } @else if (job(); as j) {
   <section class="jd">
     <div class="container">
-      <a routerLink="/offres" class="back-link animate-in"><i class="bi bi-arrow-left"></i> Retour aux offres</a>
+      <!-- Fil d'Ariane plutôt qu'un simple retour : il dit où l'on est,
+           pas seulement d'où l'on vient — et l'employeur y est cliquable. -->
+      <nav class="crumbs jd-crumbs animate-in" aria-label="Fil d'Ariane">
+        <a routerLink="/offres">Offres</a>
+        <span class="sep" aria-hidden="true">/</span>
+        @if (estGenerique(j.company)) {
+          <span>{{ j.company | employeur }}</span>
+        } @else {
+          <a [routerLink]="['/entreprises', j.company]">{{ j.company }}</a>
+        }
+        <span class="sep" aria-hidden="true">/</span>
+        <span aria-current="page">{{ j.title }}</span>
+      </nav>
 
       <!-- ═══ HERO ═══ -->
       <header class="jd-hero animate-in" style="animation-delay:.05s">

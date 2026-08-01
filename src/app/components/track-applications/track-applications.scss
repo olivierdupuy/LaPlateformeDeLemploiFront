@@ -6,7 +6,9 @@
 // Collant sous la console : on change d'onglet sans remonter.
 .trk-tabs-band {
   position: sticky;
-  top: calc(var(--nav-h) + 49px);
+  // La sous-navigation de la console fait 49 px et colle sous la barre du
+  // site, qui se resserre : c'est `--nav-now` qui suit, pas `--nav-h`.
+  top: calc(var(--nav-now) + 49px);
   z-index: 40;
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(12px);
@@ -42,23 +44,52 @@
 // ── Contenu ──
 .trk-content { padding: clamp(1.75rem, 3.5vw, 2.5rem) 0 clamp(3rem, 6vw, 4.5rem); }
 
-.trk-counters {
+// ── Barre d'outils ──
+.trk-tools {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   flex-wrap: wrap;
-  gap: 1.5rem;
   margin-bottom: 1.25rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--line);
+}
+
+// Les compteurs sont des filtres : ils comptaient sans donner le moyen de
+// voir ce qu'ils comptaient.
+.trk-counters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 
   .trkc {
-    font-size: 0.84rem;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.83rem;
     color: var(--muted);
+    background: var(--canvas);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-full);
+    transition: border-color var(--t), background var(--t), color var(--t);
+
     b {
       font-family: var(--font-mono);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 500;
       color: var(--ink);
-      margin-right: 0.3rem;
+      transition: color var(--t);
+    }
+
+    &:hover { border-color: var(--bleu-300); }
+
+    &.is-on {
+      background: var(--bleu-600);
+      border-color: var(--bleu-600);
+      color: rgba(255, 255, 255, 0.85);
+      b { color: #fff; }
     }
   }
 }
@@ -71,6 +102,100 @@
   gap: 0.6rem;
 }
 .trk-list--muted .trk-row { opacity: 0.72; &:hover { opacity: 1; } }
+
+// ── Carte de candidature ──
+// La ligne ne portait qu'un titre et une pastille : sur 1650 px, quatre
+// cinquiemes de vide, et rien qui dise ou en est le dossier.
+.trk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  transition: border-color var(--t), box-shadow var(--t);
+
+  &:hover { border-color: var(--bleu-300); box-shadow: var(--shadow-sm); }
+
+  // Un dossier qui dort porte un filet a gauche : la couleur seule ne
+  // dirait rien, la mention en pied le nomme.
+  &.is-stale { border-left: 3px solid var(--bleu-500); }
+}
+
+.trk-card__head { display: flex; align-items: center; gap: 0.9rem; }
+
+// ── Chemin de la candidature ──
+.trk-path {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+
+  li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding-top: 0.2rem;
+
+    // Le trait qui relie une etape a la suivante
+    &::before {
+      content: '';
+      position: absolute;
+      top: 5px; left: 50%; right: -50%;
+      height: 2px;
+      background: var(--nuage-3);
+    }
+    &:last-child::before { display: none; }
+    &.is-done::before { background: var(--bleu-500); }
+  }
+}
+
+.trk-path__d {
+  position: relative;
+  z-index: 1;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--canvas);
+  box-shadow: inset 0 0 0 2px var(--nuage-3);
+}
+
+.trk-path__l {
+  font-size: 0.72rem;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+.trk-path li.is-done {
+  .trk-path__d { background: var(--bleu-500); box-shadow: inset 0 0 0 2px var(--bleu-500); }
+  .trk-path__l { color: var(--ink-soft); font-weight: 600; }
+}
+
+// L'etape attendue : anneau plein autour du point, pour qu'on la trouve
+// sans compter les pastilles remplies.
+.trk-path li.is-current {
+  .trk-path__d { box-shadow: inset 0 0 0 2px var(--bleu-500), 0 0 0 3px var(--bleu-tint); }
+  .trk-path__l { color: var(--bleu-700); font-weight: 600; }
+}
+
+.trk-card__foot {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  flex-wrap: wrap;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--nuage-2);
+  font-size: 0.78rem;
+  color: var(--muted);
+
+  span { display: inline-flex; align-items: center; gap: 0.35rem; }
+  i { font-size: 0.75rem; }
+}
+
+.trk-when { color: var(--muted); i { color: var(--faint); } }
+.trk-stale { color: var(--bleu-700); font-weight: 600; }
 
 .trk-row {
   display: flex;
@@ -185,14 +310,17 @@ a.trk-title:hover { color: var(--bleu-700); }
   white-space: nowrap;
   i { font-size: 0.7rem; }
 }
-.st-pending  { background: var(--ambre-100); color: var(--rouge-700); }
+// L'echelle des etats se lit au remplissage, pas a la teinte : contour
+// pour l'attente, aplat clair pour l'intermediaire, bleu plein pour
+// l'aboutissement, rouge de danger pour le refus.
+.st-pending  { background: var(--canvas); color: var(--muted); box-shadow: inset 0 0 0 1px var(--line-strong); }
 .st-reviewed { background: var(--bleu-100);  color: var(--bleu-700); }
-.st-accepted { background: var(--green-bg);  color: var(--bleu-700); }
-.st-rejected { background: var(--rouge-100); color: var(--rouge-700); }
+.st-accepted { background: var(--bleu-700);  color: var(--nuage); }
+.st-rejected { background: var(--danger-100); color: var(--danger-700); }
 
 // ── Adaptatif ──
 @media (max-width: 820px) {
-  .trk-tabs-band { top: var(--nav-h); }
+  .trk-tabs-band { top: var(--nav-now); }
 
   .trk-row { flex-wrap: wrap; align-items: flex-start; }
   .trk-body { flex: 1 1 60%; }
@@ -201,4 +329,8 @@ a.trk-title:hover { color: var(--bleu-700); }
     justify-content: flex-start;
     padding-left: 3.1rem;
   }
+
+  .trk-card__head { flex-wrap: wrap; align-items: flex-start; }
+  .trk-card__head .trk-side { width: 100%; padding-left: 3.1rem; }
+  .searchbar { flex: 1 1 100%; }
 }

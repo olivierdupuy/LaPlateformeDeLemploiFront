@@ -46,7 +46,7 @@
         <div class="iv-section animate-in" style="animation-delay:.1s">
           <div class="iv-sec-head">
             <span class="ed-pill">01</span>
-            <h2 class="iv-sec-title">A venir</h2>
+            <h2 class="iv-sec-title">À venir</h2>
             <span class="iv-sec-count">{{ upcoming().length }}</span>
           </div>
 
@@ -59,13 +59,22 @@
                 <div class="ivc-body">
                   <!-- Top: date badge + status -->
                   <div class="ivc-top">
+                    <!-- Le jour de la semaine avec le quantième : « 14 août »
+                         ne dit pas si c'est un mardi, et c'est la première
+                         chose qu'on regarde pour caler un rendez-vous. -->
                     <div class="ivc-date-badge">
+                      <span class="ivc-dow">{{ iv.proposedAt | date:'EEE' }}</span>
                       <span class="ivc-day">{{ iv.proposedAt | date:'dd' }}</span>
                       <span class="ivc-month">{{ iv.proposedAt | date:'MMM' }}</span>
                     </div>
                     <div class="ivc-info">
                       <h3>{{ iv.jobTitle }}</h3>
                       <span class="ivc-company">{{ iv.company }}</span>
+                      <!-- Le décompte : un agenda sert à savoir ce qui arrive,
+                           pas seulement ce qui est noté. -->
+                      <span class="ivc-count" [class.is-soon]="daysUntil(iv.proposedAt) <= 2">
+                        <i class="bi bi-hourglass-top" aria-hidden="true"></i> {{ countdown(iv.proposedAt) }}
+                      </span>
                     </div>
                     <span class="ivc-status" [class]="getStatusClass(iv.status)">
                       <i class="bi" [class]="getStatusIcon(iv.status)"></i> {{ getStatusLabel(iv.status) }}
@@ -90,7 +99,7 @@
                   @if (iv.status === 'Proposed') {
                     @if (proposingId() === iv.id) {
                       <div class="propose-form">
-                        <p class="propose-label">Proposez jusqu'a 3 creneaux alternatifs :</p>
+                        <p class="propose-label">Proposez jusqu'à 3 créneaux alternatifs :</p>
                         @for (i of [0, 1, 2]; track i) {
                           <input type="datetime-local" [(ngModel)]="proposedSlots[i]" class="propose-input" />
                         }
@@ -104,7 +113,7 @@
                       <div class="ivc-actions">
                         @if (isCandidate()) {
                           <button class="iva-accept" (click)="updateStatus(iv.id, 'Accepted')"><i class="bi bi-check-lg"></i> Accepter</button>
-                          <button class="iva-propose" (click)="startPropose(iv.id)"><i class="bi bi-calendar-plus"></i> Proposer d'autres creneaux</button>
+                          <button class="iva-propose" (click)="startPropose(iv.id)"><i class="bi bi-calendar-plus"></i> Proposer d'autres créneaux</button>
                           <button class="iva-decline" (click)="updateStatus(iv.id, 'Declined')"><i class="bi bi-x-lg"></i> Decliner</button>
                         }
                         @if (isRecruiter()) {

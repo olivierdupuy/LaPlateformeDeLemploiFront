@@ -23,6 +23,29 @@ export class Register {
 
   setRole(role: string) { this.form.role = role; }
 
+  /**
+   * Solidite du mot de passe, de 0 a 4.
+   *
+   * Le formulaire annoncait « 6 caracteres minimum » et n'en disait rien
+   * de plus : on apprenait au moment de valider que le compte etait
+   * refuse, ou pire on repartait avec un mot de passe de six lettres. La
+   * jauge repond pendant la frappe, ou le retour ne coute rien.
+   */
+  get pwScore(): number {
+    const p = this.form.password;
+    if (!p) return 0;
+    let s = 0;
+    if (p.length >= 6) s++;
+    if (p.length >= 10) s++;
+    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+    if (/[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p)) s++;
+    return s;
+  }
+
+  get pwLabel(): string {
+    return ['Trop court', 'Faible', 'Correct', 'Bon', 'Excellent'][this.pwScore];
+  }
+
   submit() {
     if (!this.platform.allowRegistration) {
       this.toastr.error('Les inscriptions sont actuellement fermees');

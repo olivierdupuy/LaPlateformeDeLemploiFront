@@ -29,6 +29,27 @@ export class Login {
     return target && target.startsWith('/') && !target.startsWith('//') ? target : '/';
   }
 
+  /**
+   * Ce que la connexion va reprendre.
+   *
+   * On arrive ici depuis un tunnel de candidature interrompu, un favori,
+   * une messagerie — et la page n'en disait rien : « Connexion » tout court
+   * laisse croire qu'on a perdu ce qu'on faisait. Le rappel nomme la
+   * destination, et la connexion redevient une etape plutot qu'un detour.
+   */
+  get resumeLabel(): string | null {
+    const t = this.redirectTo;
+    if (t === '/') return null;
+    if (t.includes('/postuler')) return 'Envoyer votre candidature';
+    if (t.startsWith('/offres')) return "Revenir a l'offre";
+    if (t.startsWith('/favoris')) return 'Vos offres enregistrees';
+    if (t.startsWith('/suivi')) return 'Le suivi de vos candidatures';
+    if (t.startsWith('/messagerie')) return 'Votre messagerie';
+    if (t.startsWith('/mon-cv')) return 'Votre CV';
+    if (t.startsWith('/entretiens')) return 'Vos entretiens';
+    return 'La page que vous consultiez';
+  }
+
   submit() {
     if (!this.form.email || !this.form.password) { this.toastr.warning('Remplissez tous les champs'); return; }
     this.loading = true;

@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
@@ -8,7 +8,7 @@ import { companyColor } from '../../utils/job.utils';
 import { fichierUrl } from '../../utils/fichiers';
 import { pagedQuery } from '../../utils/paged-query';
 import { dayLabel } from '../../utils/day-filter';
-import { APPLICATION_STATUS } from '../../viz/palette';
+import { APPLICATION_STATUS, STATUS } from '../../viz/palette';
 
 /**
  * Explorateur de candidatures : le pendant de l'explorateur d'offres.
@@ -28,6 +28,7 @@ const FILTER_LABELS: Record<string, string> = {
   source: 'Source',
   q: 'Recherche',
   jour: 'Déposée le',
+  retard: 'Sans réponse',
 };
 
 /**
@@ -64,11 +65,19 @@ interface ApplicationFacets {
   reviewed: number;
   accepted: number;
   rejected: number;
+  stale: number;
+  avgResponseDays: number | null;
 }
+
+/** Les facettes qui comptent des dossiers, par opposition aux mesures. */
+type FacetteEtat = 'pending' | 'reviewed' | 'accepted' | 'rejected';
+
+/** Doit rester aligné sur `StaleAfterDays` côté API. */
+const JOURS_AVANT_RELANCE = 30;
 
 @Component({
   selector: 'app-admin-applications',
-  imports: [RouterLink, FormsModule, DatePipe, Pager],
+  imports: [DecimalPipe, RouterLink, FormsModule, DatePipe, Pager],
   templateUrl: './admin-applications.html',
   styleUrl: './admin-applications.scss',
 })
@@ -81,27 +90,36 @@ export class AdminApplications {
   statusLabel = (s: string) => APPLICATION_STATUS[s]?.label ?? s;
 
   protected readonly etats = ETATS;
+  /** Les teintes d'état, pour que la pastille dise la gravité. */
+  protected readonly ETAT = STATUS;
 
   /** Icone, libelle et couleur d'un statut de candidature. */
   etat(statut: string) {
     return APPLICATION_STATUS[statut] ?? null;
   }
 
-  /** Le compte d'une facette, adresse par le nom de son etat. */
+  /**
+   * Le compte d'une facette, adresse par le nom de son etat.
+   *
+   * Le type se restreint aux quatre facettes d'etat : toutes les cles de
+   * `ApplicationFacets` ne comptent pas des dossiers — le delai moyen est
+   * une duree, et peut etre inconnu.
+   */
   facette(cle: string): number {
-    const nom = ETATS.find((e) => e.cle === cle)?.facette as keyof ApplicationFacets | undefined;
+    const nom = ETATS.find((e) => e.cle === cle)?.facette as FacetteEtat | undefined;
     return nom ? this.q.facets()[nom] : 0;
   }
 
   q = pagedQuery<ApplicationRow, ApplicationFacets>({
     fetch: (p) => this.admin.listApplications(p),
-    emptyFacets: { total: 0, pending: 0, reviewed: 0, accepted: 0, rejected: 0 },
+    emptyFacets: { total: 0, pending: 0, reviewed: 0, accepted: 0, rejected: 0, stale: 0, avgResponseDays: null },
     toApi: (u) => ({
       q: u['q'] ?? '',
       status: u['statut'] ?? '',
       offerId: u['offre'] ?? '',
       company: u['entreprise'] ?? '',
       source: u['source'] ?? '',
+      stale: u['retard'] === '1' ? 'true' : '',
       day: u['jour'] ?? '',
       sort: u['tri'] ?? '',
       page: u['page'] ?? '',
@@ -118,6 +136,43 @@ export class AdminApplications {
     return f.total ? Math.round(((f.accepted + f.rejected) / f.total) * 100) : 0;
   });
 
+  /** Délai moyen de première lecture, arrondi au jour. */
+  delaiMoyen = computed(() => {
+    const d = this.q.facets().avgResponseDays;
+    return d == null ? null : Math.round(d);
+  });
+
+  readonly seuilRelance = JOURS_AVANT_RELANCE;
+
+  /**
+   * Ancienneté d'un dossier.
+   *
+   * La page affichait la date de dépôt, qui oblige à faire la soustraction
+   * de tête pour chacune des lignes. Ce qui se décide ici n'est pas
+   * « quand » mais « depuis combien de temps » : un dossier ouvert depuis
+   * quatre mois est un candidat qui n'aura pas de réponse.
+   */
+  attente(a: ApplicationRow): { jours: number; ouvert: boolean; enRetard: boolean } {
+    const jours = Math.max(0, Math.floor((Date.now() - new Date(a.appliedAt).getTime()) / 86_400_000));
+    const ouvert = a.status === 'Pending' || a.status === 'Reviewed';
+    return { jours, ouvert, enRetard: ouvert && jours > JOURS_AVANT_RELANCE };
+  }
+
+  /** « 3 j », « 5 sem. », « 4 mois » — la durée se lit sans conversion. */
+  dureeCourte(jours: number): string {
+    if (jours === 0) return "aujourd'hui";
+    if (jours < 7) return `${jours} j`;
+    if (jours < 60) return `${Math.round(jours / 7)} sem.`;
+    return `${Math.round(jours / 30)} mois`;
+  }
+
+  get retard(): boolean {
+    return this.q.params()['retard'] === '1';
+  }
+  set retard(value: boolean) {
+    this.q.setParam('retard', value ? '1' : null);
+  }
+
   activeFilters = computed(() =>
     Object.entries(this.q.params())
       .filter(([k, v]) => FILTER_LABELS[k] && v)
@@ -130,6 +185,7 @@ export class AdminApplications {
             ? (this.q.items().find((a) => a.jobOfferId === Number(raw))?.jobTitle ?? `Offre #${raw}`)
             : key === 'statut' ? this.statusLabel(raw)
             : key === 'jour' ? dayLabel(raw)
+            : key === 'retard' ? `plus de ${JOURS_AVANT_RELANCE} jours`
             : raw;
         return { key, label: FILTER_LABELS[key], value: display };
       }),

@@ -47,7 +47,14 @@
             : "Aucun salon ni job dating n'est programmé. Revenez d'ici quelques jours, ou consultez les offres en attendant." }}
         </p>
         @if (!past()) {
-          <a routerLink="/offres" class="btn-primary">Voir les offres</a>
+          <!-- L'autre onglet porte des milliers d'événements : c'est là
+               qu'il faut envoyer, pas vers les offres. -->
+          <div class="ev-empty-actions">
+            <button class="btn-primary" (click)="source.set('francetravail')">
+              <i class="bi bi-broadcast" aria-hidden="true"></i> Voir les événements France Travail
+            </button>
+            <a routerLink="/offres" class="btn-secondary">Voir les offres</a>
+          </div>
         }
       </div>
     } @else {

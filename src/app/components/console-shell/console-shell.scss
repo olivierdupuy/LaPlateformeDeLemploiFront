@@ -5,14 +5,18 @@
 // ── Sous-navigation ──
 // Collante juste sous la navbar : on garde ses sections sous la main
 // pendant qu'on fait defiler un tableau.
+// `--nav-now` et non `--nav-h` : la barre du site se resserre au
+// defilement, et la sous-navigation laissait sinon vingt-huit pixels de
+// contenu passer dans l'interstice.
 .console-nav {
   position: sticky;
-  top: var(--nav-h);
+  top: var(--nav-now);
   z-index: 45;
   background: var(--plum-900);
-  border-bottom: 1px solid rgba(244, 241, 222, 0.12);
+  border-bottom: 1px solid rgba(255, 236, 209, 0.12);
+  transition: top 0.22s var(--ease);
 
-  :focus-visible { outline-color: var(--ambre); }
+  :focus-visible { outline-color: var(--bleu-300); }
 }
 
 .console-nav__inner {
@@ -40,7 +44,7 @@
   width: 1px;
   height: 18px;
   margin: 0 0.6rem 0 0.2rem;
-  background: rgba(244, 241, 222, 0.18);
+  background: rgba(255, 236, 209, 0.18);
 }
 
 .console-nav a {

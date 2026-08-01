@@ -7,6 +7,22 @@
   background: var(--canvas);
 }
 
+// ── Fil d'Ariane ──
+// Le dernier maillon porte l'intitulé, qui peut être long : il se coupe
+// plutôt que de faire passer le fil sur deux lignes.
+.jd-crumbs {
+  margin-bottom: 1.15rem;
+  flex-wrap: nowrap;
+  overflow: hidden;
+
+  span[aria-current] {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 // ── Back link ──
 .back-link {
   display: inline-flex; align-items: center; gap: 0.45rem;
@@ -98,13 +114,19 @@
 }
 
 // ── Facts grid ──
+// `auto-fit` plutot que trois colonnes fixes : sur un gabarit large, huit
+// faits tenaient sur trois rangees dont la derniere a moitie vide.
 .facts-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem;
 }
 .fact {
   display: flex; flex-direction: column; gap: 0.25rem;
-  padding: 0.85rem 1rem;
-  background: var(--paper); border-radius: var(--r-sm);
+  padding: 0.8rem 0.95rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
 }
 .fact-l { font-family: var(--font-mono); font-size: 0.64rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
 .fact-v { font-size: 0.92rem; font-weight: 600; color: var(--ink); }
@@ -120,7 +142,17 @@
 }
 
 // ── Description ──
-.jd-desc { color: var(--ink-soft); line-height: 1.85; font-size: 0.95rem; }
+//
+// La colonne de contenu fait plus de mille cent pixels sur un gabarit de
+// 1650 : sans borne, une ligne de description court sur cent-dix signes et
+// l'oeil se perd en revenant a la ligne. `--max-text` existait deja dans
+// les jetons ; il n'etait applique nulle part.
+.jd-desc {
+  color: var(--ink-soft);
+  line-height: 1.8;
+  font-size: 0.95rem;
+  max-width: var(--max-text);
+}
 .jd-desc:not(.jd-rich) { white-space: pre-wrap; }
 .jd-rich {
   p { margin-bottom: 0.9rem; &:last-child { margin-bottom: 0; } }
@@ -168,9 +200,11 @@
 }
 
 // ═══ SIDEBAR ═══
+// `--nav-now` et non `--nav-h` : la barre se resserre au defilement, et la
+// carte de candidature laissait sinon vingt-huit pixels de vide sous elle.
 .jd-side {
   display: flex; flex-direction: column; gap: 1rem;
-  position: sticky; top: calc(var(--nav-h) + 1rem);
+  position: sticky; top: calc(var(--nav-now) + 1rem);
 }
 
 .apply-card {

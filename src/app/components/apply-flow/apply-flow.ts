@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { ScreeningQuestion, answerOptions, parseScreeningQuestions } from '../../utils/screening';
 import { EmployerNamePipe } from '../../pipes/employer-name.pipe';
-import { companyColor, getContractBadgeClass } from '../../utils/job.utils';
+import { companyColor, getContractBadgeClass, salaryLabel } from '../../utils/job.utils';
 import { fichierUrl } from '../../utils/fichiers';
 
 type StepKey = 'contact' | 'resume' | 'questions' | 'letter' | 'extras' | 'review';
@@ -428,12 +428,5 @@ export class ApplyFlow implements OnInit {
       });
   }
 
-  salaryLabel(job: JobOffer): string {
-    if (job.salary) return job.salary;
-    const period = job.salaryPeriod ? `/${job.salaryPeriod}` : '';
-    if (job.minSalary && job.maxSalary) return `${job.minSalary} – ${job.maxSalary} €${period}`;
-    if (job.minSalary) return `À partir de ${job.minSalary} €${period}`;
-    if (job.maxSalary) return `Jusqu'à ${job.maxSalary} €${period}`;
-    return '';
-  }
+  salaryLabel = salaryLabel;
 }

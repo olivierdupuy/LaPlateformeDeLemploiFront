@@ -103,6 +103,19 @@
               <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword" aria-hidden="true"></i>
             </button>
           </div>
+
+          <!-- Jauge de solidité : le retour arrive pendant la frappe, pas
+               au moment où l'on valide. -->
+          @if (form.password) {
+            <div class="pw-meter" [attr.data-score]="pwScore">
+              <div class="pw-bars" aria-hidden="true">
+                @for (i of [0, 1, 2, 3]; track i) {
+                  <span [class.on]="pwScore > i"></span>
+                }
+              </div>
+              <span class="pw-label" aria-live="polite">{{ pwLabel }}</span>
+            </div>
+          }
         </div>
 
         <button type="submit" class="btn-primary full-w" [disabled]="loading || !platform.allowRegistration">

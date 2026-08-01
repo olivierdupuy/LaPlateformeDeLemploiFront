@@ -108,6 +108,14 @@
 
             <!-- Progression -->
             <div class="af-progress">
+              <!-- Le rang de l'étape en toutes lettres : une barre remplie
+                   aux deux cinquièmes ne dit pas combien il en reste, et
+                   c'est la première question qu'on se pose avant de
+                   commencer à remplir un formulaire. -->
+              <p class="af-progress-rank">
+                Étape <b class="u-mono">{{ stepIndex() + 1 }}</b> sur <b class="u-mono">{{ steps().length }}</b>
+                <span class="af-progress-name">· {{ steps()[stepIndex()]?.label }}</span>
+              </p>
               <div class="af-progress-bar"><span [style.width.%]="progress()"></span></div>
               <div class="af-steps">
                 @for (s of steps(); track s.key; let i = $index) {

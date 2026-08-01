@@ -33,40 +33,110 @@
         </div>
       </div>
 
-      <div class="cp-grid">
-        @if (c.bio) {
-          <div class="cp-section card animate-in" style="animation-delay:.12s">
-            <div class="cp-section-head">
-              <span class="cp-section-icon"><i class="bi bi-person-lines-fill"></i></span>
-              <h2 class="cp-section-title">A propos</h2>
+      <!-- Deux colonnes : la fiche à gauche, ce qu'on peut en faire à
+           droite. La page ne portait aucune action — un recruteur y
+           arrivait et n'avait rien d'autre à faire que revenir en arrière. -->
+      <div class="cp-layout">
+        <div class="cp-grid">
+          @if (c.bio) {
+            <div class="cp-section card animate-in" style="animation-delay:.12s">
+              <div class="cp-section-head">
+                <span class="cp-section-icon"><i class="bi bi-person-lines-fill"></i></span>
+                <h2 class="cp-section-title">À propos</h2>
+              </div>
+              <p class="cp-bio">{{ c.bio }}</p>
             </div>
-            <p class="cp-bio">{{ c.bio }}</p>
-          </div>
-        }
+          }
 
-        @if (c.skills) {
-          <div class="cp-section card animate-in" style="animation-delay:.18s">
-            <div class="cp-section-head">
-              <span class="cp-section-icon"><i class="bi bi-stars"></i></span>
-              <h2 class="cp-section-title">Compétences</h2>
+          @if (c.skills) {
+            <div class="cp-section card animate-in" style="animation-delay:.18s">
+              <div class="cp-section-head">
+                <span class="cp-section-icon"><i class="bi bi-stars"></i></span>
+                <h2 class="cp-section-title">Compétences</h2>
+                <span class="cp-section-hint">Cliquez pour trouver des profils similaires</span>
+              </div>
+              <!-- Chaque compétence rouvre le vivier filtré dessus : c'est
+                   le geste naturel quand on lit « Spring Boot » sur une
+                   fiche et qu'on en cherche trois autres. -->
+              <div class="cp-skills">
+                @for (skill of skillList(); track skill) {
+                  <a class="cp-skill" [routerLink]="['/candidats']" [queryParams]="{ skills: skill }"
+                     [attr.aria-label]="'Chercher d\'autres profils avec ' + skill">{{ skill }}</a>
+                }
+              </div>
             </div>
-            <div class="cp-skills">
-              @for (skill of c.skills.split(','); track skill) {
-                <span class="cp-skill">{{ skill.trim() }}</span>
-              }
-            </div>
-          </div>
-        }
+          }
 
-        @if (c.education) {
-          <div class="cp-section card animate-in" style="animation-delay:.24s">
-            <div class="cp-section-head">
-              <span class="cp-section-icon"><i class="bi bi-mortarboard"></i></span>
-              <h2 class="cp-section-title">Formation</h2>
+          @if (c.education) {
+            <div class="cp-section card animate-in" style="animation-delay:.24s">
+              <div class="cp-section-head">
+                <span class="cp-section-icon"><i class="bi bi-mortarboard"></i></span>
+                <h2 class="cp-section-title">Formation</h2>
+              </div>
+              <p class="cp-bio">{{ c.education }}</p>
             </div>
-            <p class="cp-bio">{{ c.education }}</p>
+          }
+        </div>
+
+        <aside class="cp-side animate-in" style="animation-delay:.14s">
+          <div class="cp-actions">
+            <h2 class="cp-side-t">Ce que vous pouvez faire</h2>
+
+            <!-- La recherche de « Mes candidatures » accepte un nom : le
+                 lien y mène directement plutôt que de laisser le recruteur
+                 le retaper. -->
+            <a class="cp-act" [routerLink]="['/recruteur/candidatures']"
+               [queryParams]="{ q: c.firstName + ' ' + c.lastName }">
+              <i class="bi bi-inbox" aria-hidden="true"></i>
+              <span>
+                <strong>Ses candidatures à mes offres</strong>
+                <span>Retrouver ce candidat dans ma liste</span>
+              </span>
+              <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </a>
+
+            @if (c.city) {
+              <a class="cp-act" [routerLink]="['/candidats']" [queryParams]="{ city: c.city }">
+                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                <span>
+                  <strong>Autres profils à {{ c.city }}</strong>
+                  <span>Élargir la recherche au même bassin</span>
+                </span>
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+              </a>
+            }
+
+            @if (c.experienceYears != null) {
+              <a class="cp-act" [routerLink]="['/candidats']"
+                 [queryParams]="{ minExperience: c.experienceYears }">
+                <i class="bi bi-briefcase" aria-hidden="true"></i>
+                <span>
+                  <strong>Profils d'expérience équivalente</strong>
+                  <span>{{ c.experienceYears }} an{{ c.experienceYears > 1 ? 's' : '' }} ou plus</span>
+                </span>
+                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+              </a>
+            }
+
+            <a class="cp-act" routerLink="/recruteur/offres/nouvelle">
+              <i class="bi bi-plus-circle" aria-hidden="true"></i>
+              <span>
+                <strong>Publier une offre</strong>
+                <span>Pour attirer des profils de ce type</span>
+              </span>
+              <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            </a>
           </div>
-        }
+
+          <!-- La messagerie s'ouvre sur une candidature : sans candidature,
+               il n'y a pas de fil où écrire. Le dire vaut mieux que de
+               poser un bouton qui ne marcherait pas. -->
+          <p class="cp-note">
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+            Les échanges se font depuis une candidature : ce candidat vous sera accessible
+            en messagerie dès qu'il aura postulé à l'une de vos offres.
+          </p>
+        </aside>
       </div>
     } @else {
       <div class="empty-box animate-in">

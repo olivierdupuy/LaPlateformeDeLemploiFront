@@ -3,129 +3,276 @@
 
     <header class="ad-head">
       <div class="ad-head__text">
-        <h1>Annonces et exports</h1>
-        <p class="ad-head__sub">Diffusez des messages à l'ensemble de la plateforme et exportez les données au format CSV.</p>
+        <h1>Annonces</h1>
+        <p class="ad-head__sub">Bannières du site et notifications envoyées aux utilisateurs.</p>
+      </div>
+      <div class="ad-head__actions">
+        <button class="btn-primary" (click)="toggleForm()">
+          <i class="bi" [class.bi-plus-lg]="!showForm()" [class.bi-x-lg]="showForm()" aria-hidden="true"></i>
+          {{ showForm() ? 'Annuler' : 'Nouvelle annonce' }}
+        </button>
       </div>
     </header>
 
-    <!-- Export section -->
-    <div class="export-bar card animate-in" style="animation-delay:.05s">
-      <div class="export-head">
-        <span class="export-eyebrow"><i class="bi bi-download"></i> Exporter les données</span>
-        <p class="export-note">Généré un fichier CSV a la demande.</p>
-      </div>
-      <div class="export-btns">
-        <button (click)="exportUsers()" class="btn-secondary"><i class="bi bi-people"></i> Utilisateurs</button>
-        <button (click)="exportOffers()" class="btn-secondary"><i class="bi bi-briefcase"></i> Offres</button>
-        <button (click)="exportApps()" class="btn-secondary"><i class="bi bi-send"></i> Candidatures</button>
-      </div>
-    </div>
-
-    <!-- Announcements -->
-    <div class="section-head animate-in" style="animation-delay:.1s">
-      <div>
-        <h2 class="section-title"><i class="bi bi-megaphone"></i> Annonces</h2>
-        <p class="section-sub">Bannières et notifications visibles par vos utilisateurs.</p>
-      </div>
-      <button class="btn-primary" (click)="showForm.set(!showForm())">
-        <i class="bi" [class.bi-plus-lg]="!showForm()" [class.bi-x-lg]="showForm()"></i>
-        {{ showForm() ? 'Annuler' : 'Nouvelle annonce' }}
-      </button>
-    </div>
-
     @if (showForm()) {
-      <div class="form-card card animate-in">
-        <div class="form-group">
-          <label>Titre</label>
-          <input [(ngModel)]="form.title" placeholder="Titre de l'annonce" />
-        </div>
-        <div class="form-group">
-          <label>Message</label>
-          <textarea [(ngModel)]="form.message" placeholder="Message..." rows="3"></textarea>
-        </div>
-        <div class="form-grid">
+      <div class="ann-editor animate-in">
+
+        <!-- Colonne de saisie -->
+        <div class="ann-form card">
           <div class="form-group">
-            <label>Type</label>
-            <select [(ngModel)]="form.type">
-              <option value="info">Info</option>
-              <option value="warning">Avertissement</option>
-              <option value="success">Succès</option>
-              <option value="danger">Alerte</option>
-            </select>
+            <label for="ann-titre">Titre</label>
+            <input id="ann-titre" [(ngModel)]="form.title" [maxlength]="maxTitre"
+                   placeholder="Maintenance prévue dimanche" />
+            <span class="ann-count" [class.is-full]="form.title.length >= maxTitre">
+              {{ form.title.length }} / {{ maxTitre }}
+            </span>
           </div>
+
           <div class="form-group">
-            <label>Cible</label>
-            <select [(ngModel)]="form.targetRole">
-              <option value="">Tous les utilisateurs</option>
-              <option value="Candidate">Candidats uniquement</option>
-              <option value="Recruiter">Recruteurs uniquement</option>
-            </select>
+            <label for="ann-msg">Message</label>
+            <textarea id="ann-msg" [(ngModel)]="form.message" [maxlength]="maxMessage" rows="3"
+                      placeholder="Le site sera indisponible de 2 h à 4 h."></textarea>
+            <span class="ann-count" [class.is-full]="form.message.length >= maxMessage">
+              {{ form.message.length }} / {{ maxMessage }}
+            </span>
           </div>
-        </div>
-        <label class="check-label">
-          <input type="checkbox" [(ngModel)]="form.isBanner" />
-          <span>Afficher en bannière</span>
-        </label>
-        @if (form.isBanner) {
+
+          <!-- Deux gestes de nature différente, et non une case à cocher :
+               l'un s'affiche et se retire, l'autre part et ne revient pas. -->
+          <fieldset class="ann-mode">
+            <legend>Mode de diffusion</legend>
+            <label class="ann-mode__opt" [class.is-on]="form.diffusion === 'banniere'">
+              <input type="radio" name="diffusion" value="banniere" [(ngModel)]="form.diffusion" />
+              <span class="ann-mode__txt">
+                <strong><i class="bi bi-window-dock" aria-hidden="true"></i> Bannière sur le site</strong>
+                <small>Visible en haut de chaque page. Se retire à tout moment.</small>
+              </span>
+            </label>
+            <label class="ann-mode__opt" [class.is-on]="form.diffusion === 'notification'">
+              <input type="radio" name="diffusion" value="notification" [(ngModel)]="form.diffusion" />
+              <span class="ann-mode__txt">
+                <strong><i class="bi bi-send" aria-hidden="true"></i> Notification individuelle</strong>
+                <small>
+                  Envoyée une fois à chaque compte concerné.
+                  <em>Un envoi ne se reprend pas.</em>
+                </small>
+              </span>
+            </label>
+          </fieldset>
+
           <div class="form-grid">
             <div class="form-group">
-              <label>Début</label>
-              <input type="datetime-local" [(ngModel)]="form.startsAt" />
+              <label for="ann-type">Nature</label>
+              <select id="ann-type" [(ngModel)]="form.type">
+                @for (t of types; track t.cle) {
+                  <option [value]="t.cle">{{ t.label }}</option>
+                }
+              </select>
             </div>
             <div class="form-group">
-              <label>Fin</label>
-              <input type="datetime-local" [(ngModel)]="form.endsAt" />
+              <label for="ann-cible">Destinataires</label>
+              <select id="ann-cible" [(ngModel)]="form.targetRole">
+                @for (c of cibles; track c.cle) {
+                  <option [value]="c.cle">{{ c.label }}</option>
+                }
+              </select>
             </div>
           </div>
-        }
-        <div class="form-foot">
-          <button (click)="create()" class="btn-primary" [disabled]="!form.title || !form.message">
-            <i class="bi bi-send"></i> Publier l'annonce
-          </button>
+
+          @if (form.diffusion === 'banniere') {
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="ann-debut">Début <span class="ann-opt">facultatif</span></label>
+                <input id="ann-debut" type="datetime-local" [(ngModel)]="form.startsAt" />
+              </div>
+              <div class="form-group">
+                <label for="ann-fin">Fin <span class="ann-opt">facultatif</span></label>
+                <input id="ann-fin" type="datetime-local" [(ngModel)]="form.endsAt" />
+              </div>
+            </div>
+            @if (periodeIncoherente) {
+              <p class="ann-error">
+                <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                La fin précède le début : la bannière ne paraîtrait jamais.
+              </p>
+            }
+          }
         </div>
+
+        <!-- Colonne d'aperçu : ce que verront les utilisateurs, avant envoi -->
+        <aside class="ann-side">
+          <div class="card ann-preview">
+            <span class="ann-preview__eyebrow">Aperçu</span>
+
+            @if (form.diffusion === 'banniere') {
+              <div class="pv-banner" [class]="'pv-' + form.type">
+                <div class="pv-banner__txt">
+                  <i class="bi" [class]="typeCourant().icon" aria-hidden="true"></i>
+                  <p>
+                    <strong>{{ form.title || 'Titre de l’annonce' }}</strong>
+                    {{ form.message || 'Le message apparaîtra ici.' }}
+                  </p>
+                </div>
+                <i class="bi bi-x-lg pv-banner__x" aria-hidden="true"></i>
+              </div>
+              <p class="ann-preview__note">Affichée au-dessus de la barre de navigation, sur toutes les pages.</p>
+            } @else {
+              <div class="pv-notif">
+                <i class="bi" [class]="typeCourant().icon" [style.color]="typeCourant().color" aria-hidden="true"></i>
+                <span class="pv-notif__txt">
+                  <strong>{{ form.title || 'Titre de l’annonce' }}</strong>
+                  <span>{{ form.message || 'Le message apparaîtra ici.' }}</span>
+                </span>
+              </div>
+              <p class="ann-preview__note">Reçue dans le centre de notifications de chaque destinataire.</p>
+            }
+          </div>
+
+          <!-- Récapitulatif : qui, combien, et si c'est rattrapable -->
+          <div class="card ann-recap" [class.is-final]="form.diffusion === 'notification'">
+            <dl>
+              <div>
+                <dt>Nature</dt>
+                <dd><i class="bi" [class]="typeCourant().icon" [style.color]="typeCourant().color" aria-hidden="true"></i> {{ typeCourant().label }}</dd>
+              </div>
+              <div>
+                <dt>Destinataires</dt>
+                <dd>
+                  {{ cibleLabel(form.targetRole) }}
+                  @if (destinataires() !== null) {
+                    <strong>· {{ destinataires()!.toLocaleString('fr-FR') }} compte{{ destinataires()! > 1 ? 's' : '' }}</strong>
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Réversible</dt>
+                <dd>
+                  @if (form.diffusion === 'banniere') {
+                    <span class="ann-rev">Oui — se désactive d'un clic</span>
+                  } @else {
+                    <span class="ann-irrev"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> Non — l'envoi est définitif</span>
+                  }
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          @if (confirming()) {
+            <div class="card ann-confirm">
+              <p>
+                <i class="bi bi-send-fill" aria-hidden="true"></i>
+                Notifier <strong>{{ destinataires() !== null ? destinataires()!.toLocaleString('fr-FR') : 'tous les' }}</strong>
+                utilisateur{{ (destinataires() ?? 2) > 1 ? 's' : '' }} maintenant ? Cet envoi ne peut pas être annulé.
+              </p>
+              <div class="ann-confirm__acts">
+                <button class="btn-ghost" (click)="confirming.set(false)">Revenir</button>
+                <button class="btn-danger" (click)="publier()" [disabled]="publishing()">
+                  {{ publishing() ? 'Envoi…' : 'Confirmer l’envoi' }}
+                </button>
+              </div>
+            </div>
+          } @else {
+            <button class="btn-primary ann-go" (click)="demander()" [disabled]="!valide || publishing()">
+              <i class="bi" [class.bi-window-dock]="form.diffusion === 'banniere'"
+                 [class.bi-send]="form.diffusion === 'notification'" aria-hidden="true"></i>
+              {{ publishing() ? 'Publication…' : libelleAction }}
+            </button>
+          }
+        </aside>
       </div>
     }
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
     } @else if (announcements().length === 0) {
-      <div class="empty-box card">
+      <div class="empty-box card animate-in">
         <i class="bi bi-megaphone"></i>
         <h3>Aucune annonce</h3>
-        <p>Créez votre première annonce pour informer vos utilisateurs.</p>
+        <p>Une bannière prévient tout le site d'une maintenance ou d'une nouveauté ; une notification s'adresse à chaque compte.</p>
+        @if (!showForm()) {
+          <button class="btn-ghost" (click)="toggleForm()">Rédiger la première annonce</button>
+        }
       </div>
     } @else {
       <div class="ann-list">
         @for (a of announcements(); track a.id; let i = $index) {
           <div class="ann-item card animate-in" [style.animation-delay]="(i * 0.04) + 's'">
             <div class="ann-left" [style.color]="typeColor(a.type)">
-              <i class="bi" [class]="typeIcon(a.type)"></i>
+              <i class="bi" [class]="typeIcon(a.type)" aria-hidden="true"></i>
             </div>
             <div class="ann-body">
               <div class="ann-head">
                 <strong>{{ a.title }}</strong>
                 <div class="ann-badges">
-                  @if (a.isBanner) { <span class="badge badge-purple">Bannière</span> }
-                  @if (a.targetRole) { <span class="badge badge-blue">{{ a.targetRole }}</span> }
-                  <span class="badge" [class.badge-green]="a.isActive" [class.badge-gray]="!a.isActive">
-                    {{ a.isActive ? 'Active' : 'Inactive' }}
+                  <span class="ann-kind">
+                    <i class="bi" [class.bi-window-dock]="a.isBanner" [class.bi-send]="!a.isBanner" aria-hidden="true"></i>
+                    {{ a.isBanner ? 'Bannière' : 'Notification' }}
                   </span>
+                  <span class="ann-target">{{ a.targetRole === 'Candidate' ? 'Candidats' : a.targetRole === 'Recruiter' ? 'Recruteurs' : 'Tous' }}</span>
+                  <!-- L'état tient compte des dates : une bannière programmée
+                       ou expirée n'est pas « active », elle est invisible. -->
+                  @if (etat(a); as e) {
+                    <span class="ann-state">
+                      <span class="ann-state__dot" [style.background]="e.couleur"></span>{{ e.label }}
+                    </span>
+                  }
                 </div>
               </div>
               <p class="ann-msg">{{ a.message }}</p>
-              <span class="ann-date u-mono">{{ a.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span class="ann-date u-mono">
+                {{ a.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                @if (a.startsAt) { · du {{ a.startsAt | date:'dd/MM HH:mm' }} }
+                @if (a.endsAt) { · au {{ a.endsAt | date:'dd/MM HH:mm' }} }
+              </span>
             </div>
             <div class="ann-actions">
-              <button (click)="toggle(a.id)" class="btn-icon" [title]="a.isActive ? 'Desactiver' : 'Activer'">
-                <i class="bi" [class.bi-toggle-on]="a.isActive" [class.bi-toggle-off]="!a.isActive"></i>
-              </button>
-              <button (click)="remove(a.id)" class="btn-icon btn-icon-red" title="Supprimer">
-                <i class="bi bi-trash3"></i>
-              </button>
+              @if (deleting() === a.id) {
+                <!-- La confirmation se donne sur la ligne visée : une boîte
+                     de dialogue masque justement ce qu'on va supprimer. -->
+                <span class="ann-sure">Supprimer&nbsp;?</span>
+                <button (click)="deleting.set(null)" class="btn-icon" title="Annuler">
+                  <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
+                <button (click)="remove(a.id)" class="btn-icon btn-icon-red is-armed" title="Confirmer la suppression">
+                  <i class="bi bi-check-lg" aria-hidden="true"></i>
+                </button>
+              } @else {
+                @if (a.isBanner) {
+                  <button (click)="toggle(a)" class="btn-icon" [title]="a.isActive ? 'Retirer du site' : 'Réafficher'">
+                    <i class="bi" [class.bi-toggle-on]="a.isActive" [class.bi-toggle-off]="!a.isActive" aria-hidden="true"></i>
+                  </button>
+                }
+                <button (click)="remove(a.id)" class="btn-icon btn-icon-red" title="Supprimer">
+                  <i class="bi bi-trash3" aria-hidden="true"></i>
+                </button>
+              }
             </div>
           </div>
         }
       </div>
     }
+
+    <!-- Les exports ne sont pas des annonces : ils passent en pied de page,
+         là où l'on cherche un outil et non le sujet de la page. -->
+    <div class="export-bar card animate-in">
+      <div class="export-head">
+        <span class="export-eyebrow"><i class="bi bi-download" aria-hidden="true"></i> Exporter les données</span>
+        <p class="export-note">Génère un fichier CSV à la demande, sur l'ensemble des enregistrements.</p>
+      </div>
+      <div class="export-btns">
+        <button (click)="exportUsers()" class="btn-secondary" [disabled]="exporting()">
+          <i class="bi bi-people" aria-hidden="true"></i>
+          {{ exporting() === 'utilisateurs' ? 'Export…' : 'Utilisateurs' }}
+        </button>
+        <button (click)="exportOffers()" class="btn-secondary" [disabled]="exporting()">
+          <i class="bi bi-briefcase" aria-hidden="true"></i>
+          {{ exporting() === 'offres' ? 'Export…' : 'Offres' }}
+        </button>
+        <button (click)="exportApps()" class="btn-secondary" [disabled]="exporting()">
+          <i class="bi bi-send" aria-hidden="true"></i>
+          {{ exporting() === 'candidatures' ? 'Export…' : 'Candidatures' }}
+        </button>
+      </div>
+    </div>
   </div>
 </section>

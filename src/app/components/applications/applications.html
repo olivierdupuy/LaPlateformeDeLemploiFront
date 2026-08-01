@@ -33,6 +33,45 @@
         <a routerLink="/recruteur/offres" class="btn-primary"><i class="bi bi-collection"></i> Voir mes offres</a>
       </div>
     } @else {
+      <!-- Recherche, filtre par offre et tri.
+           La page ne savait filtrer que par statut : avec plusieurs offres
+           en ligne, on ne trie pas « les candidatures en attente », on trie
+           « les candidatures en attente pour ce poste ». -->
+      <div class="app-filters animate-in" style="animation-delay:.04s">
+        <div class="searchbar">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <label class="sr-only" for="ap-q">Rechercher un candidat</label>
+          <input id="ap-q" type="search" placeholder="Nom, e-mail ou intitulé du poste…"
+                 [ngModel]="query()" (ngModelChange)="query.set($event)" />
+        </div>
+
+        @if (offers().length > 1) {
+          <label class="ffield" [class.is-set]="offerFilter() !== ''">
+            <span class="ffield__lbl">Offre</span>
+            <select aria-label="Filtrer par offre"
+                    [ngModel]="offerFilter()"
+                    (ngModelChange)="offerFilter.set($event === '' ? '' : +$event)">
+              <option value="">Toutes</option>
+              @for (o of offers(); track o.id) { <option [value]="o.id">{{ o.title }}</option> }
+            </select>
+          </label>
+        }
+
+        <label class="ffield" [class.is-set]="sort() !== 'recent'">
+          <span class="ffield__lbl">Trier</span>
+          <select aria-label="Trier les candidatures" [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+            <option value="recent">Plus récentes</option>
+            <option value="old">Plus anciennes</option>
+            <option value="name">Nom du candidat</option>
+            <option value="status">Avancement</option>
+          </select>
+        </label>
+
+        @if (hasFilters()) {
+          <button class="filter-bar__clear" (click)="clearFilters()">Effacer les filtres</button>
+        }
+      </div>
+
       <!-- Toolbar: view toggle + bulk actions -->
       <div class="app-toolbar animate-in" style="animation-delay:.06s">
         <div class="toolbar-left">
@@ -186,15 +225,33 @@
               </div>
               <div class="kb-cards">
                 @for (app of col.items; track app.id) {
-                  <div class="kb-card" draggable="true" (dragstart)="onDragStart(app)">
-                    <div class="kb-av" [style.background]="companyColor(app.fullName).bg">
-                      <span [style.color]="companyColor(app.fullName).fg">{{ app.fullName.charAt(0) }}</span>
+                  <!-- La carte portait un nom et un intitulé. Sans la date,
+                       un tableau de triage ne dit pas ce qui attend depuis
+                       trop longtemps — la seule chose qu'on vient y voir. -->
+                  <article class="kb-card" [class.is-stale]="isStale(app)"
+                           draggable="true" (dragstart)="onDragStart(app)">
+                    <div class="kb-card__top">
+                      <div class="kb-av" [style.background]="companyColor(app.fullName).bg">
+                        <span [style.color]="companyColor(app.fullName).fg">{{ app.fullName.charAt(0) }}</span>
+                      </div>
+                      <div class="kb-info">
+                        <strong>{{ app.fullName }}</strong>
+                        <span>{{ app.jobOffer?.title }}</span>
+                      </div>
                     </div>
-                    <div class="kb-info">
-                      <strong>{{ app.fullName }}</strong>
-                      <span>{{ app.jobOffer?.title }}</span>
+
+                    <div class="kb-card__foot">
+                      <span class="kb-when" [class.is-stale]="isStale(app)">
+                        <i class="bi" [class.bi-clock]="!isStale(app)" [class.bi-hourglass-split]="isStale(app)" aria-hidden="true"></i>
+                        {{ sinceLabel(app.appliedAt) }}
+                      </span>
+                      <span class="kb-marks">
+                        @if (app.resumeUrl) { <i class="bi bi-paperclip" title="CV joint" aria-hidden="true"></i> }
+                        @if (getScreeningAnswers(app).length) { <i class="bi bi-patch-question" title="Réponses de présélection" aria-hidden="true"></i> }
+                        @if (app.recruiterNotes) { <i class="bi bi-journal-text" title="Vous avez pris des notes" aria-hidden="true"></i> }
+                      </span>
                     </div>
-                  </div>
+                  </article>
                 }
                 @if (col.items.length === 0) {
                   <div class="kb-empty">Déposez ici</div>

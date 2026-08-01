@@ -33,6 +33,16 @@
         <p>Entrez vos identifiants pour accéder à votre espace.</p>
       </div>
 
+      <!-- Rappel de la destination : on arrive souvent ici depuis une
+           candidature interrompue, et « Connexion » tout court laisse
+           croire qu'on a perdu ce qu'on faisait. -->
+      @if (resumeLabel; as label) {
+        <p class="auth-resume">
+          <i class="bi bi-arrow-return-left" aria-hidden="true"></i>
+          <span>Après connexion : <strong>{{ label }}</strong></span>
+        </p>
+      }
+
       <form (ngSubmit)="submit()" class="auth-form">
         <div class="form-group">
           <label for="login-email">Adresse email</label>

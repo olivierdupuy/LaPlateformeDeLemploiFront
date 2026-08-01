@@ -3,11 +3,33 @@
 // ═══════════════════════════════════
 
 .cd-page {
-  padding: 2.75rem 0 4.5rem;
-  background:
-    radial-gradient(1000px 340px at 50% -140px, var(--brand-tint), transparent 70%),
-    var(--canvas);
-  min-height: 70vh;
+  padding: 1.75rem 0 4.5rem;
+  background: var(--canvas);
+  min-height: 60vh;
+}
+
+// ── Bandeau d'en-tête ──
+.cd-hero {
+  padding-bottom: clamp(1.5rem, 3vw, 2.2rem);
+
+  .cd-header { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+  .cd-heading h1 { color: #fff; }
+
+  // Le bouton « Suivre », le compte d'offres et la note passent sur fond
+  // sombre : ils reprennent les tons clairs de la palette.
+  .cd-count { color: var(--on-dark-muted); }
+
+  .cd-follow {
+    background: rgba(255, 236, 209, 0.1);
+    border-color: rgba(255, 236, 209, 0.2);
+    color: #fff;
+    &:hover { background: rgba(255, 236, 209, 0.18); }
+    &.following { background: var(--bleu-500); border-color: var(--bleu-500); color: #fff; }
+  }
+
+  .cd-rating { color: var(--on-dark); .stars { color: var(--bleu-300); } }
+  .cd-rcount { color: var(--on-dark-muted); }
 }
 
 // ── Back link ──
@@ -135,11 +157,15 @@
   flex: 1;
 }
 
+// Lieu et salaire etaient poses cote a cote sur une meme ligne : un
+// libelle de salaire France Travail (« Horaire de 12.31 Euros sur 12
+// mois ») ecrasait le lieu, qui se coupait alors au milieu d'un mot —
+// « 974 - Saint- / Paul ». Ils sont empiles, chacun sur sa ligne.
 .jc-bottom {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
   margin-top: 0.35rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--line);
@@ -151,14 +177,25 @@
   display: flex;
   align-items: center;
   gap: 0.3rem;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
-  i { color: var(--brand-400); font-size: 0.85rem; }
+  i { color: var(--bleu-400); font-size: 0.85rem; flex-shrink: 0; }
 }
 
 .jc-salary {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--brand-700);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--bleu-800);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // ── Responsive ──

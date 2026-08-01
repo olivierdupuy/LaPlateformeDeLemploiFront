@@ -2,14 +2,15 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
-import { JobOfferService } from '../../services/job-offer';
+import { JobOfferService, BrowseFacet } from '../../services/job-offer';
 import { PlatformService } from '../../services/platform.service';
-import { JobOffer, JobStats } from '../../models/job-offer.model';
+import { JobOffer, JobStats, CompanyInfo } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
+import { EmployerNamePipe } from '../../pipes/employer-name.pipe';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, FormsModule, DecimalPipe],
+  imports: [RouterLink, FormsModule, DecimalPipe, EmployerNamePipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -22,13 +23,34 @@ export class Home implements OnInit {
   latestJobs = signal<JobOffer[]>([]);
   categories = signal<string[]>([]);
 
+  /* ── Points d'entree de l'accueil ──
+     Un moteur de recherche ne sert qu'a qui sait deja quoi taper. Les
+     trois listes ci-dessous ouvrent la meme base par un autre bout :
+     le metier, la ville, le contrat — et le nombre d'offres a la clef dit
+     tout de suite si la piste vaut le detour. */
+  topCategories = signal<BrowseFacet[]>([]);
+  topLocations = signal<BrowseFacet[]>([]);
+  topContracts = signal<BrowseFacet[]>([]);
+  topCompanies = signal<CompanyInfo[]>([]);
+
   searchQuery = '';
   searchLocation = '';
 
   ngOnInit() {
     this.jobService.getStats().subscribe((s) => this.stats.set(s));
-    this.jobService.getAll().subscribe((jobs) => this.latestJobs.set(jobs.slice(0, 6)));
+    // Huit plutot que six : la grille en compte quatre par rangee, et six
+    // laissait deux orphelines a cote d'un demi-vide.
+    this.jobService.getAll().subscribe((jobs) => this.latestJobs.set(jobs.slice(0, 8)));
     this.jobService.getCategories().subscribe((c) => this.categories.set(c));
+
+    this.jobService.getBrowseSection('categories', { pageSize: 10 })
+      .subscribe((p) => this.topCategories.set(p.items));
+    this.jobService.getBrowseSection('locations', { pageSize: 10 })
+      .subscribe((p) => this.topLocations.set(p.items));
+    this.jobService.getBrowseSection('contractTypes', { pageSize: 6 })
+      .subscribe((p) => this.topContracts.set(p.items));
+    this.jobService.getCompanies({ pageSize: 8 })
+      .subscribe((r) => this.topCompanies.set(r.items));
   }
 
   search() {

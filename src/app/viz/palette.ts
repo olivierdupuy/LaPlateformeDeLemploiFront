@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════
- *  PALETTE DES GRAPHIQUES — trois bleus
+ *  PALETTE DES GRAPHIQUES — petrole, creme, et huit pentes a part
  * ═══════════════════════════════════════════════════════════
  *
  * Les couleurs d'un graphique ne sont pas choisies a l'oeil : chacune fait
@@ -8,22 +8,28 @@
  * ordre, grandeur, etat — et rien d'autre n'a le droit d'inventer une
  * teinte de serie ailleurs dans le panneau.
  *
- * Pourquoi ne pas reprendre la rampe bleue du site ? Parce qu'elle
+ * Pourquoi ne pas reprendre la rampe de marque du site ? Parce qu'elle
  * encode la grandeur, pas l'identite. Les dix-sept graphiques du panneau
- * peignaient « Informatique », « Sante » et « Commerce » en trois bleus
- * voisins : la couleur ne disait plus laquelle est laquelle, elle
- * ne faisait que repeter la longueur de la barre. Le bleu reste donc la
- * rampe de grandeur, et les series recoivent huit teintes distinctes —
+ * peignaient « Informatique », « Sante » et « Commerce » en trois teintes
+ * voisines : la couleur ne disait plus laquelle est laquelle, elle
+ * ne faisait que repeter la longueur de la barre. Le petrole reste donc
+ * la rampe de grandeur, et les series recoivent huit teintes distinctes —
  * les seules couleurs du produit a sortir de la palette de marque, et
  * c'est deliberé : identifier n'est pas signer.
+ *
+ * Le passage du bleu au petrole ne touche pas les huit pentes : elles ne
+ * sont pas des teintes de marque, et les revalider couterait une nouvelle
+ * enumeration pour aucun gain. Seules les rampes tirees de l'axe de la
+ * marque — ordre, grandeur, chrome — ont ete rebaties.
  *
  * ── Verification, pas intuition ──
  * L'ordre des huit pentes est le mecanisme de securite : il est mesure,
  * jamais ajuste au jugé. Cet ordre est sorti d'une enumeration des
  * 5 040 permutations, notee par le validateur de la methode. Le passage
  * a la palette bleue a change la surface des cartes (#fffdf7 → #ffffff)
- * et donc les seuls contrastes au fond ; les ecarts entre pentes, eux,
- * ne dependent pas du fond et restent ceux qui ont ete valides :
+ * et donc les seuls contrastes au fond ; le passage au petrole ne l'a pas
+ * retouchee. Les ecarts entre pentes ne dependent pas du fond et restent
+ * ceux qui ont ete valides :
  *
  *   Bande de clarte      OK   les huit dans L 0.43–0.77
  *   Plancher de chroma   OK   les huit >= 0.10 (en deca, une teinte
@@ -75,11 +81,11 @@ export const SERIES_RELIEF = new Set<string>(['#e0a419', '#e58a63']);
 /**
  * Ordre : la position dans une suite — etapes d'un entonnoir, paliers,
  * tranches. Une seule teinte, clarte decroissante, pour que l'oeil lise la
- * progression dans la couleur elle-meme. Rebatie sur l'axe bleu de la
- * palette et revalidee : clarte monotone, ecart voisin minimal 0.062
- * (cible 0.06), extremite claire a 2.42:1 du fond (cible 2.35).
+ * progression dans la couleur elle-meme. Rebatie sur l'axe petrole de la
+ * palette et revalidee : clarte monotone, ecart voisin minimal 0.074
+ * (cible 0.06), extremite claire a 2.39:1 du fond (cible 2.35).
  */
-export const ORDINAL = ['#83abcd', '#6b98c0', '#4a7cab', '#2c5c8c', '#0f3d6b'] as const;
+export const ORDINAL = ['#7eb0b9', '#629aa5', '#43848f', '#246c78', '#03515c'] as const;
 
 /**
  * Grandeur : combien. Rampe continue pour la carte et les grilles de
@@ -88,7 +94,7 @@ export const ORDINAL = ['#83abcd', '#6b98c0', '#4a7cab', '#2c5c8c', '#0f3d6b'] a
  * ordinale ci-dessus.
  */
 export const SEQUENTIAL = [
-  '#ebf2fa', '#c8dcee', '#a5c5df', '#7ba7c9', '#4f81ae', '#2c5c8c', '#0f3d6b',
+  '#e3f2f5', '#c1dfe5', '#9ecbd3', '#7bb1bb', '#5595a0', '#2f7581', '#0c5561',
 ] as const;
 
 /**
@@ -98,29 +104,30 @@ export const SEQUENTIAL = [
  * rattrape.
  *
  * L'echelle reste chaude de bout en bout (vert → ambre → orange → rouge)
- * alors que le produit est bleu : c'est voulu. Un jugement « serieux »
- * peint en bleu de marque se confondrait avec une simple categorie.
+ * alors que la structure du produit est petrole : c'est voulu. Un
+ * jugement « serieux » peint en teinte de marque se confondrait avec une
+ * simple categorie.
  */
 export const STATUS = {
   good: '#2f7d4f',     // 5.04:1
   warning: '#d99a00',  // 2.45:1 — icone + libelle obligatoires
   serious: '#d1603b',  // 3.86:1
   critical: '#b3271f', // 6.51:1
-  neutral: '#7a91ab',  // 3.25:1
+  neutral: '#81999e',  // 3.01:1 — gris de la gamme, pas un bleu
   info: '#35509c',     // 7.56:1
 } as const;
 
 /** Chrome du graphique : encres, grille, ligne de base. Jamais une teinte de serie. */
 export const CHROME = {
   surface: SURFACE,
-  ink: '#17263a',      // 15.28:1
-  inkSoft: '#2f4a66',  //  9.16:1
-  muted: '#56718f',    //  5.05:1 — etiquettes d'axe
-  faint: '#8ba4bf',    //  2.57:1
-  grid: '#e6eef7',     // filet, volontairement en retrait
-  axis: '#cbdcee',
+  ink: '#10272b',      // 15.59:1
+  inkSoft: '#39545a',  //  8.11:1
+  muted: '#577177',    //  5.21:1 — etiquettes d'axe
+  faint: '#81999e',    //  3.01:1
+  grid: '#daecef',     // filet, volontairement en retrait
+  axis: '#c3dde2',
   /** Gris de mise en retrait : la forme « emphase », une serie en couleur et le reste ici. */
-  mute: '#c2cfdd',
+  mute: '#bdd0d4',
 } as const;
 
 /** Fond translucide d'une aire ou d'une pastille, tire de la teinte de la serie. */

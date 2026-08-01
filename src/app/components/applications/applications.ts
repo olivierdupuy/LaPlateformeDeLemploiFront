@@ -37,10 +37,64 @@ export class Applications implements OnInit {
 
   interviewForm = { proposedAt: '', location: '', notes: '', duration: 60, type: 'Visio', interviewerName: '' };
 
+  /* ═══ Tri et filtres ═══
+     La page ne savait filtrer que par statut. Passe la dizaine de
+     candidatures — et surtout des que plusieurs offres sont en ligne —
+     un recruteur ne trie pas « toutes les candidatures en attente », il
+     trie « les candidatures en attente pour ce poste ». */
+  query = signal('');
+  offerFilter = signal<number | ''>('');
+  sort = signal<'recent' | 'old' | 'name' | 'status'>('recent');
+
+  /** Les offres reellement representees dans les candidatures recues. */
+  offers = computed(() => {
+    const seen = new Map<number, string>();
+    for (const a of this.applications()) {
+      if (a.jobOfferId && !seen.has(a.jobOfferId)) {
+        seen.set(a.jobOfferId, a.jobOffer?.title || `Offre ${a.jobOfferId}`);
+      }
+    }
+    return [...seen].map(([id, title]) => ({ id, title }));
+  });
+
+  /** Ordre des statuts dans le parcours, pour le tri « par avancement ». */
+  private readonly ORDRE: Record<string, number> = { Pending: 0, Reviewed: 1, Accepted: 2, Rejected: 3 };
+
   filtered = computed(() => {
     const f = this.filterStatus;
-    return f ? this.applications().filter(a => a.status === f) : this.applications();
+    const off = this.offerFilter();
+    const q = this.query().trim().toLowerCase();
+    const s = this.sort();
+
+    const out = this.applications().filter((a) => {
+      if (f && a.status !== f) return false;
+      if (off !== '' && a.jobOfferId !== off) return false;
+      if (!q) return true;
+      const hay = `${a.fullName ?? ''} ${a.email ?? ''} ${a.jobOffer?.title ?? ''}`.toLowerCase();
+      return hay.includes(q);
+    });
+
+    // Copie avant tri : `filter` en rend une neuve, mais mieux vaut que
+    // ce soit explicite — trier en place le tableau du signal le
+    // muterait sous les autres calculs.
+    return [...out].sort((a, b) => {
+      switch (s) {
+        case 'old': return +new Date(a.appliedAt) - +new Date(b.appliedAt);
+        case 'name': return (a.fullName ?? '').localeCompare(b.fullName ?? '', 'fr');
+        case 'status': return (this.ORDRE[a.status] ?? 9) - (this.ORDRE[b.status] ?? 9);
+        default: return +new Date(b.appliedAt) - +new Date(a.appliedAt);
+      }
+    });
   });
+
+  /** Vrai des qu'un critere restreint la liste — pour proposer de l'effacer. */
+  hasFilters = computed(() => !!this.filterStatus || this.offerFilter() !== '' || !!this.query().trim());
+
+  clearFilters() {
+    this.filterStatus = '';
+    this.offerFilter.set('');
+    this.query.set('');
+  }
 
   counts = computed(() => {
     const apps = this.applications();
@@ -53,10 +107,48 @@ export class Applications implements OnInit {
     };
   });
 
-  kanbanPending = computed(() => this.applications().filter(a => a.status === 'Pending'));
-  kanbanReviewed = computed(() => this.applications().filter(a => a.status === 'Reviewed'));
-  kanbanAccepted = computed(() => this.applications().filter(a => a.status === 'Accepted'));
-  kanbanRejected = computed(() => this.applications().filter(a => a.status === 'Rejected'));
+  /* Les colonnes lisent la liste filtree, pas la liste brute.
+     La recherche et le filtre par offre n'avaient aucun effet en vue
+     kanban : on cherchait un candidat, la liste se reduisait a une carte,
+     et le kanban continuait d'en afficher quarante. Le filtre par statut
+     est en revanche ignore ici — c'est le kanban lui-meme qui range par
+     statut, l'appliquer deux fois viderait trois colonnes sur quatre. */
+  private forBoard = computed(() => {
+    const off = this.offerFilter();
+    const q = this.query().trim().toLowerCase();
+    return this.applications().filter((a) => {
+      if (off !== '' && a.jobOfferId !== off) return false;
+      if (!q) return true;
+      return `${a.fullName ?? ''} ${a.email ?? ''} ${a.jobOffer?.title ?? ''}`.toLowerCase().includes(q);
+    });
+  });
+
+  kanbanPending = computed(() => this.forBoard().filter(a => a.status === 'Pending'));
+  kanbanReviewed = computed(() => this.forBoard().filter(a => a.status === 'Reviewed'));
+  kanbanAccepted = computed(() => this.forBoard().filter(a => a.status === 'Accepted'));
+  kanbanRejected = computed(() => this.forBoard().filter(a => a.status === 'Rejected'));
+
+  /** Nombre de candidatures visibles sur le tableau, filtres compris. */
+  boardCount = computed(() => this.forBoard().length);
+
+  /** Depuis combien de temps la candidature attend. */
+  daysSince(date: string): number {
+    return Math.floor((Date.now() - new Date(date).getTime()) / 86_400_000);
+  }
+
+  sinceLabel(date: string): string {
+    const d = this.daysSince(date);
+    if (d <= 0) return "aujourd'hui";
+    if (d === 1) return 'hier';
+    if (d < 7) return `il y a ${d} j`;
+    if (d < 31) return `il y a ${Math.floor(d / 7)} sem.`;
+    return `il y a ${Math.floor(d / 30)} mois`;
+  }
+
+  /** Une candidature en attente depuis plus d'une semaine se signale. */
+  isStale(app: Application): boolean {
+    return app.status === 'Pending' && this.daysSince(app.appliedAt) >= 7;
+  }
 
   ngOnInit() { this.load(); }
 
@@ -91,7 +183,7 @@ export class Applications implements OnInit {
   cancelNotes() { this.editingNotesId.set(null); }
 
   async deleteApplication(app: Application) {
-    const res = await Swal.fire({ title: 'Supprimer cette candidature ?', text: `Candidature de ${app.fullName}`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#e42b2f', confirmButtonText: 'Supprimer', cancelButtonText: 'Annuler' });
+    const res = await Swal.fire({ title: 'Supprimer cette candidature ?', text: `Candidature de ${app.fullName}`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#c6364b', confirmButtonText: 'Supprimer', cancelButtonText: 'Annuler' });
     if (res.isConfirmed) {
       this.appService.delete(app.id).subscribe({
         next: () => { this.applications.update((a) => a.filter((x) => x.id !== app.id)); this.toastr.success('Supprimee'); },

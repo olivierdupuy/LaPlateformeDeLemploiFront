@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
 import { JobOfferService, BrowseFacet, BrowseSection } from '../../services/job-offer';
 
 const PAGE_SIZE = 24;
@@ -35,7 +36,7 @@ interface SectionConfig {
 
 @Component({
   selector: 'app-browse-jobs',
-  imports: [RouterLink],
+  imports: [RouterLink, DecimalPipe],
   templateUrl: './browse-jobs.html',
   styleUrl: './browse-jobs.scss',
 })

@@ -14,136 +14,193 @@
   <div class="empty-box"><div class="spinner"></div></div>
 } @else if (data(); as d) {
 
-<!-- ═══ STAT CARDS ═══ -->
+<!-- ═══ À TRAITER ═══
+     Le panneau existait, relégué dans une colonne de droite sous deux
+     graphiques qui prenaient tout l'écran. C'est pourtant la seule chose
+     qu'un recruteur vient faire ici : savoir qui attend une réponse. -->
+<section class="dr-todo">
+  <div class="container">
+    <div class="todo-panel animate-in">
+      <div class="todo-head">
+        <h2><i class="bi bi-list-check" aria-hidden="true"></i> À traiter</h2>
+        @if (todos().length) { <span class="todo-n u-mono">{{ todos().length }}</span> }
+      </div>
+
+      @if (todos().length) {
+        <ul class="todo-list">
+          @for (t of todos(); track t.key) {
+            <li class="todo-item" [class.is-due]="t.tone === 'due'">
+              <span class="todo-ic"><i class="bi" [class]="t.icon" aria-hidden="true"></i></span>
+              <span class="todo-tx">
+                <strong>{{ t.text }}</strong>
+                <span>{{ t.sub }}</span>
+              </span>
+              <a [routerLink]="t.link" class="todo-cta">{{ t.cta }} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="todo-clear">
+          <i class="bi bi-check-circle" aria-hidden="true"></i>
+          Rien en attente. Toutes les candidatures ont été traitées.
+          <a routerLink="/candidats" class="arrow-link">Parcourir le vivier <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </p>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CHIFFRES CLÉS ═══
+     Quatre faits distincts. « Messages non lus » et « Entretiens » ne
+     figurent plus ici : ils sont déjà dans « À traiter », où ils mènent
+     quelque part. La tuile qui les remplace dit ce qu'aucune autre ne
+     disait — la part des candidatures sur laquelle une décision est prise. -->
 <section class="dr-stats">
   <div class="container">
     <div class="stats-row">
-      <div class="st card animate-in" style="animation-delay:.05s">
-        <div class="st-top">
-          <div class="st-icon ic-brand"><i class="bi bi-briefcase-fill"></i></div>
-          @if (d.offresExpirees > 0) {
-            <span class="st-extra">{{ d.offresExpirees }} expiree{{ d.offresExpirees > 1 ? 's' : '' }}</span>
-          }
+      <a routerLink="/recruteur/offres" class="kpi card animate-in" style="animation-delay:.05s">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i class="bi bi-briefcase" aria-hidden="true"></i></div>
+          <span class="kpi-val u-mono">{{ d.offresActives }}</span>
         </div>
-        <span class="st-val">{{ d.offresActives }}</span>
-        <span class="st-lbl">Offres actives</span>
-        <div class="st-bar"><div class="st-bar-fill" style="width:100%;background:var(--brand)"></div></div>
+        <span class="kpi-lbl">Offres en ligne</span>
+        <span class="kpi-hint">
+          @if (d.offresExpirees > 0) { {{ d.offresExpirees }} expirée{{ d.offresExpirees > 1 ? 's' : '' }} à renouveler }
+          @else { Sur {{ d.totalOffres }} publiée{{ d.totalOffres > 1 ? 's' : '' }} au total }
+        </span>
+      </a>
+
+      <a routerLink="/recruteur/candidatures" class="kpi card animate-in" style="animation-delay:.1s">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i class="bi bi-people" aria-hidden="true"></i></div>
+          <span class="kpi-val u-mono">{{ d.totalCandidatures | number }}</span>
+        </div>
+        <span class="kpi-lbl">Candidatures reçues</span>
+        <span class="kpi-hint">Toutes offres confondues</span>
+      </a>
+
+      <div class="kpi card animate-in" style="animation-delay:.15s">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i class="bi bi-check2-square" aria-hidden="true"></i></div>
+          <span class="kpi-val u-mono">{{ traitees() }}<span class="kpi-unit">%</span></span>
+        </div>
+        <span class="kpi-lbl">Candidatures traitées</span>
+        <span class="kpi-hint">Part sur laquelle une décision a été prise</span>
       </div>
 
-      <div class="st card animate-in" style="animation-delay:.1s">
-        <div class="st-top">
-          <div class="st-icon ic-blue"><i class="bi bi-people-fill"></i></div>
-          <span class="st-extra">{{ d.enAttente }} en attente</span>
+      <div class="kpi card animate-in" style="animation-delay:.2s">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i class="bi bi-person-check" aria-hidden="true"></i></div>
+          <span class="kpi-val u-mono">{{ d.acceptees }}</span>
         </div>
-        <span class="st-val">{{ d.totalCandidatures }}</span>
-        <span class="st-lbl">Candidatures reçues</span>
-        <div class="st-bar"><div class="st-bar-fill" [style.width]="d.totalCandidatures > 0 ? '100%' : '0%'" style="background:var(--blue)"></div></div>
-      </div>
-
-      <div class="st card animate-in" style="animation-delay:.15s">
-        <div class="st-top">
-          <div class="st-icon ic-green"><i class="bi bi-calendar-event-fill"></i></div>
-        </div>
-        <span class="st-val">{{ d.entretiensPlanifies }}</span>
-        <span class="st-lbl">Entretiens planifiés</span>
-        <div class="st-bar"><div class="st-bar-fill" [style.width]="d.entretiensPlanifies > 0 ? '60%' : '0%'" style="background:var(--green)"></div></div>
-      </div>
-
-      <div class="st card animate-in" style="animation-delay:.2s">
-        <div class="st-top">
-          <div class="st-icon ic-amber"><i class="bi bi-chat-dots-fill"></i></div>
-        </div>
-        <span class="st-val">{{ d.messagesNonLus }}</span>
-        <span class="st-lbl">Messages non lus</span>
-        <div class="st-bar"><div class="st-bar-fill" [style.width]="d.messagesNonLus > 0 ? '40%' : '0%'" style="background:var(--amber)"></div></div>
+        <span class="kpi-lbl">Candidatures acceptées</span>
+        <span class="kpi-hint">Retenues pour la suite du processus</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ MAIN ═══ -->
+<!-- ═══ CONTENU ═══ -->
 <section class="dr-content">
   <div class="container dr-layout">
-    <!-- LEFT: Charts -->
     <div class="dr-main">
-      <!-- Candidatures par offre -->
-      <div class="dr-card card animate-in" style="animation-delay:.25s">
-        <div class="drc-head">
-          <h2 class="section-title"><span class="ed-pill">01</span> Candidatures par offre</h2>
-          <a routerLink="/recruteur/candidatures" class="link-teal">Tout voir <i class="bi bi-arrow-right"></i></a>
-        </div>
-        <div class="drc-body">
-          @if (d.candidaturesParOffre.length > 0) {
-            <div class="chart-container chart-bar"><canvas #offersChart></canvas></div>
-          } @else {
-            <div class="drc-empty"><i class="bi bi-bar-chart"></i><p>Aucune candidature pour le moment</p></div>
-          }
-        </div>
-      </div>
+      <!-- Le parcours plutôt que l'anneau : quatre états peints en vert,
+           orange, rouge et bleu clair — des couleurs écrites en dur, hors
+           palette — et, pour deux candidatures, un camembert à deux parts. -->
+      @if (d.totalCandidatures > 0) {
+        <div class="dr-card card animate-in" style="animation-delay:.25s">
+          <div class="drc-head">
+            <h2 class="section-title">Le parcours de vos candidatures</h2>
+            <a routerLink="/recruteur/candidatures" class="arrow-link">Le détail <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+          </div>
+          <div class="drc-body">
+            <ol class="fn">
+              @for (s of funnel(); track s.key) {
+                <li class="fn-step">
+                  <div class="fn-top">
+                    <span class="fn-ic"><i class="bi" [class]="s.icon" aria-hidden="true"></i></span>
+                    <span class="fn-val u-mono">{{ s.value }}</span>
+                  </div>
+                  <span class="fn-lbl">{{ s.label }}</span>
+                  <div class="fn-bar"><span [style.width.%]="s.pct"></span></div>
+                  <span class="fn-pct u-mono">{{ s.pct }} %</span>
+                </li>
+              }
+            </ol>
 
-      <!-- Repartition par statut -->
+            @if (d.refusees > 0) {
+              <p class="fn-note">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                {{ d.refusees }} candidature{{ d.refusees > 1 ? 's' : '' }} refusée{{ d.refusees > 1 ? 's' : '' }}.
+              </p>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Une liste, pas un graphique : sur des barres horizontales, une
+           offre sans candidature n'avait pas de barre — elle disparaissait,
+           alors que c'est celle dont il faut s'occuper. -->
       <div class="dr-card card animate-in" style="animation-delay:.3s">
         <div class="drc-head">
-          <h2 class="section-title"><span class="ed-pill">02</span> Répartition par statut</h2>
+          <h2 class="section-title">Vos offres, par candidatures reçues</h2>
+          <a routerLink="/recruteur/offres" class="arrow-link">Mes offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
         </div>
         <div class="drc-body">
-          @if (d.totalCandidatures > 0) {
-            <div class="chart-container chart-doughnut"><canvas #statusChart></canvas></div>
+          @if (offerRows().length) {
+            <ul class="orank">
+              @for (o of offerRows(); track o.label) {
+                <li class="orank-row" [class.is-zero]="o.value === 0">
+                  <span class="orank-lbl">{{ o.label }}</span>
+                  <span class="orank-bar"><span [style.width.%]="o.pct"></span></span>
+                  <span class="orank-val u-mono">{{ o.value }}</span>
+                </li>
+              }
+            </ul>
+            <p class="orank-note">
+              <i class="bi bi-info-circle" aria-hidden="true"></i>
+              Une offre à zéro n'est pas forcément mauvaise : vérifiez d'abord l'intitulé, le salaire et le lieu.
+            </p>
           } @else {
-            <div class="drc-empty"><i class="bi bi-pie-chart"></i><p>Aucune donnée</p></div>
+            <div class="drc-empty">
+              <i class="bi bi-inbox" aria-hidden="true"></i>
+              <p>Aucune offre publiée pour l'instant</p>
+              <a routerLink="/recruteur/offres/nouvelle" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
+            </div>
           }
         </div>
       </div>
     </div>
 
-    <!-- RIGHT: Quick access -->
+    <!-- Raccourcis vers ce que la sous-navigation ne porte pas -->
     <aside class="dr-side">
       <div class="dr-card card animate-in" style="animation-delay:.2s">
-        <div class="drc-head"><h2 class="section-title">À traiter</h2></div>
+        <div class="drc-head"><h2 class="section-title">Aller plus loin</h2></div>
         <div class="drc-body qnav">
-          @if (d.enAttente > 0) {
-            <a routerLink="/recruteur/candidatures" class="qn qn-todo">
-              <span class="qn-icon ic-amber"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
-              <span class="qn-text">
-                <strong>{{ d.enAttente }} candidature{{ d.enAttente > 1 ? 's' : '' }} en attente</strong>
-                <span>Personne ne les a encore examinées</span>
-              </span>
-              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
-            </a>
-          }
-          @if (d.messagesNonLus > 0) {
-            <a routerLink="/messagerie" class="qn qn-todo">
-              <span class="qn-icon ic-red"><i class="bi bi-chat-dots" aria-hidden="true"></i></span>
-              <span class="qn-text">
-                <strong>{{ d.messagesNonLus }} message{{ d.messagesNonLus > 1 ? 's' : '' }} non lu{{ d.messagesNonLus > 1 ? 's' : '' }}</strong>
-                <span>Un candidat attend votre réponse</span>
-              </span>
-              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
-            </a>
-          }
-          @if (d.entretiensPlanifies > 0) {
-            <a routerLink="/entretiens" class="qn qn-todo">
-              <span class="qn-icon ic-blue"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
-              <span class="qn-text">
-                <strong>{{ d.entretiensPlanifies }} entretien{{ d.entretiensPlanifies > 1 ? 's' : '' }} planifié{{ d.entretiensPlanifies > 1 ? 's' : '' }}</strong>
-                <span>Vérifiez vos prochaines dates</span>
-              </span>
-              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
-            </a>
-          }
-          @if (d.offresActives === 0) {
-            <a routerLink="/recruteur/offres/nouvelle" class="qn qn-todo">
-              <span class="qn-icon ic-brand"><i class="bi bi-plus-circle" aria-hidden="true"></i></span>
-              <span class="qn-text">
-                <strong>Aucune offre en ligne</strong>
-                <span>Publiez-en une pour recevoir des candidatures</span>
-              </span>
-              <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
-            </a>
-          }
-          @if (d.enAttente === 0 && d.messagesNonLus === 0 && d.entretiensPlanifies === 0 && d.offresActives > 0) {
-            <p class="qn-clear"><i class="bi bi-check2-circle" aria-hidden="true"></i> Rien en attente. Tout est à jour.</p>
-          }
+          <a routerLink="/candidats" class="qn">
+            <span class="qn-icon"><i class="bi bi-person-lines-fill" aria-hidden="true"></i></span>
+            <span class="qn-text">
+              <strong>Vivier de candidats</strong>
+              <span>Chercher un profil sans attendre qu'il postule</span>
+            </span>
+            <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
+          </a>
+          <a routerLink="/recruteur/offres/nouvelle" class="qn">
+            <span class="qn-icon"><i class="bi bi-plus-circle" aria-hidden="true"></i></span>
+            <span class="qn-text">
+              <strong>Publier une offre</strong>
+              <span>En ligne en quelques minutes</span>
+            </span>
+            <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
+          </a>
+          <a routerLink="/salaires" class="qn">
+            <span class="qn-icon"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></span>
+            <span class="qn-text">
+              <strong>Salaires du marché</strong>
+              <span>Situer votre offre avant de la publier</span>
+            </span>
+            <i class="bi bi-chevron-right qn-arrow" aria-hidden="true"></i>
+          </a>
         </div>
       </div>
     </aside>

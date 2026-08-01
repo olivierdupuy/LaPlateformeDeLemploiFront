@@ -6,7 +6,7 @@
   <div actions>
       <button class="btn-secondary cvh-btn" (click)="previewOpen.set(!previewOpen())">
         <i class="bi" [class.bi-eye]="!previewOpen()" [class.bi-eye-slash]="previewOpen()"></i>
-        {{ previewOpen() ? 'Masquer' : 'Apercu' }}
+        {{ previewOpen() ? 'Masquer' : 'Aperçu' }}
       </button>
       <button class="btn-secondary cvh-btn cvh-pdf" (click)="exportPdf()">
         <i class="bi bi-file-earmark-pdf"></i> Télécharger PDF
@@ -30,10 +30,65 @@
       <div class="empty-box"><div class="spinner"></div></div>
     } @else {
 
+      <!-- ═══ ÉTAT DU CV ═══
+           La page listait les sections sans jamais dire ce qui manquait.
+           Un CV s'évalue à ses trous, et onze expériences à faire défiler
+           ne les montrent pas. -->
+      @if (!previewOpen()) {
+        <aside class="cv-side">
+          <div class="cvs-card">
+            <h2 class="cvs-t">Votre CV</h2>
+
+            <div class="cvs-gauge">
+              <div class="cvs-num u-mono">{{ completeness() }}<span>%</span></div>
+              <div class="cvs-bar"><span [style.width.%]="completeness()"></span></div>
+              <span class="cvs-cap">
+                @if (completeness() === 100) { Complet — prêt à être envoyé }
+                @else { {{ missing().length + profileGaps().length }} élément(s) à compléter }
+              </span>
+            </div>
+
+            @if (missing().length || profileGaps().length) {
+              <ul class="cvs-todo">
+                @for (t of missing(); track t) {
+                  <li>
+                    <button (click)="openAdd(t)">
+                      <i class="bi bi-plus-circle" aria-hidden="true"></i>
+                      Ajouter {{ sectionLabel(t) | lowercase }}
+                    </button>
+                  </li>
+                }
+                @for (g of profileGaps(); track g.label) {
+                  <li>
+                    <a [routerLink]="g.link">
+                      <i class="bi bi-person-gear" aria-hidden="true"></i>
+                      {{ g.label }}
+                    </a>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          <!-- Saut de section : onze expériences séparent le haut de page
+               des compétences, qui sont tout en bas. -->
+          <nav class="cvs-nav" aria-label="Sections du CV">
+            <h2 class="cvs-t">Sections</h2>
+            @for (type of TYPES; track type) {
+              <a [href]="'#' + anchor(type)" class="cvs-link">
+                <i class="bi" [class]="sectionIcon(type)" aria-hidden="true"></i>
+                <span>{{ sectionLabel(type) }}</span>
+                <span class="cvs-n u-mono" [class.is-zero]="!grouped()[type].length">{{ grouped()[type].length }}</span>
+              </a>
+            }
+          </nav>
+        </aside>
+      }
+
       <!-- EDITOR -->
       <div class="cv-editor">
         @for (type of TYPES; track type; let ti = $index) {
-          <div class="sec-group card animate-in" [style.animation-delay]="(ti * 0.04) + 's'">
+          <div class="sec-group card animate-in" [id]="anchor(type)" [style.animation-delay]="(ti * 0.04) + 's'">
             <div class="sg-head">
               <div class="sg-icon" [style.background]="sectionColor(type)"><i class="bi" [class]="sectionIcon(type)"></i></div>
               <div class="sg-title">
@@ -168,7 +223,7 @@
     <div class="modal-content ai-modal" (click)="$event.stopPropagation()">
       <div class="em-head">
         <div class="em-icon ai-gradient"><i class="bi bi-stars"></i></div>
-        <div><h2>{{ aiModalTitle() }}</h2><span class="em-sub">Sélectionnez les sections a integrer</span></div>
+        <div><h2>{{ aiModalTitle() }}</h2><span class="em-sub">Sélectionnez les sections à intégrer</span></div>
         <button class="em-close" (click)="aiOpen.set(false)"><i class="bi bi-x-lg"></i></button>
       </div>
       <div class="ai-list">
@@ -187,7 +242,7 @@
           </label>
         }
       </div>
-      <div class="em-actions"><button class="btn-secondary" (click)="aiOpen.set(false)">Annuler</button><button class="btn-primary" (click)="acceptAi()"><i class="bi bi-check-lg"></i> Integrer les sections</button></div>
+      <div class="em-actions"><button class="btn-secondary" (click)="aiOpen.set(false)">Annuler</button><button class="btn-primary" (click)="acceptAi()"><i class="bi bi-check-lg"></i> Intégrer les sections</button></div>
     </div>
   </div>
 }

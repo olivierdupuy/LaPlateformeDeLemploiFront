@@ -39,10 +39,16 @@ import { AdminService } from '../../services/admin.service';
     }
     .banner-close:hover { opacity: 1; background: rgba(12, 27, 51, 0.08); }
 
-    .banner-info    { background: var(--blue-bg);  color: #23477f; }
-    .banner-warning { background: var(--amber-bg); color: #7d5002; }
-    .banner-success { background: var(--green-bg); color: #0b6b4a; }
-    .banner-danger  { background: var(--red-bg);   color: #9b2b34; }
+    /* Les quatre natures, sur la gamme de la charte.
+       Les alias hérités (--blue-bg, --green-bg, --purple-bg) pointent tous
+       vers le même aplat depuis le passage au bleu : « info » et « succès »
+       s'affichaient à l'identique, et les encres restées de l'ancienne
+       charte — un vert, un brun — juraient sur un fond bleu.
+       Fonds et encres viennent désormais du même endroit. */
+    .banner-info    { background: var(--bleu-100);   color: #123c44; }
+    .banner-warning { background: var(--rouge-100);  color: #6b4a00; }
+    .banner-success { background: var(--nuage-2);    color: #1d5c3a; border-bottom-color: rgba(29, 92, 58, 0.18); }
+    .banner-danger  { background: var(--danger-100); color: #8a2a22; }
   `],
 })
 export class SiteBanner implements OnInit {

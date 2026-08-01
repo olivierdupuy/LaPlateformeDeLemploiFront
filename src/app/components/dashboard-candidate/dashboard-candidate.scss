@@ -4,43 +4,72 @@
 
 :host { display: block; background: var(--paper); }
 
-// ── Hero ──
 // ── Stats ──
 .dc-stats { padding: 1.75rem 0 0.5rem; }
 
 .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.1rem; }
 
-.st {
-  padding: 1.3rem;
-  overflow: hidden;
-}
+// ── À faire ──
+// Le seul bloc qui repond a « et maintenant ? ». Il passe avant les
+// chiffres, parce qu'un chiffre ne se fait pas, il se constate.
+.dc-todo { padding-top: 1.5rem; }
 
-.st-stripe {
-  position: absolute;
-  left: 0; top: 14px; bottom: 14px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-}
+// ── Encart profil ──
+.pf { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; }
 
-.st-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.6rem; }
-
-.st-icon {
-  width: 42px; height: 42px; border-radius: var(--r-sm);
+.pf-av {
+  width: 44px; height: 44px;
+  flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.05rem; flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--bleu-600);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.82rem; font-weight: 500;
 }
-.ic-teal { background: var(--brand-100); color: var(--brand-700); }
-.ic-blue { background: var(--blue-bg); color: var(--blue); }
-.ic-green { background: var(--green-bg); color: var(--green); }
-.ic-amber { background: var(--amber-bg); color: var(--amber); }
-.ic-red { background: var(--red-bg); color: var(--red); }
-.ic-neutral { background: var(--paper-2); color: var(--muted); }
 
-.st-val { font-size: 1.85rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: var(--ink); }
-.st-lbl { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+.pf-tx {
+  min-width: 0;
+  display: flex; flex-direction: column; line-height: 1.35;
+  strong { font-size: 0.92rem; font-weight: 700; color: var(--ink); }
+  span {
+    font-size: 0.79rem; color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+}
 
-.st-bar { height: 4px; background: var(--paper-2); border-radius: var(--r-full); margin-top: 0.85rem; overflow: hidden; }
-.st-bar-fill { height: 100%; border-radius: var(--r-full); transition: width 1s var(--ease-out); }
+.pf-links { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+
+.pf-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.72rem 0;
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--nuage-2);
+  transition: color var(--t);
+
+  &:last-child { border-bottom: none; }
+  i:first-child { color: var(--faint); width: 18px; text-align: center; }
+  i:last-child { margin-left: auto; font-size: 0.72rem; color: var(--faint); transition: transform var(--t); }
+  &:hover { color: var(--bleu-700); i:last-child { transform: translateX(3px); } }
+}
+
+.pf-n {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 0.08rem 0.4rem;
+  text-align: center;
+  border-radius: var(--r-full);
+  background: var(--bleu-100);
+  color: var(--bleu-700);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  &.is-alert { background: var(--bleu-600); color: #fff; }
+}
 
 // ── Content layout ──
 .dc-content { padding: 1.25rem 0 4rem; }
@@ -242,7 +271,6 @@
   .dc-layout { grid-template-columns: 1fr; }
   .dc-side { position: static; }
   .stats-row { grid-template-columns: 1fr 1fr; }
-  .ana-kpi { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {

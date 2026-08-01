@@ -7,85 +7,135 @@
         <p class="ad-head__sub">Trace complète des actions réalisées sur la plateforme.</p>
       </div>
       <div class="ad-head__actions">
-        <span class="ad-count">{{ total() }} événement{{ total() > 1 ? 's' : '' }}</span>
+        <span class="ad-count">{{ total() | number }} événement{{ total() > 1 ? 's' : '' }}</span>
       </div>
     </header>
 
-    <div class="filters card animate-in" style="animation-delay:.05s">
-      <div class="form-group filter-field">
-        <label>Action</label>
-        <select [(ngModel)]="filterAction" (change)="applyFilter()">
-          <option value="">Toutes les actions</option>
-          @for (a of actions(); track a) { <option [value]="a">{{ a }}</option> }
-        </select>
+    <div class="ad-tools animate-in" style="animation-delay:.05s">
+      <div class="ad-search">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input type="search" [ngModel]="recherche()" (ngModelChange)="recherche.set($event)"
+               placeholder="Auteur, détail ou adresse IP…" aria-label="Rechercher dans la page affichée" />
       </div>
-      <div class="form-group filter-field">
-        <label>Type d'entite</label>
-        <select [(ngModel)]="filterEntity" (change)="applyFilter()">
-          <option value="">Tous les types</option>
+      <label class="ad-field">
+        <span>Action</span>
+        <select [(ngModel)]="filterAction" (change)="applyFilter()" aria-label="Filtrer par action">
+          <option value="">Toutes</option>
+          @for (a of actions(); track a) { <option [value]="a">{{ actionLabel(a) }}</option> }
+        </select>
+      </label>
+      <label class="ad-field">
+        <span>Objet</span>
+        <select [(ngModel)]="filterEntity" (change)="applyFilter()" aria-label="Filtrer par type d'objet">
+          <option value="">Tous</option>
           <option value="User">Utilisateur</option>
           <option value="JobOffer">Offre</option>
           <option value="Application">Candidature</option>
           <option value="Announcement">Annonce</option>
           <option value="PlatformSetting">Paramètre</option>
         </select>
-      </div>
-      <button class="btn-secondary btn-reset" (click)="resetFilters()">
-        <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
-      </button>
+      </label>
+      @if (filtreActif) {
+        <button class="btn-ghost btn-reset" (click)="resetFilters()">
+          <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Réinitialiser
+        </button>
+      }
     </div>
+
+    <!-- La recherche ne porte que sur la page servie : le taire ferait
+         conclure à l'absence d'un événement qui figure page suivante. -->
+    @if (recherche().trim() && !loading()) {
+      <p class="ac-scope">
+        <i class="bi bi-info-circle" aria-hidden="true"></i>
+        {{ filtres().length }} résultat{{ filtres().length > 1 ? 's' : '' }}
+        sur les {{ logs().length }} événements de la page {{ page() }}.
+        Les filtres Action et Objet, eux, portent sur tout le journal.
+      </p>
+    }
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (failed()) {
+      <div class="empty-box card animate-in">
+        <i class="bi bi-exclamation-triangle"></i>
+        <h3>Chargement impossible</h3>
+        <p>Le journal n'a pas pu être récupéré. Réessayez dans un instant.</p>
+      </div>
+    } @else if (!filtres().length) {
+      <div class="empty-box card animate-in">
+        <i class="bi bi-clock-history"></i>
+        <h3>Aucun événement</h3>
+        <p>Aucune activité ne correspond aux critères retenus.</p>
+        @if (filtreActif) {
+          <button class="btn-ghost" (click)="resetFilters()">Effacer les filtres</button>
+        }
+      </div>
     } @else {
-      @if (logs().length === 0) {
-        <div class="empty-box card">
-          <i class="bi bi-clock-history"></i>
-          <h3>Aucun événement</h3>
-          <p>Aucune activité ne correspond aux filtres sélectionnés.</p>
-        </div>
-      } @else {
-        <div class="timeline animate-in" style="animation-delay:.1s">
-          @for (log of logs(); track log.id) {
-            <div class="tl-item">
-              <div class="tl-icon" [style.color]="actionColor(log.action)">
-                <i class="bi" [class]="actionIcon(log.action)"></i>
-              </div>
-              <div class="tl-body card">
-                <div class="tl-head">
-                  <!-- L'auteur d'une action mene a sa fiche : c'est la
-                       premiere question que pose une ligne de journal. -->
-                  <a class="tl-user" [routerLink]="['/admin/utilisateurs']"
-                     [queryParams]="{ q: log.userName }">{{ log.userName }}</a>
-                  <span class="badge tl-action-badge">{{ log.action }}</span>
-                  <span class="tl-time u-mono">{{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                </div>
-                <p class="tl-detail">{{ log.details }}</p>
-                <div class="tl-foot">
-                  @if (log.entityType === 'JobOffer' && log.entityId) {
-                    <a class="tl-entity" [routerLink]="['/offres', log.entityId]">
-                      <i class="bi bi-briefcase"></i> Voir l'offre concernée
-                    </a>
-                  } @else if (log.entityType === 'Application') {
-                    <a class="tl-entity" [routerLink]="['/admin/candidatures']">
-                      <i class="bi bi-file-earmark-text"></i> Voir les candidatures
-                    </a>
-                  }
-                  @if (log.ipAddress) {
-                    <span class="tl-ip u-mono"><i class="bi bi-globe2"></i> {{ log.ipAddress }}</span>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </div>
+      <div class="ac-log animate-in" style="animation-delay:.1s">
+        @for (j of journees(); track j.cle) {
+          <div class="ac-day">
+            <!-- L'intertitre porte la date une fois pour toutes ses lignes. -->
+            <h2 class="ac-day__head">
+              <span class="ac-day__label">{{ j.libelle }}</span>
+              <span class="ac-day__count">{{ j.evenements.length }} événement{{ j.evenements.length > 1 ? 's' : '' }}</span>
+            </h2>
 
-        <div class="pagination animate-in">
-          <button (click)="prevPage()" [disabled]="page() <= 1" class="pg-btn"><i class="bi bi-chevron-left"></i></button>
-          <span class="pg-info u-mono">Page {{ page() }} / {{ Math.ceil(total() / 50) || 1 }}</span>
-          <button (click)="nextPage()" [disabled]="logs().length < 50" class="pg-btn"><i class="bi bi-chevron-right"></i></button>
-        </div>
-      }
+            <ul class="ac-rows">
+              @for (log of j.evenements; track log.id) {
+                <li class="ac-row" [attr.data-gravite]="gravite(log.action)">
+                  <time class="ac-row__time u-mono" [attr.datetime]="log.createdAt"
+                        [title]="log.createdAt | date:'dd/MM/yyyy HH:mm:ss'">
+                    {{ log.createdAt | date:'HH:mm' }}
+                  </time>
+
+                  <span class="ac-row__icon" [style.color]="actionColor(log.action)">
+                    <i class="bi" [class]="actionIcon(log.action)" aria-hidden="true"></i>
+                  </span>
+
+                  <span class="ac-row__act">{{ actionLabel(log.action) }}</span>
+
+                  <!-- L'auteur mène à sa fiche : la première question que
+                       pose une ligne de journal est « qui ». -->
+                  <a class="ac-row__who" [routerLink]="['/admin/utilisateurs']"
+                     [queryParams]="{ q: log.userName }" [title]="'Voir ' + log.userName">
+                    <span class="ac-av" [style.background]="companyColor(log.userName || '?').bg"
+                          [style.color]="companyColor(log.userName || '?').fg" aria-hidden="true">
+                      {{ (log.userName || '?').charAt(0) }}
+                    </span>
+                    {{ log.userName }}
+                  </a>
+
+                  <span class="ac-row__what" [title]="log.details">{{ detailUtile(log) }}</span>
+
+                  <span class="ac-row__end">
+                    @if (entiteLabel(log.entityType); as e) {
+                      <span class="ac-tag">{{ e }}</span>
+                    }
+                    @if (ipUtile(log.ipAddress)) {
+                      <span class="ac-ip u-mono" title="Adresse d'origine">{{ log.ipAddress }}</span>
+                    }
+                    @if (lienEntite(log); as lien) {
+                      <a class="ac-go" [routerLink]="lien.route" [queryParams]="lien.params" [title]="lien.label">
+                        <i class="bi bi-arrow-right-short" aria-hidden="true"></i>
+                      </a>
+                    }
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+
+      <div class="ac-pager animate-in">
+        <button (click)="prevPage()" [disabled]="page() <= 1" class="pg-btn" aria-label="Page précédente">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </button>
+        <span class="pg-info u-mono">Page {{ page() }} / {{ pageCount() }}</span>
+        <button (click)="nextPage()" [disabled]="page() >= pageCount()" class="pg-btn" aria-label="Page suivante">
+          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </div>
     }
   </div>
 </section>

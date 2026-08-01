@@ -16,10 +16,43 @@
       </div>
 
       <div class="cvh-filters">
-        <button class="cvh-filter-toggle" [class.is-open]="showFilters" (click)="showFilters = !showFilters">
-          <i class="bi bi-sliders"></i> Filtres avancés
-          <i class="bi bi-chevron-down cvh-chev"></i>
-        </button>
+        <div class="cvh-bar">
+          <button class="cvh-filter-toggle" [class.is-open]="showFilters" (click)="showFilters = !showFilters">
+            <i class="bi bi-sliders"></i> Filtres avancés
+            @if (activeCriteria.length) { <span class="ftoggle__n">{{ activeCriteria.length }}</span> }
+            <i class="bi bi-chevron-down cvh-chev"></i>
+          </button>
+
+          <!-- Le tri sort du repli : c'est un réglage qu'on change en
+               regardant les résultats, pas un critère qu'on pose une fois. -->
+          <label class="ffield" [class.is-set]="sort">
+            <span class="ffield__lbl">Trier</span>
+            <select aria-label="Trier les candidats" [(ngModel)]="sort" (change)="loadCandidates()">
+              <option value="">Pertinence</option>
+              <option value="experience_desc">Expérience décroissante</option>
+              <option value="experience_asc">Expérience croissante</option>
+              <option value="name">Nom A-Z</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Rappel des critères : une fois le repli refermé, plus rien ne
+             disait que la recherche était restreinte — on croyait le vivier
+             vide alors qu'on l'avait borné trois minutes plus tôt. -->
+        @if (activeCriteria.length) {
+          <div class="acrit">
+            <span class="acrit__lbl">Filtré par</span>
+            @for (c of activeCriteria; track c.key) {
+              <span class="acrit__tok">
+                <b>{{ c.label }}</b> {{ c.value }}
+                <button (click)="removeCriterion(c.key)" [attr.aria-label]="'Retirer le filtre ' + c.label">
+                  <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
+              </span>
+            }
+            <button class="filter-bar__clear" (click)="clearFilters()">Tout effacer</button>
+          </div>
+        }
         @if (showFilters) {
           <div class="cvh-filter-grid animate-in">
             <div class="form-group">
@@ -38,14 +71,12 @@
               <label>Expérience max.</label>
               <input type="number" placeholder="ans" [(ngModel)]="maxExperience" />
             </div>
-            <div class="form-group cvh-filter-sort">
-              <label>Trier par</label>
-              <select [(ngModel)]="sort">
-                <option value="">Tri par defaut</option>
-                <option value="experience_desc">Expérience decroissante</option>
-                <option value="experience_asc">Expérience croissante</option>
-                <option value="name">Nom A-Z</option>
-              </select>
+            <!-- La formation était acceptée par l'API et absente de
+                 l'écran : le filtre existait sans être atteignable. -->
+            <div class="form-group">
+              <label>Formation</label>
+              <input type="text" placeholder="ex: Master, Licence, Bac+5"
+                     [(ngModel)]="education" (keyup.enter)="loadCandidates()" />
             </div>
             <div class="cvh-filter-actions">
               <button class="btn-primary" (click)="loadCandidates()"><i class="bi bi-funnel"></i> Appliquer</button>

@@ -49,6 +49,27 @@
 // ── Progression ──
 .af-progress { margin-bottom: 1.35rem; }
 
+// Rang de l'etape, en chiffres de chasse fixe pour qu'ils ne dansent pas
+// d'une etape a l'autre.
+.af-progress-rank {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin-bottom: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+
+  b { font-weight: 500; color: var(--ink); }
+}
+
+.af-progress-name {
+  color: var(--ink-soft);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .af-progress-bar {
   height: 4px; border-radius: var(--r-full);
   background: var(--nuage-2); overflow: hidden;

@@ -12,6 +12,7 @@
           <h1>{{ u.firstName }} {{ u.lastName }}</h1>
           <p class="ad-head__sub">
             {{ u.title || roleLabel(u.role) }} · Inscrit le {{ u.createdAt | date: 'dd MMMM yyyy' }}
+            · {{ fraicheur().texte | lowercase }}
           </p>
         } @else {
           <h1>Fiche utilisateur</h1>
@@ -45,11 +46,22 @@
         <div class="aud-id__main">
           <div class="aud-id__line">
             <h2>{{ user().firstName }} {{ user().lastName }}</h2>
-            <span class="badge" [class.badge-red]="user().role === 'Admin'"
-                  [class.badge-indigo]="user().role === 'Recruiter'"
-                  [class.badge-green]="user().role === 'Candidate'">{{ roleLabel(user().role) }}</span>
+            <!-- Le rôle suit l'échelle de remplissage (contour → aplat clair
+                 → bleu plein). Il portait le rouge de danger, le même que
+                 « Suspendu » juste à côté : deux natures, une couleur. -->
+            <span class="badge" [class.badge-plum]="user().role === 'Admin'"
+                  [class.badge-blue]="user().role === 'Recruiter'"
+                  [class.badge-yellow]="user().role === 'Candidate'">{{ roleLabel(user().role) }}</span>
             @if (!user().isActive) { <span class="badge badge-red">Suspendu</span> }
             @if (user().isSearchable) { <span class="badge badge-blue">Visible des recruteurs</span> }
+            <!-- Un compte qui ne s'est pas connecté depuis trois mois n'est
+                 pas fautif, mais c'est un fait que la fiche doit porter. -->
+            @if (fraicheur().dormant) {
+              <span class="aud-dormant" [title]="fraicheur().texte">
+                <i class="bi bi-moon" aria-hidden="true"></i>
+                {{ fraicheur().jamais ? 'Jamais connecté' : 'Compte dormant' }}
+              </span>
+            }
           </div>
           <div class="aud-id__meta">
             <a [href]="'mailto:' + user().email"><i class="bi bi-envelope"></i> {{ user().email }}</a>
@@ -574,6 +586,14 @@
               <dl class="aud-tech">
                 <dt>Identifiant</dt><dd class="u-mono">{{ user().id }}</dd>
                 <dt>Inscription</dt><dd class="u-mono">{{ user().createdAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+                <!-- Déduite du journal : le compte ne porte pas de date de
+                     dernière connexion, mais chaque connexion y laisse une
+                     trace. -->
+                <dt>Dernière connexion</dt>
+                <dd class="u-mono">
+                  {{ user().lastLoginAt ? (user().lastLoginAt | date:'dd/MM/yyyy HH:mm') : 'Jamais' }}
+                </dd>
+                <dt>Connexions (30 j)</dt><dd class="u-mono">{{ user().loginsLast30Days ?? 0 }}</dd>
                 <dt>E-mail confirmé</dt><dd>{{ user().emailConfirmed ? 'Oui' : 'Non' }}</dd>
               </dl>
               <p class="aud-hint">

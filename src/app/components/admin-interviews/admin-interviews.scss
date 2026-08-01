@@ -8,6 +8,28 @@
 // Un entretien passé n'est plus une échéance : il recule sans disparaître.
 .ain-past td { opacity: 0.6; }
 
+// … sauf s'il attend encore son issue. Un rendez-vous oublié est
+// précisément ce qu'il ne faut pas laisser reculer : la ligne revient au
+// premier plan et porte le liseré de l'attention.
+.ain-stuck {
+  td { opacity: 1; }
+  td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
+}
+
+.ain-stuck__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 9%, transparent);
+  white-space: nowrap;
+}
+
 .ain-cand {
   display: flex;
   align-items: center;
@@ -62,8 +84,22 @@
   white-space: nowrap;
 }
 
-.ain-dur {
+.ain-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
   font-size: 0.72rem;
+  color: var(--muted);
+}
+
+// La distance au présent : encre pleine tant que l'échéance est devant,
+// grise une fois passée. C'est la même information que la date, lue dans
+// l'unité où la décision se prend.
+.ain-rel {
+  &.is-future { color: var(--bleu-600); font-weight: 600; }
+}
+
+.ain-dur {
   color: var(--muted);
 }
 

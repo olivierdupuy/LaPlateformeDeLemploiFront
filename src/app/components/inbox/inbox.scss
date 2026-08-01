@@ -7,13 +7,18 @@
 .msg-content { padding: 2.25rem 0 4rem; }
 
 // ── Layout shell ──
+// Une messagerie tient dans l'écran : le champ de saisie doit rester
+// visible sans faire défiler la page. `100dvh` plutôt que `100vh` — sur
+// mobile, la barre d'adresse mangeait la zone d'écriture — et le retrait
+// suit la hauteur réelle du chrome (barre du site + sous-navigation +
+// en-tête de page) au lieu des seize rem forfaitaires d'avant.
 .msg-layout {
   display: flex;
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
   overflow: hidden;
-  height: calc(100vh - 16rem);
-  min-height: 520px;
+  height: calc(100dvh - var(--nav-now) - 15rem);
+  min-height: 460px;
   background: var(--canvas);
   box-shadow: var(--shadow-md);
 }
@@ -523,4 +528,42 @@
 }
 
 @media (max-width: 768px) {
+}
+
+// ── Zone de composition ──
+// Le panneau des modèles se pose au-dessus du champ, dans le flux : en
+// superposition absolue, il aurait recouvert le dernier message reçu,
+// qui est justement celui auquel on répond.
+.mc-compose {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-templates {
+  padding: 0.75rem 1.5rem 0;
+}
+
+// Déclencheur des modèles, à gauche du champ : il appartient à l'écriture,
+// pas à l'envoi.
+.mc-tpl {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line-strong);
+  background: var(--canvas);
+  color: var(--muted);
+  font-size: 1rem;
+  transition: border-color var(--t), background var(--t), color var(--t);
+
+  &:hover { border-color: var(--bleu-300); color: var(--bleu-700); }
+  &.is-on { background: var(--bleu-600); border-color: var(--bleu-600); color: #fff; }
+}
+
+@media (max-width: 640px) {
+  .mc-templates { padding: 0.6rem 0.9rem 0; }
 }

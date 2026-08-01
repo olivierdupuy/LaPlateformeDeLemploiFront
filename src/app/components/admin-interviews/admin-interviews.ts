@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
@@ -22,6 +22,8 @@ const FILTER_LABELS: Record<string, string> = {
   type: 'Type',
   entreprise: 'Entreprise',
   q: 'Recherche',
+  avenir: 'Période',
+  cloture: 'Clôture',
 };
 
 /**
@@ -59,11 +61,15 @@ interface InterviewFacets {
   completed: number;
   cancelled: number;
   upcoming: number;
+  overdue: number;
 }
+
+/** Les facettes qui comptent par etat, par opposition aux positions dans le temps. */
+type FacetteEtat = 'proposed' | 'accepted' | 'completed' | 'cancelled';
 
 @Component({
   selector: 'app-admin-interviews',
-  imports: [RouterLink, FormsModule, DatePipe, Pager],
+  imports: [DecimalPipe, RouterLink, FormsModule, DatePipe, Pager],
   templateUrl: './admin-interviews.html',
   styleUrl: './admin-interviews.scss',
 })
@@ -75,6 +81,8 @@ export class AdminInterviews {
   isPast = (iso: string) => new Date(iso).getTime() < Date.now();
 
   protected readonly etats = ETATS;
+  /** Les teintes d'état, pour que la pastille dise la gravité. */
+  protected readonly ETAT = STATUS;
 
   /** Icone, libelle et couleur d'un statut d'entretien. */
   etat(statut: string) {
@@ -83,18 +91,20 @@ export class AdminInterviews {
 
   /** Le compte d'une facette, adresse par le nom de son etat. */
   facette(cle: string): number {
-    const nom = ETATS.find((e) => e.cle === cle)?.facette as keyof InterviewFacets | undefined;
+    const nom = ETATS.find((e) => e.cle === cle)?.facette as FacetteEtat | undefined;
     return nom ? this.q.facets()[nom] : 0;
   }
 
   q = pagedQuery<InterviewRow, InterviewFacets>({
     fetch: (p) => this.admin.listInterviews(p),
-    emptyFacets: { total: 0, proposed: 0, accepted: 0, completed: 0, cancelled: 0, upcoming: 0 },
+    emptyFacets: { total: 0, proposed: 0, accepted: 0, completed: 0, cancelled: 0, upcoming: 0, overdue: 0 },
     toApi: (u) => ({
       q: u['q'] ?? '',
       status: u['statut'] ?? '',
       type: u['type'] ?? '',
       company: u['entreprise'] ?? '',
+      upcoming: u['avenir'] === '1' ? 'true' : '',
+      overdue: u['cloture'] === 'manquante' ? 'true' : '',
       sort: u['tri'] ?? '',
       page: u['page'] ?? '',
       pageSize: u['taille'] ?? '',
@@ -107,7 +117,11 @@ export class AdminInterviews {
       .map(([key, value]) => ({
         key,
         label: FILTER_LABELS[key],
-        value: key === 'statut' ? this.statusLabel(String(value)) : String(value),
+        value:
+          key === 'statut' ? this.statusLabel(String(value))
+          : key === 'avenir' ? 'À venir'
+          : key === 'cloture' ? 'Issue non enregistrée'
+          : String(value),
       })),
   );
 
@@ -123,5 +137,50 @@ export class AdminInterviews {
   }
   set sort(value: string) {
     this.q.setParam('tri', value === 'soon' ? null : value);
+  }
+
+  get aVenir(): boolean {
+    return this.q.params()['avenir'] === '1';
+  }
+  set aVenir(value: boolean) {
+    this.q.setParam('avenir', value ? '1' : null);
+  }
+
+  get sansCloture(): boolean {
+    return this.q.params()['cloture'] === 'manquante';
+  }
+  set sansCloture(value: boolean) {
+    this.q.setParam('cloture', value ? 'manquante' : null);
+  }
+
+  /**
+   * Un entretien dont l'heure est passée alors que personne n'a dit s'il a
+   * eu lieu. La liste les affichait comme les autres, en gris : rien ne
+   * distinguait un rendez-vous à venir d'un rendez-vous oublié.
+   */
+  sansIssue(i: InterviewRow): boolean {
+    return this.isPast(i.proposedAt) && (i.status === 'Proposed' || i.status === 'Accepted');
+  }
+
+  /**
+   * « dans 13 j », « il y a 3 sem. ».
+   *
+   * Une date seule oblige à faire la soustraction de tête pour chaque
+   * ligne. Ce qui se lit sur cette page est une distance au présent, pas
+   * un horodatage — celui-ci reste affiché à côté pour qui doit l'écrire.
+   */
+  quand(iso: string): { texte: string; futur: boolean } {
+    const ecart = new Date(iso).getTime() - Date.now();
+    const futur = ecart >= 0;
+    const heures = Math.abs(ecart) / 3_600_000;
+
+    let texte: string;
+    if (heures < 1) texte = "moins d'une heure";
+    else if (heures < 24) texte = `${Math.round(heures)} h`;
+    else {
+      const jours = Math.round(heures / 24);
+      texte = jours < 14 ? `${jours} j` : jours < 60 ? `${Math.round(jours / 7)} sem.` : `${Math.round(jours / 30)} mois`;
+    }
+    return { texte: futur ? `dans ${texte}` : `il y a ${texte}`, futur };
   }
 }

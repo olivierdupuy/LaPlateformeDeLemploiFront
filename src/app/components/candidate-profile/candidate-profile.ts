@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { CandidateService } from '../../services/candidate.service';
 import { CandidatePublicProfile } from '../../models/auth.model';
+import { companyColor } from '../../utils/job.utils';
 import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
@@ -34,10 +35,26 @@ export class CandidateProfile implements OnInit {
     return (c.firstName?.charAt(0) || '') + (c.lastName?.charAt(0) || '');
   }
 
+  /**
+   * La pastille reprend la palette du produit.
+   *
+   * Elle tirait une teinte au hasard sur les 360 degres du cercle a
+   * partir du prenom : un candidat pouvait arriver en vert pomme ou en
+   * fuchsia au milieu d'une interface bleue. `companyColor` tient la
+   * meme promesse — une couleur stable par personne — dans les sept
+   * crans de la rampe de marque.
+   */
   avatarColor(): { bg: string; fg: string } {
     const c = this.candidate();
-    if (!c) return { bg: '#e7eef8', fg: '#5a6b85' };
-    const hue = (c.firstName.charCodeAt(0) * 7 + (c.firstName.charCodeAt(1) || 0) * 13) % 360;
-    return { bg: `hsl(${hue}, 45%, 92%)`, fg: `hsl(${hue}, 55%, 35%)` };
+    if (!c) return { bg: 'var(--bleu-100)', fg: 'var(--bleu-700)' };
+    return companyColor(`${c.firstName} ${c.lastName}`);
+  }
+
+  /** Les competences en liste, pour en faire des liens de recherche. */
+  skillList(): string[] {
+    return (this.candidate()?.skills ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
 }

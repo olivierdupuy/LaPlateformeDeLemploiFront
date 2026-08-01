@@ -55,9 +55,21 @@
   border: 1px solid var(--line-strong);
   border-radius: var(--r-full);
   transition: border-color var(--t), background var(--t), color var(--t);
-  &:hover { border-color: var(--violet-300); }
-  &.active { background: var(--violet); border-color: var(--violet); color: #fff; }
+  &:hover { border-color: var(--bleu-300); }
+  &.active { background: var(--bleu-600); border-color: var(--bleu-600); color: #fff; }
 }
+
+// Un intitulé de métier peut faire soixante signes : borné, sinon dix
+// pastilles occupent quatre rangées.
+.sec-chip__l {
+  display: block;
+  max-width: 26ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sal-more { margin-left: 0.25rem; }
 
 // ── Cartes métier ──
 .role-grid {
@@ -78,15 +90,19 @@
   transition: border-color var(--t), box-shadow var(--t), transform var(--t);
 
   &:hover {
-    border-color: var(--violet-200);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
-    .rc-link { gap: 0.5rem; color: var(--violet); }
-    .rc-title { color: var(--violet-700); }
+    border-color: var(--bleu-300);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+    .rc-link { gap: 0.5rem; color: var(--bleu-600); }
+    .rc-title { color: var(--bleu-700); }
   }
 }
 
-.rc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; }
+// L'intitule et le secteur etaient poses cote a cote sur une meme ligne :
+// le premier tombait sur cinq lignes, le second — non borne et
+// `flex-shrink: 0` — sortait de la carte. Ils sont desormais empiles, et
+// chacun est borne.
+.rc-top { display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; }
 
 .rc-title {
   font-size: 0.98rem;
@@ -95,10 +111,15 @@
   letter-spacing: -0.015em;
   color: var(--ink);
   transition: color var(--t);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .rc-cat {
-  flex-shrink: 0;
+  max-width: 100%;
   padding: 0.12rem 0.5rem;
   font-family: var(--font-mono);
   font-size: 0.55rem;
@@ -108,6 +129,9 @@
   color: var(--muted);
   background: var(--brume);
   border-radius: var(--r-full);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // Le chiffre est le sujet de la carte : il domine
@@ -129,11 +153,14 @@
   letter-spacing: -0.02em;
   color: var(--muted);
 
+  // Une largeur minimale : quand min et max sont egaux, les deux chiffres
+  // identiques se collaient et le filet disparaissait entre eux.
   .rc-bar {
     flex: 1;
+    min-width: 24px;
     height: 4px;
     border-radius: var(--r-full);
-    background: linear-gradient(90deg, var(--violet-200), var(--violet));
+    background: linear-gradient(90deg, var(--bleu-200), var(--bleu-500));
   }
 }
 

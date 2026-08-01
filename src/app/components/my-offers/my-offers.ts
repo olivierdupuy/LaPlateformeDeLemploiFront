@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { JobOfferService } from '../../services/job-offer';
 import { RecruiterFeaturesService } from '../../services/recruiter-features.service';
@@ -11,7 +12,7 @@ import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-my-offers',
-  imports: [RouterLink, DatePipe, ConsoleShell],
+  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell],
   templateUrl: './my-offers.html',
   styleUrl: './my-offers.scss',
 })
@@ -39,15 +40,54 @@ export class MyOffers implements OnInit {
   private isExpired = (o: JobOffer) =>
     !o.isDraft && !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected';
 
-  filtered = computed(() => {
-    const f = this.filter();
+  /* ── Recherche et tri ──
+     Le filtre par statut suffit tant qu'on a trois offres. Un recruteur
+     qui en a quarante cherche « le poste de comptable » ou veut voir
+     lesquelles ne recoivent rien : ni l'un ni l'autre n'etait possible. */
+  query = signal('');
+  sort = signal<'recent' | 'apps' | 'views' | 'title'>('recent');
+
+  private byStatus(f: string): JobOffer[] {
     if (f === 'active') return this.offers().filter(o => o.isActive && o.moderationStatus === 'Approved');
     if (f === 'expired') return this.offers().filter(this.isExpired);
     if (f === 'pending') return this.offers().filter(o => !o.isDraft && o.moderationStatus === 'Pending');
     if (f === 'rejected') return this.offers().filter(o => o.moderationStatus === 'Rejected');
     if (f === 'draft') return this.offers().filter(o => o.isDraft);
     return this.offers();
+  }
+
+  filtered = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    const s = this.sort();
+
+    const list = this.byStatus(this.filter()).filter((o) => {
+      if (!q) return true;
+      return `${o.title} ${o.location ?? ''} ${o.contractType ?? ''}`.toLowerCase().includes(q);
+    });
+
+    return [...list].sort((a, b) => {
+      switch (s) {
+        case 'apps': return (b.applications?.length || 0) - (a.applications?.length || 0);
+        case 'views': return (b.viewCount || 0) - (a.viewCount || 0);
+        case 'title': return a.title.localeCompare(b.title, 'fr');
+        default: return +new Date(b.createdAt) - +new Date(a.createdAt);
+      }
+    });
   });
+
+  /**
+   * Part des visiteurs qui postulent, offre par offre.
+   *
+   * La carte affichait « 3 vues » et « 1 candidature » cote a cote sans
+   * jamais les rapporter l'une a l'autre. C'est pourtant le seul chiffre
+   * qui distingue une offre qu'on ne voit pas d'une offre qu'on voit et
+   * qui ne donne pas envie — et les deux se corrigent differemment.
+   */
+  conversion(o: JobOffer): number | null {
+    const vues = o.viewCount || 0;
+    if (vues < 5) return null; // sous cinq vues, un taux n'a pas de sens
+    return Math.round(((o.applications?.length || 0) / vues) * 100);
+  }
 
   counts = computed(() => ({
     total: this.offers().length,

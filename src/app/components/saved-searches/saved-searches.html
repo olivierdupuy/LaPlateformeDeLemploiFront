@@ -19,13 +19,13 @@
       <div class="rs-empty animate-in">
         <div class="rse-circle"><i class="bi bi-bookmark-star"></i></div>
         <h3>Aucune recherche enregistrée</h3>
-        <p>Lorsque vous effectuez une recherche d'offres, sauvegardez vos critères pour les retrouver ici et etre notifie des nouvelles offres correspondantes.</p>
+        <p>Lorsque vous effectuez une recherche d'offres, sauvegardez vos critères pour les retrouver ici et être averti des nouvelles offres correspondantes.</p>
         <a routerLink="/offres" class="btn-primary"><i class="bi bi-search-heart"></i> Explorer les offres</a>
       </div>
     } @else {
       <div class="rs-info animate-in" style="animation-delay:.06s">
         <span class="dot-brand"></span>
-        <span class="u-mono">{{ searches().length }} recherche{{ searches().length > 1 ? 's' : '' }} sauvegardee{{ searches().length > 1 ? 's' : '' }}</span>
+        <span class="u-mono">{{ searches().length }} recherche{{ searches().length > 1 ? 's' : '' }} enregistrée{{ searches().length > 1 ? 's' : '' }}</span>
       </div>
 
       <div class="rs-grid">
@@ -38,7 +38,7 @@
               <div class="rsc-top">
                 <div class="rsc-icon"><i class="bi bi-bookmark-star-fill"></i></div>
                 <div class="rsc-title">
-                  <h3>{{ s.label || 'Recherche sauvegardee' }}</h3>
+                  <h3>{{ s.label || 'Recherche enregistrée' }}</h3>
                   <span class="rsc-date u-mono"><i class="bi bi-calendar3"></i> {{ s.createdAt | date:'dd MMM yyyy' }}</span>
                 </div>
                 <button class="rsc-alert" [class.rsc-alert-on]="s.alertEnabled" (click)="toggleAlert(s)" [title]="s.alertEnabled ? 'Desactiver l\'alerte' : 'Activer l\'alerte'">

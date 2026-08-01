@@ -1,379 +1,911 @@
-// ═══════════════════════════════════
-//  PROFILE — Clean SaaS
-// ═══════════════════════════════════
+// ═══════════════════════════════════════════════
+//  MON PROFIL
+//  Trois colonnes : le rail des sections, le panneau actif, et l'aperçu
+//  branché sur la saisie. Les champs de formulaire viennent du kit
+//  partagé (`.form-group`, `.form-row`, `.hint`, `.sp`) ; ne restent ici
+//  que les pièces propres à cette page.
+// ═══════════════════════════════════════════════
 
-// ── Hero header ──
-.prof-hero {
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
-  padding: 2.25rem 0 2.25rem;
+.prof-page {
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0 0;
+  // De quoi ne jamais laisser la barre d'enregistrement recouvrir le
+  // dernier champ d'une section.
+  padding-bottom: 7rem;
 }
 
-.ph-inner {
+// ── En-tête : une ligne, pas un bandeau ──
+.pf-head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1.5rem;
-}
-
-.ph-avatar {
-  width: 76px; height: 76px;
-  border-radius: var(--r-lg);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--line);
-  span { font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; }
-}
-
-.ph-info {
-  flex: 1;
-  min-width: 0;
-
-  .eyebrow { margin-bottom: 0.5rem; }
+  flex-wrap: wrap;
+  margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
 
   h1 {
-    font-size: clamp(1.6rem, 3.5vw, 2.1rem);
-    letter-spacing: -0.03em;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.4vw, 2.1rem);
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  &__txt p {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+}
+
+// La jauge de complétude : un anneau plutôt qu'une barre. Elle tient dans
+// l'en-tête sans lui voler une ligne, et se lit d'un coup d'œil.
+.pf-head__gauge {
+  position: relative;
+  display: grid;
+  grid-template-columns: 58px auto;
+  align-items: center;
+  gap: 0.7rem;
+
+  svg {
+    grid-row: 1;
+    width: 58px;
+    height: 58px;
+    transform: rotate(-90deg);
+  }
+  circle {
+    fill: none;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+  }
+  .g-track { stroke: var(--nuage-3); }
+  .g-fill {
+    stroke: var(--bleu-600);
+    transition: stroke-dashoffset 0.5s var(--ease);
+  }
+
+  &.is-full .g-fill { stroke: var(--green); }
+}
+
+.pf-head__pct {
+  position: absolute;
+  left: 0;
+  width: 58px;
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  small { font-size: 0.62em; margin-left: 0.5px; }
+}
+
+.pf-head__lbl {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+// ── Gabarit : rail · panneau · aperçu ──
+.pf-layout {
+  display: grid;
+  grid-template-columns: 13.5rem minmax(0, 1fr) 20rem;
+  align-items: start;
+  gap: clamp(1rem, 2vw, 1.6rem);
+}
+
+// ── Rail des sections ──
+.pf-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  position: sticky;
+  top: calc(var(--nav-now) + 1rem);
+}
+
+.pf-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.62rem 0.8rem;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--t), color var(--t), border-color var(--t);
+
+  i { font-size: 0.95rem; color: var(--muted); transition: color var(--t); }
+  &__lbl { flex: 1; min-width: 0; }
+
+  &:hover { background: var(--canvas); border-color: var(--line); }
+
+  &.is-active {
+    background: var(--canvas);
+    border-color: var(--line-strong);
+    color: var(--ink);
+    font-weight: 600;
+    box-shadow: var(--shadow-xs);
+    i { color: var(--bleu-600); }
+  }
+}
+
+// Pastille de manque : un compte, pas une alerte. Elle disparaît d'elle-même
+// à mesure que la section se remplit.
+.pf-tab__dot {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--nuage-3);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+// ── Panneau ──
+.pf-card {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: clamp(1.1rem, 2.2vw, 1.6rem);
+}
+
+.pf-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  p {
+    margin-top: 0.2rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    strong { color: var(--ink-soft); font-weight: 600; }
+  }
+}
+
+.pf-import {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0.85rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--nuage);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+
+  i { color: var(--bleu-600); }
+  &:hover { border-color: var(--bleu-600); color: var(--bleu-700); background: var(--bleu-100); }
+  &.is-busy { pointer-events: none; opacity: 0.7; }
+}
+
+// ── Ce qui manque : des raccourcis, pas un reproche ──
+.pf-todo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.8rem 0.95rem;
+  margin-bottom: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--nuage);
+
+  &__lbl {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    i { color: var(--bleu-600); }
+  }
+  &__chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+}
+
+.pf-todo__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.2rem 0.4rem 0.2rem 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--canvas);
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+
+  i { font-size: 1rem; }
+  &:hover { border-color: var(--bleu-600); color: var(--bleu-700); background: var(--bleu-100); }
+}
+
+// ── Formulaire ──
+.pf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+
+  &--narrow { max-width: 34rem; }
+
+  &__foot {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 0.3rem;
+  }
+}
+
+.form-group .opt {
+  font-family: var(--font);
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: var(--faint);
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.3rem;
+}
+
+// Le compteur se pose dans le coin du champ : la limite se voit en
+// écrivant, pas au moment où la saisie se bloque.
+.pf-count {
+  align-self: flex-end;
+  margin-top: -0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  &.is-full { color: var(--danger); font-weight: 600; }
+}
+
+// ── Éditeur de compétences ──
+.sk-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  min-height: 46px;
+  background: var(--canvas);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  transition: border-color var(--t), box-shadow var(--t);
+
+  &:focus-within { border-color: var(--bleu-600); box-shadow: 0 0 0 3px var(--bleu-tint); }
+}
+
+.sk-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.3rem 0.22rem 0.6rem;
+  border-radius: 999px;
+  background: var(--bleu-100);
+  color: var(--bleu-700);
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--bleu-500);
+    font-size: 0.58rem;
+    cursor: pointer;
+    transition: background var(--t), color var(--t);
+    &:hover { background: var(--bleu-600); color: #fff; }
+  }
+}
+
+.sk-input {
+  flex: 1;
+  min-width: 8rem;
+  padding: 0.2rem 0.15rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  font-size: 0.86rem;
+  &:focus { box-shadow: none !important; }
+}
+
+// ── CV ──
+.cv-current {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--nuage);
+
+  &__ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--r-xs);
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    color: var(--danger);
+    font-size: 1.2rem;
+  }
+
+  &__txt {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    strong { font-size: 0.9rem; color: var(--ink); }
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      width: fit-content;
+      font-size: 0.8rem;
+      color: var(--bleu-600);
+      i { font-size: 0.7rem; }
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  .btn-secondary { flex-shrink: 0; cursor: pointer; }
+}
+
+// Zone de dépôt : le CV est le document qu'on a déjà sous la main, pas un
+// champ à parcourir dans une arborescence.
+.cv-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: clamp(1.75rem, 5vw, 2.75rem) 1rem;
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--nuage);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--t), background var(--t), transform var(--t);
+
+  i { font-size: 1.9rem; color: var(--bleu-500); }
+  strong { font-size: 0.95rem; color: var(--ink); }
+  span { font-size: 0.8rem; color: var(--muted); }
+
+  &:hover { border-color: var(--bleu-500); background: var(--bleu-100); }
+
+  &.is-over {
+    border-color: var(--bleu-600);
+    background: var(--bleu-100);
+    transform: scale(1.01);
+  }
+  &.is-busy { pointer-events: none; opacity: 0.75; }
+}
+
+.cv-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--muted);
+  i { color: var(--bleu-500); margin-top: 0.15rem; }
+  a { color: var(--bleu-600); font-weight: 600; &:hover { text-decoration: underline; } }
+}
+
+// ── Visibilité ──
+.vis-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+
+  input { position: absolute; opacity: 0; pointer-events: none; }
+  &.is-on { border-color: var(--bleu-500); background: var(--bleu-100); }
+}
+
+.vis-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 42px;
+  height: 24px;
+  margin-top: 0.1rem;
+  border-radius: 999px;
+  background: var(--nuage-3);
+  transition: background var(--t);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--canvas);
+    box-shadow: var(--shadow-xs);
+    transition: transform var(--t);
+  }
+
+  .is-on & {
+    background: var(--bleu-600);
+    &::after { transform: translateX(18px); }
+  }
+}
+
+.vis-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  strong { font-size: 0.92rem; color: var(--ink); }
+  small { font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+}
+
+.vis-note {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  i { color: var(--bleu-500); }
+}
+
+// ── Mot de passe ──
+.pw-field {
+  position: relative;
+  display: flex;
+  input { flex: 1; padding-right: 2.6rem !important; }
+}
+
+.pw-eye {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  &:hover { color: var(--bleu-600); background: var(--bleu-100); }
+}
+
+.pw-meter {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.15rem;
+
+  &__bars {
+    display: flex;
+    gap: 3px;
+    flex: 1;
+    span {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--nuage-3);
+      transition: background var(--t);
+    }
+  }
+  &__lbl {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  // La couleur suit la force, mais le mot la nomme : le seul repère
+  // coloré ne dirait rien à qui ne distingue pas les teintes.
+  &[data-score='1'] .pw-meter__bars span.is-on { background: var(--danger); }
+  &[data-score='2'] .pw-meter__bars span.is-on { background: var(--amber); }
+  &[data-score='3'] .pw-meter__bars span.is-on { background: var(--bleu-500); }
+  &[data-score='4'] .pw-meter__bars span.is-on { background: var(--green); }
+  &[data-score='1'] .pw-meter__lbl { color: var(--danger); }
+  &[data-score='4'] .pw-meter__lbl { color: var(--green); }
+}
+
+.pw-rules {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    font-size: 0.76rem;
+    color: var(--muted);
+    i { font-size: 0.68rem; color: var(--faint); }
+
+    &.is-req { font-weight: 600; }
+    &.is-ok { color: var(--ink-soft); i { color: var(--green); } }
+  }
+}
+
+// ── Mes données ──
+.dz-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+
+  &__txt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    strong { font-size: 0.9rem; color: var(--ink); }
+    small { font-size: 0.8rem; color: var(--muted); }
+  }
+}
+
+// La suppression ne s'offre pas d'elle-même : un bouton rouge posé au bas
+// d'une page se clique par inadvertance. On la demande, elle s'explique,
+// et l'alternative douce est proposée avant.
+.dz-danger {
+  margin-top: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  transition: border-color var(--t);
+  &.is-open { border-color: color-mix(in oklab, var(--danger) 35%, var(--line)); }
+}
+
+.dz-disclose {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.85rem 1.05rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--t), background var(--t);
+  i { color: var(--muted); font-size: 0.8rem; }
+  &:hover { color: var(--danger); background: color-mix(in oklab, var(--danger) 4%, transparent); }
+}
+
+.dz-body {
+  padding: 0.9rem 1.05rem 1.05rem;
+  border-top: 1px solid var(--line);
+
+  p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+    strong { color: var(--danger); font-weight: 600; }
+  }
+}
+
+.dz-hint { font-size: 0.82rem !important; }
+
+.dz-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--bleu-600);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+}
+
+// ── Aperçu : branché sur la saisie ──
+.pf-preview { min-width: 0; }
+
+.pv-sticky {
+  position: sticky;
+  top: calc(var(--nav-now) + 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.pv-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted);
+  i { font-size: 0.8rem; }
+}
+
+.pv-card {
+  padding: 1.25rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+  text-align: center;
+  box-shadow: var(--shadow-xs);
+
+  h3 {
+    margin-top: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
     color: var(--ink);
   }
 }
 
-.ph-meta {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 0.6rem;
-  span {
-    font-size: 0.85rem; color: var(--muted); display: flex; align-items: center; gap: 0.35rem;
-    i { font-size: 0.85rem; color: var(--brand); }
-  }
-}
+// Un champ vide se montre en gris clair plutôt que de laisser un trou :
+// l'aperçu garde sa forme pendant qu'on le remplit.
+.is-placeholder { color: var(--faint) !important; font-style: italic; }
 
-.ph-role {
-  flex-shrink: 0;
-  align-self: flex-start;
-  margin-top: 0.35rem;
-  font-family: var(--font-mono);
-  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em;
-  padding: 0.28rem 0.7rem; border-radius: var(--r-full);
-  background: var(--paper-2); color: var(--ink-soft);
-  border: 1px solid var(--line);
-  &.role-candidate { background: var(--brand-100); color: var(--brand-700); border-color: transparent; }
-  &.role-recruiter { background: var(--blue-bg); color: var(--blue); border-color: transparent; }
-  &.role-admin { background: var(--red-bg); color: var(--red); border-color: transparent; }
-}
-
-// ── Layout ──
-.prof-content { padding: 2.25rem 0 4rem; }
-
-.prof-layout {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 1.75rem;
-  align-items: start;
-}
-
-// ── Sidebar ──
-.prof-sidebar {
-  position: sticky;
-  top: 5.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.ps-card {
-  background: var(--canvas);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  padding: 1.75rem 1.5rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
+.pv-av {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  box-shadow: var(--shadow-xs);
-
-  h3 { font-size: 1.15rem; letter-spacing: -0.02em; }
-}
-
-.ps-avatar-lg {
-  width: 82px; height: 82px;
-  border-radius: var(--r-lg);
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 0.35rem;
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-sm);
-  span { font-family: var(--font-display); font-weight: 700; font-size: 1.8rem; }
-}
-
-.ps-title { font-size: 0.85rem; color: var(--brand); font-weight: 600; }
-.ps-city {
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
   font-family: var(--font-mono);
-  font-size: 0.74rem; color: var(--muted); display: flex; align-items: center; gap: 0.3rem;
-  i { font-size: 0.78rem; color: var(--brand-400); }
-}
-.ps-bio {
-  font-size: 0.82rem; color: var(--ink-soft); line-height: 1.6; text-align: center; margin-top: 0.35rem;
+  font-size: 1.15rem;
+  font-weight: 600;
 }
 
-.ps-stats {
-  display: flex; align-items: center; gap: 1.25rem; margin-top: 0.75rem; padding-top: 0.9rem;
-  border-top: 1px solid var(--line); width: 100%;
-  justify-content: center; flex-wrap: wrap;
+.pv-title {
+  margin-top: 0.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--bleu-600);
 }
 
-.ps-stat {
-  display: flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; color: var(--muted);
-  i { color: var(--brand); font-size: 0.85rem; }
-}
-.ps-stat-val { font-family: var(--font-mono); font-weight: 600; color: var(--ink); font-size: 1.05rem; }
-.ps-stat-lbl { color: var(--muted); }
-
-.ps-skills {
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem;
-  margin-top: 0.75rem; padding-top: 0.9rem; border-top: 1px solid var(--line); width: 100%;
-}
-
-.ps-skill {
-  padding: 0.22rem 0.6rem; font-size: 0.72rem; font-weight: 500;
-  border-radius: var(--r-full); background: var(--brand-100); color: var(--brand-700);
-}
-
-.ps-links {
-  display: flex; flex-direction: column; gap: 0.15rem; width: 100%;
-  margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--line);
-}
-
-.ps-link {
-  display: flex; align-items: center; gap: 0.55rem; padding: 0.5rem 0.6rem;
-  font-size: 0.82rem; font-weight: 500; color: var(--ink-soft);
-  border-radius: var(--r-sm); transition: background var(--t), color var(--t);
-  i { font-size: 0.9rem; color: var(--faint); transition: color var(--t); }
-  .ps-link-arrow { margin-left: auto; font-size: 0.75rem; }
-  &:hover {
-    background: var(--brand-tint); color: var(--brand);
-    i { color: var(--brand); }
-  }
-}
-
-// Quick actions
-.ps-actions {
-  background: var(--canvas);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-xs);
+.pv-meta {
   display: flex;
-  flex-direction: column;
-}
-
-.ps-actions-label {
-  font-family: var(--font-mono);
-  font-size: 0.66rem; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.1em;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.45rem;
+  font-size: 0.78rem;
   color: var(--muted);
-  padding: 0.9rem 1.1rem 0.55rem;
+  span { display: inline-flex; align-items: center; gap: 0.28rem; }
+  i { font-size: 0.72rem; }
 }
 
-.ps-action {
-  display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1.1rem;
-  font-size: 0.85rem; font-weight: 500; color: var(--ink-soft);
-  border-top: 1px solid var(--line); transition: background var(--t), color var(--t);
-  i { font-size: 0.95rem; color: var(--brand-400); width: 20px; text-align: center; transition: color var(--t); }
-  .ps-action-chev { margin-left: auto; font-size: 0.75rem; color: var(--faint); }
-  &:hover {
-    background: var(--brand-tint); color: var(--brand);
-    i { color: var(--brand); }
-    .ps-action-chev { color: var(--brand); }
-  }
-}
-
-// ── Main form area ──
-.prof-main {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.pm-section {
-  background: var(--canvas);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
+.pv-bio {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  text-align: left;
+  // Une bio de quatre cents signes ferait de l'aperçu une colonne à
+  // défiler : elle se replie au-delà de six lignes.
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  box-shadow: var(--shadow-xs);
 }
 
-.pm-head {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--line);
-  background: var(--paper);
+.pv-edu {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  font-size: 0.79rem;
+  color: var(--muted);
+  text-align: left;
+  i { color: var(--bleu-500); flex-shrink: 0; }
+}
 
-  .ed-pill { align-self: flex-start; margin-top: 0.15rem; }
+.pv-skills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
 
-  h2 {
-    font-family: var(--font-display);
-    font-size: 1.05rem;
-    letter-spacing: -0.02em;
+  span {
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: var(--bleu-100);
+    color: var(--bleu-700);
+    font-size: 0.72rem;
+    font-weight: 500;
   }
 }
 
-.pm-head-text {
-  p {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-top: 0.2rem;
-    line-height: 1.5;
-  }
+.pv-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+
+  &:empty { display: none; }
 }
 
-.pm-danger-icon {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; border-radius: var(--r-sm);
-  background: var(--red-bg); color: var(--red);
-  flex-shrink: 0; margin-top: 0.1rem;
-  i { font-size: 0.9rem; }
+.pv-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  i { font-size: 0.7rem; }
 }
 
-.pm-form {
-  padding: 1.5rem;
+.pv-hidden {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--r-xs);
+  background: var(--nuage-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: left;
+  i { color: var(--muted); flex-shrink: 0; }
+}
+
+.pv-shortcuts {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
-}
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+  overflow: hidden;
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.7rem 0.85rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    transition: background var(--t), color var(--t);
 
-.pm-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 0.35rem;
-}
-
-// CV section
-.cv-current {
-  display: flex; align-items: center; gap: 1rem; padding: 1.5rem;
-}
-
-.cv-file-icon {
-  font-size: 1.7rem; color: var(--red); flex-shrink: 0;
-  width: 52px; height: 52px; border-radius: var(--r-md);
-  display: flex; align-items: center; justify-content: center;
-  background: var(--red-bg);
-}
-.cv-file-info {
-  flex: 1;
-  strong { display: block; font-size: 0.9rem; }
-}
-.cv-link {
-  font-size: 0.82rem; color: var(--brand); font-weight: 600;
-  display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.15rem;
-  transition: gap var(--t);
-  &:hover { gap: 0.45rem; }
-}
-.cv-replace-btn { cursor: pointer; flex-shrink: 0; }
-
-.cv-empty {
-  display: flex; flex-direction: column; align-items: center; gap: 0.55rem;
-  padding: 2.75rem 1.5rem; text-align: center;
-  h4 { font-family: var(--font-display); font-size: 1rem; }
-  p { font-size: 0.82rem; color: var(--muted); max-width: 360px; line-height: 1.6; }
-}
-.cv-empty-icon {
-  font-size: 1.9rem; color: var(--brand);
-  width: 62px; height: 62px; border-radius: var(--r-full);
-  display: flex; align-items: center; justify-content: center;
-  background: var(--brand-100);
-  margin-bottom: 0.35rem;
-}
-.cv-upload-btn { cursor: pointer; margin-top: 0.35rem; &.loading { opacity: 0.7; } }
-
-// Danger
-.pm-danger {
-  border-color: var(--red-bg);
-  .pm-head { background: var(--red-bg); border-bottom-color: rgba(198, 54, 47, 0.14); }
-}
-
-.danger-bar {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.5rem;
-  strong { font-size: 0.9rem; display: block; }
-  p { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
-}
-
-// ── Responsive ──
-@media (max-width: 1024px) {
-  .prof-layout { grid-template-columns: 1fr; }
-  .prof-sidebar {
-    position: static; flex-direction: row; flex-wrap: wrap; gap: 1rem;
-    .ps-card { flex: 1; min-width: 300px; }
-    .ps-actions { flex: 1; min-width: 240px; }
+    &:last-child { border-bottom: 0; }
+    i:first-child { color: var(--bleu-500); font-size: 0.92rem; }
+    i:last-child { margin-left: auto; color: var(--faint); font-size: 0.72rem; }
+    &:hover { background: var(--nuage); color: var(--bleu-700); }
   }
 }
 
-@media (max-width: 768px) {
-  .prof-hero { padding: 1.75rem 0 1.75rem; }
-  .ph-inner { flex-direction: column; text-align: center; }
-  .ph-info .eyebrow { justify-content: center; }
-  .ph-meta { justify-content: center; }
-  .ph-role { align-self: center; }
-  .ph-avatar { width: 68px; height: 68px; span { font-size: 1.4rem; } }
-  .form-row { grid-template-columns: 1fr; }
-  .danger-bar { flex-direction: column; text-align: center; align-items: stretch; .btn-danger { justify-content: center; } }
-  .prof-sidebar { .ps-card, .ps-actions { min-width: 100%; } }
-}
+// ── Barre d'enregistrement ──
+// Elle ne paraît que s'il y a quelque chose à enregistrer. Le bouton
+// vivait au bas d'une seule section : on pouvait modifier douze champs et
+// quitter la page sans un mot.
+.pf-savebar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: var(--bleu-950);
+  border-top: 1px solid var(--line-dark);
+  box-shadow: 0 -8px 28px -12px rgba(0, 21, 36, 0.45);
+  animation: pf-rise 0.22s var(--ease);
 
-// ── Import CV -> profil ──
-.pm-import {
-  display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
-  padding: 0.9rem 1rem; margin-bottom: 1.25rem;
-  background: var(--brand-tint); border: 1px dashed var(--brand-300); border-radius: var(--r-md);
-}
-.pm-import-btn {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  padding: 0.55rem 1rem; background: var(--brand); color: #fff;
-  font-size: 0.85rem; font-weight: 600; border-radius: var(--r-sm); cursor: pointer;
-  transition: background var(--t), transform var(--t);
-  &:hover { background: var(--brand-700); transform: translateY(-1px); }
-  &.loading { opacity: 0.7; pointer-events: none; }
-  i { font-size: 0.95rem; }
-}
-.pm-import-hint { font-size: 0.8rem; color: var(--muted); flex: 1; min-width: 200px; }
+  &__in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.7rem clamp(1.1rem, 4vw, 2.25rem);
+  }
 
-// ── Toggle visibilite vivier ──
-.vis-toggle {
-  display: flex; align-items: center; gap: 0.9rem; cursor: pointer;
-  input { position: absolute; opacity: 0; width: 0; height: 0; }
-}
-.vis-switch {
-  position: relative; flex-shrink: 0;
-  width: 46px; height: 26px; border-radius: var(--r-full);
-  background: var(--line-strong); transition: background var(--t);
-  &::after {
-    content: ''; position: absolute; top: 3px; left: 3px;
-    width: 20px; height: 20px; border-radius: 50%; background: #fff;
-    box-shadow: var(--shadow-sm); transition: transform var(--t) var(--ease-spring);
+  &__txt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.87rem;
+    font-weight: 500;
+    color: var(--on-dark);
+    i { color: var(--bleu-400); }
+  }
+
+  &__acts { display: flex; align-items: center; gap: 0.55rem; }
+
+  .btn-ghost {
+    color: var(--on-dark-muted);
+    border-color: transparent;
+    &:hover { color: #fff; background: rgba(255, 236, 209, 0.1); }
   }
 }
-.vis-toggle input:checked + .vis-switch { background: var(--brand); &::after { transform: translateX(20px); } }
-.vis-text { display: flex; flex-direction: column; gap: 0.1rem;
-  strong { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
-  small { font-size: 0.8rem; color: var(--muted); }
+
+@keyframes pf-rise {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
-// ── Complétude du profil ──
-.pm-complete {
-  padding: 1.4rem; margin-bottom: 1.25rem;
-  background: var(--brand-tint); border: 1px solid var(--brand-100); border-radius: var(--r-lg);
+.sp--lg { width: 22px; height: 22px; border-width: 2px; }
+
+// ── Adaptation ──
+// Sous 1280 px l'aperçu passe sous le panneau : trois colonnes ne tiennent
+// plus sans réduire les champs à des fentes.
+@media (max-width: 1280px) {
+  .pf-layout { grid-template-columns: 12rem minmax(0, 1fr); }
+  .pf-preview { grid-column: 1 / -1; }
+  .pv-sticky { position: static; }
+  .pv-card { text-align: left; }
+  .pv-meta, .pv-skills, .pv-links { justify-content: flex-start; }
 }
-.pc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem;
-  strong { font-size: 0.98rem; font-weight: 700; }
-  p { font-size: 0.84rem; color: var(--muted); margin-top: 0.15rem; } }
-.pc-pct { font-size: 1.6rem; font-weight: 800; color: var(--brand-700); flex-shrink: 0; }
-.pc-bar { height: 8px; border-radius: var(--r-full); background: var(--canvas); overflow: hidden;
-  span { display: block; height: 100%; background: var(--brand); border-radius: var(--r-full); transition: width 0.5s var(--ease-out); } }
-.pc-missing { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.9rem; font-size: 0.8rem; color: var(--muted); }
-.pc-chip { background: var(--canvas); border: 1px solid var(--brand-100); color: var(--brand-700); border-radius: var(--r-full); padding: 0.15rem 0.6rem; font-weight: 600; }
+
+@media (max-width: 860px) {
+  .pf-layout { grid-template-columns: 1fr; }
+
+  // Le rail devient une barre d'onglets défilante : une colonne de cinq
+  // boutons mangerait le haut de l'écran.
+  .pf-rail {
+    position: static;
+    flex-direction: row;
+    gap: 0.35rem;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+  .pf-tab { width: auto; flex-shrink: 0; }
+  .pf-head__gauge { order: -1; }
+}
+
+@media (max-width: 560px) {
+  .pf-card__head { flex-direction: column; }
+  .pf-import { width: 100%; justify-content: center; }
+  .cv-current { flex-wrap: wrap; }
+  .dz-row { flex-direction: column; align-items: stretch; .btn-secondary { justify-content: center; } }
+  .pf-savebar__in { flex-direction: column; align-items: stretch; }
+  .pf-savebar__acts { justify-content: stretch; button { flex: 1; justify-content: center; } }
+}

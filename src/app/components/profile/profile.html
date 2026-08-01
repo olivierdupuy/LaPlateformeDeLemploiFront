@@ -1,278 +1,474 @@
 @if (auth.currentUser(); as u) {
 <app-console-shell [showHead]="false" />
 
-<!-- ═══ HEADER ═══ -->
-<section class="prof-hero">
-  <div class="container ph-inner">
-    <div class="ph-avatar" [style.background]="companyColor(u.firstName).bg">
-      <span [style.color]="companyColor(u.firstName).fg">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
-    </div>
-    <div class="ph-info">
-      <span class="eyebrow">Mon espace</span>
-      <h1>{{ u.firstName }} {{ u.lastName }}</h1>
-      <div class="ph-meta">
-        <span><i class="bi bi-envelope"></i> {{ u.email }}</span>
-        @if (u.title) { <span><i class="bi bi-briefcase"></i> {{ u.title }}</span> }
-        @if (u.city) { <span><i class="bi bi-geo-alt"></i> {{ u.city }}</span> }
+<section class="prof-page">
+  <div class="container">
+
+    <!-- ═══ EN-TÊTE ═══
+         Une ligne, pas un bandeau : l'identité se lit dans l'aperçu, à
+         droite. La répéter ici en grand ne faisait que retarder le
+         formulaire. -->
+    <header class="pf-head">
+      <div class="pf-head__txt">
+        <h1>Mon profil</h1>
+        <p>Ce que les recruteurs voient de vous, et les réglages de votre compte.</p>
       </div>
-    </div>
-    <span class="ph-role" [class.role-candidate]="u.role==='Candidate'" [class.role-recruiter]="u.role==='Recruiter'" [class.role-admin]="u.role==='Admin'">
-      {{ {Admin:'Administrateur',Recruiter:'Recruteur',Candidate:'Candidat'}[u.role] || u.role }}
-    </span>
-  </div>
-</section>
-
-<!-- ═══ CONTENT ═══ -->
-<section class="prof-content">
-  <div class="container prof-layout">
-
-    <!-- LEFT: Sidebar preview -->
-    <aside class="prof-sidebar animate-in">
-      <!-- Quick info card -->
-      <div class="ps-card">
-        <div class="ps-avatar-lg" [style.background]="companyColor(u.firstName).bg">
-          <span [style.color]="companyColor(u.firstName).fg">{{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}</span>
-        </div>
-        <h3>{{ u.firstName }} {{ u.lastName }}</h3>
-        @if (u.title) { <p class="ps-title">{{ u.title }}</p> }
-        @if (u.city) { <p class="ps-city"><i class="bi bi-geo-alt-fill"></i> {{ u.city }}</p> }
-
-        @if (u.bio) {
-          <p class="ps-bio">{{ u.bio }}</p>
-        }
-
-        <!-- Stats -->
-        @if (u.experienceYears || u.education) {
-          <div class="ps-stats">
-            @if (u.experienceYears) {
-              <div class="ps-stat">
-                <span class="ps-stat-val">{{ u.experienceYears }}</span>
-                <span class="ps-stat-lbl">ans d'exp.</span>
-              </div>
-            }
-            @if (u.education) {
-              <div class="ps-stat">
-                <i class="bi bi-mortarboard-fill"></i>
-                <span class="ps-stat-lbl">{{ u.education }}</span>
-              </div>
-            }
-          </div>
-        }
-
-        <!-- Skills -->
-        @if (u.skills) {
-          <div class="ps-skills">
-            @for (skill of u.skills.split(','); track skill) {
-              <span class="ps-skill">{{ skill.trim() }}</span>
-            }
-          </div>
-        }
-
-        <!-- Links -->
-        @if (u.linkedInUrl || u.portfolioUrl || u.resumeUrl) {
-          <div class="ps-links">
-            @if (u.linkedInUrl) {
-              <a [href]="u.linkedInUrl" target="_blank" class="ps-link"><i class="bi bi-linkedin"></i> LinkedIn <i class="bi bi-arrow-up-right ps-link-arrow"></i></a>
-            }
-            @if (u.portfolioUrl) {
-              <a [href]="u.portfolioUrl" target="_blank" class="ps-link"><i class="bi bi-globe2"></i> Portfolio <i class="bi bi-arrow-up-right ps-link-arrow"></i></a>
-            }
-            @if (u.resumeUrl) {
-              <a [href]="apiBaseUrl + u.resumeUrl" target="_blank" class="ps-link"><i class="bi bi-file-earmark-pdf-fill"></i> Mon CV <i class="bi bi-arrow-up-right ps-link-arrow"></i></a>
-            }
-          </div>
-        }
-      </div>
-
-      <!-- Quick actions -->
-      <div class="ps-actions">
-        <span class="ps-actions-label">Raccourcis</span>
-        @if (u.role === 'Candidate') {
-          <a routerLink="/mon-cv" class="ps-action"><i class="bi bi-file-earmark-person"></i> Mon CV en ligne <i class="bi bi-chevron-right ps-action-chev"></i></a>
-          <a routerLink="/suivi" class="ps-action"><i class="bi bi-clipboard-check"></i> Mes candidatures <i class="bi bi-chevron-right ps-action-chev"></i></a>
-          <a routerLink="/favoris" class="ps-action"><i class="bi bi-bookmark-heart"></i> Mes favoris <i class="bi bi-chevron-right ps-action-chev"></i></a>
-        }
-        @if (u.role === 'Recruiter') {
-          <a routerLink="/recruteur/offres" class="ps-action"><i class="bi bi-collection"></i> Mes offres <i class="bi bi-chevron-right ps-action-chev"></i></a>
-          <a routerLink="/recruteur/candidatures" class="ps-action"><i class="bi bi-people"></i> Candidatures <i class="bi bi-chevron-right ps-action-chev"></i></a>
-        }
-      </div>
-    </aside>
-
-    <!-- RIGHT: Edit forms -->
-    <main class="prof-main">
-      <!-- Informations personnelles -->
-      @if (isCandidate && completeness < 100) {
-        <div class="pm-complete animate-in">
-          <div class="pc-top">
-            <div>
-              <strong>Complétez votre profil</strong>
-              <p>Un profil complet est plus visible auprès des recruteurs.</p>
-            </div>
-            <span class="pc-pct u-mono">{{ completeness }}%</span>
-          </div>
-          <div class="pc-bar"><span [style.width.%]="completeness"></span></div>
-          @if (missingFields.length) {
-            <div class="pc-missing">
-              <span>À compléter :</span>
-              @for (m of missingFields; track m) { <span class="pc-chip">{{ m }}</span> }
-            </div>
-          }
+      @if (isCandidate) {
+        <div class="pf-head__gauge" [class.is-full]="completeness === 100">
+          <svg viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="22" r="19" class="g-track" />
+            <circle cx="22" cy="22" r="19" class="g-fill"
+                    [style.stroke-dasharray]="119.4"
+                    [style.stroke-dashoffset]="119.4 - (119.4 * completeness / 100)" />
+          </svg>
+          <span class="pf-head__pct u-mono">{{ completeness }}<small>%</small></span>
+          <span class="pf-head__lbl">
+            {{ completeness === 100 ? 'Profil complet' : 'Profil complété' }}
+          </span>
         </div>
       }
+    </header>
 
-      <div class="pm-section animate-in" style="animation-delay:.06s">
-        <div class="pm-head">
-          <span class="ed-pill">01</span>
-          <div class="pm-head-text">
-            <h2>Informations personnelles</h2>
-            <p>Ces informations alimentent votre profil public et vos candidatures.</p>
-          </div>
-        </div>
-        @if (isCandidate) {
-          <div class="pm-import">
-            <label class="pm-import-btn" [class.loading]="importingProfile">
-              @if (importingProfile) { <span class="sp"></span> Analyse en cours… } @else { <i class="bi bi-magic"></i> Pré-remplir depuis mon CV }
-              <input type="file" accept=".pdf,.docx,.doc" (change)="onProfileCvSelected($event)" hidden />
-            </label>
-            <span class="pm-import-hint">L'IA extrait titre, compétences, expérience et formation de votre CV (PDF/DOCX). Vous vérifiez avant d'enregistrer.</span>
-          </div>
+    <div class="pf-layout">
+
+      <!-- ═══ RAIL DE NAVIGATION ═══
+           Les sections deviennent des pages. Remplacer un CV ne demande
+           plus de traverser l'état civil. -->
+      <nav class="pf-rail" aria-label="Sections du profil">
+        @for (s of sections; track s.key) {
+          <button class="pf-tab" [class.is-active]="activeSection() === s.key" (click)="setSection(s.key)"
+                  [attr.aria-current]="activeSection() === s.key ? 'page' : null">
+            <i class="bi" [class]="s.icon" aria-hidden="true"></i>
+            <span class="pf-tab__lbl">{{ s.label }}</span>
+            <!-- La pastille compte ce qui manque dans la section : le rail
+                 dit où aller sans qu'on ouvre chaque onglet. -->
+            @if (isCandidate && missingIn(s.key); as n) {
+              <span class="pf-tab__dot" [attr.title]="n + ' information à compléter'">{{ n }}</span>
+            }
+          </button>
         }
-        <form (ngSubmit)="saveProfile()" class="pm-form">
-          <div class="form-row">
-            <div class="form-group"><label>Prenom</label><input type="text" [(ngModel)]="profileForm.firstName" name="firstName" /></div>
-            <div class="form-group"><label>Nom</label><input type="text" [(ngModel)]="profileForm.lastName" name="lastName" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Poste actuel</label><input type="text" placeholder="ex: Developpeur Full Stack" [(ngModel)]="profileForm.title" name="title" /></div>
-            <div class="form-group"><label>Ville</label><input type="text" placeholder="ex: Paris" [(ngModel)]="profileForm.city" name="city" /></div>
-          </div>
-          <div class="form-group"><label>Entreprise</label><input type="text" placeholder="Votre entreprise" [(ngModel)]="profileForm.company" name="company" /></div>
-          <div class="form-group"><label>Bio</label><textarea placeholder="Décrivez-vous en quelques lignes..." [(ngModel)]="profileForm.bio" name="bio" rows="3"></textarea></div>
+      </nav>
 
-          <div class="form-group"><label>Compétences (séparées par virgules)</label><input type="text" placeholder="Angular, TypeScript, .NET..." [(ngModel)]="profileForm.skills" name="skills" /></div>
+      <!-- ═══ PANNEAU ACTIF ═══ -->
+      <main class="pf-panel">
 
-          <div class="form-row">
-            <div class="form-group"><label>Années d'expérience</label><input type="number" placeholder="0" [(ngModel)]="profileForm.experienceYears" name="experienceYears" /></div>
-            <div class="form-group"><label>Formation / Diplôme</label><input type="text" placeholder="ex: Master Informatique" [(ngModel)]="profileForm.education" name="education" /></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>LinkedIn</label><input type="url" placeholder="https://linkedin.com/in/..." [(ngModel)]="profileForm.linkedInUrl" name="linkedInUrl" /></div>
-            <div class="form-group"><label>Portfolio</label><input type="url" placeholder="https://..." [(ngModel)]="profileForm.portfolioUrl" name="portfolioUrl" /></div>
-          </div>
+        <!-- ── Identité ── -->
+        @if (activeSection() === 'identite') {
+          <div class="pf-card animate-in">
+            <div class="pf-card__head">
+              <div>
+                <h2>Identité</h2>
+                <p>Ces informations alimentent votre profil public et vos candidatures.</p>
+              </div>
+              @if (isCandidate) {
+                <label class="pf-import" [class.is-busy]="importingProfile">
+                  @if (importingProfile) {
+                    <span class="sp" aria-hidden="true"></span> Analyse…
+                  } @else {
+                    <i class="bi bi-magic" aria-hidden="true"></i> Pré-remplir depuis mon CV
+                  }
+                  <input type="file" accept=".pdf,.docx,.doc" (change)="onProfileCvSelected($event)" hidden />
+                </label>
+              }
+            </div>
 
-          <div class="pm-actions">
-            <button type="submit" class="btn-primary" [disabled]="savingProfile">
-              @if (savingProfile) { <span class="sp"></span> } @else { <i class="bi bi-check-lg"></i> }
-              Enregistrer les modifications
-            </button>
-          </div>
-        </form>
-      </div>
+            <!-- Ce qui manque : une liste de raccourcis, pas un reproche.
+                 Chaque puce ouvre sa section et pose le curseur. -->
+            @if (isCandidate && missing.length) {
+              <div class="pf-todo">
+                <span class="pf-todo__lbl">
+                  <i class="bi bi-stars" aria-hidden="true"></i>
+                  {{ missing.length }} information{{ missing.length > 1 ? 's' : '' }} à ajouter pour un profil complet
+                </span>
+                <span class="pf-todo__chips">
+                  @for (m of missing; track m.key) {
+                    <button class="pf-todo__chip" (click)="goToMissing(m)">{{ m.label }} <i class="bi bi-arrow-right-short" aria-hidden="true"></i></button>
+                  }
+                </span>
+              </div>
+            }
 
-      <!-- CV Upload -->
-      @if (u.role === 'Candidate') {
-        <div class="pm-section animate-in" style="animation-delay:.12s">
-          <div class="pm-head">
-            <span class="ed-pill">02</span>
-            <div class="pm-head-text">
-              <h2>Curriculum Vitae</h2>
-              <p>Format PDF, 5 Mo maximum. Joint automatiquement a vos candidatures.</p>
+            <div class="pf-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pf-firstName">Prénom</label>
+                  <input id="pf-firstName" type="text" [(ngModel)]="profileForm.firstName" name="firstName" />
+                </div>
+                <div class="form-group">
+                  <label for="pf-lastName">Nom</label>
+                  <input id="pf-lastName" type="text" [(ngModel)]="profileForm.lastName" name="lastName" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pf-title">Intitulé de poste</label>
+                  <input id="pf-title" type="text" placeholder="ex : Développeur Full Stack"
+                         [(ngModel)]="profileForm.title" name="title" />
+                  <span class="hint">La première ligne que lit un recruteur.</span>
+                </div>
+                <div class="form-group">
+                  <label for="pf-city">Ville</label>
+                  <input id="pf-city" type="text" placeholder="ex : Lille" [(ngModel)]="profileForm.city" name="city" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pf-experienceYears">Années d'expérience</label>
+                  <input id="pf-experienceYears" type="number" min="0" placeholder="0"
+                         [(ngModel)]="profileForm.experienceYears" name="experienceYears" />
+                </div>
+                <div class="form-group">
+                  <label for="pf-education">Formation</label>
+                  <input id="pf-education" type="text" placeholder="ex : Master Informatique"
+                         [(ngModel)]="profileForm.education" name="education" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="pf-company">Entreprise actuelle <span class="opt">facultatif</span></label>
+                <input id="pf-company" type="text" placeholder="Votre entreprise"
+                       [(ngModel)]="profileForm.company" name="company" />
+              </div>
+
+              <div class="form-group">
+                <label for="pf-bio">Présentation</label>
+                <textarea id="pf-bio" rows="4" [maxlength]="bioMax"
+                          placeholder="Deux ou trois phrases : ce que vous cherchez, ce que vous savez faire."
+                          [(ngModel)]="profileForm.bio" name="bio"></textarea>
+                <span class="pf-count" [class.is-full]="profileForm.bio.length >= bioMax">
+                  {{ profileForm.bio.length }} / {{ bioMax }}
+                </span>
+              </div>
+
+              <!-- Éditeur d'étiquettes plutôt qu'une ligne de texte : corriger
+                   une compétence au milieu de « Angular,TypeScript,.NET
+                   Core,C#,SQL Server,Docker,Git,Azure » demandait de viser au
+                   caractère près, et une virgule oubliée fusionnait deux
+                   compétences sans que rien ne le signale. -->
+              <div class="form-group">
+                <label for="pf-skills">Compétences</label>
+                <div class="sk-editor" [class.is-empty]="!skillList().length">
+                  @for (s of skillList(); track s) {
+                    <span class="sk-tag">
+                      {{ s }}
+                      <button type="button" (click)="removeSkill(s)" [attr.aria-label]="'Retirer ' + s">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                      </button>
+                    </span>
+                  }
+                  <input id="pf-skills" type="text" class="sk-input"
+                         [placeholder]="skillList().length ? 'Ajouter…' : 'Angular, TypeScript, .NET…'"
+                         [(ngModel)]="skillDraft" name="skillDraft"
+                         (keydown.enter)="addSkill($event)"
+                         (keydown.,)="addSkill($event)"
+                         (blur)="addSkill()" />
+                </div>
+                <span class="hint">Entrée ou virgule pour valider une compétence.</span>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pf-linkedInUrl">LinkedIn <span class="opt">facultatif</span></label>
+                  <input id="pf-linkedInUrl" type="url" placeholder="https://linkedin.com/in/…"
+                         [(ngModel)]="profileForm.linkedInUrl" name="linkedInUrl" />
+                </div>
+                <div class="form-group">
+                  <label for="pf-portfolioUrl">Portfolio <span class="opt">facultatif</span></label>
+                  <input id="pf-portfolioUrl" type="url" placeholder="https://…"
+                         [(ngModel)]="profileForm.portfolioUrl" name="portfolioUrl" />
+                </div>
+              </div>
             </div>
           </div>
-          @if (u.resumeUrl) {
-            <div class="cv-current">
-              <div class="cv-file-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
-              <div class="cv-file-info">
-                <strong>CV televerse</strong>
-                <a [href]="apiBaseUrl + u.resumeUrl" target="_blank" class="cv-link">Ouvrir le fichier <i class="bi bi-box-arrow-up-right"></i></a>
+        }
+
+        <!-- ── CV ── -->
+        @if (activeSection() === 'cv') {
+          <div class="pf-card animate-in">
+            <div class="pf-card__head">
+              <div>
+                <h2>Curriculum vitae</h2>
+                <p>PDF, 5 Mo maximum. Joint automatiquement à vos candidatures.</p>
               </div>
-              <label class="btn-secondary cv-replace-btn">
-                <i class="bi bi-arrow-repeat"></i> Remplacer
-                <input type="file" accept=".pdf" (change)="onCvFileSelected($event)" hidden />
-              </label>
+            </div>
+
+            @if (u.resumeUrl) {
+              <div class="cv-current">
+                <span class="cv-current__ico"><i class="bi bi-file-earmark-pdf-fill" aria-hidden="true"></i></span>
+                <span class="cv-current__txt">
+                  <strong>CV en ligne</strong>
+                  <a [href]="apiBaseUrl + u.resumeUrl" target="_blank" rel="noopener">
+                    Ouvrir le fichier <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+                  </a>
+                </span>
+                <label class="btn-secondary" [class.is-busy]="uploadingCv">
+                  @if (uploadingCv) { <span class="sp" aria-hidden="true"></span> Envoi… }
+                  @else { <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Remplacer }
+                  <input type="file" accept=".pdf" (change)="onCvFileSelected($event)" hidden />
+                </label>
+              </div>
+            }
+
+            <!-- Glisser-déposer : le CV est le document que l'on a déjà sous
+                 la main, pas un champ à parcourir dans une arborescence. -->
+            <label class="cv-drop" [class.is-over]="dragging()" [class.is-busy]="uploadingCv"
+                   (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)">
+              <input type="file" accept=".pdf" (change)="onCvFileSelected($event)" hidden />
+              @if (uploadingCv) {
+                <span class="sp sp--lg" aria-hidden="true"></span>
+                <strong>Téléversement…</strong>
+              } @else {
+                <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+                <strong>{{ u.resumeUrl ? 'Déposez un nouveau CV' : 'Déposez votre CV ici' }}</strong>
+                <span>ou cliquez pour parcourir · PDF, 5 Mo max</span>
+              }
+            </label>
+
+            <p class="cv-note">
+              <i class="bi bi-magic" aria-hidden="true"></i>
+              Après l'envoi, nous proposons d'en extraire vos expériences pour remplir
+              votre <a routerLink="/mon-cv">CV en ligne</a>. Vous relisez avant publication.
+            </p>
+          </div>
+        }
+
+        <!-- ── Visibilité ── -->
+        @if (activeSection() === 'visibilite') {
+          <div class="pf-card animate-in">
+            <div class="pf-card__head">
+              <div>
+                <h2>Visibilité auprès des recruteurs</h2>
+                <p>Le vivier permet aux recruteurs de vous trouver sans que vous ayez postulé.</p>
+              </div>
+            </div>
+
+            <label class="vis-toggle" [class.is-on]="profileForm.isSearchable">
+              <input type="checkbox" [checked]="profileForm.isSearchable" (change)="toggleSearchable()" />
+              <span class="vis-switch" aria-hidden="true"></span>
+              <span class="vis-text">
+                <strong>{{ profileForm.isSearchable ? 'Profil visible dans le vivier' : 'Profil masqué' }}</strong>
+                <small>
+                  {{ profileForm.isSearchable
+                    ? 'Les recruteurs peuvent consulter votre profil et vous contacter directement.'
+                    : "Vous n'apparaissez dans aucune recherche de candidats. Vos candidatures restent visibles des employeurs concernés." }}
+                </small>
+              </span>
+            </label>
+
+            <!-- Ce réglage s'applique seul : le dire évite de chercher un
+                 bouton d'enregistrement qui n'existe pas ici. -->
+            <p class="vis-note">
+              <i class="bi bi-info-circle" aria-hidden="true"></i>
+              Ce réglage s'applique immédiatement, sans enregistrement.
+            </p>
+          </div>
+        }
+
+        <!-- ── Sécurité ── -->
+        @if (activeSection() === 'securite') {
+          <div class="pf-card animate-in">
+            <div class="pf-card__head">
+              <div>
+                <h2>Sécurité</h2>
+                <p>Votre adresse de connexion est <strong>{{ u.email }}</strong>.</p>
+              </div>
+            </div>
+
+            <form (ngSubmit)="changePassword()" class="pf-form pf-form--narrow">
+              <div class="form-group">
+                <label for="pf-pw-old">Mot de passe actuel</label>
+                <input id="pf-pw-old" type="password" autocomplete="current-password"
+                       [(ngModel)]="pwForm.currentPassword" name="currentPassword" />
+              </div>
+
+              <div class="form-group">
+                <label for="pf-pw-new">Nouveau mot de passe</label>
+                <div class="pw-field">
+                  <input id="pf-pw-new" [type]="pwVisible() ? 'text' : 'password'" autocomplete="new-password"
+                         [(ngModel)]="pwForm.newPassword" name="newPassword" />
+                  <button type="button" class="pw-eye" (click)="pwVisible.set(!pwVisible())"
+                          [attr.aria-label]="pwVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+                    <i class="bi" [class.bi-eye]="!pwVisible()" [class.bi-eye-slash]="pwVisible()" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                <!-- L'exigence vivait dans un texte d'exemple, qui disparaît
+                     à la première frappe. Elle se vérifie maintenant à mesure. -->
+                @if (pwForm.newPassword) {
+                  <div class="pw-meter" [attr.data-score]="pwScore">
+                    <span class="pw-meter__bars">
+                      @for (i of [1,2,3,4]; track i) { <span [class.is-on]="pwScore >= i"></span> }
+                    </span>
+                    <span class="pw-meter__lbl">{{ pwLabel }}</span>
+                  </div>
+                  <ul class="pw-rules">
+                    @for (r of pwRules; track r.label) {
+                      <li [class.is-ok]="r.ok" [class.is-req]="r.requis">
+                        <i class="bi" [class.bi-check-circle-fill]="r.ok" [class.bi-circle]="!r.ok" aria-hidden="true"></i>
+                        {{ r.label }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+
+              <div class="pf-form__foot">
+                <button type="submit" class="btn-primary" [disabled]="savingPw || pwScore === 0">
+                  @if (savingPw) { <span class="sp" aria-hidden="true"></span> }
+                  @else { <i class="bi bi-key" aria-hidden="true"></i> }
+                  Modifier le mot de passe
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+
+        <!-- ── Mes données ── -->
+        @if (activeSection() === 'donnees') {
+          <div class="pf-card animate-in">
+            <div class="pf-card__head">
+              <div>
+                <h2>Mes données</h2>
+                <p>Ce que la plateforme conserve, et ce que vous pouvez en faire.</p>
+              </div>
+            </div>
+
+            <div class="dz-row">
+              <span class="dz-row__txt">
+                <strong>Exporter mes données</strong>
+                <small>Profil, candidatures, alertes et CV en ligne, au format JSON.</small>
+              </span>
+              <button class="btn-secondary" (click)="exportMyData()">
+                <i class="bi bi-download" aria-hidden="true"></i> Exporter
+              </button>
+            </div>
+
+            <!-- La suppression ne s'offre pas d'elle-même : on la demande.
+                 Un bouton rouge posé au bas d'une page se clique par
+                 inadvertance. -->
+            <div class="dz-danger" [class.is-open]="dangerOpen()">
+              <button class="dz-disclose" (click)="dangerOpen.set(!dangerOpen())"
+                      [attr.aria-expanded]="dangerOpen()">
+                <i class="bi" [class.bi-chevron-right]="!dangerOpen()" [class.bi-chevron-down]="dangerOpen()" aria-hidden="true"></i>
+                Supprimer mon compte
+              </button>
+              @if (dangerOpen()) {
+                <div class="dz-body">
+                  <p>
+                    La suppression efface votre profil, votre CV, vos candidatures et vos
+                    alertes. <strong>Elle est définitive</strong> : aucune restauration
+                    n'est possible, y compris par l'assistance.
+                  </p>
+                  <p class="dz-hint">
+                    Si vous souhaitez seulement ne plus être démarché, masquez votre profil
+                    depuis <button class="dz-link" (click)="setSection('visibilite')">Visibilité</button>.
+                  </p>
+                  <button class="btn-danger" (click)="deleteAccount()">
+                    <i class="bi bi-trash3" aria-hidden="true"></i> Supprimer définitivement mon compte
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </main>
+
+      <!-- ═══ APERÇU ═══
+           La colonne montrait l'état enregistré à côté d'un formulaire qui
+           l'éditait : elle affichait l'ancien intitulé pendant qu'on tapait
+           le nouveau. Elle est maintenant branchée sur la saisie. -->
+      <aside class="pf-preview">
+        <div class="pv-sticky">
+          <span class="pv-eyebrow">
+            <i class="bi bi-eye" aria-hidden="true"></i> Vu par les recruteurs
+          </span>
+
+          <article class="pv-card">
+            <span class="pv-av" [style.background]="previewColor.bg" [style.color]="previewColor.fg">
+              {{ previewInitials }}
+            </span>
+            <h3 [class.is-placeholder]="!profileForm.firstName && !profileForm.lastName">{{ previewName }}</h3>
+
+            @if (profileForm.title) {
+              <p class="pv-title">{{ profileForm.title }}</p>
+            } @else {
+              <p class="pv-title is-placeholder">Intitulé de poste</p>
+            }
+
+            <p class="pv-meta">
+              @if (profileForm.city) { <span><i class="bi bi-geo-alt-fill" aria-hidden="true"></i> {{ profileForm.city }}</span> }
+              @if (profileForm.experienceYears != null) { <span><i class="bi bi-clock-history" aria-hidden="true"></i> {{ profileForm.experienceYears }} an{{ profileForm.experienceYears > 1 ? 's' : '' }}</span> }
+            </p>
+
+            @if (profileForm.bio) {
+              <p class="pv-bio">{{ profileForm.bio }}</p>
+            }
+
+            @if (profileForm.education) {
+              <p class="pv-edu"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i> {{ profileForm.education }}</p>
+            }
+
+            @if (skillList().length) {
+              <div class="pv-skills">
+                @for (s of skillList(); track s) { <span>{{ s }}</span> }
+              </div>
+            }
+
+            <div class="pv-links">
+              @if (profileForm.linkedInUrl) { <span class="pv-link"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</span> }
+              @if (profileForm.portfolioUrl) { <span class="pv-link"><i class="bi bi-globe2" aria-hidden="true"></i> Portfolio</span> }
+              @if (u.resumeUrl) { <span class="pv-link"><i class="bi bi-file-earmark-pdf-fill" aria-hidden="true"></i> CV</span> }
+            </div>
+
+            <!-- Un profil masqué ne figure dans aucune recherche : l'aperçu
+                 doit le dire, sinon il promet une visibilité qui n'existe pas. -->
+            @if (isCandidate && !profileForm.isSearchable) {
+              <p class="pv-hidden">
+                <i class="bi bi-eye-slash-fill" aria-hidden="true"></i>
+                Profil masqué — invisible dans le vivier
+              </p>
+            }
+          </article>
+
+          @if (isCandidate) {
+            <div class="pv-shortcuts">
+              <a routerLink="/mon-cv"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> Mon CV en ligne <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+              <a routerLink="/suivi"><i class="bi bi-clipboard-check" aria-hidden="true"></i> Mes candidatures <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+              <a routerLink="/favoris"><i class="bi bi-bookmark-heart" aria-hidden="true"></i> Mes favoris <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             </div>
           } @else {
-            <div class="cv-empty">
-              <div class="cv-empty-icon"><i class="bi bi-cloud-arrow-up"></i></div>
-              <h4>Aucun CV televerse</h4>
-              <p>Televersez votre CV au format PDF (max 5 Mo). Il sera automatiquement joint a vos candidatures.</p>
-              <label class="btn-primary cv-upload-btn" [class.loading]="uploadingCv">
-                @if (uploadingCv) { <span class="sp"></span> Telechargement... } @else { <i class="bi bi-upload"></i> Télécharger mon CV }
-                <input type="file" accept=".pdf" (change)="onCvFileSelected($event)" hidden />
-              </label>
+            <div class="pv-shortcuts">
+              <a routerLink="/recruteur/offres"><i class="bi bi-collection" aria-hidden="true"></i> Mes offres <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+              <a routerLink="/recruteur/candidatures"><i class="bi bi-people" aria-hidden="true"></i> Candidatures <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             </div>
           }
         </div>
-
-        <!-- Visibilite vivier -->
-        <div class="pm-section animate-in" style="animation-delay:.15s">
-          <div class="pm-head">
-            <span class="ed-pill"><i class="bi bi-eye"></i></span>
-            <div class="pm-head-text">
-              <h2>Visibilité auprès des recruteurs</h2>
-              <p>Autorisez les recruteurs à vous trouver dans le vivier de candidats.</p>
-            </div>
-          </div>
-          <label class="vis-toggle">
-            <input type="checkbox" [checked]="profileForm.isSearchable" (change)="toggleSearchable()" />
-            <span class="vis-switch"></span>
-            <span class="vis-text">
-              <strong>{{ profileForm.isSearchable ? 'Profil visible dans le vivier' : 'Profil masqué' }}</strong>
-              <small>{{ profileForm.isSearchable ? 'Les recruteurs peuvent consulter votre profil et vous contacter.' : 'Vous n\'apparaissez pas dans les recherches de candidats.' }}</small>
-            </span>
-          </label>
-        </div>
-      }
-
-      <!-- Securite -->
-      <div class="pm-section animate-in" style="animation-delay:.18s">
-        <div class="pm-head">
-          <span class="ed-pill">{{ u.role === 'Candidate' ? '03' : '02' }}</span>
-          <div class="pm-head-text">
-            <h2>Sécurité</h2>
-            <p>Modifiez votre mot de passe pour proteger votre compte.</p>
-          </div>
-        </div>
-        <form (ngSubmit)="changePassword()" class="pm-form">
-          <div class="form-row">
-            <div class="form-group"><label>Mot de passe actuel</label><input type="password" placeholder="********" [(ngModel)]="pwForm.currentPassword" name="currentPassword" /></div>
-            <div class="form-group"><label>Nouveau mot de passe</label><input type="password" placeholder="6 caracteres minimum" [(ngModel)]="pwForm.newPassword" name="newPassword" /></div>
-          </div>
-          <div class="pm-actions">
-            <button type="submit" class="btn-secondary" [disabled]="savingPw">
-              @if (savingPw) { <span class="sp"></span> } @else { <i class="bi bi-key"></i> }
-              Modifier le mot de passe
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Danger zone -->
-      <div class="pm-section pm-danger animate-in" style="animation-delay:.24s">
-        <div class="pm-head">
-          <span class="pm-danger-icon"><i class="bi bi-exclamation-triangle"></i></span>
-          <div class="pm-head-text">
-            <h2>Zone de danger</h2>
-            <p>Actions sensibles liées a votre session.</p>
-          </div>
-        </div>
-        <div class="danger-bar">
-          <div>
-            <strong>Exporter mes données (RGPD)</strong>
-            <p>Téléchargez toutes vos données personnelles au format JSON</p>
-          </div>
-          <button class="btn-secondary" (click)="exportMyData()"><i class="bi bi-download"></i> Exporter</button>
-        </div>
-        <div class="danger-bar">
-          <div>
-            <strong>Supprimer mon compte</strong>
-            <p>Suppression définitive de votre compte et de vos données. Irréversible.</p>
-          </div>
-          <button class="btn-danger" (click)="deleteAccount()"><i class="bi bi-trash3"></i> Supprimer</button>
-        </div>
-      </div>
-    </main>
+      </aside>
+    </div>
   </div>
+
+  <!-- ═══ BARRE D'ENREGISTREMENT ═══
+       Elle ne paraît que s'il y a quelque chose à enregistrer, et dit
+       combien. Le bouton vivait au bas d'une seule section : on pouvait
+       modifier douze champs et quitter la page sans un mot. -->
+  @if (isDirty) {
+    <div class="pf-savebar" role="status">
+      <div class="container pf-savebar__in">
+        <span class="pf-savebar__txt">
+          <i class="bi bi-pencil-square" aria-hidden="true"></i>
+          {{ dirtyCount }} modification{{ dirtyCount > 1 ? 's' : '' }} non enregistrée{{ dirtyCount > 1 ? 's' : '' }}
+        </span>
+        <span class="pf-savebar__acts">
+          <button class="btn-ghost" (click)="revert()" [disabled]="savingProfile">Annuler</button>
+          <button class="btn-primary" (click)="saveProfile()" [disabled]="savingProfile">
+            @if (savingProfile) { <span class="sp" aria-hidden="true"></span> Enregistrement… }
+            @else { <i class="bi bi-check-lg" aria-hidden="true"></i> Enregistrer }
+          </button>
+        </span>
+      </div>
+    </div>
+  }
 </section>
 }

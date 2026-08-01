@@ -83,6 +83,28 @@
         <a routerLink="/recruteur/offres/nouvelle" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
       </div>
     } @else {
+      <!-- Recherche et tri : le filtre par statut suffit à trois offres,
+           plus à quarante. Trier par candidatures reçues met en tête celles
+           qui marchent — et en queue celles qu'il faut revoir. -->
+      <div class="mo-tools animate-in" style="animation-delay:.05s">
+        <div class="searchbar">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <label class="sr-only" for="mo-q">Rechercher une offre</label>
+          <input id="mo-q" type="search" placeholder="Intitulé, ville ou contrat…"
+                 [ngModel]="query()" (ngModelChange)="query.set($event)" />
+        </div>
+
+        <label class="ffield" [class.is-set]="sort() !== 'recent'">
+          <span class="ffield__lbl">Trier</span>
+          <select aria-label="Trier les offres" [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+            <option value="recent">Plus récentes</option>
+            <option value="apps">Candidatures reçues</option>
+            <option value="views">Vues</option>
+            <option value="title">Intitulé</option>
+          </select>
+        </label>
+      </div>
+
       <div class="mo-info animate-in" style="animation-delay:.06s">
         <span class="u-mono">{{ filtered().length }} offre{{ filtered().length > 1 ? 's' : '' }}</span>
       </div>
@@ -129,6 +151,17 @@
                   <span class="oc-stat-val">{{ o.viewCount || 0 }}</span>
                   <span>vue{{ (o.viewCount || 0) > 1 ? 's' : '' }}</span>
                 </div>
+                <!-- Le taux distingue « on ne voit pas mon offre » de « on la
+                     voit et elle ne donne pas envie » : les deux ne se
+                     corrigent pas de la même façon. Sous cinq vues, il ne
+                     veut rien dire — on ne l'affiche pas. -->
+                @if (conversion(o) !== null) {
+                  <div class="oc-stat oc-stat--conv" title="Part des visiteurs qui ont postulé">
+                    <i class="bi bi-percent"></i>
+                    <span class="oc-stat-val">{{ conversion(o) }} %</span>
+                    <span>de conversion</span>
+                  </div>
+                }
                 <div class="oc-stat">
                   <span class="badge" [class]="getContractBadgeClass(o.contractType)">{{ o.contractType }}</span>
                 </div>

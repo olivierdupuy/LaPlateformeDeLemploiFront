@@ -59,7 +59,36 @@ export class Interviews implements OnInit {
   }
 
   getStatusLabel(s: string): string {
-    return { Proposed: 'Propose', Accepted: 'Confirme', Declined: 'Decline', Cancelled: 'Annule', Completed: 'Termine', Negotiating: 'En negociation' }[s] || s;
+    return { Proposed: 'Proposé', Accepted: 'Confirmé', Declined: 'Décliné', Cancelled: 'Annulé', Completed: 'Terminé', Negotiating: 'En négociation' }[s] || s;
+  }
+
+  /**
+   * Jours restants avant le rendez-vous.
+   *
+   * Compare des dates de calendrier, pas des instants : un entretien
+   * demain matin est « demain », meme s'il est dans dix-huit heures.
+   */
+  daysUntil(date: string): number {
+    const a = new Date(date); a.setHours(0, 0, 0, 0);
+    const b = new Date(); b.setHours(0, 0, 0, 0);
+    return Math.round((a.getTime() - b.getTime()) / 86_400_000);
+  }
+
+  /**
+   * Le decompte, en toutes lettres.
+   *
+   * La carte donnait la date et l'heure sans jamais dire ce qui arrive en
+   * premier : un agenda sert a savoir ce qui vient, pas seulement ce qui
+   * est note.
+   */
+  countdown(date: string): string {
+    const d = this.daysUntil(date);
+    if (d < 0) return `il y a ${Math.abs(d)} jour${Math.abs(d) > 1 ? 's' : ''}`;
+    if (d === 0) return "aujourd'hui";
+    if (d === 1) return 'demain';
+    if (d < 7) return `dans ${d} jours`;
+    if (d < 31) return `dans ${Math.floor(d / 7)} semaine${Math.floor(d / 7) > 1 ? 's' : ''}`;
+    return `dans ${Math.floor(d / 30)} mois`;
   }
 
   getStatusClass(s: string): string {
@@ -82,7 +111,7 @@ export class Interviews implements OnInit {
 
   submitSlots(id: number) {
     const slots = this.proposedSlots.filter(s => s);
-    if (slots.length === 0) { this.toastr.warning('Proposez au moins un creneau'); return; }
+    if (slots.length === 0) { this.toastr.warning('Proposez au moins un créneau'); return; }
     this.candidateService.proposeSlots(id, slots, this.proposeMessage || undefined).subscribe({
       next: () => {
         this.toastr.success('Creneaux proposes au recruteur');

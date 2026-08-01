@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { CvService } from '../../services/cv.service';
 import { UploadService } from '../../services/upload.service';
 import { AuthService } from '../../services/auth.service';
@@ -11,7 +12,7 @@ import { ConsoleShell } from '../console-shell/console-shell';
 
 @Component({
   selector: 'app-cv-builder',
-  imports: [FormsModule, DatePipe, ConsoleShell],
+  imports: [FormsModule, DatePipe, LowerCasePipe, RouterLink, ConsoleShell],
   templateUrl: './cv-builder.html',
   styleUrl: './cv-builder.scss',
 })
@@ -47,6 +48,47 @@ export class CvBuilder implements OnInit {
     return g;
   });
 
+  /* ═══ Etat de remplissage ═══
+     La page listait les sections sans jamais dire ce qui manquait. Un CV
+     s'evalue a ses trous : le candidat ne peut pas les voir en faisant
+     defiler onze experiences, et c'est pourtant la seule chose que le
+     recruteur, lui, verra tout de suite. */
+
+  /** Les quatre sections sans lesquelles un CV ne passe pas un premier tri. */
+  private readonly REQUIS: SectionType[] = ['Experience', 'Formation', 'Competence', 'Langue'];
+
+  /** Ce qu'il reste a remplir, section par section. */
+  missing = computed(() =>
+    this.REQUIS.filter((t) => (this.grouped()[t]?.length ?? 0) === 0),
+  );
+
+  /**
+   * Part du CV renseignee, sur six criteres de meme poids : les quatre
+   * sections requises, l'intitule de poste et la presentation du profil.
+   * Aucun n'est pondere — un CV sans competences n'est pas « a 80 % ».
+   */
+  completeness = computed(() => {
+    const u = this.auth.currentUser();
+    const checks = [
+      ...this.REQUIS.map((t) => (this.grouped()[t]?.length ?? 0) > 0),
+      !!u?.title,
+      !!u?.bio,
+    ];
+    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+  });
+
+  /** Les manques qui ne sont pas des sections. */
+  profileGaps = computed(() => {
+    const u = this.auth.currentUser();
+    const out: { label: string; link: string }[] = [];
+    if (!u?.title) out.push({ label: 'Intitulé de poste', link: '/profil' });
+    if (!u?.bio) out.push({ label: 'Présentation en quelques lignes', link: '/profil' });
+    return out;
+  });
+
+  /** Ancre d'une section, pour la navigation laterale. */
+  anchor(type: string): string { return 'cv-' + type.toLowerCase(); }
+
   ngOnInit() { this.load(); }
 
   load() {
@@ -78,7 +120,7 @@ export class CvBuilder implements OnInit {
   }
 
   async deleteSection(id: number) {
-    const res = await Swal.fire({ title: 'Supprimer cette section ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#e42b2f', confirmButtonText: 'Supprimer', cancelButtonText: 'Annuler' });
+    const res = await Swal.fire({ title: 'Supprimer cette section ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#c6364b', confirmButtonText: 'Supprimer', cancelButtonText: 'Annuler' });
     if (res.isConfirmed) {
       this.cvService.delete(id).subscribe({ next: () => { this.load(); this.toastr.success('Supprimee'); } });
     }

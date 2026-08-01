@@ -3,11 +3,35 @@
 // ═══════════════════════════════════════════════
 
 // ── Bandeau recruteur ──
-// Citron plein : le seul aplat vif de la page, il ferme le parcours.
+//
+// Il etait pose sur `--bleu-100`, qui valait alors exactement la couleur
+// du sol. Le bandeau existait dans le code et nulle part a l'ecran : on
+// lisait un titre flottant au milieu de la page, sans rien qui dise qu'on
+// change d'interlocuteur. Il prend donc le cran sombre, comme le hero :
+// la page s'ouvre et se ferme sur du sombre, et l'appel au recruteur se
+// detache enfin de ce qui s'adressait au candidat. Le piege reste le
+// meme quelle que soit la palette — un aplat pris dans la teinte du sol
+// est un aplat invisible.
 .footer-cta {
-  background: var(--bleu-100);
-  color: var(--bleu-900);
-  margin-top: 4rem;
+  position: relative;
+  overflow: hidden;
+  background: var(--bleu-800);
+  color: var(--on-dark);
+  // Aucune marge propre : le bandeau est desormais un aplat pleine
+  // largeur, et chaque page apporte deja sa respiration de bas de page.
+  // Les deux cumulees creusaient cent trente pixels de vide.
+  margin-top: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60%; right: -4%;
+    width: 46%; height: 220%;
+    background: radial-gradient(circle, rgba(58, 128, 140, 0.32), transparent 62%);
+    pointer-events: none;
+  }
+
+  > * { position: relative; }
 }
 
 // Grille plutôt que space-between : sur un gabarit large,
@@ -25,47 +49,48 @@
   max-width: 62ch;
 
   .eyebrow {
-    color: var(--bleu-700);
-    &::before { background: var(--rouge); }
+    color: var(--on-dark-muted);
+    &::before { background: var(--bleu-400); }
   }
 
   h2 {
     margin-top: 0.7rem;
     font-size: clamp(1.6rem, 3vw, 2.5rem);
     line-height: 1.1;
-    color: var(--bleu-900);
+    color: #fff;
     max-width: 30ch;
   }
 
-  .em-plum { color: var(--rouge); }
+  .em-plum { color: var(--bleu-400); }
 
   p {
     margin-top: 0.7rem;
     font-size: 0.95rem;
-    color: var(--bleu-800);
-    opacity: 0.85;
+    color: var(--on-dark-muted);
     max-width: 46ch;
   }
 }
 
+// Sur le bleu profond, l'aplat le plus fort disponible est le blanc :
+// c'est le seul qui fasse d'un lien un bouton qu'on voit de loin.
 .cta-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
   flex-shrink: 0;
   padding: 0.95rem 1.7rem;
-  background: var(--rouge);
-  color: #fff;
+  background: #fff;
+  color: var(--bleu-800);
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: var(--r-sm);
-  transition: background var(--t), transform var(--t), box-shadow var(--t);
+  transition: background var(--t), color var(--t), transform var(--t), box-shadow var(--t);
   i { transition: transform var(--t); }
 
   &:hover {
-    background: var(--rouge-600);
+    background: var(--bleu-100);
     transform: translateY(-2px);
-    box-shadow: 0 12px 26px -10px rgba(228, 43, 47, 0.55);
+    box-shadow: 0 14px 30px -12px rgba(0, 21, 36, 0.6);
     i { transform: translateX(3px); }
   }
   &:active { transform: translateY(0); }
@@ -121,8 +146,8 @@ footer {
     flex: 1;
     min-width: 0;
     padding: 0.66rem 0.85rem;
-    background: rgba(244, 241, 222, 0.08);
-    border: 1px solid rgba(244, 241, 222, 0.18);
+    background: rgba(255, 236, 209, 0.08);
+    border: 1px solid rgba(255, 236, 209, 0.18);
     border-radius: var(--r-sm);
     color: #fff;
     font-size: 0.85rem;
@@ -130,7 +155,7 @@ footer {
     transition: border-color var(--t), background var(--t);
 
     &::placeholder { color: var(--on-dark-muted); }
-    &:focus { border-color: var(--ambre); background: rgba(244, 241, 222, 0.12); }
+    &:focus { border-color: var(--ambre); background: rgba(255, 236, 209, 0.12); }
   }
 
   button {
@@ -160,8 +185,8 @@ footer {
   width: 36px; height: 36px;
   border-radius: var(--r-sm);
   display: flex; align-items: center; justify-content: center;
-  background: rgba(244, 241, 222, 0.07);
-  border: 1px solid rgba(244, 241, 222, 0.12);
+  background: rgba(255, 236, 209, 0.07);
+  border: 1px solid rgba(255, 236, 209, 0.12);
   color: var(--on-plum-muted);
   font-size: 0.95rem;
   transition: color var(--t), background var(--t), border-color var(--t), transform var(--t);
@@ -200,7 +225,7 @@ footer {
 // ── Bas de page ──
 .ft-divider {
   height: 1px;
-  background: rgba(244, 241, 222, 0.12);
+  background: rgba(255, 236, 209, 0.12);
   margin: clamp(2.25rem, 5vw, 3.25rem) 0 1.5rem;
 }
 

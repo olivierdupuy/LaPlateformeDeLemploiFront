@@ -399,3 +399,33 @@
 @media (max-width: 480px) {
   .cv-grid { grid-template-columns: 1fr; }
 }
+
+// ── Barre de filtres ──
+// Le tri sort du repli : c'est un réglage qu'on change en regardant les
+// résultats, pas un critère qu'on pose une fois pour toutes.
+.cvh-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.cvh-filter-toggle .ftoggle__n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  margin-left: 0.15rem;
+  background: var(--bleu-600);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  font-weight: 600;
+  border-radius: var(--r-full);
+}
+
+// Les jetons se posent sous la barre, pas dans le hero sombre : ils
+// portent leurs propres couleurs claires.
+.cvh-filters .acrit { padding-top: 0.75rem; padding-bottom: 0; }

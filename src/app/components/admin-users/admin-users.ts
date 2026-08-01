@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, computed, signal, effect, NgZone } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -47,7 +47,7 @@ interface UserFacets {
 
 @Component({
   selector: 'app-admin-users',
-  imports: [DatePipe, RouterLink, FormsModule, Pager],
+  imports: [DecimalPipe, DatePipe, RouterLink, FormsModule, Pager],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.scss',
 })
@@ -204,7 +204,23 @@ export class AdminUsers implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Pastille de role.
+   *
+   * L'administrateur portait `badge-red`, c'est-a-dire le rouge de danger
+   * — la couleur reservee a ce qui supprime ou echoue. Sur la meme ligne,
+   * « Suspendu » porte ce meme rouge : deux informations de nature
+   * differente, un role et un etat, peintes a l'identique.
+   *
+   * Les trois roles suivent donc l'echelle de remplissage de la palette,
+   * du contour au bleu plein a mesure que le privilege monte, et le rouge
+   * redevient ce qu'il est : la couleur de « Suspendu », et rien d'autre.
+   */
   getRoleBadge(role: string): string {
-    return { Admin: 'badge-red', Recruiter: 'badge-indigo', Candidate: 'badge-green' }[role] || 'badge-yellow';
+    return {
+      Admin: 'badge-plum',       // bleu profond plein — le plus de droits
+      Recruiter: 'badge-blue',   // aplat clair
+      Candidate: 'badge-yellow', // contour seul — le plus nombreux
+    }[role] || 'badge-yellow';
   }
 }

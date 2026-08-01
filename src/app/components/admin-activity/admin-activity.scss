@@ -1,168 +1,237 @@
-// ═══════════════════════════════════
-//  ADMIN — Journal d'activite
-// ═══════════════════════════════════
+// ═══════════════════════════════════════════════
+//  JOURNAL D'ACTIVITÉ
+//  Une piste d'audit se balaie : la densité y est la fonction, pas une
+//  économie de place. Une ligne par événement, la date en intertitre,
+//  la gravité dans un liseré.
+// ═══════════════════════════════════════════════
 
-// ── Filters bar ──
-.filters {
+.ac-scope {
   display: flex;
-  align-items: flex-end;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  &:hover { transform: none; box-shadow: var(--shadow-xs); border-color: var(--line); }
-}
-.filter-field {
-  flex: 1;
-  min-width: 190px;
-  gap: 0.4rem;
-}
-.btn-reset {
-  padding: 0.72rem 1.1rem;
-  white-space: nowrap;
-  &:hover { border-color: var(--red); background: var(--red-bg); color: var(--red); }
+  align-items: center;
+  gap: 0.45rem;
+  margin: -0.4rem 0 0.9rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--bleu-100);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  i { color: var(--bleu-500); }
 }
 
-// ── Timeline ──
-.timeline {
+.ac-log {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1.4rem;
+  margin-bottom: 1.6rem;
 }
 
-.tl-item {
+// ── Intertitre du jour ──
+// Collant : en défilant sur cent lignes, on doit toujours savoir quel
+// jour on lit.
+.ac-day__head {
+  position: sticky;
+  top: var(--nav-now);
+  z-index: 2;
   display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   gap: 1rem;
-  align-items: stretch;
+  padding: 0.5rem 0.2rem;
+  margin-bottom: 0.35rem;
+  background: var(--nuage);
+  border-bottom: 1px solid var(--line);
 }
 
-.tl-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--r-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 1.05rem;
-  margin-top: 0.15rem;
-  color: var(--brand);
-  background: color-mix(in srgb, currentColor 12%, var(--canvas));
-  border: 1px solid color-mix(in srgb, currentColor 22%, var(--line));
-}
-
-.tl-body {
-  flex: 1;
-  min-width: 0;
-  padding: 1rem 1.2rem;
-  &:hover { transform: none; box-shadow: var(--shadow-sm); }
-}
-
-.tl-head {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-.tl-user {
-  font-size: 0.9rem;
+.ac-day__label {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--ink);
+  text-transform: capitalize;
 }
-.tl-action-badge {
-  background: var(--paper-2);
-  color: var(--ink-soft);
-  border: 1px solid var(--line);
-}
-.tl-time {
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-left: auto;
-  white-space: nowrap;
-}
-.tl-detail {
-  font-size: 0.86rem;
-  color: var(--ink-soft);
-  line-height: 1.55;
-  margin: 0.4rem 0 0;
-}
-.tl-ip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-top: 0.55rem;
+
+.ac-day__count {
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--muted);
-  i { font-size: 0.78rem; color: var(--faint); }
+  white-space: nowrap;
 }
 
-// ── Pagination ──
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.15rem;
-  margin-top: 2rem;
-}
-.pg-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--r-sm);
-  border: 1px solid var(--line-strong);
+// ── Lignes ──
+.ac-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
   background: var(--canvas);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  color: var(--ink);
-  transition: border-color var(--t), background var(--t), color var(--t), transform var(--t);
-  &:hover:not(:disabled) {
-    border-color: var(--brand);
-    background: var(--brand-tint);
-    color: var(--brand);
-    transform: translateY(-1px);
-  }
-  &:disabled { opacity: 0.4; cursor: not-allowed; }
+  overflow: hidden;
 }
-.pg-info {
-  font-size: 0.8rem;
+
+.ac-row {
+  display: grid;
+  grid-template-columns: 3.6rem 1.6rem minmax(9rem, auto) minmax(8rem, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.82rem;
+  border-left: 3px solid transparent;
+  transition: background var(--t);
+
+  &:last-child { border-bottom: 0; }
+  &:hover { background: var(--bleu-100); }
+
+  // Le liseré porte la gravité : une suppression ne se lit pas comme une
+  // connexion, même en balayant la colonne du regard.
+  &[data-gravite='info']      { border-left-color: var(--bleu-300); }
+  &[data-gravite='attention'] { border-left-color: var(--bleu-500); }
+  &[data-gravite='critique']  { border-left-color: var(--danger); }
+}
+
+.ac-row__time {
+  font-size: 0.76rem;
   color: var(--muted);
-  font-weight: 600;
+  white-space: nowrap;
 }
 
-// ── Empty / loading ──
-.empty-box { margin-top: 1rem; }
-
-// ── Responsive ──
-@media (max-width: 640px) {
-  .filters { padding: 1.1rem 1.1rem; }
-  .filter-field { min-width: 100%; }
-  .btn-reset { width: 100%; }
-  .tl-icon { width: 38px; height: 38px; font-size: 0.95rem; }
-  .tl-time { margin-left: 0; width: 100%; }
-}
-
-// ── Liens croisés du journal ──
-a.tl-user:hover {
-  color: var(--bleu-600);
-  text-decoration: underline;
-}
-
-.tl-foot {
+.ac-row__icon {
   display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  flex-wrap: wrap;
-  margin-top: 0.5rem;
+  justify-content: center;
+  font-size: 0.92rem;
 }
 
-.tl-entity {
+.ac-row__act {
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ac-row__who {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.8rem;
+  min-width: 0;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &:hover { color: var(--bleu-600); text-decoration: underline; }
+}
+
+.ac-av {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
   font-weight: 600;
-  color: var(--bleu-600);
-  i { font-size: 0.78rem; }
-  &:hover { color: var(--bleu-900); text-decoration: underline; }
+}
+
+// Le détail est la seule colonne élastique : c'est elle qui doit céder
+// quand la fenêtre rétrécit.
+.ac-row__what {
+  min-width: 0;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ac-row__end {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.ac-tag {
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.64rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.ac-ip {
+  font-size: 0.68rem;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+.ac-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-xs);
+  font-size: 1rem;
+  color: var(--muted);
+  &:hover { color: var(--bleu-600); background: var(--bleu-tint); }
+}
+
+// ── Pagination ──
+.ac-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 0.5rem 0 1rem;
+}
+
+.pg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  color: var(--ink-soft);
+  transition: border-color var(--t), background var(--t), color var(--t);
+
+  &:hover:not(:disabled) { border-color: var(--brand); background: var(--brand-tint); color: var(--brand); }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.pg-info {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.btn-reset { white-space: nowrap; }
+
+.empty-box {
+  &.card:hover { transform: none; box-shadow: none; border-color: var(--line); }
+  i { color: var(--faint); }
+}
+
+// ── Adaptation ──
+// Sous 1200 px la ligne unique n'est plus tenable : l'auteur et le détail
+// passent dessous, sur toute la largeur, plutôt que d'être tronqués à
+// trois mots chacun.
+@media (max-width: 1200px) {
+  .ac-row {
+    grid-template-columns: 3.6rem 1.6rem minmax(0, 1fr) auto;
+    row-gap: 0.2rem;
+  }
+  .ac-row__who { grid-column: 3 / -1; }
+  .ac-row__what { grid-column: 3 / -1; white-space: normal; }
+}
+
+@media (max-width: 640px) {
+  .ac-row { grid-template-columns: 3.4rem 1.4rem minmax(0, 1fr); }
+  .ac-row__end { grid-column: 3 / -1; flex-wrap: wrap; }
 }

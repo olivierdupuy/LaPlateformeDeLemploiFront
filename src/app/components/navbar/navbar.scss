@@ -25,14 +25,82 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--nav-h);
+  height: var(--nav-now);
   gap: 1rem;
+  transition: height 0.22s var(--ease);
 }
 
 // ── Marque ──
 // Le verrou (symbole + mot-symbole) est defini dans styles.scss ;
 // ici on ne fixe que sa taille dans la barre.
+// Resserree, la barre reprend quatre-vingt-seize pixels a soixante-huit :
+// le verrou suit, sans quoi il toucherait les bords.
 .logo { --lock: 46px; }
+nav.scrolled .logo { --lock: 38px; }
+// Une variable personnalisee ne s'interpole pas : c'est l'image et le mot
+// qui portent la transition, chacun dans son unite.
+.brand-lockup img { transition: width 0.22s var(--ease), height 0.22s var(--ease), transform var(--t) var(--ease-spring); }
+.brand-lockup__word b, .brand-lockup__word span { transition: font-size 0.22s var(--ease); }
+
+// ── Recherche de barre ──
+// Cachee en haut de page (le hero porte deja son champ), elle se deplie
+// au defilement. `max-width` plutot que `display` : le champ garde sa
+// place dans le flux et l'apparition ne fait pas sauter les liens.
+.nav-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 1 340px;
+  min-width: 0;
+  max-width: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  background: var(--nuage);
+  border: 1px solid transparent;
+  border-radius: var(--r-full);
+  transition: max-width 0.28s var(--ease-out), opacity 0.18s var(--ease),
+              padding 0.28s var(--ease-out), border-color var(--t), background var(--t);
+
+  &.is-shown {
+    max-width: 340px;
+    padding: 0.3rem 0.3rem 0.3rem 0.85rem;
+    opacity: 1;
+  }
+
+  &:focus-within { background: var(--canvas); border-color: var(--bleu-300); box-shadow: 0 0 0 3px var(--bleu-tint); }
+
+  > i { font-size: 0.85rem; color: var(--muted); flex-shrink: 0; }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.85rem;
+    color: var(--ink);
+    padding: 0.34rem 0;
+    &::placeholder { color: var(--faint); }
+    &::-webkit-search-cancel-button { display: none; }
+  }
+
+  button {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: var(--bleu-600);
+    color: #fff;
+    font-size: 0.8rem;
+    transition: background var(--t);
+    &:hover { background: var(--bleu-700); }
+  }
+}
+
+@media (max-width: 1340px) {
+  .nav-search { display: none; }
+}
 
 // ── Liens centraux ──
 .nav-center {
@@ -334,6 +402,30 @@ nav {
   &:hover { background: var(--bleu-tint); }
 }
 
+// Bloc connexion / inscription du menu mobile
+.nav-auth-mobile {
+  display: none;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+
+  a { justify-content: center; padding: 0.85rem 1rem; }
+}
+
+// ── Voile du menu mobile ──
+.nav-veil {
+  position: fixed;
+  inset: var(--nav-now) 0 0;
+  background: rgba(0, 21, 36, 0.42);
+  backdrop-filter: blur(2px);
+  z-index: -1;
+  animation: fadeIn 0.18s ease both;
+}
+
+// Le verrou de defilement (body.nav-locked) est declare dans styles.scss :
+// <body> vit hors de ce composant, l'encapsulation ne l'atteindrait pas.
+
 @media (max-width: 1040px) {
   .mobile-toggle { display: flex; }
   .trigger-name { display: none; }
@@ -346,26 +438,47 @@ nav {
     flex-direction: column;
     align-items: stretch;
     gap: 0.15rem;
-    padding: 0.6rem 0.75rem 0.9rem;
+    padding: 0.75rem 0.85rem 1.1rem;
     background: var(--canvas);
     border-bottom: 1px solid var(--line);
-    box-shadow: var(--shadow-lg);
-    max-height: calc(100vh - var(--nav-h));
+    box-shadow: var(--shadow-xl);
+    max-height: calc(100dvh - var(--nav-now));
     overflow-y: auto;
+    overscroll-behavior: contain;
 
     &.open { display: flex; animation: dropIn 0.18s var(--ease-out) both; }
 
+    // Cible tactile pleine largeur : un lien de barre fait 0,5 rem de
+    // haut, ce qui se rate au pouce.
     a {
       width: 100%;
-      padding: 0.8rem 0.85rem;
-      font-size: 0.95rem;
-      &.active::after { left: 0.85rem; right: auto; width: 18px; bottom: 0.5rem; }
+      padding: 0.85rem 0.9rem;
+      font-size: 0.97rem;
+      border-radius: var(--r-sm);
+      &.active {
+        background: var(--bleu-100);
+        &::after { left: 0.9rem; right: auto; width: 18px; bottom: 0.55rem; }
+      }
     }
-    .nav-publish { margin: 0.4rem 0 0; justify-content: center; }
+    .nav-publish { margin: 0.5rem 0 0; justify-content: center; padding: 0.9rem; }
   }
 
   .notif-dropdown { width: min(340px, calc(100vw - 2rem)); right: -60px; }
   .user-dropdown { width: 268px; }
+}
+
+// ── Etroit ──
+// Sur un telephone, le verrou de marque, « Connexion », « Inscription » et
+// le bouton du menu ne tiennent pas ensemble : le dernier passait hors de
+// l'ecran et le site n'etait plus navigable. Le mot-symbole cede la place
+// au symbole seul, et les deux boutons descendent dans le menu.
+@media (max-width: 700px) {
+  .nav-auth-mobile { display: flex; }
+  .btn-login, .btn-register { display: none; }
+}
+
+@media (max-width: 430px) {
+  .brand-lockup__word { display: none; }
 }
 
 @media (max-width: 480px) {

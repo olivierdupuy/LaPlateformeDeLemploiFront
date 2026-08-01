@@ -82,6 +82,31 @@ export class JobForm implements OnInit {
     { key: 'apercu', label: 'Aperçu', icon: 'bi-eye' },
   ];
 
+  /**
+   * Ce qui manque a l'offre pour etre lisible dans une liste.
+   *
+   * Ce ne sont pas les champs obligatoires du formulaire — ceux-la sont
+   * deja verifies a chaque etape — mais ceux dont l'absence coute des
+   * candidatures. Le salaire en tete : c'est le premier filtre applique
+   * par les candidats, et une offre sans fourchette sort des recherches
+   * qui en posent une.
+   *
+   * Accesseur et non `computed` : `form` est un objet ordinaire, pas un
+   * signal. Un calcul memorise ne verrait jamais ses mutations et
+   * afficherait indefiniment la liste du premier rendu — « l'intitule
+   * manque » alors qu'on vient de le saisir.
+   */
+  get previewGaps(): { key: string; text: string }[] {
+    const f = this.form;
+    const out: { key: string; text: string }[] = [];
+    if (!f.title) out.push({ key: 'title', text: "L'intitulé du poste" });
+    if (!f.location) out.push({ key: 'loc', text: 'La ville — les candidats filtrent par lieu' });
+    if (!this.salaryPreview) out.push({ key: 'sal', text: 'Le salaire — une offre sans fourchette sort des recherches qui en posent une' });
+    if (!f.description || f.description.length < 120) out.push({ key: 'desc', text: 'Une description d\'au moins quelques lignes' });
+    if (!f.benefits) out.push({ key: 'ben', text: 'Les avantages — ils se comparent d\'une offre à l\'autre' });
+    return out;
+  }
+
   currentStep = computed(() => this.steps[this.stepIndex()].key);
   progress = computed(() => Math.round(((this.stepIndex() + 1) / this.steps.length) * 100));
   isLastStep = computed(() => this.stepIndex() === this.steps.length - 1);
@@ -348,7 +373,7 @@ export class JobForm implements OnInit {
               icon: 'info',
               title: 'Offre soumise a moderation',
               text: 'Votre offre a ete renvoyee en moderation. Elle sera visible apres validation par un administrateur.',
-              confirmButtonColor: '#1657c4',
+              confirmButtonColor: '#15616d',
             }).then(() => this.router.navigate(['/recruteur/offres']));
           } else {
             this.toastr.success(this.wasDraft() ? 'Offre publiée' : 'Offre mise à jour');
@@ -365,8 +390,8 @@ export class JobForm implements OnInit {
             Swal.fire({
               icon: 'info',
               title: 'Offre soumise a moderation',
-              html: '<p>Votre offre a bien ete envoyee.</p><p>Elle sera <strong>visible par les candidats</strong> une fois validee par un administrateur.</p><p style="margin-top:8px;font-size:13px;color:#6c6e63">Vous serez notifie lorsque votre offre sera approuvee.</p>',
-              confirmButtonColor: '#1657c4',
+              html: '<p>Votre offre a bien ete envoyee.</p><p>Elle sera <strong>visible par les candidats</strong> une fois validee par un administrateur.</p><p style="margin-top:8px;font-size:13px;color:#577177">Vous serez notifie lorsque votre offre sera approuvee.</p>',
+              confirmButtonColor: '#15616d',
               confirmButtonText: 'Compris',
             }).then(() => this.router.navigate(['/recruteur/offres']));
           } else {
@@ -374,7 +399,7 @@ export class JobForm implements OnInit {
               icon: 'success',
               title: 'Offre publiée !',
               text: 'Votre offre est maintenant visible par les candidats.',
-              confirmButtonColor: '#1657c4',
+              confirmButtonColor: '#15616d',
             }).then(() => this.router.navigate(['/offres', job.id]));
           }
         },

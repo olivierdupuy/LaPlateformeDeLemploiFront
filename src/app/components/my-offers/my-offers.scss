@@ -372,3 +372,21 @@
   &.me { border-color: var(--brand); background: var(--brand-tint); color: var(--brand-700); }
 }
 .tm-count { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; background: var(--canvas); border-radius: var(--r-full); padding: 0.05rem 0.4rem; min-width: 18px; text-align: center; }
+
+// ── Barre d'outils ──
+// Recherche et tri : le filtre par statut suffit à trois offres, plus à
+// quarante.
+.mo-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+// Le taux de conversion se distingue des deux comptes bruts qui le
+// précèdent : c'est une mesure, pas un total.
+.oc-stat--conv {
+  .oc-stat-val { color: var(--bleu-700); }
+  i { color: var(--bleu-500); }
+}

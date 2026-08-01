@@ -39,7 +39,7 @@
             <div class="ms-empty">
               <div class="mse-circle"><i class="bi bi-chat-dots"></i></div>
               <p>Aucune conversation</p>
-              <span>Demarrez une conversation pour échanger</span>
+              <span>Démarrez une conversation pour échanger</span>
               <button class="ms-empty-btn" (click)="openNewConversation()">
                 <i class="bi bi-plus-lg"></i> Nouvelle conversation
               </button>
@@ -102,7 +102,7 @@
               } @empty {
                 <div class="mc-no-msg">
                   <div class="mcp-circle"><i class="bi bi-send"></i></div>
-                  <p>Demarrez la conversation en envoyant un premier message</p>
+                  <p>Démarrez la conversation en envoyant un premier message</p>
                 </div>
               }
             }
@@ -117,18 +117,41 @@
           }
 
           <!-- Input -->
-          <div class="mc-input">
-            <textarea
-              placeholder="Ecrivez votre message..."
-              [ngModel]="newMessage()"
-              (ngModelChange)="newMessage.set($event)"
-              (keydown)="onKeyDown($event)"
-              (input)="onInput()"
-              rows="1"
-            ></textarea>
-            <button class="mc-send" (click)="sendMessage()" [disabled]="!newMessage().trim()">
-              <i class="bi bi-send-fill"></i>
-            </button>
+          <div class="mc-compose">
+            <!-- Modèles de messages : quatre routes existaient côté serveur
+                 sans qu'aucun écran ne les appelle. Un recruteur écrit
+                 pourtant vingt fois le même accusé de réception. -->
+            @if (templatesOpen()) {
+              <div class="mc-templates">
+                <app-message-templates
+                  (insert)="applyTemplate($event)"
+                  (close)="templatesOpen.set(false)" />
+              </div>
+            }
+
+            <div class="mc-input">
+              @if (canUseTemplates) {
+                <button class="mc-tpl" (click)="templatesOpen.set(!templatesOpen())"
+                        [class.is-on]="templatesOpen()"
+                        [attr.aria-expanded]="templatesOpen()"
+                        title="Insérer un modèle de message"
+                        aria-label="Insérer un modèle de message">
+                  <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+                </button>
+              }
+              <textarea
+                placeholder="Écrivez votre message…"
+                [ngModel]="newMessage()"
+                (ngModelChange)="newMessage.set($event)"
+                (keydown)="onKeyDown($event)"
+                (input)="onInput()"
+                rows="1"
+              ></textarea>
+              <button class="mc-send" (click)="sendMessage()" [disabled]="!newMessage().trim()"
+                      aria-label="Envoyer le message">
+                <i class="bi bi-send-fill" aria-hidden="true"></i>
+              </button>
+            </div>
           </div>
 
         } @else {

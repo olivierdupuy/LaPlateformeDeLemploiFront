@@ -54,8 +54,8 @@ export class AdminSettings implements OnInit {
 
   settingLabel(key: string): string {
     const map: Record<string, string> = {
-      maintenance_mode: 'Mode maintenance', default_offer_duration: 'Duree des offres (jours)',
-      max_applications_per_candidate: 'Max candidatures par candidat', require_moderation: 'Moderation obligatoire',
+      maintenance_mode: 'Mode maintenance', default_offer_duration: 'Durée des offres (jours)',
+      max_applications_per_candidate: 'Max. candidatures par candidat', require_moderation: 'Modération obligatoire',
       welcome_message: "Message d'accueil", allow_registration: 'Inscriptions ouvertes',
       contact_email: 'Email de contact',
     };

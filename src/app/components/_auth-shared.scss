@@ -46,7 +46,7 @@
   top: -70px;
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(46, 116, 224, 0.5), transparent 70%);
+  background: radial-gradient(circle, rgba(58, 128, 140, 0.5), transparent 70%);
   pointer-events: none;
 }
 
@@ -99,6 +99,69 @@
   max-width: 36ch;
 }
 
+// ── Jauge de solidite du mot de passe ──
+// Quatre segments : la couleur seule ne dit rien, c'est le remplissage
+// qui porte l'echelle, et le libelle la nomme.
+.pw-meter {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.pw-bars {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+
+  span {
+    flex: 1;
+    height: 4px;
+    border-radius: var(--r-full);
+    background: var(--line);
+    transition: background var(--t);
+  }
+}
+
+.pw-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+// Un mot de passe trop court est une erreur, il porte donc le rouge de
+// danger ; au-dessus, l'echelle reste dans le bleu de la marque.
+.pw-meter[data-score='1'] {
+  .pw-bars span.on { background: var(--danger); }
+  .pw-label { color: var(--danger); }
+}
+.pw-meter[data-score='2'] .pw-bars span.on { background: var(--bleu-400); }
+.pw-meter[data-score='3'] .pw-bars span.on { background: var(--bleu-500); }
+.pw-meter[data-score='4'] {
+  .pw-bars span.on { background: var(--bleu-600); }
+  .pw-label { color: var(--bleu-700); }
+}
+
+// Rappel de la destination apres connexion
+.auth-resume {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--bleu-100);
+  border-radius: var(--r-sm);
+  font-size: 0.83rem;
+  color: var(--bleu-800);
+
+  i { color: var(--bleu-600); flex-shrink: 0; }
+  strong { font-weight: 700; }
+}
+
 .auth-perks {
   list-style: none;
   display: flex;
@@ -119,8 +182,10 @@
       width: 18px;
       height: 18px;
       border-radius: var(--r-full);
-      background: rgba(240, 161, 27, 0.18);
-      color: var(--ambre);
+      // L'ambre a disparu avec l'ancienne palette : la pastille restait
+      // teintee orange et la coche, devenue bleue, s'y voyait a peine.
+      background: rgba(150, 196, 205, 0.22);
+      color: var(--bleu-300);
       display: inline-flex;
       align-items: center;
       justify-content: center;

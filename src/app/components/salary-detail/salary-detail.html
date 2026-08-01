@@ -1,18 +1,27 @@
+<!-- Bandeau d'en-tête, comme toutes les pages publiques : la fiche
+     commençait à froid sur le sol, sans rattachement au reste du site. -->
+<section class="page-hero sd-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Fil d'Ariane">
+      <a routerLink="/salaires">Salaires</a>
+      <span class="sep" aria-hidden="true">/</span>
+      <span aria-current="page">{{ estimate()?.title || title }}</span>
+    </nav>
+    <span class="eyebrow">Estimation de salaire</span>
+    <h1>{{ estimate()?.title || title }}</h1>
+    @if (estimate(); as e) {
+      @if (e.count > 0) {
+        <p class="sd-count u-mono">Basé sur {{ e.count }} donnée{{ e.count > 1 ? 's' : '' }} — offres publiées et salaires partagés</p>
+      }
+    }
+  </div>
+</section>
+
 <section class="sd-page">
   <div class="container">
-    <a routerLink="/salaires" class="back-link"><i class="bi bi-arrow-left"></i> Salaires</a>
-
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
     } @else if (estimate(); as e) {
-      <header class="sd-header animate-in">
-        <span class="eyebrow">Estimation de salaire</span>
-        <h1>{{ e.title }}</h1>
-        @if (e.count > 0) {
-          <p class="sd-count u-mono">Basé sur {{ e.count }} donnée{{ e.count > 1 ? 's' : '' }} (offres + contributions)</p>
-        }
-      </header>
-
       @if (e.count === 0) {
         <div class="empty-box">
           <i class="bi bi-cash-stack"></i>
@@ -72,9 +81,17 @@
           }
         </div>
 
-        <a [routerLink]="['/offres']" [queryParams]="{ search: e.title }" class="link-teal sd-jobs-link">
-          Voir les offres « {{ e.title }} » <i class="bi bi-arrow-right"></i>
-        </a>
+        <!-- Un chiffre n'est utile que s'il mène quelque part : la page se
+             termine sur les offres correspondantes, pas sur un lien discret. -->
+        <div class="sd-cta">
+          <div>
+            <h2>Ces salaires vous conviennent ?</h2>
+            <p>Les offres publiées pour ce métier sont à un clic.</p>
+          </div>
+          <a [routerLink]="['/offres']" [queryParams]="{ search: e.title }" class="btn-primary btn-lg">
+            <i class="bi bi-search" aria-hidden="true"></i> Voir les offres « {{ e.title }} »
+          </a>
+        </div>
       }
     }
   </div>

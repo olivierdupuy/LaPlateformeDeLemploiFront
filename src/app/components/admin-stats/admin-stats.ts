@@ -169,21 +169,45 @@ export class AdminStats implements OnInit, OnDestroy {
 
   private timeline = computed<any[]>(() => this.data()?.activityTimeline ?? []);
 
+  /**
+   * Les offres a part, les personnes ensemble.
+   *
+   * Les trois series partageaient un axe. Les offres arrivent par imports
+   * de masse — plus de cent mille en une journee — quand les candidatures
+   * et les inscriptions se comptent par unites : sur une echelle lineaire
+   * commune, seule la courbe des offres se voyait, les deux autres etaient
+   * un trait plat sur le zero.
+   *
+   * `chart-presets` interdit le double axe et prescrit ce remede : deux
+   * mesures d'ordre different font deux graphiques.
+   */
+  offresConfig = computed(() => {
+    const t = this.timeline();
+    if (!t.length) return null;
+    return lines(
+      t.map((j) => j.label),
+      [{ label: 'Offres publiées', values: t.map((j) => j.offres) }],
+      { drill: drilldown(this.router, () => to(['/admin/offres']), { nearest: true }) },
+    );
+  });
+
+  offresRows = computed<VizRow[]>(() =>
+    this.timeline().slice().reverse().map((j) => ({ label: j.label, value: j.offres })),
+  );
+
   activiteConfig = computed(() => {
     const t = this.timeline();
     if (!t.length) return null;
     return lines(
       t.map((j) => j.label),
       [
-        { label: 'Offres publiées', values: t.map((j) => j.offres) },
         { label: 'Candidatures', values: t.map((j) => j.candidatures) },
         { label: 'Inscriptions', values: t.map((j) => j.inscriptions) },
       ],
       {
         drill: drilldown(
           this.router,
-          (_i, _label, ds) =>
-            to([ds === 0 ? '/admin/offres' : ds === 1 ? '/admin/candidatures' : '/admin/utilisateurs']),
+          (_i, _label, ds) => to([ds === 0 ? '/admin/candidatures' : '/admin/utilisateurs']),
           { nearest: true },
         ),
       },
@@ -196,8 +220,8 @@ export class AdminStats implements OnInit, OnDestroy {
       .reverse()
       .map((j) => ({
         label: j.label,
-        value: j.offres + j.candidatures + j.inscriptions,
-        note: `${j.offres} offres · ${j.candidatures} cand. · ${j.inscriptions} inscr.`,
+        value: j.candidatures + j.inscriptions,
+        note: `${j.candidatures} cand. · ${j.inscriptions} inscr.`,
       })),
   );
 

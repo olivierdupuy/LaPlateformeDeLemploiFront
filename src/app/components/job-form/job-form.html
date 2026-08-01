@@ -12,26 +12,38 @@
   </div>
 </app-console-shell>
 
-<!-- ═══ PROGRESSION ═══ -->
-<section class="jf-stepper">
-  <div class="container">
-    <div class="jf-progress-bar"><span [style.width.%]="progress()"></span></div>
-    <div class="stepper animate-in" style="animation-delay:.06s">
-      @for (s of steps; track s.key; let i = $index) {
-        <button type="button" class="step" [class.active]="i === stepIndex()" [class.done]="i < stepIndex()" (click)="goStep(i)">
-          <span class="step-num">
-            @if (i < stepIndex()) { <i class="bi bi-check-lg"></i> } @else { {{ i + 1 }} }
-          </span>
-          <span class="step-label">{{ s.label }}</span>
-        </button>
-      }
-    </div>
-  </div>
-</section>
-
-<!-- ═══ FORMULAIRE ═══ -->
+<!-- ═══ FORMULAIRE ═══
+     Trois colonnes : le chemin à gauche, le formulaire au centre, l'aperçu
+     à droite. Les sept étapes étaient une rangée centrée sur 760 px qui
+     repassait à la ligne au bout de cinq — on ne voyait donc jamais le
+     parcours entier, sur un gabarit qui avait pourtant 1650 px à offrir. -->
 <section class="jf-content">
-  <div class="container">
+  <div class="container jf-layout">
+
+    <!-- Chemin des étapes, toujours visible -->
+    <nav class="jf-rail animate-in" aria-label="Étapes de la publication">
+      <div class="jf-rail__top">
+        <span class="jf-rail__rank u-mono">{{ stepIndex() + 1 }} / {{ steps.length }}</span>
+        <div class="jf-progress-bar"><span [style.width.%]="progress()"></span></div>
+      </div>
+
+      <ol class="jf-rail__list">
+        @for (s of steps; track s.key; let i = $index) {
+          <li>
+            <button type="button" class="jf-rail__step"
+                    [class.active]="i === stepIndex()" [class.done]="i < stepIndex()"
+                    [attr.aria-current]="i === stepIndex() ? 'step' : null"
+                    (click)="goStep(i)">
+              <span class="jf-rail__n">
+                @if (i < stepIndex()) { <i class="bi bi-check-lg" aria-hidden="true"></i> } @else { {{ i + 1 }} }
+              </span>
+              <span class="jf-rail__l">{{ s.label }}</span>
+            </button>
+          </li>
+        }
+      </ol>
+    </nav>
+
     <div class="jf-form animate-in" style="animation-delay:.1s">
 
       @if (errors().length) {
@@ -493,5 +505,72 @@
         </div>
       </div>
     </div>
+
+    <!-- ═══ APERÇU EN DIRECT ═══
+         Le formulaire occupait 800 px au milieu d'un gabarit de 1650. La
+         place gagnée sert à montrer ce que le candidat verra : c'est cette
+         carte, dans une liste de résultats, qui décide s'il clique — et
+         l'écrire à l'aveugle est la première cause d'une offre qui ne
+         reçoit rien. -->
+    <aside class="jf-preview" aria-label="Aperçu de votre offre">
+      <div class="jfp-head">
+        <h2>Vu par les candidats</h2>
+        <span class="jfp-hint">Dans la liste des offres</span>
+      </div>
+
+      <div class="jfp-card">
+        <div class="jfp-title">
+          {{ form.title || 'Intitulé du poste' }}
+        </div>
+
+        <div class="jfp-company">
+          <span class="jfp-av">{{ (form.company || '?').charAt(0) }}</span>
+          <span class="jfp-cmeta">
+            <span class="jfp-cname">{{ form.company || 'Votre entreprise' }}</span>
+            <span class="jfp-loc">
+              <i class="bi bi-geo-alt" aria-hidden="true"></i>
+              {{ form.location || 'Ville' }}
+              @if (form.isRemote) { <span class="remote-pill">Télétravail</span> }
+            </span>
+          </span>
+        </div>
+
+        @if (salaryPreview) {
+          <div class="jfp-salary"><i class="bi bi-cash-stack" aria-hidden="true"></i> {{ salaryPreview }}</div>
+        }
+
+        <div class="jfp-badges">
+          <span class="badge badge-purple">{{ form.contractType }}</span>
+          @if (form.workSchedule) { <span class="badge badge-blue">{{ form.workSchedule }}</span> }
+          @if (form.isUrgent) { <span class="badge badge-red"><i class="bi bi-lightning-fill"></i> Urgent</span> }
+          @if (form.easyApply) { <span class="badge badge-easy"><i class="bi bi-lightning-charge-fill"></i> Candidature simplifiée</span> }
+        </div>
+
+        <p class="jfp-desc">
+          {{ form.description || 'La description apparaîtra ici. Les deux premières lignes sont les seules que le candidat lit dans la liste.' }}
+        </p>
+
+        <div class="jfp-foot">
+          <span class="u-mono">Aujourd'hui</span>
+        </div>
+      </div>
+
+      <!-- Ce qui manque encore, et pourquoi ça compte -->
+      @if (previewGaps.length) {
+        <div class="jfp-gaps">
+          <h3>Ce qui manque</h3>
+          <ul>
+            @for (g of previewGaps; track g.key) {
+              <li><i class="bi bi-dash-circle" aria-hidden="true"></i> {{ g.text }}</li>
+            }
+          </ul>
+        </div>
+      } @else {
+        <p class="jfp-ok">
+          <i class="bi bi-check-circle" aria-hidden="true"></i>
+          L'essentiel est renseigné.
+        </p>
+      }
+    </aside>
   </div>
 </section>

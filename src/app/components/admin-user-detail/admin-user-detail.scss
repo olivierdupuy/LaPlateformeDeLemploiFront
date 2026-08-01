@@ -34,6 +34,23 @@
   gap: 0.4rem;
 }
 
+// Compte dormant : un constat, pas une faute. Il se distingue des
+// pastilles de rôle par son contour discontinu — la ligne n'ajoute pas
+// une couleur de plus, elle change de trait.
+.aud-dormant {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  i { font-size: 0.68rem; }
+}
+
 .aud-id__line {
   display: flex;
   align-items: center;

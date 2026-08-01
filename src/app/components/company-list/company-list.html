@@ -30,7 +30,7 @@
       </div>
     } @else {
       <div class="results-info animate-in">
-        <span class="ri-count u-mono">{{ total() }}</span>
+        <span class="ri-count u-mono">{{ total() | number }}</span>
         <span class="ri-label">entreprise{{ total() > 1 ? 's' : '' }}</span>
       </div>
 

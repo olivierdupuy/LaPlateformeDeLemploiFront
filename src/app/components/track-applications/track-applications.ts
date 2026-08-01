@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ApplicationService } from '../../services/application';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
@@ -28,7 +29,7 @@ type Tab = 'saved' | 'sent' | 'interviews' | 'archived';
  */
 @Component({
   selector: 'app-track-applications',
-  imports: [RouterLink, DatePipe, ConsoleShell],
+  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell],
   templateUrl: './track-applications.html',
   styleUrl: './track-applications.scss',
 })
@@ -78,6 +79,69 @@ export class TrackApplications implements OnInit {
       rejected: apps.filter((a) => a.status === 'Rejected').length,
     };
   });
+
+  /* ── Filtre et recherche ──
+     Les compteurs de statut etaient du texte inerte : « 2 en attente »
+     indiquait un chiffre sans donner le moyen de voir lesquelles. Ils
+     deviennent des filtres, et un champ permet de retrouver une
+     candidature par le poste ou l'employeur — passe vingt candidatures,
+     parcourir la liste ne marche plus. */
+  statusFilter = signal<'' | 'Pending' | 'Reviewed' | 'Accepted' | 'Rejected'>('');
+  query = signal('');
+
+  filtered = computed(() => {
+    const f = this.statusFilter();
+    const q = this.query().trim().toLowerCase();
+    return this.active().filter((a) => {
+      if (f && a.status !== f) return false;
+      if (!q) return true;
+      const hay = `${a.jobOffer?.title ?? ''} ${a.jobOffer?.company ?? ''}`.toLowerCase();
+      return hay.includes(q);
+    });
+  });
+
+  toggleStatus(s: '' | 'Pending' | 'Reviewed' | 'Accepted' | 'Rejected') {
+    this.statusFilter.update((cur) => (cur === s ? '' : s));
+  }
+
+  /**
+   * Ou en est une candidature, sur les quatre etapes du parcours.
+   *
+   * La ligne n'affichait qu'une pastille de statut : « En attente »
+   * pendant trois semaines ne dit pas si le recruteur a seulement ouvert
+   * le dossier. Le chemin, lui, montre ce qui a ete franchi et ce qui
+   * reste — et `reviewedAt`, que l'API renvoyait deja, servait a peine.
+   */
+  stages(app: Application): { label: string; done: boolean; current: boolean }[] {
+    const seen = !!app.reviewedAt || app.status !== 'Pending';
+    const answered = app.status === 'Accepted' || app.status === 'Rejected';
+    const itw = app.status === 'Accepted';
+    const steps = [
+      { label: 'Envoyée', done: true },
+      { label: 'Consultée', done: seen },
+      { label: 'Entretien', done: itw },
+      { label: 'Réponse', done: answered },
+    ];
+    // L'etape courante est la premiere non franchie : c'est la seule que
+    // le candidat attend.
+    const idx = steps.findIndex((s) => !s.done);
+    return steps.map((s, i) => ({ ...s, current: i === idx }));
+  }
+
+  /** « il y a 5 jours » — le temps ecoule est l'information qu'on cherche. */
+  sinceLabel(date: string): string {
+    const d = this.daysSince(date);
+    if (d <= 0) return "aujourd'hui";
+    if (d === 1) return 'hier';
+    if (d < 7) return `il y a ${d} jours`;
+    if (d < 31) return `il y a ${Math.floor(d / 7)} sem.`;
+    return `il y a ${Math.floor(d / 30)} mois`;
+  }
+
+  /** Une candidature qui dort depuis plus de deux semaines se signale. */
+  isStale(app: Application): boolean {
+    return app.status === 'Pending' && this.daysSince(app.appliedAt) >= 15;
+  }
 
   ngOnInit() {
     const forced = this.route.snapshot.data['tab'] as Tab | undefined;

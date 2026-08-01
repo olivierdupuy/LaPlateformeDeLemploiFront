@@ -1,58 +1,20 @@
-// ═══════════════════════════════════
-//  ADMIN ANNOUNCEMENTS — Clean SaaS
-// ═══════════════════════════════════
+// ═══════════════════════════════════════════════
+//  ANNONCES DE LA PLATEFORME
+//  Deux gestes cohabitent ici : une bannière, qui s'affiche et se retire,
+//  et une notification, qui part et ne revient pas. Toute la mise en forme
+//  sert à ce que le second ne se confonde jamais avec le premier.
+// ═══════════════════════════════════════════════
 
-// ── Header ──
-// ── Export card ──
-.export-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 1.4rem 1.6rem;
-  margin-bottom: 2.5rem;
-  flex-wrap: wrap;
-  &:hover { transform: none; box-shadow: none; border-color: var(--line); }
-}
-
-.export-head { display: flex; flex-direction: column; gap: 0.2rem; }
-
-.export-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  i { color: var(--brand); font-size: 0.95rem; }
-}
-
-.export-note { font-size: 0.82rem; color: var(--muted); }
-
-.export-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-
-// ── Section head ──
-.section-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-
-  .section-title {
-    font-size: clamp(1.2rem, 3vw, 1.45rem);
-    i { color: var(--brand); font-size: 0.95em; }
-  }
-  .section-sub { margin-top: 0.3rem; }
-}
-
-// ── Form card ──
-.form-card {
-  padding: 1.6rem;
+// ── Éditeur : saisie à gauche, conséquence à droite ──
+.ann-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+  gap: 1.1rem;
   margin-bottom: 2rem;
+}
+
+.ann-form {
+  padding: 1.5rem 1.6rem;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
@@ -65,28 +27,242 @@
   gap: 1.1rem;
 }
 
-.check-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--ink-soft);
-  cursor: pointer;
-  user-select: none;
+.form-group { position: relative; }
 
-  input[type='checkbox'] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--brand);
-    cursor: pointer;
+// Le compteur vit dans le coin du champ : la limite se voit en écrivant,
+// pas au moment où la saisie se bloque.
+.ann-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  &.is-full { color: var(--danger); font-weight: 600; }
+}
+
+.ann-opt {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ann-error {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: -0.5rem;
+  font-size: 0.8rem;
+  color: var(--danger);
+}
+
+// ── Mode de diffusion ──
+.ann-mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  border: 0;
+  padding: 0;
+
+  legend {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
   }
 }
 
-.form-foot { display: flex; justify-content: flex-end; margin-top: 0.2rem; }
+.ann-mode__opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--t), background var(--t);
 
-// ── Announcements list ──
-.ann-list { display: flex; flex-direction: column; gap: 0.85rem; }
+  input { margin-top: 0.15rem; accent-color: var(--brand); flex-shrink: 0; }
+
+  &:hover { border-color: var(--line-strong); }
+  &.is-on { border-color: var(--bleu-600); background: var(--bleu-tint); }
+}
+
+.ann-mode__txt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+
+  strong {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  small { font-size: 0.75rem; line-height: 1.45; color: var(--muted); }
+  em { font-style: normal; font-weight: 600; color: var(--danger); }
+}
+
+// ── Colonne d'aperçu ──
+.ann-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-self: start;
+  position: sticky;
+  top: calc(var(--nav-now) + 1.5rem);
+}
+
+.ann-preview,
+.ann-recap,
+.ann-confirm {
+  padding: 1rem 1.1rem;
+  &:hover { transform: none; box-shadow: none; border-color: var(--line); }
+}
+
+.ann-preview__eyebrow {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ann-preview__note {
+  margin-top: 0.6rem;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+// La bannière d'aperçu reprend la mise en forme du bandeau public : ce
+// que l'on voit ici est ce que les visiteurs verront.
+.pv-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.62rem 0.8rem;
+  border-radius: var(--r-sm);
+  font-size: 0.78rem;
+  line-height: 1.45;
+
+  &__txt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    i { flex-shrink: 0; }
+    strong { font-weight: 700; margin-right: 0.25rem; }
+  }
+  &__x { flex-shrink: 0; opacity: 0.55; font-size: 0.7rem; }
+}
+
+// Les quatre natures, sur l'échelle d'état de la palette. Les fonds
+// restent des aplats de la gamme ; seule l'encre porte la gravité.
+.pv-info    { background: var(--bleu-100);   color: #123c44; }
+.pv-warning { background: var(--rouge-100);  color: #6b4a00; }
+.pv-success { background: var(--nuage-2);    color: #1d5c3a; }
+.pv-danger  { background: var(--danger-100); color: #8a2a22; }
+
+.pv-notif {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--bleu-100);
+
+  i { font-size: 0.95rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+  &__txt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    strong { font-weight: 700; color: var(--ink); }
+    span { color: var(--ink-soft); }
+  }
+}
+
+// ── Récapitulatif ──
+.ann-recap {
+  dl { display: flex; flex-direction: column; gap: 0.55rem; }
+  dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; }
+
+  dt {
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  dd {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    text-align: right;
+    strong { color: var(--ink); font-family: var(--font-mono); }
+  }
+
+  &.is-final { border-color: color-mix(in oklab, var(--danger) 30%, var(--line)); }
+}
+
+.ann-rev { color: var(--ink-soft); }
+
+.ann-irrev {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  color: var(--danger);
+  i { font-size: 0.72rem; }
+}
+
+// ── Confirmation d'envoi ──
+.ann-confirm {
+  border-color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 5%, var(--canvas));
+
+  p {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    i { color: var(--danger); margin-right: 0.3rem; }
+    strong { font-family: var(--font-mono); color: var(--ink); }
+  }
+  &__acts {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+}
+
+.ann-go {
+  width: 100%;
+  justify-content: center;
+}
+
+// ── Liste des annonces ──
+.ann-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 2.5rem;
+}
 
 .ann-item {
   display: flex;
@@ -119,9 +295,43 @@
   }
 }
 
-.ann-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.ann-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.7rem;
+}
 
-.badge-gray { background: var(--paper-3); color: var(--muted); }
+// Mode et cible sont des faits, l'état est un statut : les premiers
+// restent en contour, le second porte sa pastille de couleur.
+.ann-kind,
+.ann-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.08rem 0.42rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.ann-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.ann-state__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 
 .ann-msg {
   font-size: 0.9rem;
@@ -136,8 +346,22 @@
   letter-spacing: 0.02em;
 }
 
-// ── Icon actions ──
-.ann-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+// ── Actions de ligne ──
+.ann-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+// La confirmation reste sur la ligne : une boîte de dialogue recouvrirait
+// justement l'annonce qu'on s'apprête à supprimer.
+.ann-sure {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--danger);
+  white-space: nowrap;
+}
 
 .btn-icon {
   width: 36px;
@@ -156,21 +380,66 @@
 }
 
 .btn-icon-red {
-  &:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+  &:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-100); }
+
+  // Armé : le second clic supprime, la couleur le dit avant le geste.
+  &.is-armed {
+    border-color: var(--danger);
+    background: var(--danger);
+    color: #fff;
+    &:hover { background: var(--danger); color: #fff; }
+  }
 }
 
-// ── Empty ──
+// ── Exports ──
+.export-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem 1.6rem;
+  flex-wrap: wrap;
+  background: transparent;
+  border-style: dashed;
+  &:hover { transform: none; box-shadow: none; border-color: var(--line); }
+}
+
+.export-head { display: flex; flex-direction: column; gap: 0.2rem; }
+
+.export-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  i { color: var(--brand); font-size: 0.95rem; }
+}
+
+.export-note { font-size: 0.82rem; color: var(--muted); }
+
+.export-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+// ── Vide ──
 .empty-box {
+  margin-bottom: 2.5rem;
   &.card:hover { transform: none; box-shadow: none; border-color: var(--line); }
   i { color: var(--faint); }
 }
 
-// ── Responsive ──
+// ── Adaptation ──
+@media (max-width: 1080px) {
+  .ann-editor { grid-template-columns: 1fr; }
+  .ann-side { position: static; }
+}
+
 @media (max-width: 640px) {
   .export-bar { flex-direction: column; align-items: stretch; }
-  .export-btns { .btn-secondary { flex: 1; justify-content: center; } }
-  .form-grid { grid-template-columns: 1fr; }
-  .section-head { align-items: flex-start; }
+  .export-btns .btn-secondary { flex: 1; justify-content: center; }
+  .form-grid,
+  .ann-mode { grid-template-columns: 1fr; }
   .ann-item { flex-wrap: wrap; }
   .ann-actions { width: 100%; justify-content: flex-end; }
 }

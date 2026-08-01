@@ -65,6 +65,27 @@
   white-space: nowrap;
 }
 
+// Ancienneté du dossier. Un dossier clos porte sa durée en gris — c'est
+// une information d'archive ; un dossier ouvert la porte en encre, et
+// passé le délai de courtoisie, en rouge avec sa pastille.
+.aap-age {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: var(--ink-soft);
+  white-space: nowrap;
+
+  &.is-closed { color: var(--muted); }
+
+  &.is-late {
+    color: var(--danger);
+    font-weight: 600;
+    i { font-size: 0.76rem; }
+  }
+}
+
 .aap-track {
   display: flex;
   align-items: center;

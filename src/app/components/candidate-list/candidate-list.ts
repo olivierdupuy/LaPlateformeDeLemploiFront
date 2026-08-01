@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RecruiterFeaturesService } from '../../services/recruiter-features.service';
 import { CandidatePublicProfile } from '../../models/auth.model';
@@ -14,6 +14,7 @@ import { ConsoleShell } from '../console-shell/console-shell';
 })
 export class CandidateList implements OnInit {
   private recruiterService = inject(RecruiterFeaturesService);
+  private route = inject(ActivatedRoute);
 
   candidates = signal<any[]>([]);
   loading = signal(true);
@@ -29,7 +30,30 @@ export class CandidateList implements OnInit {
   sort = '';
   showFilters = false;
 
-  ngOnInit() { this.loadCandidates(); }
+  /**
+   * Les criteres se lisent dans l'adresse.
+   *
+   * Sans cela, une competence cliquee sur une fiche candidat ne pouvait
+   * pas ouvrir le vivier filtre dessus, et une recherche du vivier
+   * n'etait ni partageable ni retrouvable par le retour arriere.
+   */
+  ngOnInit() {
+    const p = this.route.snapshot.queryParamMap;
+    this.search = p.get('q') ?? '';
+    this.skills = p.get('skills') ?? '';
+    this.city = p.get('city') ?? '';
+    this.education = p.get('education') ?? '';
+    this.sort = p.get('sort') ?? '';
+    const min = p.get('minExperience');
+    const max = p.get('maxExperience');
+    if (min) this.minExperience = +min;
+    if (max) this.maxExperience = +max;
+    // Un critere venu de l'adresse doit se voir : le repli s'ouvre s'il
+    // porte autre chose qu'une simple recherche plein texte.
+    if (this.skills || this.city || this.education || min || max) this.showFilters = true;
+
+    this.loadCandidates();
+  }
 
   loadCandidates() {
     this.loading.set(true);
@@ -56,5 +80,36 @@ export class CandidateList implements OnInit {
 
   getInitials(c: any): string {
     return (c.firstName?.charAt(0) || '') + (c.lastName?.charAt(0) || '');
+  }
+
+  /**
+   * Rappel des criteres actifs.
+   *
+   * Les filtres vivent dans un repli : une fois referme, rien ne disait
+   * plus qu'une recherche etait restreinte. On croyait le vivier vide
+   * alors qu'on l'avait borne a « Lyon, 5 ans minimum » trois minutes
+   * plus tot.
+   */
+  get activeCriteria(): { key: string; label: string; value: string }[] {
+    const out: { key: string; label: string; value: string }[] = [];
+    if (this.search) out.push({ key: 'search', label: 'Recherche', value: this.search });
+    if (this.skills) out.push({ key: 'skills', label: 'Compétences', value: this.skills });
+    if (this.city) out.push({ key: 'city', label: 'Ville', value: this.city });
+    if (this.education) out.push({ key: 'education', label: 'Formation', value: this.education });
+    if (this.minExperience != null) out.push({ key: 'minExperience', label: 'Exp. min', value: `${this.minExperience} an(s)` });
+    if (this.maxExperience != null) out.push({ key: 'maxExperience', label: 'Exp. max', value: `${this.maxExperience} an(s)` });
+    return out;
+  }
+
+  removeCriterion(key: string) {
+    switch (key) {
+      case 'search': this.search = ''; break;
+      case 'skills': this.skills = ''; break;
+      case 'city': this.city = ''; break;
+      case 'education': this.education = ''; break;
+      case 'minExperience': this.minExperience = undefined; break;
+      case 'maxExperience': this.maxExperience = undefined; break;
+    }
+    this.loadCandidates();
   }
 }

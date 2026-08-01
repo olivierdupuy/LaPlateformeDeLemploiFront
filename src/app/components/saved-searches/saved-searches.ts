@@ -48,7 +48,7 @@ export class SavedSearches implements OnInit {
     this.candidateService.toggleSearchAlert(s.id).subscribe({
       next: (res) => {
         s.alertEnabled = res.alertEnabled;
-        this.toastr.success(res.alertEnabled ? 'Alerte activee' : 'Alerte desactivee');
+        this.toastr.success(res.alertEnabled ? 'Alerte activée' : 'Alerte désactivée');
       },
       error: () => this.toastr.error('Erreur'),
     });

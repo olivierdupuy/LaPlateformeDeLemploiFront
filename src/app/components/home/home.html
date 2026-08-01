@@ -50,12 +50,21 @@
         <button type="submit" class="hs-submit">Rechercher</button>
       </form>
 
-      @if (categories().length) {
+      <!-- Les métiers les plus pourvus, pas les premiers de l'alphabet :
+           `categories()` renvoyait la liste triée par nom, et le hero
+           s'ouvrait sur trois rangées d'« Accompagnant / Accompagnante des
+           élèves en situation de handicap (AESH) ». Le compte à côté du
+           libellé dit ce que vaut la piste. -->
+      @if (topCategories().length) {
         <div class="hero-cats">
-          <span class="cats-label">Recherches fréquentes</span>
+          <span class="cats-label">Métiers qui recrutent</span>
           <div class="cats-list">
-            @for (cat of categories().slice(0, 7); track cat) {
-              <a [routerLink]="['/offres']" [queryParams]="{ category: cat }" class="cat-chip">{{ cat }}</a>
+            @for (f of topCategories().slice(0, 6); track f.label) {
+              <a [routerLink]="['/offres']" [queryParams]="{ category: f.label }" class="cat-chip"
+                 [title]="f.label + ' — ' + f.count + ' offres'">
+                <span class="cat-chip__l">{{ f.label }}</span>
+                <span class="cat-chip__n">{{ f.count | number }}</span>
+              </a>
             }
           </div>
         </div>
@@ -82,6 +91,44 @@
       </dl>
     </div>
 
+    <!-- ═══ Volet droit : ce qui vient d'être publié ═══
+         Le hero occupait la moitié gauche d'un gabarit de 1650 px et
+         laissait l'autre moitié à la vidéo. Une promesse est plus
+         convaincante quand elle est prouvée juste à côté : quatre offres
+         réelles, cliquables, publiées à l'instant. -->
+    @if (latestJobs().length) {
+      <aside class="hero-panel" aria-label="Offres publiées récemment">
+        <div class="hp-head">
+          <span class="hp-live"><span class="hp-dot" aria-hidden="true"></span> Publiées récemment</span>
+          <a routerLink="/offres" class="hp-all">Tout voir <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+
+        <ul class="hp-list">
+          @for (job of latestJobs().slice(0, 4); track job.id) {
+            <li>
+              <a [routerLink]="['/offres', job.id]" class="hp-item">
+                <span class="hp-av" [style.background]="avatarBg(job.company)">
+                  <span [style.color]="avatarFg(job.company)">{{ job.company.charAt(0) }}</span>
+                </span>
+                <span class="hp-text">
+                  <strong>{{ job.title }}</strong>
+                  <span class="hp-meta">{{ job.company | employeur }} · {{ job.location }}</span>
+                </span>
+                <span class="hp-side">
+                  <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
+                  <span class="hp-when">{{ getTimeAgo(job.createdAt) }}</span>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+
+        <a routerLink="/register" class="hp-cta">
+          <i class="bi bi-bell" aria-hidden="true"></i>
+          Recevoir ces offres par email
+        </a>
+      </aside>
+    }
   </div>
 
   <a class="hero-scroll" href="#dernieres-offres">
@@ -104,24 +151,25 @@
     @if (latestJobs().length) {
       <div class="jobs-grid">
         @for (job of latestJobs(); track job.id; let i = $index) {
-          <a [routerLink]="['/offres', job.id]" class="job-card card animate-in" [style.animation-delay]="i * 0.05 + 's'">
+          <a [routerLink]="['/offres', job.id]" class="job-card card gcard animate-in" [style.animation-delay]="i * 0.04 + 's'">
             <span class="card-stripe" [style.background]="stripeFor(job.contractType)" aria-hidden="true"></span>
-            <div class="jc-inner">
+            <div class="jc-inner gcard">
+              <!-- L'intitulé d'abord : c'est le poste qu'on cherche, pas
+                   le nom d'une société qu'on ne connaît pas encore. -->
+              <h3 class="jc-title">{{ job.title }}</h3>
+
               <div class="jc-header">
                 <span class="company-av" [style.background]="avatarBg(job.company)">
                   <span [style.color]="avatarFg(job.company)">{{ job.company.charAt(0) }}</span>
                 </span>
                 <span class="jc-meta">
-                  <span class="jc-company">{{ job.company }}</span>
+                  <span class="jc-company">{{ job.company | employeur }}</span>
                   <span class="jc-loc">
                     <i class="bi bi-geo-alt" aria-hidden="true"></i> {{ job.location }}
                     @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
                   </span>
                 </span>
               </div>
-
-              <h3 class="jc-title">{{ job.title }}</h3>
-              <p class="jc-desc">{{ job.description }}</p>
 
               <div class="jc-badges">
                 <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
@@ -131,7 +179,9 @@
                 @for (tag of getTags(job.tags); track tag) { <span class="tag">{{ tag }}</span> }
               </div>
 
-              <div class="jc-footer">
+              <p class="jc-desc">{{ job.description }}</p>
+
+              <div class="jc-footer gcard__spring">
                 @if (job.salary) {
                   <span class="jc-salary">{{ job.salary }}</span>
                 } @else {
@@ -145,20 +195,122 @@
       </div>
     } @else {
       <div class="jobs-grid">
-        @for (n of [1, 2, 3, 4, 5, 6]; track n) {
-          <div class="job-card card card--flat" aria-hidden="true">
-            <div class="jc-inner">
-              <div class="skeleton sk-line" style="width: 40%"></div>
-              <div class="skeleton sk-title" style="margin-top: 18px; width: 80%"></div>
-              <div class="skeleton sk-line" style="margin-top: 16px"></div>
-              <div class="skeleton sk-line" style="margin-top: 8px; width: 65%"></div>
+        @for (n of [1, 2, 3, 4, 5, 6, 7, 8]; track n) {
+          <div class="sk-card" aria-hidden="true">
+            <span class="skeleton sk-line" style="width:75%;height:19px"></span>
+            <div class="sk-row">
+              <span class="skeleton sk-av"></span>
+              <span class="skeleton sk-line" style="width:45%"></span>
             </div>
+            <div class="sk-row">
+              <span class="skeleton sk-pill"></span>
+              <span class="skeleton sk-pill" style="width:86px"></span>
+            </div>
+            <span class="skeleton sk-line"></span>
+            <span class="skeleton sk-line" style="width:60%"></span>
           </div>
         }
       </div>
     }
   </div>
 </section>
+
+<!-- ═══ EXPLORER — les autres portes d'entrée ═══
+     La barre de recherche ne sert qu'à qui sait déjà quoi taper. Ces trois
+     colonnes ouvrent la même base par le métier, la ville ou le contrat, et
+     le nombre en bout de ligne dit tout de suite si la piste vaut le détour. -->
+@if (topCategories().length || topLocations().length) {
+  <section class="explore band-soft">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Ou partez d'une <span class="em">catégorie</span></h2>
+          <p class="section-sub">Métier, ville, type de contrat : trois façons d'entrer dans les {{ stats().totalOffers | number: '1.0-0' }} offres en ligne.</p>
+        </div>
+        <a routerLink="/parcourir" class="arrow-link">Tout parcourir <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+      </div>
+
+      <div class="explore-cols">
+        <div class="ex-col">
+          <h3 class="ex-title"><i class="bi bi-briefcase" aria-hidden="true"></i> Par métier</h3>
+          <ul class="ex-list">
+            @for (f of topCategories(); track f.label) {
+              <li>
+                <a [routerLink]="['/offres']" [queryParams]="{ category: f.label }">
+                  <span class="ex-label">{{ f.label }}</span>
+                  <span class="ex-count u-mono">{{ f.count | number }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="ex-col">
+          <h3 class="ex-title"><i class="bi bi-geo-alt" aria-hidden="true"></i> Par ville</h3>
+          <ul class="ex-list">
+            @for (f of topLocations(); track f.label) {
+              <li>
+                <a [routerLink]="['/offres']" [queryParams]="{ location: f.label }">
+                  <span class="ex-label">{{ f.label }}</span>
+                  <span class="ex-count u-mono">{{ f.count | number }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="ex-col">
+          <h3 class="ex-title"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Par contrat</h3>
+          <ul class="ex-list">
+            @for (f of topContracts(); track f.label) {
+              <li>
+                <a [routerLink]="['/offres']" [queryParams]="{ contractType: f.label }">
+                  <span class="ex-label">{{ f.label }}</span>
+                  <span class="ex-count u-mono">{{ f.count | number }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+          <a [routerLink]="['/offres']" [queryParams]="{ isRemote: true }" class="ex-remote">
+            <i class="bi bi-laptop" aria-hidden="true"></i>
+            <span><strong>{{ stats().remoteOffers | number: '1.0-0' }}</strong> postes en télétravail</span>
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+<!-- ═══ ENTREPRISES QUI RECRUTENT ═══ -->
+@if (topCompanies().length) {
+  <section class="hiring">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Elles recrutent <span class="em">en ce moment</span></h2>
+          <p class="section-sub">Les employeurs qui publient le plus d'offres sur la plateforme.</p>
+        </div>
+        <a routerLink="/entreprises" class="arrow-link">Toutes les entreprises <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+      </div>
+
+      <div class="hiring-grid">
+        @for (c of topCompanies(); track c.company) {
+          <a [routerLink]="['/entreprises', c.company]" class="hc">
+            <span class="hc-av" [style.background]="avatarBg(c.company)">
+              <span [style.color]="avatarFg(c.company)">{{ c.company.charAt(0) }}</span>
+            </span>
+            <span class="hc-text">
+              <strong>{{ c.company }}</strong>
+              <span>{{ c.location }}</span>
+            </span>
+            <span class="hc-n u-mono">{{ c.jobCount | number }}</span>
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+}
 
 <!-- ═══ COMMENT ÇA MARCHE ═══
      Numéroté parce que c'est réellement une séquence. -->

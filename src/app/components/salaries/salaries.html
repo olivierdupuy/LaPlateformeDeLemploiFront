@@ -20,12 +20,28 @@
 
 <section class="sal-page">
   <div class="container">
-    <!-- Filtre secteur -->
+    <!-- Filtre secteur —
+         Les dix secteurs les plus pourvus en pastilles ; les sept cents
+         autres dans le menu. Une pastille par catégorie faisait dix écrans
+         de filtres avant le premier salaire. -->
     <div class="sal-sectors animate-in" role="group" aria-label="Filtrer par secteur">
       <button class="sec-chip" [class.active]="!sector" [attr.aria-pressed]="!sector" (click)="pickSector('')">Tous les secteurs</button>
-      @for (c of categories(); track c) {
-        <button class="sec-chip" [class.active]="sector === c" [attr.aria-pressed]="sector === c" (click)="pickSector(c)">{{ c }}</button>
+      @for (f of topSectors(); track f.label) {
+        <button class="sec-chip" [class.active]="sector === f.label" [attr.aria-pressed]="sector === f.label"
+                [title]="f.label" (click)="pickSector(f.label)">
+          <span class="sec-chip__l">{{ f.label }}</span>
+        </button>
       }
+
+      <label class="ffield sal-more" [class.is-set]="sector && !isTopSector(sector)">
+        <span class="ffield__lbl">Autre secteur</span>
+        <select aria-label="Choisir un secteur dans la liste complète"
+                [ngModel]="isTopSector(sector) ? '' : sector"
+                (ngModelChange)="setSector($event)">
+          <option value="">Tous</option>
+          @for (c of categories(); track c) { <option [value]="c">{{ c }}</option> }
+        </select>
+      </label>
     </div>
 
     <div class="section-head">

@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="La Plateforme de l'Emploi">
-  <!-- Tuile bleu profond : la structure -->
-  <rect width="64" height="64" rx="15" fill="#064789"/>
-  <!-- Épingle bleu pâle : la forme la plus identifiable de la marque -->
-  <path d="M32 9c-9.4 0-17 7.6-17 17 0 11.9 15.3 27.1 16 27.8a1.4 1.4 0 0 0 2 0c.7-.7 16-15.9 16-27.8 0-9.4-7.6-17-17-17z" fill="#ebf2fa"/>
-  <!-- Pastille bleu moyen : l'accent, au centre du repère -->
-  <circle cx="32" cy="25.5" r="6.6" fill="#427aa1"/>
+  <!-- Tuile pétrole : la structure — la couleur de marque -->
+  <rect width="64" height="64" rx="15" fill="#15616d"/>
+  <!-- Épingle crème : la forme la plus identifiable de la marque -->
+  <path d="M32 9c-9.4 0-17 7.6-17 17 0 11.9 15.3 27.1 16 27.8a1.4 1.4 0 0 0 2 0c.7-.7 16-15.9 16-27.8 0-9.4-7.6-17-17-17z" fill="#ffecd1"/>
+  <!-- Pastille pétrole profond : l'accent, au centre du repère -->
+  <circle cx="32" cy="25.5" r="6.6" fill="#001524"/>
 </svg>

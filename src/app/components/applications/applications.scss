@@ -487,7 +487,7 @@
 .kb-cards { display: flex; flex-direction: column; gap: 0.5rem; min-height: 100px; }
 .kb-card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.55rem;
   padding: 0.7rem 0.8rem;
   background: var(--canvas);
@@ -496,6 +496,10 @@
   cursor: grab;
   transition: box-shadow var(--t), transform var(--t), border-color var(--t);
   &:hover { box-shadow: var(--shadow-md); border-color: var(--line-strong); transform: translateY(-2px); }
+
+  // Ce qui attend depuis plus d'une semaine porte un filet : sur un
+  // tableau de triage, c'est la seule chose qu'on cherche des yeux.
+  &.is-stale { border-left: 3px solid var(--bleu-500); }
   &:active { cursor: grabbing; }
 }
 .kb-av {
@@ -540,3 +544,66 @@
 .ac-qa { display: flex; flex-direction: column; gap: 0.1rem; }
 .ac-q { font-size: 0.72rem; font-weight: 600; color: var(--muted); }
 .ac-a { font-size: 0.85rem; color: var(--ink); }
+
+// ── Barre de filtres ──
+// Recherche, filtre par offre et tri : la page ne savait filtrer que par
+// statut, ce qui ne suffit plus dès qu'un recruteur a plusieurs postes.
+.app-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+// Un intitulé de poste est long : la pastille se borne, le menu déroulant
+// garde la largeur qu'il lui faut.
+.app-filters .ffield select { max-width: 22ch; }
+
+@media (max-width: 720px) {
+  .app-filters { flex-direction: column; align-items: stretch; }
+  .app-filters .ffield { justify-content: space-between; }
+}
+
+// ── Carte du tableau de triage ──
+.kb-card__top { display: flex; align-items: center; gap: 0.55rem; }
+
+.kb-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--nuage-2);
+}
+
+// Le temps d'attente en chiffres de chasse fixe : les cartes s'alignent
+// et se comparent d'une colonne à l'autre.
+.kb-when {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  i { font-size: 0.65rem; }
+
+  &.is-stale { color: var(--bleu-700); font-weight: 500; }
+}
+
+// CV joint, réponses de présélection, notes prises : trois signaux qui
+// disent si le dossier est instruit, sans l'ouvrir.
+.kb-marks {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--faint);
+  font-size: 0.72rem;
+}
+
+// Les colonnes ne s'étirent plus à 400 px de vide quand elles sont vides :
+// elles prennent la hauteur de la plus remplie.
+.kanban { min-height: 0; align-items: start; }
+.kb-cards { min-height: 60px; }
+.kb-empty { padding: 1.25rem 1rem; }

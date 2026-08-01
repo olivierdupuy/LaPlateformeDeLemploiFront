@@ -8,6 +8,18 @@
         </span>
     </a>
 
+    <!-- Recherche de barre — apparait au defilement.
+         Passe la premiere hauteur d'ecran, le champ du hero n'est plus a
+         portee : la recherche doit rester sous la main sans qu'on ait a
+         remonter. -->
+    <form class="nav-search" [class.is-shown]="scrolled()" (ngSubmit)="quickSearch()">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <label class="sr-only" for="nav-q">Rechercher une offre</label>
+      <input id="nav-q" type="search" name="q" placeholder="Poste, entreprise, ville…"
+             [(ngModel)]="quickQuery" [attr.tabindex]="scrolled() ? null : -1" />
+      <button type="submit" aria-label="Lancer la recherche"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+    </form>
+
     <!-- Liens principaux -->
     <div class="nav-center" [class.open]="mobileOpen()" id="nav-menu">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobile()">
@@ -30,6 +42,16 @@
         <a routerLink="/recruteur/offres/nouvelle" routerLinkActive="active" class="nav-publish" (click)="closeMobile()">
           <i class="bi bi-plus-lg" aria-hidden="true"></i> {{ i18n.t('nav.publish') }}
         </a>
+      }
+
+      <!-- Connexion / inscription au pied du menu mobile.
+           Dans la barre, ces deux boutons poussaient le bouton du menu hors
+           de l'ecran sur un telephone : le site devenait non navigable. -->
+      @if (!auth.isLoggedIn()) {
+        <div class="nav-auth-mobile">
+          <a routerLink="/login" class="btn-secondary btn-block" (click)="closeMobile()">{{ i18n.t('nav.login') }}</a>
+          <a routerLink="/register" class="btn-primary btn-block" (click)="closeMobile()">{{ i18n.t('nav.register') }}</a>
+        </div>
       }
     </div>
 
@@ -233,4 +255,10 @@
       </button>
     </div>
   </div>
+
+  <!-- Voile du menu mobile : sans lui, le menu flotte au-dessus d'une page
+       qui reste cliquable, et rien ne dit qu'il faut d'abord le fermer. -->
+  @if (mobileOpen()) {
+    <div class="nav-veil" (click)="closeMobile()" aria-hidden="true"></div>
+  }
 </nav>

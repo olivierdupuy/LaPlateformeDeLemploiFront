@@ -11,7 +11,7 @@ import { ApplicationService } from '../../services/application';
 import { AuthService } from '../../services/auth.service';
 import { SavedSearchService } from '../../services/saved-search.service';
 import { JobOffer } from '../../models/job-offer.model';
-import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
+import { getTimeAgo, getTags, getContractBadgeClass, companyColor, salaryLabel } from '../../utils/job.utils';
 import { EmployerNamePipe, estEmployeurGenerique } from '../../pipes/employer-name.pipe';
 
 @Component({
@@ -62,6 +62,8 @@ export class JobList implements OnInit {
   radius: number | undefined;
   sort = '';
   showAdvanced = false;
+  /** Repli de la barre de filtres sur les petits ecrans. */
+  mobileFiltersOpen = false;
 
   radiusOptions = [
     { label: 'Distance exacte', value: undefined },
@@ -212,8 +214,13 @@ export class JobList implements OnInit {
 
   // ── Vue split ──
   selectJob(job: JobOffer, event?: Event) {
+    // La barre d'espace fait defiler la page si on ne la retient pas — et
+    // la carte est atteignable au clavier.
     event?.preventDefault();
     this.selected.set(job);
+    // En vue cote a cote, le volet garde le defilement de l'offre
+    // precedente : on lisait le milieu d'une annonce qu'on venait d'ouvrir.
+    queueMicrotask(() => document.querySelector('.offer-drawer')?.scrollTo({ top: 0 }));
     // Rafraichit le detail (incremente les vues, applications a jour)
     this.jobService.getById(job.id).subscribe((full) => {
       if (this.selected()?.id === full.id) this.selected.set(full);
@@ -296,6 +303,65 @@ export class JobList implements OnInit {
       + (this.datePosted ? 1 : 0);
   }
 
+  /**
+   * Rappel des criteres actifs, un jeton par critere.
+   *
+   * Les menus de la barre disent ce qu'on peut filtrer ; ils disent mal ce
+   * qui filtre deja, surtout quand le repli « Plus de filtres » cache la
+   * moitie des reglages. Une liste courte sans raison visible passe pour
+   * une liste vide. Les jetons portent donc le critere, sa valeur, et le
+   * defont d'un clic.
+   */
+  get activeCriteria(): { key: string; label: string; value: string }[] {
+    const out: { key: string; label: string; value: string }[] = [];
+    if (this.contractType) out.push({ key: 'contractType', label: 'Contrat', value: this.contractType });
+    if (this.isRemote !== undefined) out.push({ key: 'isRemote', label: 'Lieu', value: this.isRemote ? 'Télétravail' : 'Sur site' });
+    if (this.category) out.push({ key: 'category', label: 'Secteur', value: this.category });
+    if (this.workSchedule) out.push({ key: 'workSchedule', label: 'Horaires', value: this.workSchedule });
+    if (this.language) out.push({ key: 'language', label: 'Langue', value: this.language });
+    if (this.datePosted) {
+      const opt = this.datePostedOptions.find((d) => d.value === this.datePosted);
+      out.push({ key: 'datePosted', label: 'Publiée', value: opt?.label ?? '' });
+    }
+    if (this.radius && this.location) out.push({ key: 'radius', label: 'Rayon', value: `${this.radius} km` });
+    if (this.experience) out.push({ key: 'experience', label: 'Expérience', value: this.experience });
+    if (this.education) out.push({ key: 'education', label: 'Formation', value: this.education });
+    if (this.salaryMin) out.push({ key: 'salaryMin', label: 'Salaire min', value: `${this.salaryMin} €` });
+    if (this.salaryMax) out.push({ key: 'salaryMax', label: 'Salaire max', value: `${this.salaryMax} €` });
+    return out;
+  }
+
+  /** Defait un critere depuis son jeton. */
+  removeCriterion(key: string) {
+    switch (key) {
+      case 'contractType': this.contractType = ''; break;
+      case 'isRemote': this.isRemote = undefined; break;
+      case 'category': this.category = ''; break;
+      case 'workSchedule': this.workSchedule = ''; break;
+      case 'language': this.language = ''; break;
+      case 'datePosted': this.datePosted = undefined; break;
+      case 'radius': this.radius = undefined; break;
+      case 'experience': this.experience = ''; break;
+      case 'education': this.education = ''; break;
+      case 'salaryMin': this.salaryMin = undefined; break;
+      case 'salaryMax': this.salaryMax = undefined; break;
+    }
+    this.loadJobs();
+  }
+
+  /** Trois etats en un bouton : indifferent → telétravail → sur site. */
+  cycleRemote() {
+    this.isRemote = this.isRemote === undefined ? true : this.isRemote ? false : undefined;
+    this.loadJobs();
+  }
+
+  remoteLabel(): string {
+    return this.isRemote === undefined ? 'Télétravail' : this.isRemote ? 'Télétravail' : 'Sur site';
+  }
+
+  /** Nombre de squelettes affiches pendant le chargement. */
+  readonly skeletons = [1, 2, 3, 4, 5, 6, 7, 8];
+
   get hasAdvancedFilters(): boolean {
     return !!(this.salaryMin || this.salaryMax || this.experience || this.education
       || this.workSchedule || this.language || this.datePosted || this.sort);
@@ -356,11 +422,7 @@ export class JobList implements OnInit {
     return job.languages ? job.languages.split(',').map((l) => l.trim()).filter(Boolean) : [];
   }
 
-  salaryLabel(job: JobOffer): string | null {
-    if (job.minSalary && job.maxSalary) return `${(job.minSalary / 1000)}k – ${(job.maxSalary / 1000)}k € / an`;
-    if (job.salary) return job.salary;
-    return null;
-  }
+  salaryLabel = salaryLabel;
 
   // ── Partage ──
   shareJob(job: JobOffer, event?: Event) {

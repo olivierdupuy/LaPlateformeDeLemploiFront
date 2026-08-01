@@ -5,6 +5,16 @@
 // ── Liste ──
 .cg-list-page { padding: clamp(2.25rem, 4vw, 3rem) 0 clamp(3rem, 6vw, 4.5rem); }
 
+.cg-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1.6rem;
+}
+
+.cg-meta { display: flex; align-items: center; gap: 0.45rem; }
+.cg-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--line-strong); }
+
 .cg-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -102,46 +112,79 @@
   transition: gap var(--t);
 }
 
-// ── Article ──
-// Largeur de lecture bornée : le gabarit large ne doit pas
-// étirer le texte courant sur 1650 px.
-.cg-article { padding: 1.75rem 0 clamp(3rem, 6vw, 4.5rem); }
+// ── Article : bandeau ──
+.cg-hero {
+  padding-bottom: clamp(1.8rem, 3.2vw, 2.6rem);
 
-.cg-art-head {
-  max-width: var(--max-text);
-  margin-bottom: clamp(2rem, 4vw, 2.75rem);
+  .cg-hero__cat { margin-top: 0.75rem; }
 
-  h1 {
-    margin: 0.85rem 0 0.7rem;
-    font-size: clamp(1.9rem, 4vw, 2.9rem);
-    line-height: 1.06;
-    letter-spacing: -0.025em;
-  }
+  h1 { max-width: 22ch; }
 }
 
 .cg-read {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.5rem;
   font-family: var(--font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
+.cg-read--dark { margin-top: 0.85rem; color: var(--on-dark-muted); }
+.cg-read__sep { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.5; }
+
+// ── Article : corps ──
+//
+// Le texte reste à sa largeur de lecture ; c'est le sommaire qui occupe
+// le reste du gabarit. Avant, soixante-huit caractères flottaient au
+// milieu de mille six cent cinquante pixels, et rien ne disait combien
+// il restait à lire.
+// Surface blanche : un texte long se lit mieux sur du papier que sur le
+// sol bleuté qui porte les listes.
+.cg-article {
+  padding: clamp(2rem, 4vw, 3rem) 0 clamp(3rem, 6vw, 4.5rem);
+  background: var(--canvas);
+}
+
+// Les deux colonnes sont centrées dans le gabarit : alignées à gauche,
+// elles laissaient cinq cents pixels de blanc à droite, et la page
+// paraissait tronquée.
+.cg-art-grid {
+  display: grid;
+  grid-template-columns: minmax(0, var(--max-text)) minmax(0, 300px);
+  justify-content: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
 
 .cg-art-body {
-  max-width: var(--max-text);
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  gap: 2rem;
+}
+
+// Chapeau : il porte la promesse de l'article, dans un gris plus soutenu
+// et un corps plus grand que le texte courant.
+.cg-lede {
+  font-size: 1.12rem;
+  line-height: 1.65;
+  color: var(--ink);
+  padding-left: 1.1rem;
+  border-left: 3px solid var(--bleu-500);
 }
 
 .cg-section {
+  scroll-margin-top: calc(var(--nav-now) + 1.5rem);
+
   h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
     margin-bottom: 0.8rem;
-    font-size: clamp(1.3rem, 2.4vw, 1.7rem);
-    line-height: 1.15;
+    font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+    line-height: 1.2;
     letter-spacing: -0.02em;
   }
 
@@ -152,18 +195,118 @@
   }
 }
 
+.cg-section__n {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--bleu-400);
+}
+
 .cg-art-foot {
-  max-width: var(--max-text);
+  margin-top: 1rem;
+  padding: 1.5rem 1.6rem;
+  background: var(--nuage);
+  border-radius: var(--r-lg);
+}
+.cg-art-foot__p { font-size: 0.95rem; color: var(--ink-soft); margin-bottom: 1rem; }
+.cg-art-foot__a { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+
+// ── Article : colonne latérale ──
+.cg-aside {
+  position: sticky;
+  top: calc(var(--nav-now) + 1.5rem);
   display: flex;
-  gap: 0.7rem;
-  flex-wrap: wrap;
-  margin-top: clamp(2.5rem, 5vw, 3.5rem);
-  padding-top: 2rem;
-  border-top: 1px solid var(--line);
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.cg-aside__t {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+.cg-toc {
+  ol { list-style: none; border-left: 2px solid var(--line); }
+
+  a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.42rem 0 0.42rem 0.85rem;
+    margin-left: -2px;
+    border-left: 2px solid transparent;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--muted);
+    transition: color var(--t), border-color var(--t);
+    &:hover { color: var(--bleu-700); border-left-color: var(--bleu-500); }
+  }
+}
+
+.cg-toc__n {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--faint);
+}
+
+.cg-next__i {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem;
+  margin: 0 -0.6rem;
+  border-radius: var(--r-sm);
+  transition: background var(--t);
+  &:hover {
+    background: var(--bleu-tint);
+    strong { color: var(--bleu-700); }
+  }
+}
+
+.cg-next__ic {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-xs);
+  background: var(--bleu-100);
+  color: var(--bleu-600);
+  font-size: 0.85rem;
+}
+
+.cg-next__tx {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+
+  strong { font-size: 0.85rem; font-weight: 600; color: var(--ink); transition: color var(--t); }
+  span {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--faint);
+  }
+}
+
+@media (max-width: 1080px) {
+  // Le sommaire passe au-dessus du texte et se déplie à plat : collé sur
+  // un écran étroit, il mangerait la moitié de la hauteur utile.
+  .cg-art-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .cg-aside { position: static; order: -1; }
+  .cg-next { display: none; }
 }
 
 @media (max-width: 560px) {
   .cg-grid { grid-template-columns: 1fr; }
-  .cg-art-foot .btn-primary,
-  .cg-art-foot .btn-secondary { flex: 1; justify-content: center; }
+  .cg-art-foot__a .btn-primary,
+  .cg-art-foot__a .btn-secondary { flex: 1; justify-content: center; }
 }

@@ -90,9 +90,9 @@ export function applyChartDefaults() {
 function tooltip(format?: (item: TooltipItem<any>) => string): ChartOptions['plugins'] {
   return {
     tooltip: {
-      backgroundColor: '#022546',
+      backgroundColor: '#002830',
       titleColor: '#ffffff',
-      bodyColor: '#c7dcec',
+      bodyColor: '#c1dfe5',
       titleFont: { family: SANS, size: 12.5, weight: 700 },
       bodyFont: { family: MONO, size: 12 },
       padding: { x: 11, y: 9 },

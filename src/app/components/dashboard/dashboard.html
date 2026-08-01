@@ -84,10 +84,25 @@
 
   <!-- ═══ ACTIVITÉ ═══ -->
   <div class="ad-grid dash-main">
+    <!-- Deux graphiques et non un : les offres arrivent par imports de
+         masse (119 000 en une journée) quand les candidatures se comptent
+         par unités. Sur une échelle commune, la courbe des offres montait
+         au plafond et les deux autres se couchaient sur le zéro. -->
     <app-viz-card
-      class="span-2"
-      title="Activité des trente derniers jours"
-      sub="Offres publiées, candidatures et inscriptions, sur une seule échelle."
+      title="Offres publiées"
+      sub="Les imports de masse se lisent ici, à leur propre échelle."
+      icon="bi-briefcase"
+      height="clamp(230px, 30vh, 320px)"
+      [config]="offresConfig()"
+      [rows]="offresRows()"
+      rowsLabel="Jour" rowsValue="Offres"
+      drillLabel="Les offres" drillRoute="/admin/offres"
+      [loading]="chargeSuite()"
+      empty="Aucune offre publiée sur la période." />
+
+    <app-viz-card
+      title="Candidatures et inscriptions"
+      sub="L'activité des personnes, sur trente jours."
       icon="bi-activity"
       height="clamp(230px, 30vh, 320px)"
       [config]="activiteConfig()"
@@ -138,8 +153,11 @@
                          part du total : c'est la seule lecture honnête ici. -->
                     <span class="fun-meter__track">
                       @if (e.rate !== null) {
+                        <!-- Bornée à 100 : une jauge de passage ne peut pas
+                             déborder de son propre socle. -->
                         <span class="fun-meter__fill"
-                              [style.width.%]="Math.max(e.rate, 1.2)"
+                              [class.is-overflow]="e.overflow"
+                              [style.width.%]="Math.min(Math.max(e.rate, 1.2), 100)"
                               [style.background]="e.color"></span>
                       }
                     </span>
@@ -150,6 +168,15 @@
                         <!-- Étape précédente vide : le taux n'est pas nul, il
                              n'existe pas. -->
                         étape précédente non renseignée
+                      } @else if (e.overflow) {
+                        <!-- Plus nombreux que l'étape d'avant : les deux ne
+                             sont pas emboîtées. Un pourcentage mentirait — il
+                             affichait « 300 % de l'étape précédente ». -->
+                        <span class="fun-meter__warn"
+                              title="Une candidature peut être acceptée sans qu'un entretien ait été enregistré : les deux étapes ne s'emboîtent pas.">
+                          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+                          plus que l'étape précédente
+                        </span>
                       } @else {
                         {{ e.rate < 0.1 && e.rate > 0 ? '< 0,1' : (e.rate | number: '1.0-1') }} %
                         de l'étape précédente

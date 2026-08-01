@@ -32,16 +32,131 @@
   min-width: 0;
 }
 
+// Un employeur anonyme ne porte pas d'initiale : la pastille dit
+// « organisation » sans prétendre en désigner une.
+.aof-av--anon {
+  background: var(--bleu-100);
+  color: var(--muted);
+  border: 1px dashed var(--line);
+}
+
+.aof-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
 .aof-title {
   font-weight: 700;
   color: var(--ink);
+  // Les intitulés importés dépassent parfois 90 caractères : sans borne,
+  // une ligne du tableau prend la hauteur de trois. La borne tient compte
+  // des neuf colonnes : au-delà, la dernière — les actions — sort du cadre.
+  max-width: 26ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   &:hover { color: var(--bleu-600); }
+}
+
+.aof-flag {
+  flex-shrink: 0;
+  font-size: 0.66rem;
+  color: var(--bleu-500);
+}
+
+.aof-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
 }
 
 .aof-company {
   font-size: 0.78rem;
   color: var(--muted);
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   &:hover { color: var(--bleu-600); text-decoration: underline; }
+}
+
+// La provenance se lit d'un coup d'œil sur une colonne entière : le
+// remplissage distingue le dépôt local de la reprise partenaire, sans
+// ajouter une colonne à un tableau qui en compte déjà neuf.
+.aof-src {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.05rem 0.36rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  &:hover { border-color: var(--ciel); color: var(--bleu-900); }
+
+  &--local {
+    background: var(--bleu-900);
+    border-color: var(--bleu-900);
+    color: #fff;
+    &:hover { color: #fff; }
+  }
+}
+
+// L'intitulé ROME complet tient en une ligne ; le titre reste accessible
+// au survol pour qui doit lire la catégorie en entier.
+.aof-cat {
+  display: inline-block;
+  max-width: 15ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.aof-pay {
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
+.aof-pay__v {
+  font-family: var(--font-mono);
+  color: var(--ink-soft);
+
+  // Une rémunération invraisemblable ne se signale pas par la couleur
+  // seule : le triangle la nomme pour qui ne la distingue pas.
+  &.is-suspect {
+    color: var(--danger);
+    font-weight: 600;
+    i { margin-left: 0.25rem; font-size: 0.72rem; }
+  }
+}
+
+.aof-pay__none {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+// Le taux d'offres sans salaire : une phrase, pas une tuile — c'est un
+// constat sur le périmètre affiché, pas un filtre de plus.
+.aof-note {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: -0.5rem 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--r-sm);
+  background: var(--bleu-100);
+  border: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+
+  i { color: var(--bleu-500); }
+  strong { color: var(--ink); font-family: var(--font-mono); }
 }
 
 .aof-loc {

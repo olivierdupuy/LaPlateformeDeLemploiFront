@@ -8,10 +8,11 @@ import { AuthService } from '../../services/auth.service';
 import { SignalRService } from '../../services/signalr.service';
 import { Conversation, ChatMessage } from '../../models/auth.model';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { MessageTemplates } from '../message-templates/message-templates';
 
 @Component({
   selector: 'app-inbox',
-  imports: [DatePipe, FormsModule, ConsoleShell],
+  imports: [DatePipe, FormsModule, ConsoleShell, MessageTemplates],
   templateUrl: './inbox.html',
   styleUrl: './inbox.scss',
 })
@@ -30,6 +31,48 @@ export class Inbox implements OnInit, OnDestroy {
   newMessage = signal('');
   loadingMessages = signal(false);
   isTyping = signal(false);
+
+  /**
+   * Modeles de messages, ouverts au-dessus du champ de saisie.
+   *
+   * Reserves au recruteur : c'est lui qui ecrit vingt fois le meme accuse
+   * de reception. Un candidat n'a qu'une candidature a la fois en tete.
+   */
+  templatesOpen = signal(false);
+  get canUseTemplates(): boolean { return this.auth.isRecruiter(); }
+
+  /**
+   * Insere un modele dans le message en cours, jetons substitues.
+   *
+   * Le composant des modeles ne connait pas la conversation ; c'est ici
+   * qu'on sait de quel candidat et de quelle offre il s'agit. Un modele
+   * garde donc `{{candidat}}` en bibliotheque et devient nominatif a
+   * l'insertion.
+   */
+  applyTemplate(content: string) {
+    const id = this.selectedAppId();
+    const conv = this.conversations().find((c) => c.applicationId === id);
+    // Une conversation qui n'a pas encore de message n'est pas dans la
+    // liste : elle vient d'etre ouverte depuis une candidature. Les noms
+    // se lisent alors sur la candidature elle-meme, faute de quoi le
+    // premier message — celui ou le modele sert le plus — sortait avec
+    // « Bonjour , » et un poste vide.
+    const app = conv ? null : this.availableApps().find((a: any) => a.id === id);
+
+    const candidat = conv?.otherUserName ?? app?.fullName ?? app?.candidateName ?? '';
+    const poste = conv?.jobTitle ?? app?.jobTitle ?? app?.jobOffer?.title ?? '';
+
+    const filled = content
+      .replace(/\{\{\s*candidat\s*\}\}/gi, candidat)
+      .replace(/\{\{\s*poste\s*\}\}/gi, poste)
+      .replace(/\{\{\s*entreprise\s*\}\}/gi, this.auth.currentUser()?.company ?? '');
+
+    // On complete plutot qu'on remplace : un message a moitie ecrit ne
+    // doit pas disparaitre parce qu'on va chercher une formule.
+    const current = this.newMessage().trimEnd();
+    this.newMessage.set(current ? `${current}\n\n${filled}` : filled);
+    this.templatesOpen.set(false);
+  }
 
   @ViewChild('chatBody') chatBody!: ElementRef;
 

@@ -2,30 +2,41 @@
 
 /* ═══════════════════════════════════════════════════════════
    LA PLATEFORME DE L'EMPLOI
-   Palette : trois bleus.
+   Palette : petrole profond, petrole moyen, papier creme.
 
-     #064789  bleu profond — la marque : boutons primaires, mot en
-                             evidence, chrome sombre
-     #427aa1  bleu moyen   — l'accent : etat actif, survol, seconds roles
-     #ebf2fa  bleu pale    — le sol, la couleur qu'on voit le plus
+     #001524  noir petrole — le chrome sombre : barre laterale, pied de
+                             page, panneaux d'authentification
+     #15616d  petrole      — la marque : boutons primaires, liens, tuile
+                             du logo, mot en evidence
+     #ffecd1  creme        — le sol, la couleur qu'on voit le plus
 
-   Palette monochrome : la hierarchie ne se joue plus sur l'opposition
-   chaud/froid mais sur la clarte et la saturation. Le sol est un blanc
-   bleute, les surfaces posees dessus sont blanches (et non plus d'un
-   blanc rechauffe), le texte est une encre bleu-nuit desaturee — c'est
-   ce qui laisse le #064789, seul vraiment sature, faire l'accent.
+   Pourquoi quitter le bleu ? Parce qu'un site d'emploi est un site de
+   documents — un CV, une offre, une lettre, un formulaire. Le sol bleu
+   pale traitait chaque page comme un tableau de bord ; le creme la
+   traite comme du papier, ce que ces pages sont. Le petrole garde le
+   serieux institutionnel que le metier demande sans etre le enieme bleu
+   corporate, et il tient 7.09:1 sur blanc la ou l'ancien accent moyen
+   plafonnait a 4.64:1.
 
-   Le bleu moyen tient 4.64:1 sur blanc mais 4.11:1 sur le sol : on le
-   pose en aplat ou en filet, pas en texte courant sur fond teinte.
+   La structure est froide (teinte 188°), le sol est chaud (35°) : c'est
+   une complementaire, et c'est elle qui fait tenir l'ensemble. Les
+   encres suivent le froid mais sont verifiees sur le CREME, pas sur le
+   blanc — le sol est plus sombre que le blanc, et une encre calee sur
+   blanc y perdait le contraste (l'ancien --muted y tombait a 4.37:1).
+
+   Les deux teintes donnees occupent les crans 950 et 600 ; les autres
+   sont interpolees en OKLab sur l'axe de la marque, clarte strictement
+   croissante, ecart voisin verifie.
 
    Une seule couleur hors palette subsiste, le rouge de danger : une
    suppression et une erreur ne peuvent pas porter la couleur de la
-   marque. Elle ne sert qu'a ca.
+   marque. Elle ne sert qu'a ca, et elle a ete retenue d'un cran pour
+   tenir 4.51:1 sur le creme.
 
-   Les noms --bleu-* et --rouge-* sont conserves : trente-sept
+   Les noms --bleu-* et --rouge-* sont conserves : une centaine de
    composants s'y referent, et ce sont des roles (structure, accent) que
-   les nouvelles teintes reprennent telles quelles. --rouge-* n'est donc
-   plus rouge : c'est le nom du role d'accent.
+   les nouvelles teintes reprennent telles quelles. --bleu-* n'est donc
+   plus bleu et --rouge-* plus rouge : ce sont les noms des deux roles.
 
    Typographie : une seule superfamille pour le texte. Inter Tight, plus
    resserre, porte les titres ; Inter porte l'interface. Les deux ont le
@@ -41,65 +52,74 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Bleu profond (structure) — marque, chrome sombre, appuis ──
-     Les trois teintes donnees occupent les crans 600, 500 et 100 ; le
-     reste de la rampe est interpole sur le meme axe (teinte ~211°),
-     clarte strictement croissante du 950 au 100. */
-  --bleu-950: #01121f;
-  --bleu-900: #022546;   /* chrome sombre : barre laterale, pied de page */
-  --bleu-800: #033260;
-  --bleu-700: #043b74;   /* cran sombre : survol du primaire, statuts pleins */
-  --bleu-600: #064789;   /* couleur de marque */
-  --bleu-500: #427aa1;   /* accent */
-  --bleu-400: #6f9dbe;
-  --bleu-300: #9dbfd8;
-  --bleu-200: #c7dcec;
-  --bleu-100: #ebf2fa;   /* le sol */
-  --bleu-tint: rgba(6, 71, 137, 0.06);
-  --bleu-ring: rgba(6, 71, 137, 0.24);
+  /* ── Petrole (structure) — marque, chrome sombre, appuis ──
+     #001524 et #15616d sont poses tels quels aux crans 950 et 600 ; les
+     autres sont interpoles en OKLab sur l'axe de la marque (188°). Les
+     ratios notes sont sur blanc / sur le sol creme. */
+  --bleu-950: #001524;   /* teinte donnee — 18.54:1 / 16.04:1 */
+  --bleu-900: #002830;   /* chrome sombre : barre laterale, pied de page */
+  --bleu-800: #003d46;
+  --bleu-700: #03515c;   /* cran sombre : survol du primaire, statuts pleins */
+  --bleu-600: #15616d;   /* teinte donnee — la marque, 7.09:1 / 6.13:1 */
+  --bleu-500: #3a808c;   /* accent — 4.52:1, tient le texte blanc */
+  --bleu-400: #66a4af;
+  --bleu-300: #96c4cd;
+  --bleu-200: #c1dfe5;
+  --bleu-100: #e3f2f5;   /* aplat clair — le SOL est le creme, plus bas */
+  --bleu-tint: rgba(21, 97, 109, 0.07);
+  --bleu-ring: rgba(21, 97, 109, 0.26);
 
   /* ── Accent ──
-     Anciennement le terracotta. Le nom reste, la teinte est le bleu
-     moyen de la palette : etat actif, survol, mot en evidence sur fond
-     sombre. */
-  --rouge: #427aa1;
-  --rouge-600: #35688c;
-  --rouge-700: #2b5674;
-  --rouge-100: #e2edf7;
+     Anciennement le terracotta, puis le bleu moyen. Le nom reste, la
+     teinte est le petrole moyen : etat actif, survol, mot en evidence
+     sur fond sombre. */
+  --rouge: #3a808c;
+  --rouge-600: #2f7581;
+  --rouge-700: #246c78;
+  --rouge-100: #dbeef2;
 
-  /* L'ambre se fond dans l'accent, dont il n'etait qu'une nuance. */
+  /* ── Ambre ──
+     Le sol est desormais chaud : un aplat d'avertissement peut enfin
+     l'etre aussi. Il ne se confond pas avec le sol — il en est un cran
+     plus dense — et porte une encre brune lisible. */
   --ambre: var(--rouge);
   --ambre-600: var(--rouge-600);
-  --ambre-100: var(--rouge-100);
+  --ambre-100: #f8e6c4;
 
   /* ── Danger — la seule couleur hors palette ──
      Une suppression, une erreur : leur couleur doit se distinguer de
      celle de la marque, sans quoi le bouton qui detruit ressemble au
-     bouton qui valide. Retenue au bleu de la palette (crimson froid),
-     jamais employee comme accent. */
-  --danger: #c8384c;
-  --danger-600: #ac2b3e;
-  --danger-700: #8c2131;
-  --danger-100: #fae5e8;
+     bouton qui valide. Le crimson est retenu d'un cran par rapport a
+     l'ancienne valeur (#c8384c) pour tenir 4.51:1 sur le creme, qui est
+     plus sombre que le blanc sur lequel il etait cale. */
+  --danger: #c6364b;     /* 5.21:1 / 4.51:1 */
+  --danger-600: #a3052f;
+  --danger-700: #87001a;
+  --danger-100: #ffddde;
 
-  --ciel: #cddff0;
+  --ciel: #c1dfe5;
 
-  /* ── Neutres froids — le bleu pale et ses degres ── */
+  /* ── Neutres chauds — le creme et ses degres ──
+     Le sol est le creme donne ; ses degres et les filets en descendent,
+     sur la meme teinte. Des filets gris-bleu sur un sol chaud le
+     terniraient. */
   --canvas: #ffffff;     /* surfaces posees sur le sol */
-  --nuage: #ebf2fa;      /* bleu pale : le sol */
-  --nuage-2: #dde9f6;
-  --nuage-3: #cbdcee;
+  --nuage: #ffecd1;      /* teinte donnee : le sol */
+  --nuage-2: #f5e1c3;
+  --nuage-3: #ead3b3;
 
-  --ink: #17263a;        /* 15.28:1 sur blanc */
-  --ink-soft: #2f4a66;   /*  9.16:1 */
-  --muted: #56718f;      /*  5.05:1 */
-  --faint: #8ba4bf;      /*  2.57:1 — decor, jamais du texte a lire */
-  --on-dark: #ebf2fa;
-  --on-dark-muted: #9dbfd8;
+  /* Encres froides posees sur un sol chaud, verifiees sur les DEUX
+     fonds : c'est le creme qui contraint, pas le blanc. */
+  --ink: #10272b;        /* 15.59:1 blanc · 13.49:1 sol */
+  --ink-soft: #39545a;   /*  8.11:1 ·  7.02:1 */
+  --muted: #577177;      /*  5.21:1 ·  4.50:1 */
+  --faint: #81999e;      /*  3.01:1 ·  2.60:1 — decor, jamais du texte a lire */
+  --on-dark: #ffecd1;
+  --on-dark-muted: #96c4cd;
 
-  --line: #d8e5f2;
-  --line-strong: #bfd4e8;
-  --line-dark: rgba(235, 242, 250, 0.16);
+  --line: #ebdac1;
+  --line-strong: #dbc7a9;
+  --line-dark: rgba(255, 236, 209, 0.17);
 
   /* ── Statuts ──
      Trois teintes seulement : l'echelle se lit au remplissage. Contour
@@ -140,8 +160,8 @@
   --teal-glow: var(--bleu-tint);
   --teal-ring: var(--bleu-ring);
 
-  /* L'accent vif n'est plus le citron mais le bleu moyen de la palette.
-     Le texte pose dessus reste en blanc (4.64:1). */
+  /* L'accent vif n'est plus le citron mais le petrole moyen de la
+     palette. Le texte pose dessus reste en blanc (4.52:1). */
   --citron: var(--rouge);
   --citron-600: var(--rouge-600);
   --citron-700: var(--rouge-700);
@@ -191,16 +211,17 @@
   --border: var(--line);
   --border-hover: var(--line-strong);
 
-  /* ── Ombres (teintees bleu) ──
-     Une ombre grise sur un fond bleute le ternit : elles portent donc la
-     teinte de la palette, en version profonde et peu saturee. */
-  --shadow-xs: 0 1px 2px rgba(6, 47, 92, 0.06);
-  --shadow-sm: 0 1px 2px rgba(6, 47, 92, 0.06), 0 2px 6px rgba(6, 47, 92, 0.05);
-  --shadow-md: 0 2px 4px rgba(6, 47, 92, 0.06), 0 8px 20px -6px rgba(6, 47, 92, 0.12);
-  --shadow-lg: 0 4px 8px rgba(6, 47, 92, 0.06), 0 18px 36px -12px rgba(6, 47, 92, 0.16);
-  --shadow-xl: 0 8px 16px rgba(6, 47, 92, 0.08), 0 32px 60px -16px rgba(6, 47, 92, 0.24);
-  --shadow-brand: 0 8px 22px -6px rgba(6, 71, 137, 0.38);
-  --shadow-citron: 0 8px 22px -8px rgba(66, 122, 161, 0.5);
+  /* ── Ombres (teintees petrole) ──
+     Une ombre grise sur un sol creme le ternit ; une ombre chaude le
+     salit. Elles portent donc la teinte de la structure, profonde et
+     peu saturee : c'est ce qui creuse le creme sans le griser. */
+  --shadow-xs: 0 1px 2px rgba(0, 40, 48, 0.07);
+  --shadow-sm: 0 1px 2px rgba(0, 40, 48, 0.07), 0 2px 6px rgba(0, 40, 48, 0.06);
+  --shadow-md: 0 2px 4px rgba(0, 40, 48, 0.07), 0 8px 20px -6px rgba(0, 40, 48, 0.13);
+  --shadow-lg: 0 4px 8px rgba(0, 40, 48, 0.07), 0 18px 36px -12px rgba(0, 40, 48, 0.17);
+  --shadow-xl: 0 8px 16px rgba(0, 40, 48, 0.09), 0 32px 60px -16px rgba(0, 40, 48, 0.25);
+  --shadow-brand: 0 8px 22px -6px rgba(21, 97, 109, 0.38);
+  --shadow-citron: 0 8px 22px -8px rgba(58, 128, 140, 0.5);
 
   /* ── Rayons — herites de l'identite ronde precedente ──
      Ils n'ont pas suivi le passage au bleu institutionnel : les
@@ -225,6 +246,14 @@
   --max-text: 68ch;
   --nav-h: 96px;
 
+  /* La barre se resserre des qu'on descend : quatre-vingt-seize pixels
+     de chrome sont justes en haut de page, ils sont de trop quand on
+     lit une liste. `--nav-now` porte la hauteur courante — c'est elle
+     que suivent les barres collantes, faute de quoi un filtre colle a
+     96 px laisserait passer le contenu sous les 28 px liberes. */
+  --nav-h-min: 68px;
+  --nav-now: var(--nav-h);
+
   /* ── Mouvement ── */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -238,6 +267,10 @@
   --stripe-freelance: var(--rouge);
   --stripe-alternance: var(--green);
 }
+
+/* La classe est posee sur <html> par la navbar : une variable ne remonte
+   pas la cascade, il fallait donc que l'etat soit connu de la racine. */
+:root.nav-compact { --nav-now: var(--nav-h-min); }
 
 /* ═══════════════ Reset ═══════════════ */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -259,6 +292,9 @@ body {
   overflow-x: hidden;
   letter-spacing: -0.005em;
 }
+
+/* Menu mobile ouvert : la page dessous ne defile plus. */
+body.nav-locked { overflow: hidden; }
 
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
@@ -387,7 +423,7 @@ h3, h4, h5, h6 {
     position: absolute;
     top: -40%; left: -6%;
     width: 55%; height: 180%;
-    background: radial-gradient(circle, rgba(66, 122, 161, 0.34), transparent 62%);
+    background: radial-gradient(circle, rgba(58, 128, 140, 0.34), transparent 62%);
     pointer-events: none;
   }
 
@@ -409,7 +445,7 @@ h3, h4, h5, h6 {
   .crumbs {
     color: var(--on-plum-muted);
     a { color: var(--on-plum-muted); &:hover { color: var(--citron); } }
-    .sep { color: rgba(235, 242, 250, 0.3); }
+    .sep { color: rgba(255, 236, 209, 0.3); }
     span[aria-current] { color: #fff; }
   }
 }
@@ -452,8 +488,8 @@ h3, h4, h5, h6 {
     background: linear-gradient(
       100deg,
       var(--bleu-900) 8%,
-      rgba(2, 37, 70, 0.9) 42%,
-      rgba(2, 37, 70, 0.6) 100%
+      rgba(0, 40, 48, 0.9) 42%,
+      rgba(0, 40, 48, 0.6) 100%
     );
     z-index: 1;
   }
@@ -544,17 +580,21 @@ h3, h4, h5, h6 {
 }
 
 /* ═══════════════ Surfaces ═══════════════ */
+/* Une grille de cartes en survol ne doit pas se soulever de deux pixels a
+   chaque passage de souris : sur quatre colonnes, le mouvement devient du
+   bruit. Un pixel de levee et une ombre moyenne suffisent a dire « ceci
+   repond au clic » sans faire tanguer la page. */
 .card {
   background: var(--canvas);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  transition: border-color var(--t) var(--ease), box-shadow 0.3s var(--ease), transform 0.3s var(--ease);
+  transition: border-color var(--t) var(--ease), box-shadow 0.24s var(--ease), transform 0.24s var(--ease);
   position: relative;
 
   &:hover {
-    border-color: var(--violet-200);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
+    border-color: var(--bleu-300);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
   }
 }
 .card--flat:hover { transform: none; box-shadow: none; border-color: var(--line-strong); }
@@ -1008,7 +1048,7 @@ table.data {
 /* ═══════════════ Modales ═══════════════ */
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(1, 18, 31, 0.5);
+  background: rgba(0, 21, 36, 0.5);
   backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex; align-items: center; justify-content: center;
@@ -1041,7 +1081,7 @@ table.data {
 
 /* Tiroir latéral */
 .drawer-overlay {
-  position: fixed; inset: 0; background: rgba(1, 18, 31, 0.4);
+  position: fixed; inset: 0; background: rgba(0, 21, 36, 0.4);
   backdrop-filter: blur(3px); z-index: 900; animation: fadeIn 0.2s ease both;
 }
 .drawer {
@@ -1158,6 +1198,503 @@ table.data {
   .modal-content { padding: 1.4rem; }
   .section-head, .page-head { align-items: flex-start; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   KIT DU SITE PUBLIC
+
+   Le gabarit fait 1650 px. C'est large — assez pour poser une liste et
+   son detail cote a cote — mais une largeur ne se remplit pas toute
+   seule : sans primitives faites pour elle, une page large n'est qu'une
+   page etroite avec du vide autour. Ce kit fournit les quelques pieces
+   qui manquaient : le champ de filtre qui garde son libelle, la carte
+   qui tient sa hauteur dans une grille, le squelette qui garde la forme
+   pendant le chargement.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Champ de filtre etiquete ──
+   Un <select> seul perd son libelle des qu'on choisit : la barre finit
+   par afficher « CDI · Anglais · Temps plein » sans dire de quel critere
+   il s'agit. Le libelle reste donc a gauche, en petites capitales, et la
+   valeur se pose a cote. Le tout se comporte comme une pastille. */
+.ffield {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.35rem 0.3rem 0.8rem;
+  background: var(--canvas);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  transition: border-color var(--t), box-shadow var(--t), background var(--t);
+
+  &:hover:not(.is-disabled) { border-color: var(--bleu-300); }
+  &:focus-within { border-color: var(--bleu-600); box-shadow: 0 0 0 3px var(--bleu-tint); }
+
+  /* Renseigne : l'aplat pale dit « ce critere joue » sans crier. */
+  &.is-set {
+    background: var(--bleu-100);
+    border-color: var(--bleu-300);
+    .ffield__lbl { color: var(--bleu-700); }
+    select { color: var(--bleu-900); font-weight: 700; }
+  }
+
+  &.is-disabled { opacity: 0.5; }
+}
+
+.ffield__lbl {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--muted);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Un <select> prend la largeur de sa plus longue option : une categorie a
+   rallonge etirait la pastille sur un tiers de la barre. On la borne, le
+   menu deroulant restant lui de la largeur qu'il lui faut. */
+.ffield select {
+  appearance: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  max-width: 15ch;
+  text-overflow: ellipsis;
+  padding: 0.16rem 1.55rem 0.16rem 0;
+  font-family: var(--font);
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2356718f' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.45rem center;
+  &:disabled { cursor: not-allowed; }
+}
+
+/* Bascule oui/non : un critere binaire ne merite pas un menu deroulant
+   a deux entrees, il merite un interrupteur qu'on voit enclenche. */
+.ftoggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.46rem 0.9rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: var(--canvas);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  transition: border-color var(--t), background var(--t), color var(--t);
+
+  i { font-size: 0.9rem; color: var(--faint); transition: color var(--t); }
+
+  &:hover { border-color: var(--bleu-300); }
+  &.is-on {
+    background: var(--bleu-600);
+    border-color: var(--bleu-600);
+    color: #fff;
+    i { color: #fff; }
+  }
+}
+
+/* ── Rappel des criteres actifs ──
+   Les jetons disent ce qui filtre et le defont un par un. Sans eux, on
+   ne sait pas pourquoi la liste est courte. */
+.acrit {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.42rem;
+  padding: 0.15rem 0 0.9rem;
+}
+
+.acrit__lbl {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-right: 0.15rem;
+}
+
+.acrit__tok {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.4rem 0.3rem 0.72rem;
+  font-size: 0.79rem;
+  font-weight: 600;
+  color: var(--bleu-900);
+  background: var(--bleu-100);
+  border: 1px solid var(--bleu-200);
+  border-radius: var(--r-full);
+
+  b { font-family: var(--font-mono); font-size: 0.55rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.62; }
+
+  button {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 17px; height: 17px; border-radius: 50%;
+    font-size: 0.58rem; color: var(--bleu-800);
+    transition: background var(--t), color var(--t);
+    &:hover { background: var(--bleu-600); color: #fff; }
+  }
+}
+
+/* ── Carte de grille a hauteur egale ──
+   Dans une grille a quatre colonnes, des cartes de hauteurs differentes
+   forment un peigne : l'oeil suit les creux au lieu de suivre les
+   titres. La carte s'etire donc sur la rangee et pousse son pied en bas. */
+.gcard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+}
+.gcard__spring { margin-top: auto; }
+
+/* ── Squelettes de carte ──
+   Un rond qui tourne au milieu d'une page vide ne dit rien de ce qui
+   arrive. Le squelette, lui, garde la forme de la liste : la page ne
+   sursaute pas quand les vraies cartes se posent. */
+.sk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.1rem;
+}
+
+.sk-card {
+  padding: 1.2rem 1.3rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.sk-row { display: flex; align-items: center; gap: 0.7rem; }
+.sk-av { width: 38px; height: 38px; border-radius: var(--r-sm); flex-shrink: 0; }
+.sk-pill { height: 18px; width: 62px; border-radius: var(--r-full); }
+
+/* ── Bandeau de section clair ──
+   Alterne avec le sol pour decouper les longues pages sans ajouter de
+   trait ni de couleur nouvelle. */
+.band-soft { background: var(--canvas); }
+.band-floor { background: var(--nuage); }
+
+/* ── Ligne de lien-fleche ──
+   Le meme geste partout : le libelle, la fleche, et la fleche avance au
+   survol. */
+.arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--bleu-600);
+  transition: color var(--t);
+  i { font-size: 0.85rem; transition: transform var(--t) var(--ease-out); }
+  &:hover { color: var(--bleu-800); i { transform: translateX(3px); } }
+}
+
+/* ── Etat vide, version plus tenue ── */
+.empty-box i { color: var(--bleu-300); }
+
+/* ═══════════════════════════════════════════════════════════
+   KIT DES CONSOLES (candidat · recruteur)
+
+   Quatre motifs s'etaient recopies d'un espace a l'autre : le champ de
+   recherche des barres d'outils (quatre fois, sous quatre noms), le
+   panneau « a faire », l'entonnoir de progression et la tuile de chiffre
+   clef (deux fois chacun, entre les deux tableaux de bord).
+
+   Recopies, ils avaient deja commence a diverger sans raison — une
+   pastille de 32 px ici et de 34 px la, un rembourrage de 0,85 rem d'un
+   cote et de 0,9 rem de l'autre. Personne n'avait decide ces ecarts : ils
+   sont le residu de deux copier-coller. Ils sont ici une fois, et les
+   valeurs retenues sont celles de la derniere version ecrite.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Champ de recherche d'une barre d'outils ──
+   Etait `.trk-search`, `.af-search`, `.mo-search` et `.mt-search`. */
+.searchbar {
+  position: relative;
+  flex: 1 1 320px;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  background: var(--canvas);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  transition: border-color var(--t), box-shadow var(--t), background var(--t);
+
+  &:focus-within { border-color: var(--bleu-600); box-shadow: 0 0 0 3px var(--bleu-tint); }
+
+  > i { color: var(--muted); font-size: 0.85rem; flex-shrink: 0; }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.87rem;
+    color: var(--ink);
+    padding: 0.24rem 0;
+    &::placeholder { color: var(--faint); }
+    /* La croix native du champ « search » double le bouton d'effacement
+       du navigateur avec celui du gabarit, et ne se style pas. */
+    &::-webkit-search-cancel-button { display: none; }
+  }
+}
+
+/* Compacte, posee sur une surface deja blanche : le contour cede la place
+   a un aplat, sans quoi deux bordures se superposent. */
+.searchbar--sm {
+  flex: 1;
+  min-width: 0;
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem;
+  background: var(--nuage);
+  border-color: transparent;
+
+  &:focus-within { background: var(--canvas); border-color: var(--bleu-300); box-shadow: none; }
+
+  > i { font-size: 0.8rem; }
+  input { font-size: 0.84rem; padding: 0.2rem 0; }
+}
+
+/* ── Panneau « a faire » / « a traiter » ──
+   La file d'attente d'une console : ce qui reclame une action, et le
+   geste pour la faire. */
+.todo-panel {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.todo-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+
+  h2 {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 0.95rem; font-weight: 700;
+    i { color: var(--bleu-600); }
+  }
+}
+
+.todo-n {
+  min-width: 22px;
+  padding: 0.1rem 0.45rem;
+  text-align: center;
+  border-radius: var(--r-full);
+  background: var(--bleu-600);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.todo-list { list-style: none; }
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--nuage-2);
+  &:last-child { border-bottom: none; }
+}
+
+.todo-ic {
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-xs);
+  background: var(--nuage);
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+/* Ce qui attend une action se distingue de ce qui n'est qu'une nouvelle :
+   le remplissage porte l'echelle, pas la teinte seule. */
+.todo-item.is-due .todo-ic { background: var(--bleu-600); color: #fff; }
+
+/* Une ligne simple ou un couple intitule + explication : les deux
+   consoles n'ecrivent pas la meme chose, le bloc accepte les deux. */
+.todo-tx {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.4;
+  font-size: 0.9rem;
+  color: var(--ink);
+
+  strong { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+  span { font-size: 0.79rem; color: var(--muted); }
+}
+
+.todo-cta {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.83rem; font-weight: 600;
+  color: var(--bleu-600);
+  i { font-size: 0.78rem; transition: transform var(--t); }
+  &:hover { color: var(--bleu-800); i { transform: translateX(3px); } }
+}
+
+.todo-clear {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  padding: 1.15rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  i { color: var(--bleu-500); }
+  .arrow-link { margin-left: 0.2rem; }
+}
+
+@media (max-width: 768px) {
+  /* L'appel passe sous le libelle : cote a cote, il ne reste ni la place
+     de lire la tache ni celle de viser le lien. Le retrait suit la
+     pastille (34 px) et son ecart (0,8 rem). */
+  .todo-item {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    .todo-tx { flex: 1 1 calc(100% - 34px - 0.8rem); }
+    .todo-cta { margin-left: calc(34px + 0.8rem); }
+  }
+}
+
+/* ── Entonnoir de progression ──
+   Les etapes franchies d'un parcours, en comptes et en proportions. */
+.fn {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.fn-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.95rem 1rem;
+  background: var(--nuage);
+  border-radius: var(--r-md);
+}
+
+.fn-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+
+.fn-ic {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-xs);
+  background: var(--canvas);
+  color: var(--bleu-600);
+  font-size: 0.8rem;
+}
+
+.fn-val {
+  font-family: var(--font-mono);
+  font-size: 1.5rem; font-weight: 500;
+  letter-spacing: -0.05em; line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.fn-lbl { font-size: 0.8rem; font-weight: 600; color: var(--ink-soft); }
+
+/* La barre reprend la proportion que le pourcentage annonce : deux
+   lectures du meme fait, l'une immediate, l'autre exacte. */
+.fn-bar {
+  height: 5px;
+  margin-top: 0.25rem;
+  border-radius: var(--r-full);
+  background: var(--nuage-3);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: var(--r-full);
+    background: var(--bleu-600);
+    transition: width 0.8s var(--ease-out);
+  }
+}
+
+.fn-pct { font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); }
+
+.fn-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.83rem;
+  color: var(--muted);
+  i { color: var(--faint); margin-top: 0.15rem; }
+}
+
+@media (max-width: 1024px) { .fn { grid-template-columns: 1fr 1fr; } }
+
+/* ── Tuile de chiffre clef ──
+   S'appelait `.st` — deux lettres, dans la portee globale, a cote des
+   `.st-amber` et `.st-pending` des pastilles de statut. Renommee pour
+   qu'on ne se demande pas laquelle des deux familles on lit. */
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.2rem 1.25rem;
+  overflow: hidden;
+}
+
+.kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.kpi-icon {
+  width: 38px; height: 38px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  background: var(--bleu-100);
+  color: var(--bleu-700);
+  font-size: 1rem;
+}
+
+.kpi-val {
+  font-family: var(--font-mono);
+  font-size: 1.75rem; font-weight: 500;
+  letter-spacing: -0.05em; line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.kpi-unit { font-size: 1rem; color: var(--muted); margin-left: 0.05em; }
+
+.kpi-lbl { font-size: 0.84rem; font-weight: 600; color: var(--ink-soft); }
+
+/* Un taux sans definition se lit de travers : la ligne dit ce qu'il compte. */
+.kpi-hint { font-size: 0.74rem; line-height: 1.4; color: var(--muted); }
 
 /* ═══════════════ Prise en main de compte ═══════════════ */
 /* Le bandeau d'emprunt occupe le haut de la page. La navbar et la barre
@@ -1285,6 +1822,27 @@ body:has(app-impersonation-banner .imp) {
     background: transparent;
     border-style: dashed;
     &:hover { border-color: var(--line); box-shadow: none; }
+  }
+
+  /**
+   * Tuile d'alerte : un compteur qui appelle une action, et non un simple
+   * décompte. Le liseré à gauche suffit à la sortir de la rangée sans
+   * peindre le chiffre en rouge — la couleur du texte reste réservée à ce
+   * qui est faux, pas à ce qui est en retard.
+   */
+  &--alert {
+    border-color: color-mix(in oklab, var(--danger) 35%, var(--line));
+    background: color-mix(in oklab, var(--danger) 4%, var(--canvas));
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      border-radius: var(--r-md) 0 0 var(--r-md);
+      background: var(--danger);
+    }
+    &:hover { border-color: var(--danger); }
   }
 }
 
