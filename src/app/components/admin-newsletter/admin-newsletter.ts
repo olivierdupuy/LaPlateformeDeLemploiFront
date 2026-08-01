@@ -128,6 +128,29 @@ export class AdminNewsletter implements OnInit, OnDestroy {
   statutLibelle = (s: string) => STATUTS[s]?.libelle ?? s;
   statutClasse = (s: string) => STATUTS[s]?.classe ?? '';
 
+  /**
+   * Neutralise ce qui vient d'ailleurs avant de le coudre dans du HTML.
+   *
+   * Les gabarits Angular echappent tout seuls ; les boites de dialogue,
+   * non — leur contenu est pose tel quel dans le document. Or ce qu'on y
+   * affiche vient d'un formulaire public : l'adresse qu'un inconnu a
+   * saisie pour s'abonner. Une adresse portant « <img onerror=…> »
+   * s'executerait donc dans la console d'administration, avec la session
+   * de l'administrateur — le pire endroit ou cela puisse arriver.
+   *
+   * Le serveur refuse desormais ces adresses, mais un filtre d'entree se
+   * contourne toujours un jour : ce qui protege ici, c'est d'echapper a
+   * la sortie, au moment precis ou le texte devient du balisage.
+   */
+  private static echapper(v: unknown): string {
+    return String(v ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   /** Un envoi en cours mérite qu'on rafraîchisse : sinon on croit qu'il est figé. */
   envoiEnCours = computed(() => this.campagnes().some((c) => c.status === 'Sending'));
 
@@ -205,7 +228,7 @@ export class AdminNewsletter implements OnInit, OnDestroy {
     const r = await Swal.fire({
       title: 'Retirer cette adresse ?',
       html: `<p style="font-size:.92rem;line-height:1.6">
-               <b>${a.email}</b> ne recevra plus la lettre d'information.
+               <b>${AdminNewsletter.echapper(a.email)}</b> ne recevra plus la lettre d'information.
                Son compte et ses candidatures ne sont pas affectés.
              </p>`,
       icon: 'question',
@@ -478,17 +501,20 @@ export class AdminNewsletter implements OnInit, OnDestroy {
         const liste = echecs.length
           ? '<div style="margin-top:.9rem;text-align:left"><b style="font-size:.85rem">Échecs</b>'
             + '<ul style="margin:.3rem 0 0;padding-left:1.1rem;font-size:.8rem;line-height:1.6;color:#577177">'
-            + echecs.map((e) => `<li>${e.email} — ${e.error ?? 'raison inconnue'}</li>`).join('')
+            + echecs.map((e) => `<li>${AdminNewsletter.echapper(e.email)} — `
+                                + `${AdminNewsletter.echapper(e.error ?? 'raison inconnue')}</li>`).join('')
             + '</ul></div>'
           : '';
         Swal.fire({
-          title: x.subject,
+          // Le titre d'une boite de dialogue est lui aussi du HTML : un
+          // objet de campagne y vaut balisage s'il n'est pas echappe.
+          title: AdminNewsletter.echapper(x.subject),
           html: `<div style="text-align:left;font-size:.92rem;line-height:1.7">
-                   <div><b>${x.delivered}</b> message${x.delivered > 1 ? 's' : ''} remis</div>
-                   ${x.failed ? `<div style="color:#c6364b"><b>${x.failed}</b> en échec</div>` : ''}
-                   ${x.restants ? `<div><b>${x.restants}</b> encore en attente</div>` : ''}
+                   <div><b>${+x.delivered || 0}</b> message${x.delivered > 1 ? 's' : ''} remis</div>
+                   ${x.failed ? `<div style="color:#c6364b"><b>${+x.failed || 0}</b> en échec</div>` : ''}
+                   ${x.restants ? `<div><b>${+x.restants || 0}</b> encore en attente</div>` : ''}
                    <div style="color:#577177;margin-top:.5rem">
-                     Ciblage : ${this.decrireSegment(x) || 'tous les abonnés'}
+                     Ciblage : ${AdminNewsletter.echapper(this.decrireSegment(x)) || 'tous les abonnés'}
                    </div>
                  </div>${liste}`,
           confirmButtonColor: '#15616d',
