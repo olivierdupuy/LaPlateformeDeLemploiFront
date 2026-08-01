@@ -1,0 +1,71 @@
+<section class="lg-page">
+  <div class="container lg-layout">
+
+    <!-- Les quatre documents se répondent : passer de l'un à l'autre ne
+         doit pas demander de revenir au pied de page. -->
+    <nav class="lg-rail" aria-label="Documents légaux">
+      <span class="lg-rail__titre">Informations légales</span>
+      @for (d of documents; track d.cle) {
+        <a class="lg-rail__lien" [class.is-active]="d.cle === doc().cle" [routerLink]="'/' + d.cle">
+          {{ d.titre }}
+        </a>
+      }
+      @if (platform.contactEmail) {
+        <a class="lg-rail__contact" [href]="'mailto:' + platform.contactEmail">
+          <i class="bi bi-envelope" aria-hidden="true"></i> Nous écrire
+        </a>
+      }
+    </nav>
+
+    <article class="lg-doc">
+      <header class="lg-head">
+        <h1>{{ doc().titre }}</h1>
+        <p class="lg-chapeau">{{ doc().chapeau }}</p>
+      </header>
+
+      <!-- Une mention manquante ne doit pas se lire comme une mention
+           donnée : elle s'annonce en tête et se signale dans le texte. -->
+      @if (aCompleter()) {
+        <p class="lg-avis">
+          <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+          <span>
+            <strong>Document incomplet.</strong>
+            {{ aCompleter() }} section{{ aCompleter() > 1 ? 's' : '' }} attend{{ aCompleter() > 1 ? 'ent' : '' }}
+            des informations que seul l'éditeur du site peut fournir. Elles sont signalées ci-dessous.
+          </span>
+        </p>
+      }
+
+      @for (s of doc().sections; track s.titre) {
+        <section class="lg-bloc" [class.is-todo]="s.aCompleter">
+          <h2>
+            {{ s.titre }}
+            @if (s.aCompleter) { <span class="lg-todo">à compléter</span> }
+          </h2>
+
+          @if (s.aCompleter) {
+            <ul class="lg-liste lg-liste--todo">
+              @for (l of s.corps; track l) {
+                <li [innerHTML]="enrichir(l)"></li>
+              }
+            </ul>
+          } @else {
+            @for (l of s.corps; track l) {
+              @if (estPuce(l)) {
+                <ul class="lg-liste"><li [innerHTML]="enrichir(l)"></li></ul>
+              } @else {
+                <p [innerHTML]="enrichir(l)"></p>
+              }
+            }
+          }
+        </section>
+      }
+
+      <footer class="lg-foot">
+        <a routerLink="/" class="btn-ghost">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour à l'accueil
+        </a>
+      </footer>
+    </article>
+  </div>
+</section>

@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-cookie-consent',
+  imports: [RouterLink],
   standalone: true,
   template: `
     @if (visible()) {
@@ -10,13 +12,14 @@ import { Component, signal } from '@angular/core';
           <div class="cc-text">
             <strong id="cc-title">Cookies</strong>
             <p>
-              Les cookies essentiels font fonctionner le site. Les autres nous servent à mesurer
-              l'audience. Vous choisissez, et vous pourrez changer d'avis quand vous voulez.
+              Ce site n'utilise aucun outil de mesure d'audience ni traceur publicitaire.
+              Seul le strict nécessaire est enregistré dans votre navigateur : votre session,
+              vos favoris et vos préférences.
+              <a routerLink="/cookies">En savoir plus</a>
             </p>
           </div>
           <div class="cc-actions">
-            <button class="cc-refuse" (click)="choose('refused')">Essentiels seulement</button>
-            <button class="cc-accept" (click)="choose('accepted')">Tout accepter</button>
+            <button class="cc-accept" (click)="choose('accepted')">J'ai compris</button>
           </div>
         </div>
       </div>
@@ -47,6 +50,8 @@ import { Component, signal } from '@angular/core';
       font-size: 0.85rem; line-height: 1.55; margin-top: 0.4rem;
       color: var(--on-plum-muted); max-width: 64ch;
     }
+    .cc-text a { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+    .cc-text a:hover { color: var(--bleu-300); }
 
     .cc-actions { display: flex; gap: 0.6rem; flex-shrink: 0; }
     .cc-refuse, .cc-accept {

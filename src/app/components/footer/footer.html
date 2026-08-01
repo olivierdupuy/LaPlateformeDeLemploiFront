@@ -40,9 +40,9 @@
         </div>
 
         <div class="ft-social">
-          <a href="#" class="social-icon" aria-label="LinkedIn"><i class="bi bi-linkedin" aria-hidden="true"></i></a>
-          <a href="#" class="social-icon" aria-label="X"><i class="bi bi-twitter-x" aria-hidden="true"></i></a>
-          <a href="#" class="social-icon" aria-label="GitHub"><i class="bi bi-github" aria-hidden="true"></i></a>
+          <!-- Les trois pictogrammes de reseaux sociaux pointaient vers
+               « # » : trois cibles cliquables qui ne menaient nulle part.
+               Ils reviendront le jour ou les comptes existeront. -->
           @if (platform.contactEmail) {
             <a [href]="'mailto:' + platform.contactEmail" class="social-icon" aria-label="Nous écrire">
               <i class="bi bi-envelope-fill" aria-hidden="true"></i>
@@ -104,10 +104,10 @@
         </div>
       </div>
       <div class="ft-legal">
-        <a href="#">Mentions légales</a>
-        <a href="#">Confidentialité</a>
-        <a href="#">CGU</a>
-        <a href="#">Cookies</a>
+        <a routerLink="/mentions-legales">Mentions légales</a>
+        <a routerLink="/confidentialite">Confidentialité</a>
+        <a routerLink="/cgu">CGU</a>
+        <a routerLink="/cookies">Cookies</a>
       </div>
     </div>
   </div>

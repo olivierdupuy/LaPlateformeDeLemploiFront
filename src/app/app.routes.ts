@@ -5,6 +5,7 @@ import { BrowseJobs } from './components/browse-jobs/browse-jobs';
 import { Salaries } from './components/salaries/salaries';
 import { SalaryDetail } from './components/salary-detail/salary-detail';
 import { CareersGuide } from './components/careers-guide/careers-guide';
+import { Legal } from './components/legal/legal';
 import { Events } from './components/events/events';
 import { JobDetail } from './components/job-detail/job-detail';
 import { JobForm } from './components/job-form/job-form';
@@ -51,6 +52,13 @@ export const routes: Routes = [
   { path: 'guide', component: CareersGuide },
   { path: 'guide/:slug', component: CareersGuide },
   { path: 'evenements', component: Events },
+
+  // Pages légales. Un seul composant les sert toutes : elles partagent la
+  // mise en page et se renvoient l'une à l'autre.
+  { path: 'mentions-legales', component: Legal, data: { doc: 'mentions-legales' } },
+  { path: 'confidentialite', component: Legal, data: { doc: 'confidentialite' } },
+  { path: 'cgu', component: Legal, data: { doc: 'cgu' } },
+  { path: 'cookies', component: Legal, data: { doc: 'cookies' } },
   { path: 'offres/:id', component: JobDetail },
   // Tunnel de candidature : charge a la demande (il ne sert qu'apres avoir
   // choisi une offre) et sans garde de route, le composant renvoyant lui-meme

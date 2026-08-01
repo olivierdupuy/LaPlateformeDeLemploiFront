@@ -1,0 +1,223 @@
+// ═══════════════════════════════════════════════
+//  PAGES LÉGALES
+//  Un document se lit, il ne se parcourt pas : colonne de texte étroite,
+//  interlignage confortable, et le rail des quatre documents à gauche
+//  pour passer de l'un à l'autre sans redescendre au pied de page.
+// ═══════════════════════════════════════════════
+
+.lg-page {
+  padding: clamp(1.75rem, 4vw, 3rem) 0 clamp(3rem, 6vw, 5rem);
+}
+
+.lg-layout {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+// ── Rail des documents ──
+.lg-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  position: sticky;
+  top: calc(var(--nav-now) + 1.5rem);
+
+  &__titre {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  &__lien {
+    padding: 0.5rem 0.75rem;
+    border-left: 2px solid var(--line);
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    transition: color var(--t), border-color var(--t), background var(--t);
+
+    &:hover { color: var(--bleu-700); border-color: var(--line-strong); background: var(--canvas); }
+
+    &.is-active {
+      border-color: var(--bleu-600);
+      color: var(--ink);
+      font-weight: 600;
+      background: var(--canvas);
+    }
+  }
+
+  &__contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.83rem;
+    color: var(--bleu-600);
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Document ──
+.lg-doc {
+  // La ligne de texte reste lisible : au-delà d'environ soixante-dix
+  // signes, l'œil perd le début de la ligne suivante.
+  max-width: 72ch;
+  padding: clamp(1.4rem, 3vw, 2.25rem);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.lg-head {
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.4rem;
+  border-bottom: 1px solid var(--line);
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.6vw, 2rem);
+    letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+}
+
+.lg-chapeau {
+  margin-top: 0.45rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+// Un document incomplet doit le dire en tête. Une mention absente qui se
+// lit comme une mention donnée est pire qu'une page absente.
+.lg-avis {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.6rem;
+  border: 1px solid color-mix(in oklab, var(--danger) 35%, var(--line));
+  border-radius: var(--r-sm);
+  background: color-mix(in oklab, var(--danger) 5%, var(--canvas));
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+
+  i { flex-shrink: 0; margin-top: 0.15rem; color: var(--danger); }
+  strong { color: var(--danger); }
+}
+
+.lg-bloc {
+  margin-bottom: 1.75rem;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  p {
+    margin-bottom: 0.7rem;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+
+  strong { font-weight: 600; color: var(--ink); }
+
+  code {
+    padding: 0.05rem 0.32rem;
+    border-radius: var(--r-xs);
+    background: var(--nuage-2);
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    color: var(--ink);
+  }
+
+  &:last-of-type { margin-bottom: 0; }
+}
+
+.lg-todo {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--danger) 10%, transparent);
+  color: var(--danger);
+  font-family: var(--font);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.lg-liste {
+  list-style: none;
+  margin: 0 0 0.7rem;
+  padding: 0;
+
+  li {
+    position: relative;
+    padding-left: 1.1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.72em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--bleu-400);
+    }
+  }
+
+  // Les mentions manquantes se lisent comme une liste de courses, pas
+  // comme du texte de loi : c'est ce qu'il reste à écrire.
+  &--todo li {
+    color: var(--muted);
+    font-style: italic;
+    &::before { background: var(--danger); border-radius: 1px; }
+  }
+}
+
+.lg-foot {
+  padding-top: 1.4rem;
+  margin-top: 1.75rem;
+  border-top: 1px solid var(--line);
+}
+
+// ── Adaptation ──
+@media (max-width: 900px) {
+  .lg-layout { grid-template-columns: 1fr; }
+
+  .lg-rail {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+
+    &__titre { width: 100%; margin-bottom: 0.2rem; }
+    &__lien {
+      border-left: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--r-sm);
+      font-size: 0.82rem;
+    }
+    &__contact { margin-top: 0; }
+  }
+}
