@@ -65,18 +65,17 @@ export class AdminUsers implements OnInit, OnDestroy {
   private timer: ReturnType<typeof setInterval> | null = null;
 
   /**
-   * La présence arrive par le hub, hors du cycle de la requête paginée :
-   * la page servie est un instantané, cette table la corrige en direct
-   * sans redemander la liste au serveur à chaque connexion.
+   * La présence n'est plus tenue ici.
+   *
+   * Cette table et la barre d'état suivaient les mêmes événements chacune
+   * de son côté, avec deux implémentations dont une seule était juste.
+   * Elle vit désormais dans le service, qui en garde l'ensemble des
+   * identifiants — un doublon n'y change rien.
+   *
+   * L'amorçage est fait par la barre d'état, montée en permanence dans le
+   * gabarit d'administration : le hub n'annonce que les changements et ne
+   * dit jamais qui était déjà là.
    */
-  private presence = signal<Record<string, boolean>>({});
-
-  /**
-   * Écart accumulé depuis le dernier instantané du serveur. Les facettes
-   * donnent le nombre de connectés à l'instant de la réponse ; les
-   * événements du hub le font vivre ensuite.
-   */
-  private onlineDelta = signal(0);
 
   /** Dernier changement de présence observé, pour dater la fraîcheur. */
   lastChangeAt = signal<number | null>(null);
@@ -85,7 +84,7 @@ export class AdminUsers implements OnInit, OnDestroy {
   /** Lignes dont la présence vient de changer : elles clignotent une fois. */
   justChanged = signal<Record<string, boolean>>({});
 
-  onlineCount = computed(() => Math.max(0, this.q.facets().online + this.onlineDelta()));
+  onlineCount = this.signalR.onlineCount;
 
   /** État du tuyau : la vue doit dire si la présence affichée est fiable. */
   hubState = this.signalR.state;
@@ -101,15 +100,6 @@ export class AdminUsers implements OnInit, OnDestroy {
     return minutes < 60 ? `${minutes} min` : `${Math.round(minutes / 60)} h`;
   });
 
-  constructor() {
-    // Chaque réponse du serveur réétalonne le compteur : l'écart accumulé
-    // depuis la précédente n'a plus lieu d'être.
-    effect(() => {
-      this.q.facets();
-      this.onlineDelta.set(0);
-    });
-  }
-
   q = pagedQuery<UserRow, UserFacets>({
     fetch: (p) => this.admin.listUsers(p),
     emptyFacets: { total: 0, admins: 0, recruiters: 0, candidates: 0, suspended: 0, online: 0 },
@@ -123,7 +113,12 @@ export class AdminUsers implements OnInit, OnDestroy {
     }),
   });
 
-  isOnline = (u: UserRow) => this.presence()[u.id] ?? u.isOnline ?? false;
+  /**
+   * Le hub fait foi dès qu'il a parlé. Tant qu'il n'a rien dit — page
+   * ouverte avant l'amorçage — on s'en tient à l'instantané du serveur.
+   */
+  isOnline = (u: UserRow) =>
+    this.signalR.onlineCount() > 0 ? this.signalR.onlineUserIds().has(u.id) : (u.isOnline ?? false);
 
   activeFilters = computed(() =>
     Object.entries(this.q.params())
@@ -149,8 +144,10 @@ export class AdminUsers implements OnInit, OnDestroy {
     // Les abonnements ne se prennent qu'une fois : les rejouer a chaque
     // rechargement de la liste empilerait un abonne de plus par action.
     this.subs.push(
-      this.signalR.userOnline$.subscribe((id) => this.setPresence(id, true)),
-      this.signalR.userOffline$.subscribe((id) => this.setPresence(id, false)),
+      // La présence elle-même est tenue par le service ; il ne reste ici
+      // qu'à dater le dernier changement et à faire clignoter la ligne.
+      this.signalR.userOnline$.subscribe((id) => this.signalerChangement(id)),
+      this.signalR.userOffline$.subscribe((id) => this.signalerChangement(id)),
       // Une inscription change la liste elle-même : là, redemander la
       // page est justifié, une correction locale ne suffirait pas.
       this.signalR.newNotification$.subscribe(() => this.q.refresh()),
@@ -170,17 +167,9 @@ export class AdminUsers implements OnInit, OnDestroy {
     if (this.timer) clearInterval(this.timer);
   }
 
-  private setPresence(userId: string, online: boolean) {
-    const known = this.presence()[userId];
-    // Un même événement peut arriver deux fois (plusieurs onglets ouverts
-    // par la même personne) : sans ce garde-fou le compteur dériverait.
-    if (known === online) return;
-
-    this.presence.update((map) => ({ ...map, [userId]: online }));
-    this.onlineDelta.update((n) => n + (online ? 1 : -1));
+  /** Date le dernier mouvement et fait clignoter la ligne concernée. */
+  private signalerChangement(userId: string) {
     this.lastChangeAt.set(Date.now());
-
-    // La ligne concernée signale son changement, puis redevient normale.
     this.justChanged.update((m) => ({ ...m, [userId]: true }));
     setTimeout(() => this.justChanged.update((m) => ({ ...m, [userId]: false })), 2000);
   }

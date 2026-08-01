@@ -6,8 +6,7 @@ import {
   signal,
   computed,
   NgZone,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+  ChangeDetectionStrategy, effect } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SignalRService } from '../../services/signalr.service';
@@ -50,7 +49,15 @@ export class AdminStatusbar implements OnInit, OnDestroy {
   private timer: ReturnType<typeof setInterval> | null = null;
 
   now = signal(Date.now());
-  onlineUsers = signal(0);
+  /**
+   * Le compte vient du service, qui tient l'ensemble des personnes
+   * connectées. Cette barre entretenait son propre compteur en
+   * l'incrémentant à chaque `UserOnline` reçu — sans regarder de qui il
+   * s'agissait. Trois onglets d'une même personne le faisaient monter de
+   * trois et n'en rendaient qu'un à son départ : la barre a été mesurée à
+   * quatre alors qu'une seule personne était connectée.
+   */
+  onlineUsers = this.hub.onlineCount;
   pendingOffers = signal(0);
 
   apiHost = new URL(environment.apiUrl).host;
@@ -77,16 +84,9 @@ export class AdminStatusbar implements OnInit, OnDestroy {
   );
 
   ngOnInit() {
-    this.refreshPresence();
     this.refreshQueue();
 
-    // La présence bouge en direct : on ajuste le compteur sur l'événement
-    // plutôt que de redemander la liste au serveur.
-    this.subs.push(
-      this.hub.userOnline$.subscribe(() => this.onlineUsers.update((n) => n + 1)),
-      this.hub.userOffline$.subscribe(() => this.onlineUsers.update((n) => Math.max(0, n - 1))),
-      this.hub.newApplication$.subscribe(() => this.refreshQueue()),
-    );
+    this.subs.push(this.hub.newApplication$.subscribe(() => this.refreshQueue()));
 
     // L'horloge tourne hors de la zone Angular : laissée dedans, chaque
     // battement de seconde déclencherait une détection de changement sur
@@ -102,10 +102,30 @@ export class AdminStatusbar implements OnInit, OnDestroy {
     if (this.timer) clearInterval(this.timer);
   }
 
+  /**
+   * Le hub n'annonce que les changements : à l'ouverture de la page, il
+   * ne dit rien de ceux qui étaient déjà là. L'état de départ vient donc
+   * de l'API, et alimente le service — pas un compteur local.
+   *
+   * L'amorçage suit la connexion au lieu de la précéder. Lancé depuis
+   * `ngOnInit`, il partait avant que le hub ne soit ouvert : le serveur ne
+   * voyait pas encore cet onglet, et comme le hub n'annonce jamais votre
+   * propre arrivée — `Clients.Others` vous exclut — on ne se comptait
+   * jamais soi-même. La barre affichait une personne de moins qu'il n'y
+   * en avait, indéfiniment.
+   *
+   * Le même effet couvre la reconnexion : les événements émis pendant la
+   * coupure sont perdus, l'ensemble retenu doit être redemandé.
+   */
+  private amorcage = effect(() => {
+    if (this.hub.state() !== 'online') return;
+    this.refreshPresence();
+  });
+
   private refreshPresence() {
     this.auth.getAllUsers().subscribe({
-      next: (users) => this.onlineUsers.set(users.filter((u) => u.isOnline).length),
-      error: () => this.onlineUsers.set(0),
+      next: (users) => this.hub.seedPresence(users.filter((u) => u.isOnline).map((u) => u.id)),
+      error: () => {},
     });
   }
 
