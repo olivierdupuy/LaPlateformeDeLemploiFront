@@ -181,11 +181,11 @@
                adresse. Or l'inscription invite désormais à la remplir, et
                elle s'affiche à côté de chaque offre : elle a sa place ici,
                avec le rappel quand elle est encore vide. -->
-          @if (u.company) {
-            <a [routerLink]="['/entreprises', u.company]" class="qn">
+          @if (monEntreprise(); as societe) {
+            <a [routerLink]="['/entreprises', societe]" class="qn">
               <span class="qn-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
               <span class="qn-text">
-                <strong>La fiche de {{ u.company }}</strong>
+                <strong>La fiche de {{ societe }}</strong>
                 <span>
                   @if (ficheIncomplete()) {
                     Encore vide — c'est elle que lisent les candidats avant de postuler

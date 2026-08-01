@@ -37,6 +37,16 @@ export class DashboardRecruiter implements OnInit {
    */
   ficheIncomplete = signal(false);
 
+  /**
+   * L'entreprise du compte, pour le gabarit.
+   *
+   * L'alias « u » de l'en-tête ne vit que dans son propre bloc : le
+   * raccourci, qui se trouve bien plus bas, n'y a pas accès. On expose
+   * la valeur plutôt que d'imbriquer un second « @if » autour de tout
+   * le panneau.
+   */
+  monEntreprise = computed(() => this.auth.currentUser()?.company?.trim() || null);
+
   private verifierFiche() {
     const nom = this.auth.currentUser()?.company?.trim();
     if (!nom) return;
