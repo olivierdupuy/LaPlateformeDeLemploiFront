@@ -232,12 +232,19 @@
   .orank-row { grid-template-columns: minmax(0, 1fr) auto; .orank-bar { display: none; } }
 }
 
-/* Le rappel se lit dans la ligne, sans la dramatiser : une fiche vide
-   n'empêche pas de publier, elle diminue seulement ce que l'offre dit. */
-.qn-alerte {
-  flex-shrink: 0;
-  margin-left: auto;
-  padding: 0.15rem 0.55rem;
+// Le rappel se lit dans la ligne, sans la dramatiser : une fiche vide
+// n'empêche pas de publier, elle diminue seulement ce que l'offre dit.
+// Posée à côté du titre plutôt qu'en bout de ligne — dans une colonne
+// latérale, un nom d'entreprise long la repoussait hors de vue.
+//
+// Le sélecteur est qualifié par « .qn-text strong » : la règle voisine
+// « .qn-text span » pose « display: block » et l'emportait sur une
+// classe seule — la pastille s'étirait alors sur toute la largeur.
+.qn-text strong .qn-alerte {
+  display: inline-block;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  padding: 0.1rem 0.45rem;
   border-radius: var(--r-full);
   background: color-mix(in oklab, var(--rouge) 14%, transparent);
   border: 1px solid color-mix(in oklab, var(--rouge) 34%, transparent);
