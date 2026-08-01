@@ -284,6 +284,16 @@
                 }
               </div>
 
+
+                <!-- Champ-piege : hors de vue, hors du parcours au clavier.
+                     Une personne ne peut pas le remplir ; un robot qui
+                     moissonne le formulaire le remplit et se signale. -->
+                <div class="piege-robot" aria-hidden="true">
+                  <label>Site web</label>
+                  <input type="text" name="siteWeb" tabindex="-1" autocomplete="off"
+                         [(ngModel)]="siteWeb" />
+                </div>
+
               <button type="submit" class="btn-primary am-valider"
                       [disabled]="occupe() || !platform.allowRegistration">
                 @if (occupe()) { <span class="sp"></span> Création… } @else { Créer mon compte }
@@ -328,6 +338,16 @@
                   </div>
                   @if (errEmailOubli; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
                 </div>
+
+                  <!-- Champ-piege : hors de vue, hors du parcours au clavier.
+                       Une personne ne peut pas le remplir ; un robot qui
+                       moissonne le formulaire le remplit et se signale. -->
+                  <div class="piege-robot" aria-hidden="true">
+                    <label>Site web</label>
+                    <input type="text" name="siteWeb" tabindex="-1" autocomplete="off"
+                           [(ngModel)]="siteWeb" />
+                  </div>
+
                 <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
                   @if (occupe()) { <span class="sp"></span> Envoi… } @else { Envoyer le lien }
                 </button>

@@ -95,6 +95,11 @@ export interface RegisterRequest {
   password: string;
   role: string;
   company?: string;
+
+  /** Champ-piege, toujours vide chez une personne. Voir AuthModal. */
+  siteWeb?: string;
+  /** Millisecondes passees sur le formulaire. */
+  msSaisie?: number;
 }
 
 export interface LoginRequest {

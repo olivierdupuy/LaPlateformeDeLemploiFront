@@ -63,6 +63,23 @@ export class AuthModal {
   // ── Inscription ──
   inscription = { prenom: '', nom: '', email: '', motDePasse: '', role: 'Candidate', entreprise: '' };
 
+
+  /**
+   * Anti-robots — voir « Validation/AntiRobot.cs » cote serveur.
+   *
+   * « siteWeb » est un champ-piege : invisible et hors du parcours au
+   * clavier, une personne ne peut pas le remplir. « msSaisie » mesure le
+   * temps passe sur le formulaire ; lire, comprendre et remplir prend
+   * plus d'une seconde et demie a n'importe qui.
+   *
+   * Aucun service tiers, aucun cookie : le bandeau du site promet
+   * qu'aucun traceur n'est depose, et un CAPTCHA commercial aurait rendu
+   * cette phrase fausse.
+   */
+  siteWeb = '';
+  private ouvertA = Date.now();
+  protected get msSaisie() { return Date.now() - this.ouvertA; }
+
   // ── Récupération ──
   emailOubli = '';
   nouveau = '';
@@ -110,6 +127,8 @@ export class AuthModal {
     this.touche = {};
     this.soumis.set(false);
     this.serveur.set({});
+    this.siteWeb = '';
+    this.ouvertA = Date.now();
 
     const c = this.modale.contexte();
 
@@ -140,8 +159,8 @@ export class AuthModal {
       // Le premier champ, pas le premier élément focalisable : la croix de
       // fermeture ouvre le panneau dans le document et raflait le curseur,
       // si bien qu'une frappe immédiate n'écrivait nulle part.
-      const cible = p.querySelector<HTMLElement>('input:not([type=hidden]):not([disabled])')
-                 ?? p.querySelector<HTMLElement>('button:not([disabled])');
+      const cible = p.querySelector<HTMLElement>('input:not([type=hidden]):not([disabled]):not([tabindex="-1"])')
+                 ?? p.querySelector<HTMLElement>('button:not([disabled]):not([tabindex="-1"])');
       cible?.focus();
     });
   }
@@ -171,9 +190,15 @@ export class AuthModal {
 
     const p = this.panneau()?.nativeElement;
     if (!p) return;
+    // « tabindex="-1" » est exclu explicitement : le champ-piège en porte
+    // un, et il est bien dans le document — hors de vue, mais pas
+    // « display:none ». Sans cette exclusion, la boucle du clavier
+    // déposerait le curseur dans un champ que personne ne voit.
     const cibles = [...p.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])',
-    )].filter((el) => el.offsetParent !== null);
+      'a[href]:not([tabindex="-1"]), button:not([disabled]):not([tabindex="-1"]), '
+      + 'input:not([disabled]):not([tabindex="-1"]), select:not([tabindex="-1"]), '
+      + 'textarea:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])',
+    )].filter((el) => el.offsetParent !== null && !el.closest('[aria-hidden="true"]'));
     if (!cibles.length) return;
 
     const premier = cibles[0];
@@ -576,6 +601,7 @@ export class AuthModal {
     this.auth.register({
       firstName: f.prenom.trim(), lastName: f.nom.trim(), email: f.email.trim(),
       password: f.motDePasse, role: f.role, company: f.entreprise.trim(),
+      siteWeb: this.siteWeb, msSaisie: this.msSaisie,
     }).subscribe({
       next: (r) => this.apresAuthentification(r, 'Bienvenue — votre compte est créé.'),
       error: (e) => {
@@ -594,7 +620,8 @@ export class AuthModal {
     if (!this.valide([['email', Regles.email(this.emailOubli)]])) return;
 
     this.occupe.set(true);
-    this.auth.motDePasseOublie(this.emailOubli.trim()).subscribe({
+    this.auth.motDePasseOublie(this.emailOubli.trim(),
+                               { siteWeb: this.siteWeb, msSaisie: this.msSaisie }).subscribe({
       next: (r) => { this.occupe.set(false); this.fait.set(true); this.message.set(r.message); },
       error: (e) => {
         this.occupe.set(false);

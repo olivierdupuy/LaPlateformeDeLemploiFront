@@ -122,8 +122,8 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${this.apiUrl}/2fa/renvoyer`, { challengeToken });
   }
 
-  motDePasseOublie(email: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/mot-de-passe-oublie`, { email });
+  motDePasseOublie(email: string, piege?: { siteWeb: string; msSaisie: number }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/mot-de-passe-oublie`, { email, ...piege });
   }
 
   reinitialiserMotDePasse(userId: string, jeton: string, nouveauMotDePasse: string): Observable<{ message: string }> {

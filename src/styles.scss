@@ -2227,3 +2227,22 @@ body:has(app-impersonation-banner .imp) {
 
   span { flex: 1; }
 }
+
+/* ═══════════════ Champ-piège ═══════════════
+   Hors de vue et hors du parcours au clavier, mais présent dans le
+   document : une personne ne le voit ni ne l'atteint, un robot qui
+   remplit tout ce qu'il trouve le remplit — et se signale.
+
+   Ni « display:none » ni « hidden » : ce sont les deux formes qu'un
+   robot un peu écrit sait ignorer. Le champ existe vraiment, il est
+   seulement posé loin. */
+.piege-robot {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}

@@ -48,6 +48,23 @@ export class Newsletter implements OnInit {
   echec = signal(false);
   message = signal('');
 
+
+  /**
+   * Anti-robots — voir « Validation/AntiRobot.cs » cote serveur.
+   *
+   * « siteWeb » est un champ-piege : invisible et hors du parcours au
+   * clavier, une personne ne peut pas le remplir. « msSaisie » mesure le
+   * temps passe sur le formulaire ; lire, comprendre et remplir prend
+   * plus d'une seconde et demie a n'importe qui.
+   *
+   * Aucun service tiers, aucun cookie : le bandeau du site promet
+   * qu'aucun traceur n'est depose, et un CAPTCHA commercial aurait rendu
+   * cette phrase fausse.
+   */
+  siteWeb = '';
+  private ouvertA = Date.now();
+  protected get msSaisie() { return Date.now() - this.ouvertA; }
+
   // ── Abonnement ──
   email = '';
   prenom = '';
@@ -160,6 +177,8 @@ export class Newsletter implements OnInit {
       ville: this.ville.trim() || undefined,
       categories: this.choisies().join(',') || undefined,
       source: 'Page',
+      siteWeb: this.siteWeb,
+      msSaisie: this.msSaisie,
     }).subscribe({
       next: (r) => {
         this.occupe.set(false);

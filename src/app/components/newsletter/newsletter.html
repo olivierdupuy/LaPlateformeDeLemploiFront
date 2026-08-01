@@ -103,6 +103,16 @@
                chercher une faute de frappe qui n'existe pas. -->
           @if (errConsentement; as e) { <p class="nlp-erreur" role="alert">{{ e }}</p> }
 
+
+          <!-- Champ-piege : hors de vue, hors du parcours au clavier.
+               Une personne ne peut pas le remplir ; un robot qui
+               moissonne le formulaire le remplit et se signale. -->
+          <div class="piege-robot" aria-hidden="true">
+            <label>Site web</label>
+            <input type="text" name="siteWeb" tabindex="-1" autocomplete="off"
+                   [(ngModel)]="siteWeb" />
+          </div>
+
           <button type="submit" class="btn-primary full-w" [disabled]="occupe()">
             @if (occupe()) { <span class="sp"></span> Envoi… } @else { Recevoir la lettre }
           </button>

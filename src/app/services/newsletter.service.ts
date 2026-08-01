@@ -11,6 +11,11 @@ export interface DemandeAbonnement {
   categories?: string;
   /** D'où vient le geste : Footer, Page, Inscription. Sert aux statistiques. */
   source?: string;
+
+  /** Champ-piège, toujours vide chez une personne. Voir AntiRobot côté serveur. */
+  siteWeb?: string;
+  /** Millisecondes passées sur le formulaire. */
+  msSaisie?: number;
 }
 
 export interface EtatAbonne {
