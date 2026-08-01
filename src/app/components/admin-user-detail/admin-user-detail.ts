@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe, LowerCasePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AdminService } from '../../services/admin.service';
@@ -11,26 +11,65 @@ import { fichierUrl } from '../../utils/fichiers';
 /**
  * Fiche d'un compte, ouverte depuis le tableau des utilisateurs.
  *
- * Un compte se juge sur ce qu'il fait, pas sur ses seules coordonnées :
- * la fiche réunit le profil éditable et tout ce que la personne a produit
- * — candidatures, alertes, entretiens, CV, notes, journal.
+ * La fiche ne connaissait qu'un métier, celui de candidat : candidatures,
+ * alertes, CV, notes. Ouverte sur un recruteur, elle alignait donc six
+ * sections à zéro — alors que cette personne publie des offres, reçoit
+ * des candidatures et mène des entretiens, et que la base le sait.
+ *
+ * Un dossier suit donc désormais ce que la personne fait. Le rôle décide
+ * des sections et de leur ordre ; mais une section qui porte quelque
+ * chose n'est jamais masquée, même si le rôle ne l'attendait pas — les
+ * données ont le dernier mot sur la convention.
  *
  * Le formulaire travaille sur une copie. Tant que l'enregistrement n'est
  * pas demandé, la fiche affichée reste celle du serveur : on peut donc
  * comparer, et abandonner sans conséquence.
  */
 
-type Tab = 'profil' | 'candidatures' | 'recherches' | 'entretiens' | 'cv' | 'notes' | 'journal' | 'compte';
+type Tab =
+  | 'profil'
+  | 'offres' | 'recues' | 'menes'
+  | 'candidatures' | 'recherches' | 'entretiens' | 'cv' | 'notes'
+  | 'journal' | 'compte';
 
-const TABS: { key: Tab; label: string; icon: string }[] = [
-  { key: 'profil', label: 'Profil', icon: 'bi-person-vcard' },
-  { key: 'candidatures', label: 'Candidatures', icon: 'bi-file-earmark-text' },
-  { key: 'recherches', label: 'Alertes', icon: 'bi-bell' },
-  { key: 'entretiens', label: 'Entretiens', icon: 'bi-calendar-event' },
-  { key: 'cv', label: 'CV', icon: 'bi-file-person' },
-  { key: 'notes', label: 'Notes', icon: 'bi-sticky' },
-  { key: 'journal', label: 'Journal', icon: 'bi-clock-history' },
-  { key: 'compte', label: 'Compte', icon: 'bi-shield-lock' },
+interface Onglet {
+  label: string;
+  icon: string;
+  groupe: 'identite' | 'activite' | 'gestion';
+  /** Une section qui se dénombre annonce ce qu'elle contient. */
+  denombre?: boolean;
+}
+
+const ONGLETS: Record<Tab, Onglet> = {
+  profil: { label: 'Profil', icon: 'bi-person-vcard', groupe: 'identite' },
+
+  // Côté recruteur
+  offres: { label: 'Offres publiées', icon: 'bi-megaphone', groupe: 'activite', denombre: true },
+  recues: { label: 'Candidatures reçues', icon: 'bi-inbox', groupe: 'activite', denombre: true },
+  menes: { label: 'Entretiens menés', icon: 'bi-calendar-check', groupe: 'activite', denombre: true },
+
+  // Côté candidat
+  candidatures: { label: 'Candidatures', icon: 'bi-file-earmark-text', groupe: 'activite', denombre: true },
+  recherches: { label: 'Alertes', icon: 'bi-bell', groupe: 'activite', denombre: true },
+  entretiens: { label: 'Entretiens', icon: 'bi-calendar-event', groupe: 'activite', denombre: true },
+  cv: { label: 'CV', icon: 'bi-file-person', groupe: 'activite', denombre: true },
+  notes: { label: 'Notes', icon: 'bi-sticky', groupe: 'activite', denombre: true },
+
+  journal: { label: 'Journal', icon: 'bi-clock-history', groupe: 'gestion', denombre: true },
+  compte: { label: 'Compte', icon: 'bi-shield-lock', groupe: 'gestion' },
+};
+
+/** Ce qu'on vient consulter, selon le métier de la personne. */
+const PAR_ROLE: Record<string, Tab[]> = {
+  Candidate: ['profil', 'candidatures', 'recherches', 'entretiens', 'cv', 'notes', 'journal', 'compte'],
+  Recruiter: ['profil', 'offres', 'recues', 'menes', 'journal', 'compte'],
+  Admin: ['profil', 'journal', 'compte'],
+};
+
+const GROUPES: { cle: 'identite' | 'activite' | 'gestion'; titre: string }[] = [
+  { cle: 'identite', titre: 'Identité' },
+  { cle: 'activite', titre: 'Activité' },
+  { cle: 'gestion', titre: 'Gestion' },
 ];
 
 const STATUS_LABELS: Record<string, string> = {
@@ -57,9 +96,24 @@ const CV_SECTIONS: { key: string; label: string }[] = [
   { key: 'CentreInteret', label: "Centres d'intérêt" },
 ];
 
+/**
+ * Accord du libellé d'une mesure. En français zéro reste au singulier :
+ * « 0 candidature », « 1 candidature », « 2 candidatures ».
+ */
+const pl = (n: number, singulier: string, pluriel: string) => (n < 2 ? singulier : pluriel);
+
+/** Un chiffre du bandeau : sa valeur, ce qu'il compte, et pourquoi. */
+interface Mesure {
+  valeur: string;
+  libelle: string;
+  aide: string;
+  /** Vers quelle section ce chiffre renvoie, quand il en a une. */
+  vers?: Tab;
+}
+
 @Component({
   selector: 'app-admin-user-detail',
-  imports: [RouterLink, FormsModule, DatePipe, LowerCasePipe],
+  imports: [RouterLink, FormsModule, DatePipe],
   templateUrl: './admin-user-detail.html',
   styleUrl: './admin-user-detail.scss',
 })
@@ -70,7 +124,8 @@ export class AdminUserDetail implements OnInit {
   private router = inject(Router);
   private toastr = inject(ToastrService);
 
-  tabs = TABS;
+  onglets = ONGLETS;
+  groupes = GROUPES;
   cvSections = CV_SECTIONS;
   companyColor = companyColor;
   fichierUrl = fichierUrl;
@@ -81,7 +136,9 @@ export class AdminUserDetail implements OnInit {
   dossier = signal<any>(null);
   loading = signal(true);
   saving = signal(false);
-  activeTab = signal<Tab>('profil');
+
+  /** La section demandée, qui n'est pas forcément une section offerte. */
+  private demande = signal<Tab>('profil');
 
   /** Copie de travail du profil : le serveur reste la référence. */
   form = signal<Record<string, any>>({});
@@ -97,45 +154,156 @@ export class AdminUserDetail implements OnInit {
   notes = computed<any[]>(() => this.dossier()?.notes ?? []);
   activity = computed<any[]>(() => this.dossier()?.activity ?? []);
 
-  /** Compteurs affichés sur les onglets : le contenu s'annonce. */
-  counts = computed(() => ({
+  // Côté recruteur
+  offres = computed<any[]>(() => this.dossier()?.offresPubliees ?? []);
+  recues = computed<any[]>(() => this.dossier()?.candidaturesRecues ?? []);
+  menes = computed<any[]>(() => this.dossier()?.entretiensMenes ?? []);
+  delaiReponse = computed<number | null>(() => this.dossier()?.delaiReponseJours ?? null);
+
+  /** Combien chaque section porte. */
+  compteurs = computed<Record<Tab, number>>(() => ({
+    profil: 0,
+    offres: this.offres().length,
+    recues: this.recues().length,
+    menes: this.menes().length,
     candidatures: this.applications().length,
     recherches: this.savedSearches().length,
     entretiens: this.interviews().length,
     cv: this.cv().length,
     notes: this.notes().length,
     journal: this.activity().length,
+    compte: 0,
   }));
 
-  /** Le résumé d'en-tête : ce qui se lit sans ouvrir un onglet. */
-  summary = computed(() => {
-    const apps = this.applications();
-    const accepted = apps.filter((a) => a.status === 'Accepted').length;
-    return {
-      total: apps.length,
-      accepted,
-      pending: apps.filter((a) => a.status === 'Pending').length,
-      alerts: this.savedSearches().filter((s) => s.alertEnabled).length,
-      interviews: this.interviews().length,
-      successRate: apps.length ? Math.round((accepted / apps.length) * 100) : 0,
-    };
+  compteur = (t: Tab): number => this.compteurs()[t] ?? 0;
+
+  /**
+   * Les sections de ce dossier.
+   *
+   * Le rôle donne l'ordre attendu ; une section hors de cet ordre mais
+   * qui porte quelque chose s'ajoute quand même. Un recruteur ayant
+   * postulé à une offre ne doit pas voir sa candidature disparaître
+   * parce que la convention ne l'attendait pas.
+   */
+  sections = computed<Tab[]>(() => {
+    const u = this.user();
+    if (!u) return ['profil'];
+    const base = PAR_ROLE[u.role] ?? PAR_ROLE['Candidate'];
+    const c = this.compteurs();
+    const surplus = (Object.keys(ONGLETS) as Tab[]).filter((k) => !base.includes(k) && c[k] > 0);
+    return [...base, ...surplus];
   });
+
+  /** La section réellement ouverte : celle demandée si elle existe ici. */
+  activeTab = computed<Tab>(() => {
+    const d = this.demande();
+    return this.sections().includes(d) ? d : 'profil';
+  });
+
+  sectionsDuGroupe = (g: string): Tab[] => this.sections().filter((t) => ONGLETS[t].groupe === g);
+
+  /**
+   * Le bandeau de mesures.
+   *
+   * Un taux d'acceptation de candidatures n'a aucun sens sur un
+   * recruteur : il affichait « 0 % » sur des comptes qui n'ont jamais
+   * postulé. Chaque métier a ses propres chiffres.
+   */
+  mesures = computed<Mesure[]>(() => {
+    const u = this.user();
+    if (!u) return [];
+
+    if (u.role === 'Recruiter') {
+      const offres = this.offres();
+      const enLigne = offres.filter((o) => this.offreEnLigne(o)).length;
+      const attente = this.recues().filter((a) => a.status === 'Pending').length;
+      const delai = this.delaiReponse();
+      return [
+        { valeur: String(offres.length), libelle: pl(offres.length, 'offre publiée', 'offres publiées'), vers: 'offres',
+          aide: 'Toutes les annonces déposées par ce compte, en ligne ou non.' },
+        { valeur: String(enLigne), libelle: 'en ligne', vers: 'offres',
+          aide: 'Approuvées, actives, non expirées : visibles du public en ce moment.' },
+        { valeur: String(this.recues().length),
+          libelle: pl(this.recues().length, 'candidature reçue', 'candidatures reçues'), vers: 'recues',
+          aide: !this.recues().length ? "Personne n'a encore postulé à ces offres."
+            : attente ? `Dont ${attente} encore sans décision.`
+            : 'Toutes ont reçu une décision.' },
+        { valeur: delai === null ? '—' : `${delai} j`, libelle: 'délai de réponse', vers: 'recues',
+          aide: delai === null
+            ? 'Aucune candidature lue : le délai ne se mesure pas encore.'
+            : 'Temps moyen entre le dépôt et la lecture, sur les candidatures lues.' },
+      ];
+    }
+
+    if (u.role === 'Admin') {
+      const cnx = u.loginsLast30Days ?? 0;
+      return [
+        { valeur: String(this.activity().length),
+          libelle: pl(this.activity().length, 'action au journal', 'actions au journal'), vers: 'journal',
+          aide: 'Les 50 dernières actions enregistrées sous ce compte.' },
+        { valeur: String(cnx), libelle: pl(cnx, 'connexion (30 j)', 'connexions (30 j)'),
+          aide: 'Nombre de connexions sur le dernier mois.' },
+        { valeur: this.fraicheur().jamais ? 'Jamais' : this.fraicheur().court, libelle: 'dernière visite',
+          aide: this.fraicheur().texte },
+      ];
+    }
+
+    const apps = this.applications();
+    const acceptees = apps.filter((a) => a.status === 'Accepted').length;
+    const attente = apps.filter((a) => a.status === 'Pending').length;
+    const entretiens = this.interviews().length;
+    const alertes = this.savedSearches().filter((s) => s.alertEnabled).length;
+    return [
+      { valeur: String(apps.length), libelle: pl(apps.length, 'candidature', 'candidatures'), vers: 'candidatures',
+        aide: !apps.length ? "Ce compte n'a encore postulé à aucune offre."
+          : attente ? `Dont ${attente} sans réponse du recruteur.`
+          : 'Toutes ont reçu une réponse.' },
+      { valeur: String(entretiens), libelle: pl(entretiens, 'entretien', 'entretiens'), vers: 'entretiens',
+        aide: 'Entretiens proposés à cette personne, tous statuts confondus.' },
+      { valeur: String(alertes), libelle: pl(alertes, 'alerte active', 'alertes actives'), vers: 'recherches',
+        aide: 'Recherches enregistrées qui envoient un courriel.' },
+      { valeur: apps.length ? `${Math.round((acceptees / apps.length) * 100)} %` : '—', libelle: 'acceptation',
+        vers: 'candidatures',
+        aide: apps.length
+          ? `${acceptees} candidature${acceptees > 1 ? 's' : ''} acceptée${acceptees > 1 ? 's' : ''} sur ${apps.length}.`
+          : 'Aucune candidature : le taux ne se calcule pas.' },
+    ];
+  });
+
+  /**
+   * Une offre est-elle réellement visible du public ?
+   *
+   * « Publiée » ne suffit pas : une offre peut être approuvée mais
+   * expirée, active mais en brouillon, en ligne mais en attente de
+   * modération. Le tableau doit dire lequel de ces cas s'applique.
+   */
+  offreEnLigne = (o: any): boolean =>
+    !!o.isActive && !o.isDraft && o.moderationStatus === 'Approved' &&
+    (!o.expiresAt || new Date(o.expiresAt).getTime() > Date.now());
+
+  /** L'état d'une offre en un mot, et sa couleur. */
+  etatOffre = (o: any): { texte: string; classe: string } => {
+    if (o.isDraft) return { texte: 'Brouillon', classe: '' };
+    if (o.moderationStatus === 'Pending') return { texte: 'En modération', classe: 'badge-yellow' };
+    if (o.moderationStatus === 'Rejected') return { texte: 'Rejetée', classe: 'badge-red' };
+    if (!o.isActive) return { texte: 'Retirée', classe: '' };
+    if (o.expiresAt && new Date(o.expiresAt).getTime() <= Date.now())
+      return { texte: 'Expirée', classe: 'badge-red' };
+    return { texte: 'En ligne', classe: 'badge-green' };
+  };
 
   /**
    * Fraîcheur du compte.
    *
    * « Ce compte sert-il encore ? » est la première question que pose une
-   * fiche, et la page n'y répondait pas : elle affichait la date
-   * d'inscription, qui ne dit rien de l'usage. La dernière connexion est
-   * déduite du journal, faute d'une colonne dédiée.
-   *
-   * Le seuil de quatre-vingt-dix jours n'est pas une alerte : c'est le
-   * moment où l'on peut dire qu'un compte dort.
+   * fiche. La dernière connexion est déduite du journal, faute d'une
+   * colonne dédiée. Le seuil de quatre-vingt-dix jours n'est pas une
+   * alerte : c'est le moment où l'on peut dire qu'un compte dort.
    */
   fraicheur = computed(() => {
     const u = this.user();
     const iso: string | null = u?.lastLoginAt ?? null;
-    if (!iso) return { jamais: true, texte: 'Jamais connecté', dormant: true, connexions30j: 0 };
+    if (!iso) return { jamais: true, texte: 'Jamais connecté', court: 'Jamais', dormant: true };
 
     const jours = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000));
     const texte =
@@ -144,8 +312,11 @@ export class AdminUserDetail implements OnInit {
       : jours < 30 ? `Connecté il y a ${jours} jours`
       : jours < 365 ? `Connecté il y a ${Math.round(jours / 30)} mois`
       : `Connecté il y a plus d'un an`;
+    const court =
+      jours === 0 ? "Aujourd'hui" : jours === 1 ? 'Hier'
+      : jours < 30 ? `${jours} j` : jours < 365 ? `${Math.round(jours / 30)} mois` : '+1 an';
 
-    return { jamais: false, texte, dormant: jours > 90, connexions30j: u?.loginsLast30Days ?? 0 };
+    return { jamais: false, texte, court, dormant: jours > 90 };
   });
 
   /** Les compétences sont stockées séparées par virgules. */
@@ -170,7 +341,7 @@ export class AdminUserDetail implements OnInit {
     this.userId = this.route.snapshot.paramMap.get('id') ?? '';
 
     const tab = this.route.snapshot.queryParamMap.get('onglet') as Tab | null;
-    if (tab && TABS.some((t) => t.key === tab)) this.activeTab.set(tab);
+    if (tab && ONGLETS[tab]) this.demande.set(tab);
 
     this.load();
   }
@@ -205,7 +376,7 @@ export class AdminUserDetail implements OnInit {
   }
 
   setTab(tab: Tab) {
-    this.activeTab.set(tab);
+    this.demande.set(tab);
     // L'onglet vit dans l'URL : la fiche se partage et se recharge ouverte
     // au bon endroit.
     this.router.navigate([], {
@@ -265,12 +436,12 @@ export class AdminUserDetail implements OnInit {
     });
   }
 
-  // ═══ Pieces du dossier ═══
-  // Chaque ligne s'enregistre a son propre geste. Un bouton unique par
-  // onglet laisserait croire a un etat d'ensemble a valider, alors qu'il
-  // s'agit d'enregistrements independants.
+  // ═══ Pièces du dossier ═══
+  // Chaque ligne s'enregistre à son propre geste. Un bouton unique par
+  // section laisserait croire à un état d'ensemble à valider, alors qu'il
+  // s'agit d'enregistrements indépendants.
 
-  /** Ligne en cours d'ecriture, pour neutraliser ses commandes. */
+  /** Ligne en cours d'écriture, pour neutraliser ses commandes. */
   enCours = signal<string | null>(null);
 
   private ecrire(cle: string, appel: any, message: string) {
@@ -299,7 +470,7 @@ export class AdminUserDetail implements OnInit {
   }
 
   supprimerCandidature(a: any) {
-    // Une candidature effacee ne se retrouve pas : on demande confirmation.
+    // Une candidature effacée ne se retrouve pas : on demande confirmation.
     if (!confirm(`Supprimer définitivement la candidature de ${a.fullName} ?`)) return;
     this.ecrire(`c${a.id}`, this.admin.supprimerCandidature(a.id), 'Candidature supprimée');
   }
@@ -337,20 +508,18 @@ export class AdminUserDetail implements OnInit {
   /**
    * Prend la main sur ce compte.
    *
-   * On confirme d'abord : agir sous l'identite de quelqu'un donne acces a
-   * ses messages prives et permet d'agir en son nom. Ce n'est pas un
-   * geste qu'on fait par megarde.
+   * On confirme d'abord : agir sous l'identité de quelqu'un donne accès à
+   * ses messages privés et permet d'agir en son nom. Ce n'est pas un
+   * geste qu'on fait par mégarde.
    */
   prendreEnMain() {
     const u = this.user();
     if (!u) return;
 
     const ok = confirm(
-      `Prendre la main sur le compte de ${u.firstName} ${u.lastName} ?
-
-`
+      `Prendre la main sur le compte de ${u.firstName} ${u.lastName} ?\n\n`
       + `Vous agirez en son nom pendant 30 minutes. Vos actions seront `
-      + `enregistrees au journal sous votre propre identite.`,
+      + `enregistrées au journal sous votre propre identité.`,
     );
     if (!ok) return;
 

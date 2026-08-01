@@ -1,10 +1,6 @@
 <section class="ad-page">
   <div class="container">
 
-    <!-- Le nom, le poste et la date d'inscription figuraient ici ET dans
-         la carte d'identite juste dessous, puis une troisieme fois dans
-         le formulaire. Seul le chemin du retour reste : le reste vit
-         dans la fiche elle-meme. -->
     <a routerLink="/admin/utilisateurs" class="back-link aud-retour">
       <i class="bi bi-arrow-left" aria-hidden="true"></i> Utilisateurs
     </a>
@@ -53,6 +49,10 @@
             }
           </div>
           <div class="aud-id__meta">
+            @if (user().title) { <span class="aud-id__poste">{{ user().title }}</span> }
+            @if (user().role === 'Recruiter' && user().company) {
+              <span><i class="bi bi-building"></i> {{ user().company }}</span>
+            }
             <a [href]="'mailto:' + user().email"><i class="bi bi-envelope"></i> {{ user().email }}</a>
             @if (user().phoneNumber) { <span><i class="bi bi-telephone"></i> {{ user().phoneNumber }}</span> }
             @if (user().city) { <span><i class="bi bi-geo-alt"></i> {{ user().city }}</span> }
@@ -68,30 +68,50 @@
           </div>
         </div>
 
-        <!-- Le résumé répond avant qu'on ouvre un onglet -->
-        <div class="aud-summary">
-          <span class="auds"><b class="u-mono">{{ summary().total }}</b><i>candidatures</i></span>
-          <span class="auds"><b class="u-mono">{{ summary().interviews }}</b><i>entretiens</i></span>
-          <span class="auds"><b class="u-mono">{{ summary().alerts }}</b><i>alertes</i></span>
-          <span class="auds"><b class="u-mono">{{ summary().successRate }}%</b><i>acceptation</i></span>
+        <!-- ═══ MESURES ═══
+             Le bandeau comptait des candidatures, des alertes et un taux
+             d'acceptation : quatre chiffres de candidat, affichés à zéro
+             sur tout recruteur. Chaque métier a maintenant les siens, et
+             chaque chiffre dit d'où il sort. -->
+        <div class="aud-mesures">
+          @for (m of mesures(); track m.libelle) {
+            @if (m.vers) {
+              <button class="aud-mes" [title]="m.aide" (click)="setTab(m.vers!)">
+                <b class="u-mono">{{ m.valeur }}</b>
+                <i>{{ m.libelle }}</i>
+                <small>{{ m.aide }}</small>
+              </button>
+            } @else {
+              <span class="aud-mes aud-mes--fixe" [title]="m.aide">
+                <b class="u-mono">{{ m.valeur }}</b>
+                <i>{{ m.libelle }}</i>
+                <small>{{ m.aide }}</small>
+              </span>
+            }
+          }
         </div>
       </header>
 
-      <!-- ═══ GABARIT : rail · dossier · leviers ═══
-           Huit onglets en ligne finissaient par se serrer jusqu'a
-           l'illisible. En colonne, chacun porte son compte et l'on voit
-           d'un coup ce que ce dossier contient. -->
+      <!-- ═══ GABARIT : rail · dossier · leviers ═══ -->
       <div class="aud-layout">
+
+        <!-- Le rail se range en trois temps : qui est cette personne, ce
+             qu'elle fait, ce qu'on peut faire de son compte. -->
         <nav class="aud-rail" aria-label="Sections du dossier">
-          @for (t of tabs; track t.key) {
-            <button class="aud-rail__lien" [class.is-active]="activeTab() === t.key" (click)="setTab(t.key)"
-                    [attr.aria-current]="activeTab() === t.key ? 'page' : null">
-              <i class="bi" [class]="t.icon" aria-hidden="true"></i>
-              <span class="aud-rail__lbl">{{ t.label }}</span>
-              @if (t.key !== 'profil' && t.key !== 'compte') {
-                <span class="aud-rail__n u-mono">{{ $any(counts())[t.key] }}</span>
+          @for (g of groupes; track g.cle) {
+            @if (sectionsDuGroupe(g.cle).length) {
+              <span class="aud-rail__groupe">{{ g.titre }}</span>
+              @for (t of sectionsDuGroupe(g.cle); track t) {
+                <button class="aud-rail__lien" [class.is-active]="activeTab() === t" (click)="setTab(t)"
+                        [attr.aria-current]="activeTab() === t ? 'page' : null">
+                  <i class="bi" [class]="onglets[t].icon" aria-hidden="true"></i>
+                  <span class="aud-rail__lbl">{{ onglets[t].label }}</span>
+                  @if (onglets[t].denombre) {
+                    <span class="aud-rail__n u-mono" [class.is-vide]="!compteur(t)">{{ compteur(t) }}</span>
+                  }
+                </button>
               }
-            </button>
+            }
           }
         </nav>
 
@@ -189,11 +209,191 @@
               </label>
             </fieldset>
           </div>
-
         </div>
       }
 
-      <!-- ═══ CANDIDATURES ═══ -->
+      <!-- ═══ OFFRES PUBLIÉES (recruteur) ═══
+           La fiche d'un recruteur ne disait rien de ce qu'il publie : la
+           base le sait pourtant, par l'auteur de chaque annonce. -->
+      @if (activeTab() === 'offres') {
+        <div class="aud-panel animate-in">
+          @if (!offres().length) {
+            <div class="empty-box card">
+              <i class="bi bi-megaphone"></i>
+              <h3>Aucune offre publiée</h3>
+              <p>Ce compte n'a encore déposé aucune annonce sur la plateforme.</p>
+            </div>
+          } @else {
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr>
+                    <th>Intitulé</th><th>État</th><th>Lieu</th><th>Contrat</th>
+                    <th class="aud-num">Candidatures</th><th class="aud-num">Vues</th>
+                    <th>Publiée</th><th>Expire</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (o of offres(); track o.id) {
+                    <tr>
+                      <td>
+                        <a [routerLink]="['/admin/offres', o.id]" class="aud-link">{{ o.title }}</a>
+                        <span class="aud-sub aud-bloc">{{ o.company }}</span>
+                      </td>
+                      <td><span class="badge" [class]="etatOffre(o).classe">{{ etatOffre(o).texte }}</span></td>
+                      <td class="aud-sub">{{ o.location || '—' }}</td>
+                      <td>@if (o.contractType) { <span class="tag">{{ o.contractType }}</span> } @else { — }</td>
+                      <td class="aud-num">
+                        <!-- Le chiffre seul ne dit pas s'il y a du travail
+                             qui attend : c'est le nombre sans décision qui
+                             appelle une action. -->
+                        <span class="u-mono">{{ o.applications }}</span>
+                        @if (o.pending) {
+                          <a class="aud-attente" [routerLink]="['/admin/candidatures']"
+                             [queryParams]="{ offre: o.id }"
+                             [title]="o.pending + ' candidature(s) sans décision'">{{ o.pending }} en attente</a>
+                        }
+                      </td>
+                      <td class="aud-num u-mono aud-sub">{{ o.viewCount }}</td>
+                      <td class="u-mono aud-date">{{ o.createdAt | date:'dd/MM/yy' }}</td>
+                      <td class="u-mono aud-date">
+                        {{ o.expiresAt ? (o.expiresAt | date:'dd/MM/yy') : '—' }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ CANDIDATURES REÇUES (recruteur) ═══ -->
+      @if (activeTab() === 'recues') {
+        <div class="aud-panel animate-in">
+          @if (!recues().length) {
+            <div class="empty-box card">
+              <i class="bi bi-inbox"></i>
+              <h3>Aucune candidature reçue</h3>
+              <p>Personne n'a encore postulé aux offres de ce compte.</p>
+            </div>
+          } @else {
+            <p class="aud-hint aud-hint--haut">
+              Les soixante candidatures les plus récentes.
+              <a routerLink="/admin/candidatures" class="aud-link">Voir toutes les candidatures</a>
+            </p>
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr><th>Candidat</th><th>Offre</th><th>Statut</th><th>Déposée</th><th>Suivi</th><th></th></tr>
+                </thead>
+                <tbody>
+                  @for (a of recues(); track a.id) {
+                    <tr>
+                      <td>
+                        <!-- Le nom mène à la fiche du candidat quand il a un
+                             compte : une candidature déposée sans inscription
+                             n'en a pas. -->
+                        @if (a.userId) {
+                          <a [routerLink]="['/admin/utilisateurs', a.userId]" class="aud-link">{{ a.fullName }}</a>
+                        } @else {
+                          <span>{{ a.fullName }}</span>
+                        }
+                        @if (a.city) { <span class="aud-sub aud-bloc">{{ a.city }}</span> }
+                      </td>
+                      <td><a [routerLink]="['/admin/offres', a.jobOfferId]" class="aud-link">{{ a.jobTitle }}</a></td>
+                      <td><span class="badge" [class]="statusBadge(a.status)">{{ statusLabel(a.status) }}</span></td>
+                      <td class="u-mono aud-date">{{ a.appliedAt | date:'dd/MM/yy' }}</td>
+                      <td>
+                        <div class="aud-track">
+                          @if (a.reviewedAt) {
+                            <span class="aud-seen"><i class="bi bi-eye-fill"></i> Consultée</span>
+                          } @else if (a.status === 'Pending') {
+                            <span class="aud-muted"><i class="bi bi-eye-slash"></i> Non lue</span>
+                          } @else {
+                            <span class="aud-muted">—</span>
+                          }
+                          @if (a.isArchived) { <span class="badge">Archivée</span> }
+                        </div>
+                      </td>
+                      <td>
+                        <div class="aud-row-act">
+                          <select class="aud-sel" [value]="a.status"
+                                  [disabled]="enCours() === 'c' + a.id"
+                                  (change)="changerStatutCandidature(a, $any($event.target).value)"
+                                  aria-label="Statut de la candidature">
+                            <option value="Pending">En attente</option>
+                            <option value="Reviewed">Examinée</option>
+                            <option value="Accepted">Acceptée</option>
+                            <option value="Rejected">Refusée</option>
+                          </select>
+                          <button class="aud-act" (click)="basculerArchivage(a)"
+                                  [disabled]="enCours() === 'c' + a.id"
+                                  [title]="a.isArchived ? 'Réactiver' : 'Archiver'">
+                            <i class="bi" [class.bi-archive]="!a.isArchived" [class.bi-arrow-counterclockwise]="a.isArchived"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ ENTRETIENS MENÉS (recruteur) ═══ -->
+      @if (activeTab() === 'menes') {
+        <div class="aud-panel animate-in">
+          @if (!menes().length) {
+            <div class="empty-box card">
+              <i class="bi bi-calendar-check"></i>
+              <h3>Aucun entretien mené</h3>
+              <p>Aucun entretien n'a été proposé sur les offres de ce compte.</p>
+            </div>
+          } @else {
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr><th>Date</th><th>Candidat</th><th>Poste</th><th>Type</th><th>Statut</th><th>Intervieweur</th><th></th></tr>
+                </thead>
+                <tbody>
+                  @for (i of menes(); track i.id) {
+                    <tr>
+                      <td class="u-mono aud-date">{{ i.proposedAt | date:'dd/MM/yy HH:mm' }}</td>
+                      <td>{{ i.candidat }}</td>
+                      <td class="aud-sub">{{ i.jobTitle }}</td>
+                      <td>@if (i.type) { <span class="tag">{{ i.type }}</span> } @else { — }</td>
+                      <td><span class="badge" [class]="statusBadge(i.status)">{{ statusLabel(i.status) }}</span></td>
+                      <td class="aud-sub">{{ i.interviewerName || '—' }}</td>
+                      <td>
+                        <div class="aud-row-act">
+                          <select class="aud-sel" [value]="i.status"
+                                  [disabled]="enCours() === 'e' + i.id"
+                                  (change)="changerStatutEntretien(i, $any($event.target).value)"
+                                  aria-label="Statut de l'entretien">
+                            <option value="Proposed">Proposé</option>
+                            <option value="Accepted">Accepté</option>
+                            <option value="Completed">Terminé</option>
+                            <option value="Cancelled">Annulé</option>
+                          </select>
+                          <button class="aud-act aud-act--danger" (click)="supprimerEntretien(i)"
+                                  [disabled]="enCours() === 'e' + i.id" title="Supprimer">
+                            <i class="bi bi-trash3"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ═══ CANDIDATURES (candidat) ═══ -->
       @if (activeTab() === 'candidatures') {
         <div class="aud-panel animate-in">
           @if (!applications().length) {
@@ -321,7 +521,7 @@
         </div>
       }
 
-      <!-- ═══ ENTRETIENS ═══ -->
+      <!-- ═══ ENTRETIENS (candidat) ═══ -->
       @if (activeTab() === 'entretiens') {
         <div class="aud-panel animate-in">
           @if (!interviews().length) {
@@ -497,59 +697,6 @@
           <div class="aud-form">
 
             <fieldset class="aud-set card">
-              <legend>Rôle</legend>
-              <p class="aud-hint">
-                Les rôles sont exclusifs : un administrateur n'a ni espace candidat ni espace recruteur.
-              </p>
-              <div class="aud-roles">
-                @for (r of ['Candidate', 'Recruiter', 'Admin']; track r) {
-                  <button class="chip" [class.is-active]="user().role === r" (click)="changeRole(r)">
-                    {{ roleLabel(r) }}
-                  </button>
-                }
-              </div>
-            </fieldset>
-
-            <fieldset class="aud-set card">
-              <legend>Accès</legend>
-              <div class="aud-danger">
-                <div class="aud-danger__txt">
-                  <b>{{ user().isActive ? 'Compte actif' : 'Compte suspendu' }}</b>
-                  <small>
-                    {{ user().isActive
-                      ? 'La personne peut se connecter et utiliser la plateforme.'
-                      : 'La connexion est bloquée. Les données sont conservées.' }}
-                  </small>
-                </div>
-                <button class="btn-ghost" [class.aud-btn-danger]="user().isActive" (click)="toggleActive()">
-                  <i class="bi" [class.bi-slash-circle]="user().isActive" [class.bi-check-circle]="!user().isActive"></i>
-                  {{ user().isActive ? 'Suspendre' : 'Réactiver' }}
-                </button>
-              </div>
-            </fieldset>
-
-            @if (user().role !== 'Admin') {
-              <fieldset class="aud-set card">
-                <legend>Prise en main</legend>
-                <p class="aud-hint">
-                  Ouvre une session sous l'identité de cette personne, pendant 30 minutes,
-                  pour reproduire un problème qu'elle décrit. Vos actions restent
-                  enregistrées au journal sous votre propre nom, et un bandeau rappelle
-                  en permanence que vous n'êtes pas sur votre compte.
-                </p>
-                <div class="aud-danger">
-                  <div class="aud-danger__txt">
-                    <b>Agir en tant que {{ user().firstName }} {{ user().lastName }}</b>
-                    <small>Vous quitterez l'administration le temps de la session.</small>
-                  </div>
-                  <button class="btn-ghost" (click)="prendreEnMain()" [disabled]="saving()">
-                    <i class="bi bi-incognito" aria-hidden="true"></i> Prendre la main
-                  </button>
-                </div>
-              </fieldset>
-            }
-
-            <fieldset class="aud-set card">
               <legend>Mot de passe</legend>
               <p class="aud-hint">
                 À utiliser quand la personne n'a plus accès à sa boîte mail. Transmettez-le
@@ -590,15 +737,15 @@
         </div>
 
         <!-- ═══ LEVIERS ═══
-             Suspendre un compte, changer un role, prendre la main : ces
-             gestes vivaient au fond d'un huitieme onglet. Ce sont
+             Suspendre un compte, changer un rôle, prendre la main : ces
+             gestes vivaient au fond d'une huitième section. Ce sont
              pourtant les seules choses qu'on vient faire ici, et ils
-             restent desormais sous la main quelle que soit la section
-             consultee. -->
+             restent désormais sous la main quelle que soit la section
+             consultée. -->
         <aside class="aud-leviers">
           <div class="aud-leviers__sticky">
             <div class="aud-lev">
-              <span class="aud-lev__titre">Acces</span>
+              <span class="aud-lev__titre">Accès</span>
               <p class="aud-lev__etat" [class.is-off]="!user().isActive">
                 <i class="bi" [class.bi-check-circle-fill]="user().isActive"
                    [class.bi-slash-circle-fill]="!user().isActive" aria-hidden="true"></i>
@@ -607,18 +754,22 @@
               <p class="aud-lev__note">
                 {{ user().isActive
                   ? 'La personne peut se connecter et utiliser la plateforme.'
-                  : 'La connexion est bloquee. Les donnees sont conservees.' }}
+                  : 'La connexion est bloquée. Les données sont conservées.' }}
               </p>
               <button class="btn-ghost aud-lev__plein" [class.is-danger]="user().isActive" (click)="toggleActive()">
                 <i class="bi" [class.bi-slash-circle]="user().isActive"
                    [class.bi-check-circle]="!user().isActive" aria-hidden="true"></i>
-                {{ user().isActive ? 'Suspendre' : 'Reactiver' }}
+                {{ user().isActive ? 'Suspendre' : 'Réactiver' }}
               </button>
             </div>
 
             <div class="aud-lev">
-              <span class="aud-lev__titre">Role</span>
-              <p class="aud-lev__note">Les roles sont exclusifs : un administrateur n'a ni espace candidat ni espace recruteur.</p>
+              <span class="aud-lev__titre">Rôle</span>
+              <!-- Changer le rôle change le dossier lui-même : un recruteur
+                   n'a pas les mêmes sections qu'un candidat. -->
+              <p class="aud-lev__note">
+                Les rôles sont exclusifs : un administrateur n'a ni espace candidat ni espace recruteur.
+              </p>
               <div class="aud-lev__roles">
                 @for (r of ['Candidate', 'Recruiter', 'Admin']; track r) {
                   <button class="chip" [class.is-active]="user().role === r" (click)="changeRole(r)">
@@ -632,8 +783,8 @@
               <div class="aud-lev">
                 <span class="aud-lev__titre">Assistance</span>
                 <p class="aud-lev__note">
-                  Ouvre une session sous son identite, trente minutes, pour reproduire un
-                  probleme. Vos actions restent journalisees sous votre nom.
+                  Ouvre une session sous son identité, trente minutes, pour reproduire un
+                  problème. Vos actions restent journalisées sous votre nom.
                 </p>
                 <button class="btn-ghost aud-lev__plein" (click)="prendreEnMain()" [disabled]="saving()">
                   <i class="bi bi-incognito" aria-hidden="true"></i> Prendre la main
@@ -646,14 +797,14 @@
     }
   </div>
 
-  <!-- Elle ne parait que s'il y a quelque chose a enregistrer. Elle
+  <!-- Elle ne paraît que s'il y a quelque chose à enregistrer. Elle
        vivait au bas du seul panneau Profil : on pouvait modifier six
        champs, changer de section, et perdre la saisie sans un mot. -->
   @if (user() && isDirty()) {
     <div class="aud-savebar" role="status">
       <div class="container aud-savebar__in">
         <span class="aud-savebar__txt">
-          <i class="bi bi-pencil-square" aria-hidden="true"></i> Modifications non enregistrees
+          <i class="bi bi-pencil-square" aria-hidden="true"></i> Modifications non enregistrées
         </span>
         <span class="aud-savebar__act">
           <button class="btn-ghost" (click)="cancel()" [disabled]="saving()">Annuler</button>

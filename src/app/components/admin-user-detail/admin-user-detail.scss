@@ -78,27 +78,48 @@
   a { color: var(--muted); &:hover { color: var(--bleu-600); text-decoration: underline; } }
 }
 
-// Le résumé : quatre chiffres qui évitent d'ouvrir quatre onglets
-.aud-summary {
-  display: flex;
-  gap: 1.4rem;
-  flex-wrap: wrap;
-  padding-left: 1.4rem;
-  border-left: 1px solid var(--line);
+// Le poste, quand il est renseigné, précède les coordonnées : c'est ce
+// qui situe la personne, pas son adresse.
+.aud-id__poste {
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 
-.auds {
+// ═══ Mesures ═══
+// Le bandeau alignait quatre chiffres nus, les mêmes pour tout le monde :
+// un recruteur y lisait « 0 candidature, 0 % acceptation ». Chaque chiffre
+// dit maintenant d'où il sort, et mène à la section qui le détaille.
+.aud-mesures {
+  flex-basis: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.aud-mes {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  gap: 0.1rem;
+  padding: 0.6rem 0.75rem;
+  min-width: 0;
+  text-align: left;
+  background: var(--nuage);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  transition: background var(--t), border-color var(--t);
 
   b {
-    font-size: 1.3rem;
+    font-size: 1.45rem;
     font-weight: 500;
+    line-height: 1.1;
     letter-spacing: -0.04em;
     color: var(--ink);
     font-variant-numeric: tabular-nums;
   }
+
   i {
     font-family: var(--font-mono);
     font-style: normal;
@@ -107,6 +128,26 @@
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--muted);
+  }
+
+  // La phrase qui dit ce que le chiffre compte. Sans elle, « 3,4 j » ne
+  // se distingue pas d'un délai promis, d'un délai maximal ou d'une
+  // moyenne — trois lectures, trois décisions différentes.
+  small {
+    margin-top: 0.3rem;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+
+  // Cliquable : le chiffre mène à ce qu'il compte.
+  &:not(&--fixe) {
+    cursor: pointer;
+    &:hover {
+      background: var(--bleu-100);
+      border-color: var(--bleu-300);
+    }
+    &:focus-visible { outline: 2px solid var(--bleu-600); outline-offset: 2px; }
   }
 }
 
@@ -580,6 +621,20 @@ a.aud-sub:hover { color: var(--bleu-600); text-decoration: underline; }
 
   &__lbl { flex: 1; min-width: 0; }
 
+  // Le rail se lit en trois temps : qui est cette personne, ce qu'elle
+  // fait, ce qu'on peut faire de son compte. Sans ces intertitres, huit
+  // entrees se valaient toutes.
+  &__groupe {
+    padding: 0.9rem 0.75rem 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    &:first-child { padding-top: 0.15rem; }
+  }
+
   // Le compte se lit sur le rail : on sait ce que contient une section
   // sans l'ouvrir.
   &__n {
@@ -595,6 +650,10 @@ a.aud-sub:hover { color: var(--bleu-600); text-decoration: underline; }
     color: var(--ink-soft);
     font-size: 0.62rem;
     font-weight: 600;
+
+    // Une section vide reste ouvrable — on peut vouloir vérifier qu'elle
+    // l'est — mais elle cesse de réclamer l'œil.
+    &.is-vide { background: transparent; color: var(--faint); font-weight: 500; }
   }
 }
 
@@ -725,6 +784,40 @@ a.aud-sub:hover { color: var(--bleu-600); text-decoration: underline; }
 // La barre couvrirait sinon le dernier champ de chaque section.
 .ad-page { padding-bottom: 6rem; }
 
+// ── Tableaux du dossier ──
+.aud-num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Une précision qui appartient à la ligne du dessus : l'entreprise sous
+// l'intitulé, la ville sous le nom.
+.aud-bloc {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.76rem;
+}
+
+// Un nombre de candidatures ne dit pas s'il reste du travail : c'est
+// celui qui attend une décision qui appelle un clic.
+.aud-attente {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--danger);
+  white-space: nowrap;
+  &:hover { text-decoration: underline; }
+}
+
+.aud-hint--haut {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+}
+
 // ── Adaptation ──
 @media (max-width: 1400px) {
   .aud-layout { grid-template-columns: 11rem minmax(0, 1fr) 16rem; }
@@ -754,6 +847,9 @@ a.aud-sub:hover { color: var(--bleu-600); text-decoration: underline; }
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }
     &__lien { flex-shrink: 0; border-color: var(--line); }
+    // Les intertitres n'ont plus de sens dans une barre horizontale : ils
+    // sépareraient des entrées qu'on fait défiler d'un doigt.
+    &__groupe { display: none; }
   }
 }
 
