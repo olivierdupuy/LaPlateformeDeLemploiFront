@@ -246,6 +246,18 @@
               @for (c of codes(); track c) { <li><code>{{ c }}</code></li> }
             </ol>
 
+            <!-- Sans cette phrase, on croit que rien n'a pris : la session
+                 en cours reste ouverte — c'est celle qui vient de prouver
+                 le numéro — et l'on continue à naviguer sans qu'aucun code
+                 ne soit demandé. Le second facteur vaut pour l'entrée
+                 suivante, pas pour celle qui est déjà faite. -->
+            <p class="sec-codes__quand">
+              <i class="bi bi-info-circle" aria-hidden="true"></i>
+              Vous restez connecté ici. Le code vous sera demandé à votre
+              <strong>prochaine connexion</strong> ; vos autres appareils, eux,
+              viennent d'être déconnectés.
+            </p>
+
             <div class="sec-codes__act">
               <button class="btn-secondary" (click)="telechargerCodes()"><i class="bi bi-download"></i> Télécharger</button>
               <button class="btn-ghost" (click)="copierCodes()"><i class="bi bi-clipboard"></i> Copier</button>
