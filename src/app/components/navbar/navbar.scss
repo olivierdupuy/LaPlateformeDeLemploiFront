@@ -484,3 +484,15 @@ nav.scrolled .logo { --lock: 38px; }
 @media (max-width: 480px) {
   .notif-dropdown { right: -96px; }
 }
+
+// Une pastille sur « Sécurité » quand aucun second facteur ne protège le
+// compte : le menu est le seul endroit d'où l'on peut le remarquer sans
+// être déjà allé le chercher.
+.dd-pastille {
+  width: 7px;
+  height: 7px;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  background: var(--danger);
+  flex-shrink: 0;
+}

@@ -1,0 +1,324 @@
+<section class="sec-page">
+  <div class="container">
+
+    <header class="sec-head animate-in">
+      <h1>Sécurité du compte</h1>
+      <p>
+        Ce qui protège votre compte, et ce qui s'y est passé. Cette page est la même
+        quel que soit votre rôle : un mot de passe et un second facteur ne dépendent pas
+        de ce qu'on fait de son compte.
+      </p>
+    </header>
+
+    @if (chargement()) {
+      <div class="empty-box"><div class="spinner"></div></div>
+    } @else if (etat(); as e) {
+
+      <!-- ═══ ÉTAT D'ENSEMBLE ═══
+           Trois constats, chacun assorti de ce qu'il implique. Un pictogramme
+           vert seul ne dit pas ce qu'on risque. -->
+      <div class="sec-bilan animate-in">
+        <article class="sec-carte" [class.est-bon]="e.deuxFacteurs" [class.est-manque]="!e.deuxFacteurs">
+          <span class="sec-carte__ico"><i class="bi" [class.bi-shield-check]="e.deuxFacteurs"
+                [class.bi-shield-exclamation]="!e.deuxFacteurs"></i></span>
+          <b>{{ e.deuxFacteurs ? 'Second facteur actif' : 'Aucun second facteur' }}</b>
+          <p>
+            {{ e.deuxFacteurs
+              ? 'Un code à six chiffres est demandé en plus de votre mot de passe. Un mot de passe deviné ne suffit plus à entrer.'
+              : 'Votre mot de passe est la seule chose qui protège ce compte. S’il est deviné ou réutilisé ailleurs, tout est ouvert.' }}
+          </p>
+        </article>
+
+        <article class="sec-carte" [class.est-bon]="e.emailConfirme" [class.est-manque]="!e.emailConfirme">
+          <span class="sec-carte__ico"><i class="bi" [class.bi-envelope-check]="e.emailConfirme"
+                [class.bi-envelope-exclamation]="!e.emailConfirme"></i></span>
+          <b>{{ e.emailConfirme ? 'Adresse confirmée' : 'Adresse non confirmée' }}</b>
+          <p>
+            {{ e.emailConfirme
+              ? 'Nous pouvons vous joindre, et vous pourrez récupérer votre mot de passe si vous l’oubliez.'
+              : 'Sans confirmation, vous ne pourrez pas récupérer votre mot de passe par vous-même.' }}
+          </p>
+          @if (!e.emailConfirme) {
+            <button class="btn-ghost sec-carte__act" (click)="confirmerAdresse()" [disabled]="occupe()">
+              <i class="bi bi-send"></i> Envoyer le lien
+            </button>
+          }
+        </article>
+
+        <article class="sec-carte">
+          <span class="sec-carte__ico"><i class="bi bi-laptop"></i></span>
+          <b>{{ e.sessions.length }} appareil{{ e.sessions.length > 1 ? 's' : '' }} connecté{{ e.sessions.length > 1 ? 's' : '' }}</b>
+          <p>
+            {{ e.sessions.length > 1
+              ? 'Si l’un d’eux ne vous dit rien, déconnectez-le et changez votre mot de passe.'
+              : 'Seul cet appareil peut agir sur votre compte en ce moment.' }}
+          </p>
+        </article>
+      </div>
+
+      <!-- ═══ DOUBLE AUTHENTIFICATION ═══ -->
+      <section class="sec-bloc card animate-in">
+        <div class="sec-bloc__head">
+          <div>
+            <h2><i class="bi bi-shield-lock"></i> Double authentification</h2>
+            <p class="sec-bloc__sub">
+              Un code à six chiffres, renouvelé toutes les trente secondes par une
+              application installée sur votre téléphone. Il ne circule jamais sur le
+              réseau : même intercepté, votre mot de passe ne suffit plus.
+            </p>
+          </div>
+          @if (e.deuxFacteursObligatoire) {
+            <span class="sec-exige"><i class="bi bi-exclamation-diamond-fill"></i> Obligatoire pour les administrateurs</span>
+          }
+        </div>
+
+        <!-- Au repos : l'état, et le geste qui le change -->
+        @if (etape() === 'repos') {
+          @if (e.deuxFacteurs) {
+            <div class="sec-actif">
+              <p class="sec-actif__etat">
+                <i class="bi bi-check-circle-fill"></i>
+                Active @if (e.deuxFacteursDepuis) { <span>depuis le {{ e.deuxFacteursDepuis | date:'dd MMMM yyyy' }}</span> }
+              </p>
+              <p class="sec-actif__codes" [class.est-bas]="e.codesDeSecoursRestants <= 3">
+                <i class="bi bi-key"></i>
+                {{ e.codesDeSecoursRestants }} code{{ e.codesDeSecoursRestants > 1 ? 's' : '' }} de secours restant{{ e.codesDeSecoursRestants > 1 ? 's' : '' }}
+                @if (e.codesDeSecoursRestants <= 3) {
+                  <span> — refaites-en une série avant d'être à court : sans eux, un téléphone perdu ferme le compte.</span>
+                }
+              </p>
+              <div class="sec-actif__act">
+                <button class="btn-ghost" (click)="regenerer()" [disabled]="occupe()">
+                  <i class="bi bi-arrow-repeat"></i> Refaire les codes de secours
+                </button>
+                @if (!e.deuxFacteursObligatoire) {
+                  <button class="btn-ghost sec-danger" (click)="desactiver()" [disabled]="occupe()">
+                    <i class="bi bi-shield-slash"></i> Retirer
+                  </button>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="sec-repos">
+              <ol class="sec-etapes">
+                <li>Installez une application d'authentification sur votre téléphone —
+                    Google Authenticator, Authy, Microsoft Authenticator, ou celle de votre
+                    gestionnaire de mots de passe.</li>
+                <li>Scannez le carré qui s'affichera, ou recopiez la clé.</li>
+                <li>Saisissez le code affiché pour prouver que l'installation a réussi.</li>
+              </ol>
+              <button class="btn-primary" (click)="commencer2fa()" [disabled]="occupe()">
+                <i class="bi bi-shield-plus"></i> Activer la double authentification
+              </button>
+            </div>
+          }
+        }
+
+        <!-- La clé, puis la vérification. Rien n'est activé tant que le
+             code n'a pas été vérifié : sans cela, une application qui
+             n'aurait pas enregistré la clé fermerait le compte. -->
+        @if (etape() === 'cle') {
+          <div class="sec-install">
+            <div class="sec-install__qr">
+              @if (qr()) {
+                <img [src]="qr()" alt="Code à scanner avec votre application d'authentification" />
+              } @else {
+                <div class="sec-install__sansqr">
+                  <i class="bi bi-qr-code"></i>
+                  <span>Le carré n'a pas pu être dessiné. Saisissez la clé à la main.</span>
+                </div>
+              }
+            </div>
+
+            <div class="sec-install__txt">
+              <h3>1. Enregistrez la clé</h3>
+              <p>Scannez le carré. Si vous ne pouvez pas, saisissez cette clé à la main dans l'application :</p>
+              <div class="sec-cle">
+                <code>{{ cleLisible() }}</code>
+                <button class="sec-copie" (click)="copierCle()" title="Copier la clé"><i class="bi bi-clipboard"></i></button>
+              </div>
+
+              <h3>2. Prouvez que ça fonctionne</h3>
+              <p>Saisissez le code que l'application affiche en ce moment.</p>
+              <div class="sec-code">
+                <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="7"
+                       placeholder="123456" [(ngModel)]="code" (keyup.enter)="activer()"
+                       aria-label="Code à six chiffres" />
+                <button class="btn-primary" (click)="activer()" [disabled]="occupe()">Vérifier et activer</button>
+                <button class="btn-ghost" (click)="annulerActivation()" [disabled]="occupe()">Annuler</button>
+              </div>
+              <p class="sec-aide">
+                Un code refusé vient presque toujours de l'heure du téléphone : un décalage
+                de plus d'une minute suffit à le fausser.
+              </p>
+            </div>
+          </div>
+        }
+
+        <!-- Les codes de secours. Montrés une fois, et une seule. -->
+        @if (etape() === 'codes') {
+          <div class="sec-codes">
+            <div class="sec-codes__avert">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <div>
+                <b>Conservez ces codes maintenant.</b>
+                <span>Ils ne seront plus jamais affichés. Chacun ne sert qu'une fois, et
+                      ce sont eux — eux seuls — qui rouvrent votre compte si vous perdez
+                      le téléphone. Gardez-les ailleurs que sur ce téléphone.</span>
+              </div>
+            </div>
+
+            <ol class="sec-codes__liste">
+              @for (c of codes(); track c) { <li><code>{{ c }}</code></li> }
+            </ol>
+
+            <div class="sec-codes__act">
+              <button class="btn-secondary" (click)="telechargerCodes()"><i class="bi bi-download"></i> Télécharger</button>
+              <button class="btn-ghost" (click)="copierCodes()"><i class="bi bi-clipboard"></i> Copier</button>
+              <button class="btn-primary" (click)="terminer()"><i class="bi bi-check-lg"></i> Je les ai conservés</button>
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- ═══ MOT DE PASSE ═══ -->
+      <section class="sec-bloc card animate-in">
+        <div class="sec-bloc__head">
+          <div>
+            <h2><i class="bi bi-key"></i> Mot de passe</h2>
+            <p class="sec-bloc__sub">
+              @if (e.motDePasseModifieLe) {
+                Modifié le {{ e.motDePasseModifieLe | date:'dd MMMM yyyy' }}.
+              } @else {
+                Jamais modifié depuis la création du compte.
+              }
+              Le changer déconnecte tous vos autres appareils.
+            </p>
+          </div>
+        </div>
+
+        @if (e.aUnMotDePasse) {
+          <div class="sec-form">
+            <label class="sec-fld">
+              <span>Mot de passe actuel</span>
+              <input type="password" [(ngModel)]="actuel" autocomplete="current-password" />
+            </label>
+            <label class="sec-fld">
+              <span>Nouveau mot de passe</span>
+              <input type="password" [(ngModel)]="nouveau" autocomplete="new-password" />
+              @if (robustesse().texte) {
+                <span class="sec-jauge" [class]="robustesse().classe">
+                  <i></i><i></i><i></i><i></i>
+                  <small>{{ robustesse().texte }}</small>
+                </span>
+              }
+            </label>
+            <label class="sec-fld">
+              <span>Répétez-le</span>
+              <input type="password" [(ngModel)]="confirmation" autocomplete="new-password" />
+              @if (confirmation && nouveau !== confirmation) {
+                <small class="sec-erreur">Les deux saisies diffèrent.</small>
+              }
+            </label>
+            <button class="btn-primary" (click)="changerMotDePasse()" [disabled]="!motDePasseValide || occupe()">
+              <i class="bi bi-check-lg"></i> Changer le mot de passe
+            </button>
+          </div>
+        } @else {
+          <p class="sec-vide">
+            Ce compte a été créé par un fournisseur externe et n'a pas de mot de passe.
+            Vous vous connectez avec
+            @for (l of e.connexionsExternes; track l.fournisseur) { <b>{{ l.fournisseur }}</b> }.
+          </p>
+        }
+
+        @if (e.connexionsExternes.length) {
+          <div class="sec-externes">
+            <span class="sec-externes__t">Connexions liées</span>
+            @for (l of e.connexionsExternes; track l.fournisseur) {
+              <span class="sec-lien-ext">
+                <i class="bi" [class.bi-google]="l.fournisseur === 'Google'"
+                   [class.bi-linkedin]="l.fournisseur === 'LinkedIn'"></i>
+                {{ l.fournisseur }}
+              </span>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- ═══ APPAREILS ═══ -->
+      <section class="sec-bloc card animate-in">
+        <div class="sec-bloc__head">
+          <div>
+            <h2><i class="bi bi-laptop"></i> Appareils connectés</h2>
+            <p class="sec-bloc__sub">
+              Chaque connexion ouvre une session. Les fermer coupe l'accès immédiatement,
+              sans attendre l'expiration.
+            </p>
+          </div>
+          @if (e.sessions.length > 1) {
+            <button class="btn-ghost" (click)="toutFermer()" [disabled]="occupe()">
+              <i class="bi bi-box-arrow-right"></i> Déconnecter les autres
+            </button>
+          }
+        </div>
+
+        <ul class="sec-appareils">
+          @for (s of e.sessions; track s.id) {
+            <li class="sec-app" [class.est-courant]="s.courante">
+              <span class="sec-app__ico"><i class="bi" [class.bi-laptop]="!s.device.includes('iPhone') && !s.device.includes('Android')"
+                    [class.bi-phone]="s.device.includes('iPhone') || s.device.includes('Android')"></i></span>
+              <div class="sec-app__txt">
+                <b>
+                  {{ s.device }}
+                  @if (s.courante) { <span class="sec-app__ici">cet appareil</span> }
+                  @if (s.method === 'Impersonation') { <span class="sec-app__admin">prise en main</span> }
+                </b>
+                <small>
+                  {{ s.ipAddress || 'adresse inconnue' }} ·
+                  ouvert le {{ s.createdAt | date:'dd/MM/yy à HH:mm' }} ·
+                  vu {{ s.lastSeenAt | date:'dd/MM à HH:mm' }} ·
+                  {{ moyen(s.method) }}
+                </small>
+              </div>
+              @if (!s.courante) {
+                <button class="sec-app__fermer" (click)="fermer(s)" [disabled]="occupe()" title="Déconnecter cet appareil">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+
+      <!-- ═══ ACTIVITÉ ═══ -->
+      <section class="sec-bloc card animate-in">
+        <div class="sec-bloc__head">
+          <div>
+            <h2><i class="bi bi-clock-history"></i> Dernière activité</h2>
+          </div>
+        </div>
+        <dl class="sec-faits">
+          <dt>Adresse du compte</dt><dd>{{ e.email }}</dd>
+          <dt>Dernière connexion</dt>
+          <dd>{{ e.derniereConnexion ? (e.derniereConnexion | date:'dd MMMM yyyy à HH:mm') : 'Aucune enregistrée' }}</dd>
+          <dt>Tentatives échouées récentes</dt>
+          <dd [class.sec-alerte]="e.echecsRecents > 0">
+            {{ e.echecsRecents === 0 ? 'Aucune' : e.echecsRecents }}
+            @if (e.echecsRecents > 0) {
+              <span> — si ce n'est pas vous, quelqu'un essaie de deviner votre mot de passe.</span>
+            }
+          </dd>
+          @if (e.verrouilleJusquA) {
+            <dt>Compte bloqué</dt>
+            <dd class="sec-alerte">jusqu'au {{ e.verrouilleJusquA | date:'dd/MM/yy à HH:mm' }}</dd>
+          }
+        </dl>
+        <p class="sec-aide">
+          Le détail de vos actions est consultable dans
+          <a routerLink="/profil" class="sec-a">votre profil</a>.
+        </p>
+      </section>
+    }
+  </div>
+</section>

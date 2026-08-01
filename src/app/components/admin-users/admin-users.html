@@ -136,6 +136,15 @@
                     {{ roleLabel(u.role) }}
                   </a>
                   @if (!u.isActive) { <span class="badge badge-red">Suspendu</span> }
+                  @if (u.verrouille) { <span class="badge badge-red" title="Bloqué après cinq échecs de connexion">Bloqué</span> }
+                  <!-- Un administrateur sans second facteur est le maillon
+                       faible de toute la plateforme : cela se voit depuis
+                       la liste, sans ouvrir les fiches une par une. -->
+                  @if (u.twoFactorEnabled) {
+                    <i class="bi bi-shield-check user-2fa is-on" title="Double authentification active" aria-label="Double authentification active"></i>
+                  } @else if (u.role === 'Admin') {
+                    <i class="bi bi-shield-exclamation user-2fa is-manque" title="Administrateur sans double authentification — la console lui est fermée" aria-label="Sans double authentification"></i>
+                  }
                 </td>
                 <td data-label="Entreprise">
                   @if (u.company) {

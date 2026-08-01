@@ -389,3 +389,85 @@
 
 // Le focus doit rester visible sur le panneau prune
 .auth-aside :focus-visible { outline-color: var(--ambre); }
+
+// ═══ Connexion en deux temps ═══
+// Le mot de passe était bon ; il ne suffit pas. On reste sur la même page :
+// c'est la même connexion qui se poursuit, pas une nouvelle.
+.auth-2fa {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+
+  &__intro {
+    display: flex;
+    gap: 0.55rem;
+    padding: 0.8rem 0.95rem;
+    border-radius: var(--r-sm);
+    background: var(--bleu-100);
+    border: 1px solid var(--bleu-300);
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    i { flex-shrink: 0; color: var(--bleu-700); font-size: 1rem; }
+  }
+
+  // Le code se lit chiffre par chiffre : on l'espace et on l'agrandit.
+  &__code {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 1.3rem;
+    letter-spacing: 0.28em;
+    text-align: center;
+  }
+
+  &__secours {
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--muted);
+    strong { color: var(--ink-soft); }
+  }
+
+  &__retour {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.5rem;
+    border: 0;
+    background: transparent;
+    font-size: 0.84rem;
+    color: var(--muted);
+    cursor: pointer;
+    &:hover { color: var(--bleu-600); }
+  }
+}
+
+// Compte bloqué : un fait, pas une faute de frappe à chercher.
+.auth-bloque {
+  display: flex;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: var(--r-sm);
+  background: color-mix(in oklab, var(--danger) 7%, transparent);
+  border: 1px solid color-mix(in oklab, var(--danger) 25%, transparent);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  i { flex-shrink: 0; color: var(--danger); }
+}
+
+// « Mot de passe oublié ? » se pose près du champ qu'il concerne, pas au
+// fond de la page : c'est là qu'on constate qu'on l'a oublié.
+.auth-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.auth-oubli {
+  font-size: 0.79rem;
+  color: var(--muted);
+  &:hover { color: var(--bleu-600); text-decoration: underline; }
+}

@@ -30,7 +30,7 @@ type Tab =
   | 'profil'
   | 'offres' | 'recues' | 'menes'
   | 'candidatures' | 'recherches' | 'entretiens' | 'cv' | 'notes'
-  | 'journal' | 'compte';
+  | 'securite' | 'journal' | 'compte';
 
 interface Onglet {
   label: string;
@@ -55,15 +55,16 @@ const ONGLETS: Record<Tab, Onglet> = {
   cv: { label: 'CV', icon: 'bi-file-person', groupe: 'activite', denombre: true },
   notes: { label: 'Notes', icon: 'bi-sticky', groupe: 'activite', denombre: true },
 
+  securite: { label: 'Sécurité', icon: 'bi-shield-lock', groupe: 'gestion' },
   journal: { label: 'Journal', icon: 'bi-clock-history', groupe: 'gestion', denombre: true },
-  compte: { label: 'Compte', icon: 'bi-shield-lock', groupe: 'gestion' },
+  compte: { label: 'Compte', icon: 'bi-gear', groupe: 'gestion' },
 };
 
 /** Ce qu'on vient consulter, selon le métier de la personne. */
 const PAR_ROLE: Record<string, Tab[]> = {
-  Candidate: ['profil', 'candidatures', 'recherches', 'entretiens', 'cv', 'notes', 'journal', 'compte'],
-  Recruiter: ['profil', 'offres', 'recues', 'menes', 'journal', 'compte'],
-  Admin: ['profil', 'journal', 'compte'],
+  Candidate: ['profil', 'candidatures', 'recherches', 'entretiens', 'cv', 'notes', 'securite', 'journal', 'compte'],
+  Recruiter: ['profil', 'offres', 'recues', 'menes', 'securite', 'journal', 'compte'],
+  Admin: ['profil', 'securite', 'journal', 'compte'],
 };
 
 const GROUPES: { cle: 'identite' | 'activite' | 'gestion'; titre: string }[] = [
@@ -80,6 +81,15 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_BADGE: Record<string, string> = {
   Pending: 'badge-yellow', Reviewed: 'badge-blue', Accepted: 'badge-green', Rejected: 'badge-red',
   Proposed: 'badge-yellow', Completed: 'badge-blue', Cancelled: 'badge-red',
+};
+
+/** Par quel moyen une session s'est ouverte, en francais. */
+const MOYENS: Record<string, string> = {
+  Password: 'Mot de passe',
+  Google: 'Google',
+  LinkedIn: 'LinkedIn',
+  Recovery: 'Code de secours',
+  Impersonation: 'Prise en main',
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -132,6 +142,7 @@ export class AdminUserDetail implements OnInit {
   statusLabel = (s: string) => STATUS_LABELS[s] ?? s;
   statusBadge = (s: string) => STATUS_BADGE[s] ?? '';
   roleLabel = (r: string) => ROLE_LABELS[r] ?? r;
+  moyen = (m: string) => MOYENS[m] ?? m;
 
   dossier = signal<any>(null);
   loading = signal(true);
@@ -160,6 +171,15 @@ export class AdminUserDetail implements OnInit {
   menes = computed<any[]>(() => this.dossier()?.entretiensMenes ?? []);
   delaiReponse = computed<number | null>(() => this.dossier()?.delaiReponseJours ?? null);
 
+  /** Ce que vaut la protection de ce compte, et ce qu'on peut y faire. */
+  securite = computed<any>(() => this.dossier()?.securite ?? null);
+
+  /** Un compte enfermé dehors par le compteur d'échecs. */
+  estVerrouille = computed<boolean>(() => {
+    const j = this.securite()?.verrouilleJusquA;
+    return !!j && new Date(j).getTime() > Date.now();
+  });
+
   /** Combien chaque section porte. */
   compteurs = computed<Record<Tab, number>>(() => ({
     profil: 0,
@@ -171,6 +191,7 @@ export class AdminUserDetail implements OnInit {
     entretiens: this.interviews().length,
     cv: this.cv().length,
     notes: this.notes().length,
+    securite: 0,
     journal: this.activity().length,
     compte: 0,
   }));
@@ -503,6 +524,46 @@ export class AdminUserDetail implements OnInit {
   supprimerSectionCv(c: any) {
     if (!confirm('Supprimer cet élément du CV ?')) return;
     this.ecrire(`v${c.id}`, this.admin.supprimerSectionCv(c.id), 'Élément supprimé');
+  }
+
+  /**
+   * Déverrouille un compte que le compteur d'échecs a fermé.
+   *
+   * C'est le geste que l'on fait pour quelqu'un qui a mal saisi son mot de
+   * passe cinq fois et qui appelle : sans lui, il faudrait attendre le
+   * quart d'heure.
+   */
+  deverrouiller() {
+    this.ecrire('sec', this.admin.deverrouiller(this.userId), 'Compte déverrouillé');
+  }
+
+  /**
+   * Coupe la double authentification d'un compte.
+   *
+   * Recours de dernière extrémité : la personne a perdu son téléphone ET
+   * ses codes de secours, et sans cela son compte serait clos pour
+   * toujours. Le geste retire une protection : il se confirme, et il
+   * s'inscrit au journal sous le nom de qui l'a fait.
+   */
+  async couper2fa() {
+    const u = this.user();
+    const res = await confirm(
+      `Couper la double authentification de ${u.firstName} ${u.lastName} ?
+
+`
+      + `Son mot de passe suffira de nouveau pour entrer. Ne le faites que si `
+      + `cette personne a perdu son telephone et ses codes de secours, et que `
+      + `vous etes sur de lui parler. Elle en sera informee par courriel, et `
+      + `votre nom restera au journal.`,
+    );
+    if (!res) return;
+    this.ecrire('sec', this.admin.desactiver2fa(this.userId), 'Double authentification coupée');
+  }
+
+  /** Ferme tous les appareils connectés de ce compte. */
+  async fermerSessions() {
+    if (!confirm('Deconnecter tous les appareils de ce compte ?')) return;
+    this.ecrire('sec', this.admin.fermerSessions(this.userId), 'Appareils déconnectés');
   }
 
   /**

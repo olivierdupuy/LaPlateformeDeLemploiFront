@@ -118,6 +118,34 @@ export class AdminService {
     return this.http.post(`${this.api}/users/${id}/password`, { newPassword });
   }
 
+  // ── Sécurité d'un compte ──
+  // L'administration n'a ici que les pouvoirs qu'elle ne peut pas ne pas
+  // avoir : déverrouiller quelqu'un que le compteur d'échecs a enfermé
+  // dehors, et couper la double authentification de qui a perdu à la fois
+  // son téléphone et ses codes de secours.
+
+  deverrouiller(id: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.api}/users/${id}/deverrouiller`, {});
+  }
+
+  desactiver2fa(id: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.api}/users/${id}/2fa/desactiver`, {});
+  }
+
+  fermerSessions(id: string): Observable<{ fermees: number; message: string }> {
+    return this.http.post<{ fermees: number; message: string }>(`${this.api}/users/${id}/sessions/tout-fermer`, {});
+  }
+
+  // ── Expédition de courriel ──
+
+  etatCourriel(): Observable<{ configure: boolean; etat: string; consequence: string }> {
+    return this.http.get<{ configure: boolean; etat: string; consequence: string }>(`${this.api}/email/etat`);
+  }
+
+  essaiCourriel(email?: string): Observable<{ parti: boolean; message: string }> {
+    return this.http.post<{ parti: boolean; message: string }>(`${this.api}/email/essai`, { email });
+  }
+
   // Announcements
   getAnnouncements(): Observable<any[]> {
     return this.http.get<any[]>(`${this.api}/announcements`);

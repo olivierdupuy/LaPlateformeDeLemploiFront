@@ -18,12 +18,58 @@ export interface UserDto {
   isSearchable?: boolean;
   createdAt: string;
   isOnline?: boolean;
+
+  /** L'adresse a-t-elle ete confirmee par un lien recu ? */
+  emailConfirmed?: boolean;
+  /** Un second facteur protege-t-il ce compte ? */
+  twoFactorEnabled?: boolean;
 }
 
 export interface AuthResponse {
   token: string;
   expiration: string;
   user: UserDto;
+
+  /**
+   * Le mot de passe etait bon, mais il ne suffit pas : un code est
+   * attendu. `token` est alors vide — c'est ce qui empeche le client de
+   * croire qu'il est entre.
+   */
+  requiresTwoFactor?: boolean;
+
+  /** Ne vaut que pour l'etape du code, et cinq minutes. */
+  challengeToken?: string;
+}
+
+/** Une session ouverte, telle que la page Securite la montre. */
+export interface SessionDto {
+  id: number;
+  device: string;
+  ipAddress?: string;
+  createdAt: string;
+  lastSeenAt: string;
+  expiresAt: string;
+  method: string;
+  /** L'appareil depuis lequel on regarde : celui qu'on ne veut pas fermer par megarde. */
+  courante: boolean;
+}
+
+/** Tout ce qui touche a la securite d'un compte, en une reponse. */
+export interface EtatSecurite {
+  email: string;
+  emailConfirme: boolean;
+  role: string;
+  deuxFacteurs: boolean;
+  deuxFacteursDepuis?: string | null;
+  codesDeSecoursRestants: number;
+  deuxFacteursObligatoire: boolean;
+  motDePasseModifieLe?: string | null;
+  aUnMotDePasse: boolean;
+  connexionsExternes: { fournisseur: string; nom?: string }[];
+  verrouilleJusquA?: string | null;
+  echecsRecents: number;
+  derniereConnexion?: string | null;
+  sessions: SessionDto[];
 }
 
 export interface RegisterRequest {

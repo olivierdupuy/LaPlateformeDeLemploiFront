@@ -176,6 +176,14 @@
                 <button class="dd-link" (click)="navigateAndClose('/profil')">
                   <i class="bi bi-person" aria-hidden="true"></i> Mon profil
                 </button>
+                <!-- La securite ne depend pas du role : le lien est le meme
+                     pour un candidat, un recruteur et un administrateur. -->
+                <button class="dd-link" (click)="navigateAndClose('/securite')">
+                  <i class="bi bi-shield-lock" aria-hidden="true"></i> Sécurité
+                  @if (u.twoFactorEnabled === false) {
+                    <span class="dd-pastille" title="Aucune double authentification"></span>
+                  }
+                </button>
                 @if (u.role === 'Candidate') {
                   <button class="dd-link" (click)="navigateAndClose('/favoris')">
                     <i class="bi bi-bookmark" aria-hidden="true"></i> Mes favoris

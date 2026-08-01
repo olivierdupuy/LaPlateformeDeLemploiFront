@@ -10,7 +10,6 @@ import {
   RegisterRequest,
   LoginRequest,
   UpdateProfileRequest,
-  ChangePasswordRequest,
 } from '../models/auth.model';
 import { environment } from '../../environments/environment';
 
@@ -49,6 +48,16 @@ export class AuthService {
   // publie pas d'offres et ne postule pas.
   isRecruiter = computed(() => this.currentUser()?.role === 'Recruiter');
   isCandidate = computed(() => this.currentUser()?.role === 'Candidate');
+
+  /**
+   * Un administrateur sans second facteur. La garde s'en sert pour le
+   * conduire a l'activer : son compte voit toute la base et peut prendre
+   * la main sur n'importe qui.
+   */
+  doitActiver2fa = computed(() => {
+    const u = this.currentUser();
+    return !!u && u.role === 'Admin' && u.twoFactorEnabled === false;
+  });
 
   get token(): string | null {
     return localStorage.getItem(TOKEN_KEY);
@@ -91,8 +100,57 @@ export class AuthService {
     );
   }
 
-  changePassword(data: ChangePasswordRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/change-password`, data);
+  /**
+   * Deuxieme temps de la connexion : le code.
+   * Le defi ne vaut que pour cet echange — il n'ouvre aucune page.
+   */
+  verifier2fa(challengeToken: string, code: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/2fa/verifier`, { challengeToken, code })
+      .pipe(tap((res) => this.handleAuth(res)));
+  }
+
+  /** SSO : echange un code d'autorisation LinkedIn contre une session. */
+  linkedInSignIn(code: string, redirectUri: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/linkedin`, { code, redirectUri })
+      .pipe(tap((res) => this.handleAuth(res)));
+  }
+
+  motDePasseOublie(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/mot-de-passe-oublie`, { email });
+  }
+
+  reinitialiserMotDePasse(userId: string, jeton: string, nouveauMotDePasse: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/reinitialiser-mot-de-passe`, {
+      userId, jeton, nouveauMotDePasse,
+    });
+  }
+
+  confirmerEmail(userId: string, jeton: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/confirmer-email`, { userId, jeton });
+  }
+
+  /**
+   * Adopte un jeton refait par le serveur.
+   *
+   * Changer un mot de passe ou toucher a la double authentification
+   * renouvelle le tampon de securite du compte, ce qui tue tous les jetons
+   * existants — y compris celui qui vient d'agir. Le serveur en rend un
+   * neuf pour la meme session ; sans cet echange, on serait deconnecte
+   * pour avoir fait exactement ce qu'on demandait.
+   */
+  adopterJeton(token?: string | null): void {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  /** Met a jour l'utilisateur en memoire sans repasser par le serveur. */
+  majUtilisateur(champs: Partial<UserDto>): void {
+    const u = this.currentUser();
+    if (!u) return;
+    const suivant = { ...u, ...champs };
+    this.currentUser.set(suivant);
+    localStorage.setItem(USER_KEY, JSON.stringify(suivant));
   }
 
   /** RGPD : export des données personnelles. */
@@ -222,6 +280,10 @@ export class AuthService {
   }
 
   private handleAuth(res: AuthResponse): void {
+    // Une connexion qui reclame un code n'est pas une connexion : elle ne
+    // doit rien ecrire, sinon l'application se croirait ouverte.
+    if (res.requiresTwoFactor || !res.token) return;
+
     localStorage.setItem(TOKEN_KEY, res.token);
     localStorage.setItem(USER_KEY, JSON.stringify(res.user));
     this.currentUser.set(res.user);

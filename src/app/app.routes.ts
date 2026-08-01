@@ -17,6 +17,8 @@ import { Dashboard } from './components/dashboard/dashboard';
 import { DashboardRecruiter } from './components/dashboard-recruiter/dashboard-recruiter';
 import { DashboardCandidate } from './components/dashboard-candidate/dashboard-candidate';
 import { Login } from './components/login/login';
+import { Security } from './components/security/security';
+import { PasswordRecovery } from './components/password-recovery/password-recovery';
 import { Register } from './components/register/register';
 import { Profile } from './components/profile/profile';
 import { AdminUsers } from './components/admin-users/admin-users';
@@ -40,7 +42,7 @@ import { Interviews } from './components/interviews/interviews';
 import { Inbox } from './components/inbox/inbox';
 import { CvBuilder } from './components/cv-builder/cv-builder';
 import { AdminLayout } from './components/admin-layout/admin-layout';
-import { authGuard, recruiterGuard, adminGuard } from './auth.guard';
+import { authGuard, recruiterGuard, adminGuard, deuxFacteursAdminGuard } from './auth.guard';
 
 export const routes: Routes = [
   // Public
@@ -71,6 +73,14 @@ export const routes: Routes = [
   { path: 'entreprises/:name', component: CompanyDetail },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
+
+  // ── Recuperation ──
+  // Trois moments d'un meme parcours, servis par un composant unique :
+  // le mode vient de la route. Les adresses sont celles que les courriels
+  // fabriquent — les changer ici casserait les liens deja envoyes.
+  { path: 'mot-de-passe-oublie', component: PasswordRecovery, data: { mode: 'oubli' } },
+  { path: 'reinitialiser-mot-de-passe', component: PasswordRecovery, data: { mode: 'reinitialisation' } },
+  { path: 'confirmer-email', component: PasswordRecovery, data: { mode: 'confirmation' } },
   { path: 'suivi', component: TrackApplications },
 
   // Authenticated
@@ -78,6 +88,9 @@ export const routes: Routes = [
   // adresse reste valide et ouvre le bon onglet.
   { path: 'favoris', component: TrackApplications, data: { tab: 'saved' } },
   { path: 'profil', component: Profile, canActivate: [authGuard] },
+  // La meme page pour les trois espaces : ce qui protege un compte ne
+  // depend pas de ce qu'on en fait.
+  { path: 'securite', component: Security, canActivate: [authGuard] },
   { path: 'entreprises-qui-recrutent', component: HiringCompanies, canActivate: [authGuard] },
   { path: 'mon-metier', component: JobMarket, canActivate: [authGuard] },
   { path: 'recherches-sauvegardees', component: SavedSearches, canActivate: [authGuard] },
@@ -116,7 +129,10 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayout,
-    canActivate: [adminGuard],
+    // La console est aussi gardee par l'exigence de double
+    // authentification : un compte qui voit toute la base et peut prendre
+    // la main sur n'importe qui ne tient pas sur un mot de passe seul.
+    canActivate: [adminGuard, deuxFacteursAdminGuard],
     children: [
       { path: '', redirectTo: 'tableau-de-bord', pathMatch: 'full' },
       { path: 'tableau-de-bord', component: Dashboard },

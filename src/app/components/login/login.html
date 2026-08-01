@@ -43,6 +43,50 @@
         </p>
       }
 
+      <!-- ═══ DEUXIÈME TEMPS ═══
+           Le mot de passe était bon ; il ne suffit pas. On ne quitte pas
+           la page : c'est la même connexion qui se poursuit. -->
+      @if (defi()) {
+        <div class="auth-2fa">
+          <p class="auth-2fa__intro">
+            <i class="bi bi-shield-lock" aria-hidden="true"></i>
+            Ce compte demande un second facteur. Saisissez le code affiché par votre
+            application d'authentification.
+          </p>
+
+          <form (ngSubmit)="verifier()" class="auth-form">
+            <div class="form-group">
+              <label for="login-code">Code à six chiffres</label>
+              <input id="login-code" type="text" inputmode="numeric" autocomplete="one-time-code"
+                     maxlength="12" class="auth-2fa__code" placeholder="123456"
+                     [(ngModel)]="code" name="code" required autofocus />
+            </div>
+
+            <button type="submit" class="btn-primary full-w" [disabled]="loading()">
+              @if (loading()) { <span class="sp"></span> Vérification… } @else { Continuer }
+            </button>
+          </form>
+
+          <p class="auth-2fa__secours">
+            Téléphone perdu ou hors de portée ? Saisissez à la place l'un de vos
+            <strong>codes de secours</strong> dans le même champ.
+          </p>
+
+          <button type="button" class="auth-2fa__retour" (click)="annulerDefi()">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i> Revenir au mot de passe
+          </button>
+        </div>
+      } @else {
+
+      <!-- Compte bloqué : le dire franchement plutôt que de laisser
+           chercher une faute de frappe pendant un quart d'heure. -->
+      @if (bloque(); as message) {
+        <p class="auth-bloque">
+          <i class="bi bi-lock-fill" aria-hidden="true"></i>
+          <span>{{ message }}</span>
+        </p>
+      }
+
       <form (ngSubmit)="submit()" class="auth-form">
         <div class="form-group">
           <label for="login-email">Adresse email</label>
@@ -54,7 +98,10 @@
         </div>
 
         <div class="form-group">
-          <label for="login-password">Mot de passe</label>
+          <div class="auth-label-row">
+            <label for="login-password">Mot de passe</label>
+            <a routerLink="/mot-de-passe-oublie" class="auth-oubli">Mot de passe oublié ?</a>
+          </div>
           <div class="input-icon">
             <i class="bi bi-lock" aria-hidden="true"></i>
             <input id="login-password" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password"
@@ -73,11 +120,13 @@
       </form>
 
       <app-google-signin-button />
+      <app-linkedin-signin-button />
 
       <div class="auth-footer">
         <span>Pas encore de compte ?</span>
         <a routerLink="/register">Créer un compte <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
       </div>
+      }
     </div>
   </div>
 </section>

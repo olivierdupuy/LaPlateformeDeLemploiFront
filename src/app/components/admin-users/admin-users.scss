@@ -336,3 +336,14 @@ tbody tr.just-changed {
 @media (prefers-reduced-motion: reduce) {
   .rt-dot, tbody tr.just-changed { animation: none !important; }
 }
+
+// L'état de la double authentification, à côté du rôle : c'est du rôle
+// qu'il dépend — un administrateur ne peut pas s'en passer.
+.user-2fa {
+  margin-left: 0.35rem;
+  font-size: 0.85rem;
+  vertical-align: middle;
+
+  &.is-on { color: var(--green); }
+  &.is-manque { color: var(--danger); }
+}

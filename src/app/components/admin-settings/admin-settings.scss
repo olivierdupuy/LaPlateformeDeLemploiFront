@@ -283,3 +283,12 @@
   .set-savebar__in { flex-direction: column; align-items: stretch; }
   .set-savebar__act { justify-content: stretch; button { flex: 1; justify-content: center; } }
 }
+
+// L'état technique du serveur d'expédition : à lire quand on diagnostique,
+// pas quand on parcourt. Il se distingue donc de la phrase de conséquence.
+.set-etat-tech {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--faint);
+  word-break: break-all;
+}

@@ -1,0 +1,505 @@
+// ═══════════════════════════════════════════════
+//  SÉCURITÉ DU COMPTE
+//  La même page pour un candidat, un recruteur et un administrateur :
+//  ce qui protège un compte ne dépend pas de ce qu'on en fait.
+// ═══════════════════════════════════════════════
+
+.sec-page {
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0 4rem;
+  min-height: 60vh;
+}
+
+.sec-head {
+  margin-bottom: 1.4rem;
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 1.95rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+
+  p {
+    max-width: 68ch;
+    margin-top: 0.45rem;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+}
+
+// ── Bilan : trois constats, chacun avec sa conséquence ──
+// Un pictogramme vert seul ne dit pas ce qu'on risque.
+.sec-bilan {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.4rem;
+}
+
+.sec-carte {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--r-md);
+
+  &__ico i { font-size: 1.15rem; color: var(--muted); }
+
+  b { font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+
+  p { font-size: 0.83rem; line-height: 1.55; color: var(--ink-soft); }
+
+  &__act { align-self: flex-start; margin-top: 0.4rem; font-size: 0.82rem; }
+
+  &.est-bon {
+    border-left-color: var(--green);
+    .sec-carte__ico i { color: var(--green); }
+  }
+
+  // Ce qui manque se signale, sans crier : c'est un état à corriger, pas
+  // une faute commise.
+  &.est-manque {
+    border-left-color: var(--danger);
+    background: color-mix(in oklab, var(--danger) 3%, var(--canvas));
+    .sec-carte__ico i { color: var(--danger); }
+  }
+}
+
+// ── Bloc ──
+.sec-bloc {
+  padding: 1.3rem 1.4rem 1.5rem;
+  margin-bottom: 1rem;
+  &:hover { transform: none; box-shadow: var(--shadow-xs); }
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-display);
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      i { color: var(--bleu-600); font-size: 0.95em; }
+    }
+  }
+
+  &__sub {
+    max-width: 72ch;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+}
+
+.sec-exige {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--r-xs);
+  background: color-mix(in oklab, var(--danger) 8%, transparent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--danger);
+  white-space: nowrap;
+}
+
+// ── Au repos ──
+.sec-repos { display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; }
+
+.sec-etapes {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 70ch;
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  li::marker { color: var(--bleu-600); font-weight: 600; }
+}
+
+.sec-actif {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__etat {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+    i { color: var(--green); }
+    span { font-weight: 400; color: var(--muted); }
+  }
+
+  &__codes {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    i { color: var(--muted); }
+
+    // À court de codes de secours, un téléphone perdu ferme le compte
+    // définitivement : cela cesse d'être une information de service.
+    &.est-bas { color: var(--danger); font-weight: 500; i { color: var(--danger); } }
+  }
+
+  &__act { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
+}
+
+.sec-danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 6%, transparent);
+}
+
+// ── Installation ──
+.sec-install {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+
+  &__qr {
+    padding: 0.7rem;
+    background: #fff;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-md);
+    img { display: block; width: 220px; height: 220px; }
+  }
+
+  &__sansqr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 220px;
+    height: 220px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+    i { font-size: 2rem; color: var(--faint); }
+  }
+
+  &__txt {
+    min-width: 0;
+
+    h3 {
+      margin: 1rem 0 0.35rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--ink);
+      &:first-child { margin-top: 0; }
+    }
+
+    p { font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); }
+  }
+}
+
+.sec-cle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--nuage);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+
+  code {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    word-break: break-all;
+  }
+}
+
+.sec-copie {
+  flex-shrink: 0;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-xs);
+  background: var(--canvas);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color var(--t), border-color var(--t);
+  &:hover { color: var(--bleu-600); border-color: var(--bleu-600); }
+}
+
+.sec-code {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+
+  input {
+    width: 8.5rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--canvas);
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    letter-spacing: 0.22em;
+    text-align: center;
+    color: var(--ink);
+    outline: none;
+    transition: border-color var(--t), box-shadow var(--t);
+    &:focus { border-color: var(--bleu-600); box-shadow: 0 0 0 3px var(--bleu-tint); }
+    &::placeholder { color: var(--faint); letter-spacing: 0.22em; }
+  }
+}
+
+.sec-aide {
+  margin-top: 0.7rem;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+// ── Codes de secours ──
+.sec-codes { display: flex; flex-direction: column; gap: 1rem; }
+
+.sec-codes__avert {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--r-sm);
+  background: color-mix(in oklab, var(--danger) 6%, transparent);
+  border: 1px solid color-mix(in oklab, var(--danger) 25%, transparent);
+
+  i { flex-shrink: 0; color: var(--danger); font-size: 1rem; }
+  div { display: flex; flex-direction: column; gap: 0.2rem; }
+  b { font-size: 0.9rem; color: var(--ink); }
+  span { font-size: 0.83rem; line-height: 1.55; color: var(--ink-soft); }
+}
+
+.sec-codes__liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.4rem;
+  margin: 0;
+  padding-left: 1.4rem;
+
+  li::marker { font-size: 0.7rem; color: var(--faint); }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+  }
+}
+
+.sec-codes__act { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+// ── Mot de passe ──
+.sec-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  align-items: flex-start;
+  max-width: 26rem;
+}
+
+.sec-fld {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  width: 100%;
+
+  > span { font-size: 0.8rem; font-weight: 600; color: var(--ink-soft); }
+
+  input {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--canvas);
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color var(--t);
+    &:focus { border-color: var(--bleu-600); }
+  }
+}
+
+// La jauge mesure d'abord la longueur : les classes de caractères
+// obligatoires produisent « Password1! » chez tout le monde.
+.sec-jauge {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+
+  i {
+    width: 2.1rem;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--nuage-3);
+    transition: background var(--t);
+  }
+
+  small { width: 100%; margin-top: 0.2rem; font-size: 0.75rem; }
+
+  &.est-faible { i:nth-child(1) { background: var(--danger); } small { color: var(--danger); } }
+  &.est-moyen  { i:nth-child(-n+2) { background: var(--amber, #b8860b); } small { color: var(--muted); } }
+  &.est-bon    { i:nth-child(-n+3) { background: var(--bleu-500); } small { color: var(--muted); } }
+  &.est-solide { i { background: var(--green); } small { color: var(--green); } }
+}
+
+.sec-erreur { font-size: 0.75rem; color: var(--danger); }
+.sec-vide { font-size: 0.88rem; line-height: 1.6; color: var(--ink-soft); }
+
+.sec-externes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+
+  &__t {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+}
+
+.sec-lien-ext {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  i { color: var(--bleu-600); }
+}
+
+// ── Appareils ──
+.sec-appareils { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.sec-app {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+
+  // L'appareil d'où l'on regarde se distingue : sans ce repère, on ferme
+  // le sien en croyant fermer celui d'un intrus.
+  &.est-courant { background: var(--bleu-100); border-color: var(--bleu-300); }
+
+  &__ico i { font-size: 1.05rem; color: var(--muted); }
+
+  &__txt {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    b {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    small { font-size: 0.76rem; color: var(--muted); }
+  }
+
+  &__ici {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: var(--bleu-600);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  &__admin {
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--danger) 12%, transparent);
+    color: var(--danger);
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  &__fermer {
+    flex-shrink: 0;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--r-xs);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color var(--t), border-color var(--t), background var(--t);
+    &:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: color-mix(in oklab, var(--danger) 6%, transparent);
+    }
+  }
+}
+
+// ── Faits ──
+.sec-faits {
+  display: grid;
+  grid-template-columns: minmax(11rem, auto) minmax(0, 1fr);
+  gap: 0.45rem 1.2rem;
+  font-size: 0.86rem;
+
+  dt { color: var(--muted); }
+  dd { color: var(--ink); }
+}
+
+.sec-alerte { color: var(--danger); font-weight: 500; }
+.sec-a { color: var(--bleu-600); &:hover { text-decoration: underline; } }
+
+// ── Adaptation ──
+@media (max-width: 760px) {
+  .sec-install { grid-template-columns: 1fr; }
+  .sec-install__qr { justify-self: center; }
+  .sec-faits { grid-template-columns: 1fr; gap: 0.15rem; dd { margin-bottom: 0.5rem; } }
+}

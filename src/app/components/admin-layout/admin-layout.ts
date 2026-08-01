@@ -106,6 +106,10 @@ export class AdminLayout {
       links: [
         { path: '/admin/activite', label: 'Activité', icon: 'bi-clock-history', alias: ['journal', 'logs', 'historique'] },
         { path: '/admin/parametres', label: 'Paramètres', icon: 'bi-gear', alias: ['reglages', 'configuration'] },
+        // Le compte de l'administrateur lui-meme : double authentification,
+        // appareils connectes, mot de passe. Il n'y accedait que par le
+        // menu du site public, qu'il ne voit pas depuis la console.
+        { path: '/securite', label: 'Ma sécurité', icon: 'bi-shield-lock', alias: ['2fa', 'mot de passe', 'appareils', 'sessions'] },
       ],
     },
   ];

@@ -37,6 +37,7 @@
     "leaflet": "^1.9.4",
     "ng2-charts": "^10.0.0",
     "ngx-toastr": "^20.0.5",
+    "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.26.24",
     "tslib": "^2.3.0"
@@ -45,6 +46,7 @@
     "@angular/build": "^21.0.4",
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.0",
+    "@types/qrcode": "^1.5.6",
     "typescript": "~5.9.2"
   }
 }

@@ -98,15 +98,12 @@ export class Profile implements OnInit {
   /** L'état servi par le serveur : la référence contre laquelle on compare. */
   private origine: ProfileForm = FORM_VIDE();
 
-  pwForm = { currentPassword: '', newPassword: '' };
-  pwVisible = signal(false);
   /**
    * Signal et non propriété simple : sans zone.js, l'écriture faite au
    * retour de la requête ne repeint rien par elle-même. La barre
    * d'enregistrement ne se débloquait que grâce au toast qui suivait.
    */
   savingProfile = signal(false);
-  savingPw = false;
   uploadingCv = false;
   importingProfile = false;
 
@@ -300,30 +297,6 @@ export class Profile implements OnInit {
     return companyColor(this.profileForm.firstName || '?');
   }
 
-  // ══ Mot de passe ══
-
-  /**
-   * L'exigence était écrite dans un texte d'exemple, qui disparaît dès la
-   * première frappe. Elle est maintenant vérifiée à mesure.
-   */
-  get pwRules() {
-    const p = this.pwForm.newPassword;
-    return [
-      { label: '6 caractères minimum', ok: p.length >= 6, requis: true },
-      { label: '8 caractères ou plus', ok: p.length >= 8, requis: false },
-      { label: 'une majuscule', ok: /[A-ZÀ-Þ]/.test(p), requis: false },
-      { label: 'un chiffre', ok: /\d/.test(p), requis: false },
-    ];
-  }
-
-  get pwScore(): number {
-    return this.pwRules.filter((r) => r.ok).length;
-  }
-
-  get pwLabel(): string {
-    return ['Trop court', 'Faible', 'Correct', 'Bon', 'Solide'][this.pwScore] ?? '';
-  }
-
   // ══ Enregistrement ══
 
   saveProfile() {
@@ -357,25 +330,6 @@ export class Profile implements OnInit {
         this.profileForm.isSearchable = !cible;
         this.origine.isSearchable = !cible;
         this.toastr.error('Le réglage de visibilité n’a pas pu être modifié.');
-      },
-    });
-  }
-
-  changePassword() {
-    if (this.pwForm.newPassword.length < 6) {
-      this.toastr.warning('6 caractères minimum');
-      return;
-    }
-    this.savingPw = true;
-    this.auth.changePassword(this.pwForm).subscribe({
-      next: () => {
-        this.savingPw = false;
-        this.pwForm = { currentPassword: '', newPassword: '' };
-        this.toastr.success('Mot de passe modifié');
-      },
-      error: (err) => {
-        this.savingPw = false;
-        this.toastr.error(err.error?.message || 'Le mot de passe n’a pas pu être modifié.');
       },
     });
   }

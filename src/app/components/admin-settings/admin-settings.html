@@ -117,6 +117,44 @@
         </section>
       }
 
+      <!-- ═══ EXPÉDITION ═══
+           Un réglage qui ne se règle pas ici : il vit dans la
+           configuration du serveur, parce qu'un mot de passe SMTP en base
+           de données serait lisible par quiconque ouvre la table. Cette
+           page dit seulement s'il est là, et ce que cela change. -->
+      @if (courriel(); as c) {
+        <section class="set-fam animate-in">
+          <div class="set-fam__head">
+            <span class="set-fam__titre">
+              <i class="bi bi-envelope-at" aria-hidden="true"></i> Expédition de courriel
+            </span>
+            <p>Se configure sur le serveur, pas ici : un mot de passe SMTP en base serait lisible.</p>
+          </div>
+
+          <div class="set-fam__corps">
+            <div class="set-item" [class.is-on]="c.configure">
+              <span class="set-item__ico">
+                <i class="bi" [class.bi-check-circle]="c.configure"
+                   [class.bi-exclamation-triangle]="!c.configure" aria-hidden="true"></i>
+              </span>
+              <div class="set-item__txt">
+                <span class="set-item__lbl">
+                  {{ c.configure ? 'Serveur configuré' : 'Aucun serveur configuré' }}
+                </span>
+                <p class="set-item__effet">{{ c.consequence }}</p>
+                <p class="set-etat-tech u-mono">{{ c.etat }}</p>
+              </div>
+              <div class="set-item__ctrl">
+                <button class="btn-secondary" [disabled]="essaiEnCours()" (click)="essayerCourriel()">
+                  @if (essaiEnCours()) { <span class="sp" aria-hidden="true"></span> Envoi… }
+                  @else { <i class="bi bi-send" aria-hidden="true"></i> M'envoyer un essai }
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
       <!-- ═══ CATALOGUE ═══
            L'import trônait en tête de page : c'est une action ponctuelle,
            pas le sujet. Il se range avec ce qu'il touche. -->

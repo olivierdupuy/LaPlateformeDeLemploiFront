@@ -662,6 +662,125 @@
         </div>
       }
 
+      <!-- ═══ SÉCURITÉ ═══
+           Ce qui protège ce compte, et les deux seuls gestes que
+           l'administration ne peut pas ne pas avoir : déverrouiller, et
+           couper le second facteur de qui a tout perdu. -->
+      @if (activeTab() === 'securite') {
+        @if (securite(); as s) {
+          <div class="aud-panel animate-in">
+            <div class="aud-form">
+
+              <fieldset class="aud-set card">
+                <legend>Double authentification</legend>
+                <div class="aud-danger">
+                  <div class="aud-danger__txt">
+                    <b [class.aud-manque]="!s.deuxFacteurs">
+                      {{ s.deuxFacteurs ? 'Active' : 'Aucune' }}
+                      @if (s.deuxFacteurs && s.deuxFacteursDepuis) {
+                        <span class="aud-sub"> — depuis le {{ s.deuxFacteursDepuis | date:'dd/MM/yyyy' }}</span>
+                      }
+                    </b>
+                    <small>
+                      {{ s.deuxFacteurs
+                        ? 'Un code à six chiffres est demandé en plus du mot de passe.'
+                        : (s.deuxFacteursObligatoire
+                          ? 'Ce compte est administrateur : la console lui est fermée tant qu’il ne l’active pas.'
+                          : 'Le mot de passe est la seule chose qui protège ce compte.') }}
+                    </small>
+                  </div>
+                  @if (s.deuxFacteurs) {
+                    <button class="btn-ghost aud-btn-danger" (click)="couper2fa()" [disabled]="enCours() === 'sec'">
+                      <i class="bi bi-shield-slash"></i> Couper
+                    </button>
+                  }
+                </div>
+                @if (s.deuxFacteurs) {
+                  <p class="aud-hint">
+                    À n'utiliser que si cette personne a perdu son téléphone <em>et</em> ses codes
+                    de secours, et que vous êtes sûr de lui parler. Elle en sera informée par
+                    courriel, et votre nom restera au journal.
+                  </p>
+                }
+              </fieldset>
+
+              <fieldset class="aud-set card">
+                <legend>Accès et tentatives</legend>
+                <div class="aud-danger">
+                  <div class="aud-danger__txt">
+                    <b [class.aud-manque]="estVerrouille()">
+                      {{ estVerrouille() ? 'Compte bloqué' : 'Aucun blocage' }}
+                    </b>
+                    <small>
+                      @if (estVerrouille()) {
+                        Bloqué jusqu'au {{ s.verrouilleJusquA | date:'dd/MM/yy à HH:mm' }} après
+                        {{ s.echecs }} tentatives manquées. Personne ne peut s'y connecter, même avec le bon mot de passe.
+                      } @else if (s.echecs > 0) {
+                        {{ s.echecs }} tentative(s) manquée(s) récemment. Cinq de suite bloquent le compte un quart d'heure.
+                      } @else {
+                        Aucune tentative manquée récemment.
+                      }
+                    </small>
+                  </div>
+                  @if (estVerrouille()) {
+                    <button class="btn-ghost" (click)="deverrouiller()" [disabled]="enCours() === 'sec'">
+                      <i class="bi bi-unlock"></i> Débloquer
+                    </button>
+                  }
+                </div>
+
+                <dl class="aud-tech">
+                  <dt>Adresse confirmée</dt>
+                  <dd [class.aud-manque]="!s.emailConfirme">{{ s.emailConfirme ? 'Oui' : 'Non' }}</dd>
+                  <dt>Mot de passe modifié</dt>
+                  <dd class="u-mono">
+                    {{ s.motDePasseModifieLe ? (s.motDePasseModifieLe | date:'dd/MM/yyyy') : 'Jamais depuis la création' }}
+                  </dd>
+                </dl>
+              </fieldset>
+
+              <fieldset class="aud-set card">
+                <legend>Appareils connectés</legend>
+                @if (!s.sessions.length) {
+                  <p class="aud-hint">Aucun appareil n'est connecté à ce compte en ce moment.</p>
+                } @else {
+                  <div class="aud-danger">
+                    <div class="aud-danger__txt">
+                      <b>{{ s.sessions.length }} appareil{{ s.sessions.length > 1 ? 's' : '' }}</b>
+                      <small>Les déconnecter coupe l'accès immédiatement, sans attendre l'expiration des jetons.</small>
+                    </div>
+                    <button class="btn-ghost" (click)="fermerSessions()" [disabled]="enCours() === 'sec'">
+                      <i class="bi bi-box-arrow-right"></i> Tout déconnecter
+                    </button>
+                  </div>
+
+                  <div class="table-wrap">
+                    <table class="data">
+                      <thead><tr><th>Appareil</th><th>Adresse IP</th><th>Ouvert</th><th>Dernière activité</th><th>Moyen</th></tr></thead>
+                      <tbody>
+                        @for (x of s.sessions; track x.id) {
+                          <tr>
+                            <td>{{ x.device }}</td>
+                            <td class="u-mono aud-sub">{{ x.ipAddress || '—' }}</td>
+                            <td class="u-mono aud-date">{{ x.createdAt | date:'dd/MM/yy HH:mm' }}</td>
+                            <td class="u-mono aud-date">{{ x.lastSeenAt | date:'dd/MM/yy HH:mm' }}</td>
+                            <td>
+                              <span class="tag" [class.badge-red]="x.method === 'Impersonation'">
+                                {{ moyen(x.method) }}
+                              </span>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              </fieldset>
+            </div>
+          </div>
+        }
+      }
+
       <!-- ═══ JOURNAL ═══ -->
       @if (activeTab() === 'journal') {
         <div class="aud-panel animate-in">

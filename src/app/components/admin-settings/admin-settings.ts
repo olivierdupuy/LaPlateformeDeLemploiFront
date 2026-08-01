@@ -148,6 +148,19 @@ export class AdminSettings implements OnInit {
   readonly familles = FAMILLES;
 
   settings = signal<any[]>([]);
+
+  /**
+   * L'expedition de courriel.
+   *
+   * Elle n'existait pas : aucun serveur, aucun gabarit. Les alertes de
+   * recherche enregistree se disaient « actives » sans que rien ne parte,
+   * et un mot de passe oublie ne se recuperait qu'en derangeant un
+   * administrateur. Le canal existe maintenant ; reste a lui donner un
+   * serveur, et cette page est le seul endroit d'ou l'on peut savoir s'il
+   * en a un.
+   */
+  courriel = signal<{ configure: boolean; etat: string; consequence: string } | null>(null);
+  essaiEnCours = signal(false);
   loading = signal(true);
   saving = signal(false);
   importing = signal(false);
@@ -156,6 +169,11 @@ export class AdminSettings implements OnInit {
   private origine = new Map<string, string>();
 
   ngOnInit() {
+    this.admin.etatCourriel().subscribe({
+      next: (e) => this.courriel.set(e),
+      error: () => this.courriel.set(null),
+    });
+
     this.loading.set(true);
     this.admin.getSettings().subscribe({
       next: (s) => {
@@ -279,6 +297,22 @@ export class AdminSettings implements OnInit {
       error: () => {
         this.saving.set(false);
         this.toastr.error('Les réglages n’ont pas pu être enregistrés.');
+      },
+    });
+  }
+
+  /** Envoie un message de controle a sa propre adresse. */
+  essayerCourriel() {
+    this.essaiEnCours.set(true);
+    this.admin.essaiCourriel().subscribe({
+      next: (r) => {
+        this.essaiEnCours.set(false);
+        if (r.parti) this.toastr.success(r.message, 'Message parti');
+        else this.toastr.warning(r.message, 'Rien n’est parti');
+      },
+      error: () => {
+        this.essaiEnCours.set(false);
+        this.toastr.error('L’essai n’a pas abouti.');
       },
     });
   }

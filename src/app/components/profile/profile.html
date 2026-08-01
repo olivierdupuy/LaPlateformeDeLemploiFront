@@ -276,52 +276,41 @@
               </div>
             </div>
 
-            <form (ngSubmit)="changePassword()" class="pf-form pf-form--narrow">
-              <div class="form-group">
-                <label for="pf-pw-old">Mot de passe actuel</label>
-                <input id="pf-pw-old" type="password" autocomplete="current-password"
-                       [(ngModel)]="pwForm.currentPassword" name="currentPassword" />
-              </div>
-
-              <div class="form-group">
-                <label for="pf-pw-new">Nouveau mot de passe</label>
-                <div class="pw-field">
-                  <input id="pf-pw-new" [type]="pwVisible() ? 'text' : 'password'" autocomplete="new-password"
-                         [(ngModel)]="pwForm.newPassword" name="newPassword" />
-                  <button type="button" class="pw-eye" (click)="pwVisible.set(!pwVisible())"
-                          [attr.aria-label]="pwVisible() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
-                    <i class="bi" [class.bi-eye]="!pwVisible()" [class.bi-eye-slash]="pwVisible()" aria-hidden="true"></i>
-                  </button>
-                </div>
-
-                <!-- L'exigence vivait dans un texte d'exemple, qui disparaît
-                     à la première frappe. Elle se vérifie maintenant à mesure. -->
-                @if (pwForm.newPassword) {
-                  <div class="pw-meter" [attr.data-score]="pwScore">
-                    <span class="pw-meter__bars">
-                      @for (i of [1,2,3,4]; track i) { <span [class.is-on]="pwScore >= i"></span> }
-                    </span>
-                    <span class="pw-meter__lbl">{{ pwLabel }}</span>
-                  </div>
-                  <ul class="pw-rules">
-                    @for (r of pwRules; track r.label) {
-                      <li [class.is-ok]="r.ok" [class.is-req]="r.requis">
-                        <i class="bi" [class.bi-check-circle-fill]="r.ok" [class.bi-circle]="!r.ok" aria-hidden="true"></i>
-                        {{ r.label }}
-                      </li>
-                    }
-                  </ul>
-                }
-              </div>
-
-              <div class="pf-form__foot">
-                <button type="submit" class="btn-primary" [disabled]="savingPw || pwScore === 0">
-                  @if (savingPw) { <span class="sp" aria-hidden="true"></span> }
-                  @else { <i class="bi bi-key" aria-hidden="true"></i> }
-                  Modifier le mot de passe
-                </button>
-              </div>
-            </form>
+            <!-- Le changement de mot de passe vivait ici, avec sa propre
+                 regle des six caracteres — devenue fausse, et sans fermer
+                 les autres sessions. Il vit desormais sur la page Securite,
+                 avec le second facteur et les appareils connectes : c'est
+                 le meme sujet, et un seul endroit vaut mieux que deux qui
+                 divergent. -->
+            <div class="pf-securite">
+              <ul class="pf-securite__liste">
+                <li>
+                  <i class="bi" [class.bi-shield-check]="u.twoFactorEnabled"
+                     [class.bi-shield-exclamation]="!u.twoFactorEnabled"
+                     [class.est-manque]="!u.twoFactorEnabled" aria-hidden="true"></i>
+                  <span>
+                    <strong>{{ u.twoFactorEnabled ? 'Double authentification active' : 'Aucune double authentification' }}</strong>
+                    <small>{{ u.twoFactorEnabled
+                      ? 'Un code a six chiffres est demande en plus de votre mot de passe.'
+                      : 'Votre mot de passe est la seule chose qui protege ce compte.' }}</small>
+                  </span>
+                </li>
+                <li>
+                  <i class="bi" [class.bi-envelope-check]="u.emailConfirmed"
+                     [class.bi-envelope-exclamation]="!u.emailConfirmed"
+                     [class.est-manque]="!u.emailConfirmed" aria-hidden="true"></i>
+                  <span>
+                    <strong>{{ u.emailConfirmed ? 'Adresse confirmee' : 'Adresse non confirmee' }}</strong>
+                    <small>{{ u.emailConfirmed
+                      ? 'Vous pourrez recuperer votre mot de passe si vous l’oubliez.'
+                      : 'Sans confirmation, vous ne pourrez pas recuperer votre mot de passe seul.' }}</small>
+                  </span>
+                </li>
+              </ul>
+              <a routerLink="/securite" class="btn-primary">
+                <i class="bi bi-shield-lock" aria-hidden="true"></i> Ouvrir la page Securite
+              </a>
+            </div>
           </div>
         }
 

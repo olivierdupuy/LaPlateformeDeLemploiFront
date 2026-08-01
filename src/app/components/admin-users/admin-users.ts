@@ -34,6 +34,13 @@ interface UserRow {
   createdAt: string;
   isActive: boolean;
   isOnline?: boolean;
+
+  /** Ce qui protège le compte, servi avec la liste : voir un administrateur
+   *  sans second facteur ne doit pas obliger à ouvrir sa fiche. */
+  twoFactorEnabled?: boolean;
+  emailConfirmed?: boolean;
+  /** Enfermé dehors par le compteur d'échecs de connexion. */
+  verrouille?: boolean;
 }
 
 interface UserFacets {

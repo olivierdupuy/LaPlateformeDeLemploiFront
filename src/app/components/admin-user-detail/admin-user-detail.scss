@@ -857,3 +857,8 @@ a.aud-sub:hover { color: var(--bleu-600); text-decoration: underline; }
   .aud-savebar__in { flex-direction: column; align-items: stretch; }
   .aud-savebar__act { justify-content: stretch; button { flex: 1; justify-content: center; } }
 }
+
+// Ce qui manque à la protection d'un compte se lit d'un coup d'œil : un
+// administrateur sans second facteur est le maillon faible de toute la
+// plateforme, et cela ne doit pas se déduire d'une absence.
+.aud-manque { color: var(--danger); }
