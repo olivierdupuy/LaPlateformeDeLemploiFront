@@ -7,7 +7,7 @@ import { InterviewService } from '../../services/interview.service';
 import { RecruiterFeaturesService } from '../../services/recruiter-features.service';
 import { Application } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
-import { fichierUrl } from '../../utils/fichiers';
+import { FichiersService } from '../../utils/fichiers';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { ConsoleShell } from '../console-shell/console-shell';
@@ -24,7 +24,8 @@ export class Applications implements OnInit {
   private recruiterService = inject(RecruiterFeaturesService);
   private toastr = inject(ToastrService);
   companyColor = companyColor;
-  fichierUrl = fichierUrl;
+  /** Les CV passent par une route authentifiee : plus de lien nu. */
+  fichiers = inject(FichiersService);
 
   applications = signal<Application[]>([]);
   loading = signal(true);

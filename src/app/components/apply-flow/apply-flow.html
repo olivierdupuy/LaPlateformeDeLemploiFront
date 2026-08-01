@@ -190,7 +190,8 @@
                         <span class="af-choice-txt">
                           <strong>Utiliser le CV de mon profil</strong>
                           <span>Le fichier déjà enregistré sur votre espace candidat.</span>
-                          <a [href]="profileResumeHref" target="_blank" rel="noopener" class="af-choice-link">Consulter le fichier <i class="bi bi-box-arrow-up-right"></i></a>
+                          <button type="button" class="af-choice-link"
+                                  (click)="$event.preventDefault(); fichiers.ouvrirCv(profileResumeUrl)">Consulter le fichier <i class="bi bi-box-arrow-up-right"></i></button>
                         </span>
                         <i class="bi bi-check-lg af-choice-check"></i>
                       </label>

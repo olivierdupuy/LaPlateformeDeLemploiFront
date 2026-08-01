@@ -6,7 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { AdminService } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
 import { companyColor } from '../../utils/job.utils';
-import { fichierUrl } from '../../utils/fichiers';
+import { FichiersService } from '../../utils/fichiers';
 
 /**
  * Fiche d'un compte, ouverte depuis le tableau des utilisateurs.
@@ -138,7 +138,8 @@ export class AdminUserDetail implements OnInit {
   groupes = GROUPES;
   cvSections = CV_SECTIONS;
   companyColor = companyColor;
-  fichierUrl = fichierUrl;
+  /** Les CV passent par une route authentifiee : plus de lien nu. */
+  fichiers = inject(FichiersService);
   statusLabel = (s: string) => STATUS_LABELS[s] ?? s;
   statusBadge = (s: string) => STATUS_BADGE[s] ?? '';
   roleLabel = (r: string) => ROLE_LABELS[r] ?? r;

@@ -4,6 +4,7 @@ import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
 import { SiteBanner } from './components/site-banner/site-banner';
 import { CookieConsent } from './components/cookie-consent/cookie-consent';
+import { AdresseAConfirmer } from './components/adresse-a-confirmer/adresse-a-confirmer';
 import { ImpersonationBanner } from './components/impersonation-banner/impersonation-banner';
 import { AuthModal } from './components/auth-modal/auth-modal';
 import { PlatformService } from './services/platform.service';
@@ -90,7 +91,7 @@ const TITRES_SECTIONS: [string, string][] = [
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Navbar, Footer, SiteBanner, CookieConsent, ImpersonationBanner, AuthModal],
+  imports: [RouterOutlet, Navbar, Footer, SiteBanner, CookieConsent, ImpersonationBanner, AuthModal, AdresseAConfirmer],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

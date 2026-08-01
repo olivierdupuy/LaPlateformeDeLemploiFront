@@ -144,8 +144,9 @@
                 <div class="ac-meta">
                   <span><i class="bi bi-calendar3"></i> {{ app.appliedAt | date:'dd MMM yyyy' }}</span>
                   @if (app.city) { <span><i class="bi bi-geo-alt"></i> {{ app.city }}</span> }
-                  @if (fichierUrl(app.resumeUrl); as cv) {
-                    <a [href]="cv" target="_blank" rel="noopener" class="ac-cv" (click)="$event.stopPropagation()"><i class="bi bi-file-earmark-person"></i> CV</a>
+                  @if (app.resumeUrl) {
+                    <button type="button" class="ac-cv"
+                            (click)="$event.stopPropagation(); fichiers.ouvrirCv(app.resumeUrl)"><i class="bi bi-file-earmark-person"></i> CV</button>
                   }
                   @if (app.availableFrom) { <span><i class="bi bi-calendar-check"></i> Dispo. {{ app.availableFrom | date:'dd/MM/yyyy' }}</span> }
                   @if (app.salaryExpectation) { <span><i class="bi bi-cash-coin"></i> {{ app.salaryExpectation }}</span> }

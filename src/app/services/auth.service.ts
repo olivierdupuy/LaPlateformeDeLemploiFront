@@ -163,9 +163,17 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/export-data`);
   }
 
-  /** RGPD : suppression définitive du compte. */
-  deleteAccount(): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/account`);
+  /**
+   * RGPD : effacement définitif du compte.
+   *
+   * Le mot de passe est redemandé au moment de l'acte : sans lui, une
+   * session ouverte sur un poste laissé sans surveillance suffisait à
+   * tout détruire.
+   */
+  deleteAccount(motDePasse?: string): Observable<any> {
+    return this.http.request('delete', `${this.apiUrl}/account`, {
+      body: { motDePasse: motDePasse ?? null },
+    });
   }
 
   // Admin endpoints

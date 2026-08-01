@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
 import { Pager } from '../pager/pager';
 import { companyColor } from '../../utils/job.utils';
-import { fichierUrl } from '../../utils/fichiers';
+import { FichiersService } from '../../utils/fichiers';
 import { pagedQuery } from '../../utils/paged-query';
 import { dayLabel } from '../../utils/day-filter';
 import { APPLICATION_STATUS, STATUS } from '../../viz/palette';
@@ -86,7 +86,8 @@ export class AdminApplications {
 
   companyColor = companyColor;
   /** Le CV est servi par l'API, pas par le site. */
-  fichierUrl = fichierUrl;
+  /** Les CV passent par une route authentifiee : plus de lien nu. */
+  fichiers = inject(FichiersService);
   statusLabel = (s: string) => APPLICATION_STATUS[s]?.label ?? s;
 
   protected readonly etats = ETATS;

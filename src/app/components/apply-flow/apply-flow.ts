@@ -11,7 +11,7 @@ import { JobOffer } from '../../models/job-offer.model';
 import { ScreeningQuestion, answerOptions, parseScreeningQuestions } from '../../utils/screening';
 import { EmployerNamePipe } from '../../pipes/employer-name.pipe';
 import { companyColor, getContractBadgeClass, salaryLabel } from '../../utils/job.utils';
-import { fichierUrl } from '../../utils/fichiers';
+import { FichiersService } from '../../utils/fichiers';
 import { AuthModalService } from '../../services/auth-modal.service';
 
 type StepKey = 'contact' | 'resume' | 'questions' | 'letter' | 'extras' | 'review';
@@ -175,10 +175,8 @@ export class ApplyFlow implements OnInit {
     return this.auth.currentUser()?.resumeUrl || undefined;
   }
 
-  /** Adresse consultable du CV : le chemin stocke est relatif a l'API. */
-  get profileResumeHref(): string | null {
-    return fichierUrl(this.profileResumeUrl);
-  }
+  /** Les CV passent par une route authentifiee : plus de lien nu. */
+  fichiers = inject(FichiersService);
 
   /** CV effectivement joint a la candidature, selon le choix de l'etape 2. */
   get selectedResumeUrl(): string | undefined {

@@ -468,20 +468,32 @@ export class Profile implements OnInit {
   // ══ Données du compte ══
 
   async deleteAccount() {
+    // Dire ce qui part, et ce qui reste. « Irréversible » ne renseigne
+    // sur rien : ce qu'on veut savoir, c'est ce qu'on perd.
     const res = await Swal.fire({
-      title: 'Supprimer votre compte ?',
-      text: 'Cette action est irréversible.',
+      title: 'Effacer votre compte ?',
+      html: `
+        <p style="margin:0 0 10px;text-align:left">Partent définitivement&nbsp;: votre profil,
+        votre CV téléversé, vos candidatures, vos recherches enregistrées et vos alertes.</p>
+        <p style="margin:0 0 14px;text-align:left">Restent en ligne sans votre nom&nbsp;: les avis
+        d’entreprise et les salaires que vous avez partagés.</p>
+        <p style="margin:0;text-align:left"><strong>Nous ne pourrons pas revenir en arrière.</strong></p>`,
       icon: 'warning',
+      input: 'password',
+      inputLabel: 'Votre mot de passe, pour confirmer',
+      inputAttributes: { autocomplete: 'current-password' },
       showCancelButton: true,
       confirmButtonColor: '#c6364b',
       cancelButtonColor: '#577177',
-      confirmButtonText: 'Supprimer',
+      confirmButtonText: 'Effacer mon compte',
       cancelButtonText: 'Annuler',
+      inputValidator: (v) => (v ? null : 'Saisissez votre mot de passe.'),
     });
+
     if (res.isConfirmed) {
-      this.auth.deleteAccount().subscribe({
-        next: () => { this.toastr.success('Compte supprimé'); this.auth.logout(); },
-        error: () => this.toastr.error('Le compte n’a pas pu être supprimé.'),
+      this.auth.deleteAccount(res.value).subscribe({
+        next: () => { this.toastr.success('Compte effacé. Un message de confirmation vous a été envoyé.'); this.auth.logout(); },
+        error: (e) => this.toastr.error(e?.error?.message ?? 'Le compte n’a pas pu être effacé.'),
       });
     }
   }
