@@ -267,6 +267,16 @@
                          (blur)="touche['email'] = true" (input)="effacer('email')" />
                 </div>
                 @if (errEmailInscription; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                <!-- Une remarque, jamais un refus : l'exiger ecarterait les
+                     independants et les tres petites structures, qui recrutent
+                     aussi. -->
+                @if (adressePersonnelle) {
+                  <p class="am-remarque">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    Les candidats répondent plus volontiers à une adresse
+                    professionnelle. Celle-ci fonctionne tout de même.
+                  </p>
+                }
               </div>
 
               <div class="am-champ">
@@ -338,7 +348,97 @@
                  Trois champs sur un écran, pas trois écrans. C'est ce qui
                  permet aux alertes d'être justes et à la recherche des
                  recruteurs de renvoyer autre chose qu'un nom. -->
-            @if (etape() === 2) {
+            @if (etape() === 2 && estRecruteur) {
+              <!-- La fiche a ete lue avant d'etre montree : « PUT profile »
+                   ecrase tous les champs, et le deuxieme recruteur d'une
+                   meme societe effacerait le travail du premier. -->
+              @if (dejaDecrite()) {
+                <p class="am-remarque">
+                  <i class="bi bi-buildings" aria-hidden="true"></i>
+                  <strong>{{ inscription.entreprise }}</strong> est déjà présente sur
+                  la plateforme. Voici sa fiche — complétez-la, elle sera partagée
+                  avec vos collègues.
+                </p>
+              }
+
+              <form (ngSubmit)="enregistrerEntreprise()" class="am-form">
+                @if (!inscription.entreprise.trim()) {
+                  <div class="am-champ">
+                    <label for="auth-societe">Nom de l'entreprise</label>
+                    <div class="am-saisie">
+                      <i class="bi bi-building" aria-hidden="true"></i>
+                      <input id="auth-societe" type="text" autocomplete="organization"
+                             placeholder="TechCorp" maxlength="200" data-champ="company"
+                             [(ngModel)]="inscription.entreprise" name="societeNom"
+                             (blur)="touche['company'] = true" />
+                    </div>
+                    @if (errEntreprise; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                  </div>
+                }
+
+                <div class="am-duo">
+                  <div class="am-champ">
+                    <label for="auth-secteur">Secteur d'activité</label>
+                    <div class="am-saisie">
+                      <i class="bi bi-diagram-3" aria-hidden="true"></i>
+                      <input id="auth-secteur" type="text" placeholder="Informatique, BTP, santé…"
+                             maxlength="200" data-champ="industry" [attr.aria-invalid]="!!errSecteur"
+                             [(ngModel)]="societe.secteur" name="secteur"
+                             (blur)="touche['industry'] = true" (input)="effacer('industry')" />
+                    </div>
+                    @if (errSecteur; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                  </div>
+                  <div class="am-champ">
+                    <label for="auth-taille">Effectif</label>
+                    <div class="am-saisie">
+                      <select id="auth-taille" [(ngModel)]="societe.taille" name="taille">
+                        <option value="">Non précisé</option>
+                        @for (t of taillesEntreprise; track t) {
+                          <option [value]="t">{{ t }} personnes</option>
+                        }
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="am-champ">
+                  <label for="auth-siege">Ville du siège</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                    <input id="auth-siege" type="text" autocomplete="address-level2"
+                           placeholder="Montpellier" maxlength="200" data-champ="headquarters"
+                           [attr.aria-invalid]="!!errVilleSiege"
+                           [(ngModel)]="societe.ville" name="siege"
+                           (blur)="touche['headquarters'] = true" (input)="effacer('headquarters')" />
+                  </div>
+                  @if (errVilleSiege; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                </div>
+
+                <div class="am-champ">
+                  <label for="auth-site">Site web</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-globe" aria-hidden="true"></i>
+                    <input id="auth-site" type="url" inputmode="url" placeholder="https://votre-entreprise.fr"
+                           maxlength="500" data-champ="website" [attr.aria-invalid]="!!errSite"
+                           [(ngModel)]="societe.site" name="site"
+                           (blur)="touche['website'] = true" (input)="effacer('website')" />
+                  </div>
+                  @if (errSite; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                </div>
+
+                <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
+                  @if (occupe()) { <span class="sp"></span> Enregistrement… } @else { Continuer }
+                </button>
+              </form>
+
+              <div class="am-pas__nav">
+                <button type="button" class="am-retour" (click)="passer()" [disabled]="occupe()">
+                  Passer cette étape
+                </button>
+              </div>
+            }
+
+            @if (etape() === 2 && !estRecruteur) {
               <form (ngSubmit)="enregistrerRecherche()" class="am-form">
                 <div class="am-champ">
                   <label for="auth-metier">Le métier que vous cherchez</label>
@@ -394,7 +494,46 @@
                  Deux consentements distincts, ni l'un ni l'autre pré-coché :
                  être cherchable et recevoir des messages ne sont pas la
                  même chose, et les confondre serait indéfendable. -->
-            @if (etape() === 3) {
+            @if (etape() === 3 && estRecruteur) {
+              <form (ngSubmit)="enregistrerPresentation()" class="am-form">
+                <div class="am-champ">
+                  <label for="auth-presentation">L'entreprise en quelques lignes</label>
+                  <textarea id="auth-presentation" rows="5" maxlength="2000"
+                            placeholder="Ce que vous faites, ce qui vous distingue, l'ambiance de travail…"
+                            [(ngModel)]="societe.presentation" name="presentation"></textarea>
+                  <p class="am-aide">
+                    Ce texte s'affiche sur votre page entreprise et à côté de chaque offre.
+                  </p>
+                </div>
+
+                <div class="am-champ">
+                  <label for="auth-fonction">Votre fonction</label>
+                  <div class="am-saisie">
+                    <i class="bi bi-person-badge" aria-hidden="true"></i>
+                    <input id="auth-fonction" type="text" placeholder="Responsable recrutement"
+                           maxlength="150" data-champ="title" [attr.aria-invalid]="!!errFonction"
+                           [(ngModel)]="societe.fonction" name="fonction"
+                           (blur)="touche['title'] = true" (input)="effacer('title')" />
+                  </div>
+                  @if (errFonction; as e) { <p class="am-erreur" role="alert">{{ e }}</p> }
+                </div>
+
+                <button type="submit" class="btn-primary am-valider" [disabled]="occupe()">
+                  @if (occupe()) { <span class="sp"></span> Enregistrement… } @else { Terminer }
+                </button>
+              </form>
+
+              <div class="am-pas__nav">
+                <button type="button" class="am-retour" (click)="precedent()" [disabled]="occupe()">
+                  <i class="bi bi-arrow-left" aria-hidden="true"></i> Retour
+                </button>
+                <button type="button" class="am-retour" (click)="passer()" [disabled]="occupe()">
+                  Passer cette étape
+                </button>
+              </div>
+            }
+
+            @if (etape() === 3 && !estRecruteur) {
               <form (ngSubmit)="enregistrerPreferences()" class="am-form">
                 <label class="am-accord">
                   <input type="checkbox" [(ngModel)]="visibleRecruteurs" name="visibleRecruteurs" />
@@ -453,18 +592,34 @@
                   Il reste une chose : nous venons d'envoyer un message à
                   <strong>{{ inscription.email || 'votre adresse' }}</strong>.
                   Le clic qu'il contient confirme que l'adresse est bien la vôtre —
-                  c'est elle qui vous rendra votre compte si vous perdez le mot de passe.
+                  @if (estRecruteur) {
+                    c'est elle qui recevra les candidatures.
+                  } @else {
+                    c'est elle qui vous rendra votre compte si vous perdez le mot de passe.
+                  }
                 </p>
               </div>
 
-              <div class="am-sorties">
-                <button type="button" class="btn-primary am-valider" (click)="terminer('/mon-cv')">
-                  <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Composer mon CV
-                </button>
-                <button type="button" class="btn-secondary am-valider" (click)="terminer('/offres')">
-                  <i class="bi bi-search" aria-hidden="true"></i> Voir les offres
-                </button>
-              </div>
+              @if (estRecruteur) {
+                <div class="am-sorties">
+                  <button type="button" class="btn-primary am-valider"
+                          (click)="terminer('/recruteur/offres/nouvelle')">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> Publier une offre
+                  </button>
+                  <button type="button" class="btn-secondary am-valider" (click)="terminer('/espace-recruteur')">
+                    <i class="bi bi-speedometer2" aria-hidden="true"></i> Mon espace
+                  </button>
+                </div>
+              } @else {
+                <div class="am-sorties">
+                  <button type="button" class="btn-primary am-valider" (click)="terminer('/mon-cv')">
+                    <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Composer mon CV
+                  </button>
+                  <button type="button" class="btn-secondary am-valider" (click)="terminer('/offres')">
+                    <i class="bi bi-search" aria-hidden="true"></i> Voir les offres
+                  </button>
+                </div>
+              }
 
               <div class="am-pas__nav">
                 <button type="button" class="am-retour" (click)="terminer()">

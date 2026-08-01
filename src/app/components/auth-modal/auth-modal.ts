@@ -11,6 +11,7 @@ import { AuthResponse } from '../../models/auth.model';
 import { Regles, erreursDuServeur } from '../../utils/validation';
 import { CATEGORIES } from '../../utils/categories';
 import { NewsletterService } from '../../services/newsletter.service';
+import { CompanyReviewService } from '../../services/company-review.service';
 
 /**
  * Toute l'authentification, en une couche posée sur la page.
@@ -37,6 +38,7 @@ export class AuthModal {
   modale = inject(AuthModalService);
   platform = inject(PlatformService);
   private lettre = inject(NewsletterService);
+  private entreprises = inject(CompanyReviewService);
 
   private panneau = viewChild<ElementRef<HTMLElement>>('panneau');
 
@@ -83,8 +85,9 @@ export class AuthModal {
    * la fenêtre ne coûte plus rien : le compte existe, le courriel de
    * confirmation est parti, la session est ouverte.
    *
-   * Un recruteur n'y passe pas : ses champs utiles sont l'entreprise et
-   * l'offre, pas le métier recherché.
+   * Le recruteur suit le même découpage, mais décrit autre chose : ses
+   * étapes 2 et 3 renseignent l'entreprise — la fiche que les candidats
+   * consultent avant de postuler — et non sa propre recherche.
    */
   etape = signal(1);
   readonly categories = CATEGORIES;
@@ -114,6 +117,22 @@ export class AuthModal {
   choisies = signal<string[]>([]);
 
   /**
+   * Étapes 2 et 3 du recruteur — l'entreprise, pas la personne.
+   *
+   * La fiche est partagée : deux recruteurs de la même société
+   * décrivent le même objet. Elle est donc lue avant d'être montrée,
+   * et « dejaDecrite » retient qu'un collègue est passé avant — sans
+   * quoi le second effacerait le travail du premier en passant l'étape
+   * à moitié remplie.
+   */
+  societe = { secteur: '', taille: '', ville: '', site: '', presentation: '', fonction: '' };
+  dejaDecrite = signal(false);
+
+  readonly taillesEntreprise = [
+    '1 à 10', '11 à 50', '51 à 250', '251 à 1000', 'Plus de 1000',
+  ];
+
+  /**
    * Les deux étapes facultatives sont escamotées quand la modale a été
    * ouverte pour finir une candidature : faire remplir des centres
    * d'intérêt à quelqu'un qui allait postuler, c'est le perdre.
@@ -123,10 +142,27 @@ export class AuthModal {
   }
 
   /** Combien d'étapes on annonce — deux si le parcours est écourté. */
-  get totalEtapes(): number { return this.parcoursCourt ? 2 : 3; }
+  get totalEtapes(): number { return this.parcoursCourt && !this.estRecruteur ? 2 : 3; }
 
-  /** Un recruteur garde le formulaire d'un seul tenant. */
-  get enEtapes(): boolean { return this.inscription.role === 'Candidate'; }
+  /** Candidat comme recruteur passent par des étapes ; leur contenu diffère. */
+  get enEtapes(): boolean { return true; }
+  get estRecruteur(): boolean { return this.inscription.role === 'Recruiter'; }
+
+  /**
+   * Une adresse personnelle sur un compte recruteur.
+   *
+   * Une remarque, jamais un refus : les candidats répondent plus
+   * volontiers à une adresse professionnelle, mais l'exiger écarterait
+   * les indépendants et les toutes petites structures — qui recrutent
+   * aussi.
+   */
+  get adressePersonnelle(): boolean {
+    if (!this.estRecruteur) return false;
+    const domaine = this.inscription.email.split('@')[1]?.toLowerCase() ?? '';
+    return ['gmail.com', 'hotmail.fr', 'hotmail.com', 'outlook.fr', 'outlook.com',
+            'yahoo.fr', 'yahoo.com', 'orange.fr', 'free.fr', 'sfr.fr', 'laposte.net',
+            'wanadoo.fr', 'icloud.com'].includes(domaine);
+  }
 
   /** Les jalons de la barre de progression. */
   get jalons(): number[] {
@@ -213,6 +249,8 @@ export class AuthModal {
     this.visibleRecruteurs = true;
     this.lettreConsentie = false;
     this.choisies.set([]);
+    this.societe = { secteur: '', taille: '', ville: '', site: '', presentation: '', fonction: '' };
+    this.dejaDecrite.set(false);
 
     const c = this.modale.contexte();
 
@@ -321,9 +359,23 @@ export class AuthModal {
       chapeau: 'Votre compte est prêt. Il reste une chose à faire.' },
   ];
 
+  /** Le recruteur décrit une entreprise, pas une recherche. */
+  private readonly etapesRecruteur = [
+    { titre: 'Votre entreprise',
+      chapeau: 'C’est la fiche que les candidats consultent avant de postuler.' },
+    { titre: 'Ce que verront les candidats',
+      chapeau: 'Une offre adossée à une entreprise décrite ne reçoit pas les mêmes candidatures.' },
+    { titre: 'Prêt à publier',
+      chapeau: 'Votre compte est prêt. Vos offres paraîtront dès leur enregistrement.' },
+  ];
+
+  private get etapesDuRole() {
+    return this.estRecruteur ? this.etapesRecruteur : this.etapesCandidat;
+  }
+
   titre = computed(() => {
     if (this.modale.vue() === 'inscription' && this.etape() > 1)
-      return this.etapesCandidat[this.etape() - 2].titre;
+      return this.etapesDuRole[this.etape() - 2].titre;
     return {
       connexion: 'Connexion',
       inscription: 'Créer un compte',
@@ -335,7 +387,7 @@ export class AuthModal {
 
   chapeau = computed(() => {
     if (this.modale.vue() === 'inscription' && this.etape() > 1)
-      return this.etapesCandidat[this.etape() - 2].chapeau;
+      return this.etapesDuRole[this.etape() - 2].chapeau;
     return {
       connexion: 'Accédez à vos candidatures, vos offres enregistrées et vos messages.',
       inscription: 'Quelques secondes suffisent, et rien ne vous engage.',
@@ -730,16 +782,13 @@ export class AuthModal {
       password: f.motDePasse, role: f.role, company: f.entreprise.trim(),
       siteWeb: this.siteWeb, msSaisie: this.msSaisie,
     }).subscribe({
-      next: (r) => {
-        // Un recruteur en a fini : son formulaire est d'un seul tenant.
-        if (!this.enEtapes) {
-          this.apresAuthentification(r, 'Bienvenue — votre compte est créé.');
-          return;
-        }
-        // Un candidat continue. Le compte existe désormais : ce qui suit
-        // enrichit, et un abandon ne perd plus rien.
+      next: () => {
+        // Le compte existe désormais : ce qui suit enrichit, et un
+        // abandon ne perd plus rien.
         this.occupe.set(false);
-        this.toastr.success('Votre compte est créé. Encore deux questions, si vous voulez.');
+        this.toastr.success(this.estRecruteur
+          ? 'Votre compte est créé. Vous pouvez déjà publier — encore deux questions sur l’entreprise.'
+          : 'Votre compte est créé. Encore deux questions, si vous voulez.');
         this.allerEtape(2);
       },
       error: (e) => {
@@ -769,7 +818,10 @@ export class AuthModal {
 
     // La case de visibilité montre ce que le compte vaut réellement, et
     // non ce qu'on aimerait lui faire dire.
-    if (n === 3) this.visibleRecruteurs = this.auth.currentUser()?.isSearchable ?? true;
+    if (n === 3 && !this.estRecruteur)
+      this.visibleRecruteurs = this.auth.currentUser()?.isSearchable ?? true;
+
+    if (n === 2 && this.estRecruteur) this.lireFicheEntreprise();
     setTimeout(() => {
       const p = this.panneau()?.nativeElement;
       p?.querySelector<HTMLElement>('input:not([type=hidden]):not([disabled]):not([tabindex="-1"])')?.focus();
@@ -818,6 +870,99 @@ export class AuthModal {
       error: (e) => this.echecEtapeFacultative(e),
     });
   }
+
+  // ══════════════════════════════
+  //  Les étapes du recruteur
+  // ══════════════════════════════
+
+  /**
+   * Lire la fiche avant de la montrer.
+   *
+   * « PUT /companies/{nom}/profile » écrase tous les champs, null
+   * compris. Sans cette lecture, le deuxième recruteur d'une même
+   * société effacerait ce que le premier avait décrit, simplement en
+   * passant l'étape à moitié remplie. On préremplit donc, et on le dit.
+   */
+  private lireFicheEntreprise() {
+    const nom = this.inscription.entreprise.trim();
+    if (!nom) return;
+
+    this.entreprises.getProfile(nom).subscribe({
+      next: (f) => {
+        const decrite = !!(f?.industry || f?.size || f?.headquarters || f?.website || f?.about);
+        this.dejaDecrite.set(decrite);
+        if (!decrite) return;
+        this.societe.secteur = f.industry ?? '';
+        this.societe.taille = f.size ?? '';
+        this.societe.ville = f.headquarters ?? '';
+        this.societe.site = f.website ?? '';
+        this.societe.presentation = f.about ?? '';
+      },
+      // Pas de fiche, ou serveur muet : on part de champs vierges. Ce
+      // n'est pas une erreur à montrer, c'est le cas ordinaire.
+      error: () => this.dejaDecrite.set(false),
+    });
+  }
+
+  /** Étape 2 du recruteur — secteur, taille, ville, site. */
+  enregistrerEntreprise() {
+    const s = this.societe;
+    if (!this.valide([
+      ['industry', Regles.texteCourt(s.secteur, 'Le secteur', { max: 200, obligatoire: false })],
+      ['headquarters', Regles.texteCourt(s.ville, 'La ville', { max: 200, obligatoire: false })],
+      ['website', Regles.lien(s.site)],
+    ])) return;
+
+    if (!s.secteur.trim() && !s.taille && !s.ville.trim() && !s.site.trim()) { this.passer(); return; }
+
+    this.occupe.set(true);
+    // La présentation est renvoyée telle quelle : l'omettre l'effacerait.
+    this.entreprises.saveProfile(this.inscription.entreprise.trim(), {
+      industry: s.secteur.trim() || undefined,
+      size: s.taille || undefined,
+      headquarters: s.ville.trim() || undefined,
+      website: s.site.trim() || undefined,
+      about: s.presentation.trim() || undefined,
+    }).subscribe({
+      next: () => { this.occupe.set(false); this.passer(); },
+      error: (e) => this.echecEtapeFacultative(e),
+    });
+  }
+
+  /** Étape 3 du recruteur — la présentation, et sa fonction. */
+  enregistrerPresentation() {
+    const s = this.societe;
+    if (!this.valide([
+      ['title', Regles.texteCourt(s.fonction, 'Votre fonction', { max: 150, obligatoire: false })],
+    ])) return;
+
+    if (!s.presentation.trim() && !s.fonction.trim()) { this.allerEtape(4); return; }
+
+    this.occupe.set(true);
+    // Les autres champs de la fiche repartent avec, pour la même raison :
+    // ce qu'on n'envoie pas est effacé.
+    this.entreprises.saveProfile(this.inscription.entreprise.trim(), {
+      industry: s.secteur.trim() || undefined,
+      size: s.taille || undefined,
+      headquarters: s.ville.trim() || undefined,
+      website: s.site.trim() || undefined,
+      about: s.presentation.trim() || undefined,
+    }).subscribe({
+      next: () => {
+        if (!s.fonction.trim()) { this.occupe.set(false); this.allerEtape(4); return; }
+        this.auth.updateProfile({ title: s.fonction.trim() }).subscribe({
+          next: () => { this.occupe.set(false); this.allerEtape(4); },
+          error: (e) => this.echecEtapeFacultative(e),
+        });
+      },
+      error: (e) => this.echecEtapeFacultative(e),
+    });
+  }
+
+  get errSecteur() { return this.erreur('industry', () => Regles.texteCourt(this.societe.secteur, 'Le secteur', { max: 200, obligatoire: false })); }
+  get errVilleSiege() { return this.erreur('headquarters', () => Regles.texteCourt(this.societe.ville, 'La ville', { max: 200, obligatoire: false })); }
+  get errSite() { return this.erreur('website', () => Regles.lien(this.societe.site)); }
+  get errFonction() { return this.erreur('title', () => Regles.texteCourt(this.societe.fonction, 'Votre fonction', { max: 150, obligatoire: false })); }
 
   /** Étape 3 — visibilité auprès des recruteurs, et centres d'intérêt. */
   enregistrerPreferences() {
