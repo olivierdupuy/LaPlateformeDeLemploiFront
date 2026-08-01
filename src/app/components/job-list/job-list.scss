@@ -3,24 +3,60 @@
 // ═══════════════════════════════════════════════
 
 // ── Bandeau de recherche (prolonge la navbar) ──
+//
+// Pas d'`overflow: hidden` ici, et c'est délibéré.
+//
+// Le halo décoratif ci-dessous débordait volontairement du bandeau
+// (`top: -40%`, `height: 180%`), ce qui obligeait à rogner le bandeau
+// pour le contenir. Mais un `overflow: hidden` ne choisit pas ce qu'il
+// rogne : il coupait aussi la liste d'autocomplétion des champs de
+// recherche, qui s'ouvre sous eux et dépasse forcément le bas du
+// bandeau. La suggestion apparaissait tranchée net à la limite du
+// bleu, à moitié lisible et à moitié cliquable.
+//
+// Le halo tient donc désormais dans le cadre — le dégradé est placé
+// dans un calque à `inset: 0`, la teinte reste la même — et le
+// bandeau ne rogne plus rien.
 .search-hero {
   position: relative;
   // Pas de marge basse : la barre de filtres claire vient s'y appuyer.
   padding: clamp(1.75rem, 3.5vw, 2.75rem) 0 clamp(1.5rem, 2.5vw, 2rem);
   background: var(--plum-900);
-  overflow: hidden;
+
+  // Le bandeau ne monte que pendant qu'une liste de suggestions est
+  // ouverte — au-dessus de la barre de filtres (40) et des résultats.
+  // Le laisser haut en permanence le ferait passer par-dessus la barre
+  // collante des qu'on defile ; le monter au besoin ne coute rien,
+  // puisqu'on ne saisit une recherche qu'en haut de page.
+  &.has-ac { z-index: 50; }
 
   &::before {
     content: '';
     position: absolute;
-    top: -40%; left: -6%;
-    width: 55%; height: 180%;
-    background: radial-gradient(circle, rgba(58, 128, 140, 0.3), transparent 62%);
+    inset: 0;
+    background: radial-gradient(circle at 21% 50%, rgba(58, 128, 140, 0.3), transparent 62%);
     pointer-events: none;
   }
 }
 
-.sh-content { position: relative; display: flex; flex-direction: column; }
+// `animate-in` anime `fadeUp` avec `fill-mode: both` : l'élément reste
+// donc figé sur la dernière image, `translateY(0)`, soit un transform
+// identité — qui ne déplace rien mais crée un contexte d'empilement, et
+// le crée définitivement.
+//
+// Le menu d'autocomplétion s'y trouvait enfermé. Quel que soit son
+// z-index, il ne pouvait pas franchir ce contexte : il passait derrière
+// la barre de filtres et derrière les cartes de résultats. Le z-index
+// n'y était pour rien, le piège était deux étages plus haut.
+//
+// L'entrée reste, en fondu seul : une opacité qui finit à 1 ne laisse
+// aucun contexte derrière elle.
+.sh-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.5s var(--ease-out) both;
+}
 
 .search-hero .eyebrow {
   color: var(--on-plum-muted);
@@ -126,7 +162,11 @@
   border-radius: var(--r-md);
   box-shadow: var(--shadow-xl);
   overflow: hidden;
-  z-index: 30;
+  // Au-dessus de la barre de filtres collante (40). Le menu s'ouvre en
+  // débordant du bandeau et passe donc devant elle : à 30, il était
+  // simplement caché derrière au lieu d'être rogné — le même défaut, un
+  // pas plus loin. En dessous du tiroir de détail (1000), qui est modal.
+  z-index: 60;
   animation: fadeIn 0.12s ease both;
 }
 

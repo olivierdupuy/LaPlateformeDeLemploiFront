@@ -1,5 +1,10 @@
-<!-- ═══ SEARCH HERO ═══ -->
-<section class="search-hero">
+<!-- ═══ SEARCH HERO ═══
+     `has-ac` monte le bandeau au-dessus de la barre de filtres et des
+     résultats, uniquement pendant qu'une liste de suggestions est
+     ouverte. Le menu déborde forcément du bandeau ; sans cela il passait
+     derrière ce qui suit, et le lever en permanence ferait passer le
+     bandeau par-dessus la barre de filtres collante au défilement. -->
+<section class="search-hero" [class.has-ac]="kwSuggestions().length || locSuggestions().length">
   <div class="container">
     <div class="sh-content animate-in">
       <span class="eyebrow">Offres d'emploi</span>
