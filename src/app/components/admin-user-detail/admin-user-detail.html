@@ -1,24 +1,13 @@
 <section class="ad-page">
   <div class="container">
 
-    <header class="ad-head">
-      <div class="ad-head__text">
-        <!-- Une fiche s'ouvre depuis une liste : le chemin du retour se
-             pose avant le titre, pas dans un coin. -->
-        <a routerLink="/admin/utilisateurs" class="back-link">
-          <i class="bi bi-arrow-left" aria-hidden="true"></i> Utilisateurs
-        </a>
-        @if (user(); as u) {
-          <h1>{{ u.firstName }} {{ u.lastName }}</h1>
-          <p class="ad-head__sub">
-            {{ u.title || roleLabel(u.role) }} · Inscrit le {{ u.createdAt | date: 'dd MMMM yyyy' }}
-            · {{ fraicheur().texte | lowercase }}
-          </p>
-        } @else {
-          <h1>Fiche utilisateur</h1>
-        }
-      </div>
-    </header>
+    <!-- Le nom, le poste et la date d'inscription figuraient ici ET dans
+         la carte d'identite juste dessous, puis une troisieme fois dans
+         le formulaire. Seul le chemin du retour reste : le reste vit
+         dans la fiche elle-meme. -->
+    <a routerLink="/admin/utilisateurs" class="back-link aud-retour">
+      <i class="bi bi-arrow-left" aria-hidden="true"></i> Utilisateurs
+    </a>
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
@@ -88,18 +77,25 @@
         </div>
       </header>
 
-      <!-- ═══ ONGLETS ═══ -->
-      <div class="tabs aud-tabs animate-in" style="animation-delay:.06s" role="tablist">
-        @for (t of tabs; track t.key) {
-          <button class="tab" [class.is-active]="activeTab() === t.key" (click)="setTab(t.key)"
-                  role="tab" [attr.aria-selected]="activeTab() === t.key">
-            <i class="bi" [class]="t.icon" aria-hidden="true"></i> {{ t.label }}
-            @if (t.key !== 'profil' && t.key !== 'compte') {
-              <span class="tab-n u-mono">{{ $any(counts())[t.key] }}</span>
-            }
-          </button>
-        }
-      </div>
+      <!-- ═══ GABARIT : rail · dossier · leviers ═══
+           Huit onglets en ligne finissaient par se serrer jusqu'a
+           l'illisible. En colonne, chacun porte son compte et l'on voit
+           d'un coup ce que ce dossier contient. -->
+      <div class="aud-layout">
+        <nav class="aud-rail" aria-label="Sections du dossier">
+          @for (t of tabs; track t.key) {
+            <button class="aud-rail__lien" [class.is-active]="activeTab() === t.key" (click)="setTab(t.key)"
+                    [attr.aria-current]="activeTab() === t.key ? 'page' : null">
+              <i class="bi" [class]="t.icon" aria-hidden="true"></i>
+              <span class="aud-rail__lbl">{{ t.label }}</span>
+              @if (t.key !== 'profil' && t.key !== 'compte') {
+                <span class="aud-rail__n u-mono">{{ $any(counts())[t.key] }}</span>
+              }
+            </button>
+          }
+        </nav>
+
+        <div class="aud-corps">
 
       <!-- ═══ PROFIL ═══ -->
       @if (activeTab() === 'profil') {
@@ -194,19 +190,6 @@
             </fieldset>
           </div>
 
-          <!-- La barre d'enregistrement ne s'affiche qu'en cas de modification -->
-          @if (isDirty()) {
-            <div class="aud-savebar">
-              <span><i class="bi bi-pencil-square" aria-hidden="true"></i> Modifications non enregistrées</span>
-              <div class="aud-savebar__act">
-                <button class="btn-ghost" (click)="cancel()">Annuler</button>
-                <button class="btn-primary" (click)="save()" [disabled]="saving()">
-                  <i class="bi bi-check-lg" aria-hidden="true"></i>
-                  {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
-                </button>
-              </div>
-            </div>
-          }
         </div>
       }
 
@@ -604,6 +587,82 @@
           </div>
         </div>
       }
+        </div>
+
+        <!-- ═══ LEVIERS ═══
+             Suspendre un compte, changer un role, prendre la main : ces
+             gestes vivaient au fond d'un huitieme onglet. Ce sont
+             pourtant les seules choses qu'on vient faire ici, et ils
+             restent desormais sous la main quelle que soit la section
+             consultee. -->
+        <aside class="aud-leviers">
+          <div class="aud-leviers__sticky">
+            <div class="aud-lev">
+              <span class="aud-lev__titre">Acces</span>
+              <p class="aud-lev__etat" [class.is-off]="!user().isActive">
+                <i class="bi" [class.bi-check-circle-fill]="user().isActive"
+                   [class.bi-slash-circle-fill]="!user().isActive" aria-hidden="true"></i>
+                {{ user().isActive ? 'Compte actif' : 'Compte suspendu' }}
+              </p>
+              <p class="aud-lev__note">
+                {{ user().isActive
+                  ? 'La personne peut se connecter et utiliser la plateforme.'
+                  : 'La connexion est bloquee. Les donnees sont conservees.' }}
+              </p>
+              <button class="btn-ghost aud-lev__plein" [class.is-danger]="user().isActive" (click)="toggleActive()">
+                <i class="bi" [class.bi-slash-circle]="user().isActive"
+                   [class.bi-check-circle]="!user().isActive" aria-hidden="true"></i>
+                {{ user().isActive ? 'Suspendre' : 'Reactiver' }}
+              </button>
+            </div>
+
+            <div class="aud-lev">
+              <span class="aud-lev__titre">Role</span>
+              <p class="aud-lev__note">Les roles sont exclusifs : un administrateur n'a ni espace candidat ni espace recruteur.</p>
+              <div class="aud-lev__roles">
+                @for (r of ['Candidate', 'Recruiter', 'Admin']; track r) {
+                  <button class="chip" [class.is-active]="user().role === r" (click)="changeRole(r)">
+                    {{ roleLabel(r) }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            @if (user().role !== 'Admin') {
+              <div class="aud-lev">
+                <span class="aud-lev__titre">Assistance</span>
+                <p class="aud-lev__note">
+                  Ouvre une session sous son identite, trente minutes, pour reproduire un
+                  probleme. Vos actions restent journalisees sous votre nom.
+                </p>
+                <button class="btn-ghost aud-lev__plein" (click)="prendreEnMain()" [disabled]="saving()">
+                  <i class="bi bi-incognito" aria-hidden="true"></i> Prendre la main
+                </button>
+              </div>
+            }
+          </div>
+        </aside>
+      </div>
     }
   </div>
+
+  <!-- Elle ne parait que s'il y a quelque chose a enregistrer. Elle
+       vivait au bas du seul panneau Profil : on pouvait modifier six
+       champs, changer de section, et perdre la saisie sans un mot. -->
+  @if (user() && isDirty()) {
+    <div class="aud-savebar" role="status">
+      <div class="container aud-savebar__in">
+        <span class="aud-savebar__txt">
+          <i class="bi bi-pencil-square" aria-hidden="true"></i> Modifications non enregistrees
+        </span>
+        <span class="aud-savebar__act">
+          <button class="btn-ghost" (click)="cancel()" [disabled]="saving()">Annuler</button>
+          <button class="btn-primary" (click)="save()" [disabled]="saving()">
+            @if (saving()) { <span class="sp" aria-hidden="true"></span> Enregistrement… }
+            @else { <i class="bi bi-check-lg" aria-hidden="true"></i> Enregistrer }
+          </button>
+        </span>
+      </div>
+    </div>
+  }
 </section>

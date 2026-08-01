@@ -161,6 +161,42 @@
   text-transform: uppercase;
 }
 
+// Une mention légale se lit comme une fiche d'identité : le libellé à
+// gauche, la valeur à droite. Ce qui manque le dit en toutes lettres.
+.lg-mentions {
+  margin: 0 0 0.9rem;
+
+  > div {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+    &:last-child { border-bottom: 0; }
+  }
+
+  dt {
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  dd {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+}
+
+.lg-vide {
+  color: var(--danger) !important;
+  font-style: italic;
+  font-size: 0.86rem !important;
+}
+
+@media (max-width: 620px) {
+  .lg-mentions > div { grid-template-columns: 1fr; gap: 0.15rem; }
+}
+
 .lg-liste {
   list-style: none;
   margin: 0 0 0.7rem;

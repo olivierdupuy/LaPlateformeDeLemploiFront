@@ -14,6 +14,18 @@ export class PlatformService {
   get allowRegistration(): boolean { return this.settings()['allow_registration'] !== 'false'; }
   get requireModeration(): boolean { return this.settings()['require_moderation'] === 'true'; }
   get maintenanceMode(): boolean { return this.settings()['maintenance_mode'] === 'true'; }
+  /**
+   * Mentions legales.
+   *
+   * Elles vivent dans les parametres et non dans le code : ce sont des
+   * informations d'exploitation que l'editeur saisit depuis la console,
+   * sans redeploiement. Une valeur vide vaut « non renseignee » — la page
+   * le signale plutot que d'afficher un blanc.
+   */
+  legal(cle: string): string {
+    return this.settings()['legal_' + cle]?.trim() || '';
+  }
+
   get maxApplications(): number {
     const v = parseInt(this.settings()['max_applications_per_candidate'] || '0', 10);
     return v > 0 ? v : 0;

@@ -24,7 +24,7 @@
     } @else {
       <div class="settings-card card animate-in" style="animation-delay:.05s">
         <div class="set-list">
-          @for (s of settings(); track s.id) {
+          @for (s of reglages; track s.id) {
             <div class="set-row">
               <div class="set-icon"><i class="bi" [class]="settingIcon(s.key)"></i></div>
               <div class="set-info">
@@ -46,6 +46,47 @@
             </div>
           }
         </div>
+
+        <!-- Les mentions légales à part : ce sont les seuls réglages qui
+             paraissent tels quels sur des pages publiques, et un champ
+             laissé vide y affiche « Non renseigné » au visiteur. -->
+        @if (mentionsLegales.length) {
+          <div class="set-legal">
+            <div class="set-legal__head">
+              <span class="set-legal__titre">
+                <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Mentions légales
+              </span>
+              <p>
+                Ces valeurs s'affichent telles quelles sur les pages
+                <a routerLink="/mentions-legales" target="_blank">Mentions légales</a> et
+                <a routerLink="/confidentialite" target="_blank">Confidentialité</a>.
+              </p>
+              @if (mentionsVides) {
+                <span class="set-legal__manque">
+                  <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                  {{ mentionsVides }} mention{{ mentionsVides > 1 ? 's' : '' }} non renseignée{{ mentionsVides > 1 ? 's' : '' }}
+                  — le visiteur le voit.
+                </span>
+              }
+            </div>
+
+            <div class="set-list">
+              @for (s of mentionsLegales; track s.id) {
+                <div class="set-row" [class.is-vide]="!s.value">
+                  <div class="set-icon"><i class="bi" [class]="settingIcon(s.key)"></i></div>
+                  <div class="set-info">
+                    <label class="set-label">{{ settingLabel(s.key) }}</label>
+                    <span class="set-desc">{{ s.description }}</span>
+                  </div>
+                  <div class="set-input">
+                    <input type="text" [(ngModel)]="s.value" class="input"
+                           [placeholder]="'Non renseigné'" />
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
 
         <div class="set-actions">
           <span class="set-hint u-mono">Les modifications s'appliquent immediatement après sauvegarde.</span>

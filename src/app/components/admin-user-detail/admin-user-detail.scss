@@ -515,3 +515,249 @@ a.aud-sub:hover { color: var(--bleu-600); text-decoration: underline; }
   // ferait peur a lire, alors qu'on parcourt surtout ces listes.
   &--danger:hover:not(:disabled) { color: #fff; background: var(--rouge); }
 }
+
+// ═══════════════════════════════════════════════
+//  GABARIT DU DOSSIER — rail · corps · leviers
+//  L'identité paraissait trois fois : en-tête de page, carte, puis
+//  formulaire. Elle ne vit plus que dans la carte. Les huit onglets
+//  passent en colonne, et les gestes d'administration quittent leur
+//  onglet pour rester sous la main.
+// ═══════════════════════════════════════════════
+
+.aud-retour {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  &:hover { color: var(--bleu-600); }
+}
+
+.aud-layout {
+  display: grid;
+  grid-template-columns: 12.5rem minmax(0, 1fr) 17.5rem;
+  align-items: start;
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+  margin-top: 1rem;
+}
+
+// ── Rail des sections ──
+.aud-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  position: sticky;
+  top: calc(var(--nav-now) + 1rem);
+
+  &__lien {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--t), color var(--t), border-color var(--t);
+
+    i { font-size: 0.92rem; color: var(--muted); transition: color var(--t); }
+    &:hover { background: var(--canvas); border-color: var(--line); }
+
+    &.is-active {
+      background: var(--canvas);
+      border-color: var(--line-strong);
+      color: var(--ink);
+      font-weight: 600;
+      box-shadow: var(--shadow-xs);
+      i { color: var(--bleu-600); }
+    }
+  }
+
+  &__lbl { flex: 1; min-width: 0; }
+
+  // Le compte se lit sur le rail : on sait ce que contient une section
+  // sans l'ouvrir.
+  &__n {
+    flex-shrink: 0;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 0.28rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--nuage-3);
+    color: var(--ink-soft);
+    font-size: 0.62rem;
+    font-weight: 600;
+  }
+}
+
+.aud-corps { min-width: 0; }
+
+// ── Leviers d'administration ──
+// `align-self: stretch` donne au rail la hauteur de la rangée : sans lui,
+// son enfant collant n'aurait que la hauteur du contenu pour course et
+// quitterait l'écran au premier tour de molette.
+.aud-leviers {
+  min-width: 0;
+  align-self: stretch;
+
+  &__sticky {
+    position: sticky;
+    top: calc(var(--nav-now) + 1rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+}
+
+.aud-lev {
+  padding: 0.9rem 1rem;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &__titre {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  &__etat {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink);
+    i { color: var(--green); font-size: 0.9rem; }
+
+    &.is-off i { color: var(--danger); }
+  }
+
+  &__note {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  &__plein {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.83rem;
+
+    // Suspendre est un geste qui prive quelqu'un d'accès : il porte la
+    // couleur de ce qu'il fait, sans pour autant se déguiser en bouton
+    // de suppression.
+    &.is-danger:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+      background: color-mix(in oklab, var(--danger) 6%, transparent);
+    }
+  }
+
+  &__roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+}
+
+// ── Barre d'enregistrement ──
+// Elle vivait au bas du seul panneau Profil : on pouvait modifier six
+// champs, changer de section, et perdre la saisie sans un mot.
+.aud-savebar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: var(--bleu-950);
+  border-top: 1px solid var(--line-dark);
+  box-shadow: 0 -8px 28px -12px rgba(0, 21, 36, 0.45);
+  animation: aud-rise 0.22s var(--ease);
+
+  &__in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.7rem clamp(1.1rem, 4vw, 2.25rem);
+  }
+
+  &__txt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.87rem;
+    font-weight: 500;
+    color: var(--on-dark);
+    i { color: var(--bleu-400); }
+  }
+
+  &__act { display: flex; align-items: center; gap: 0.55rem; }
+
+  .btn-ghost {
+    color: var(--on-dark-muted);
+    border-color: transparent;
+    &:hover { color: #fff; background: rgba(255, 236, 209, 0.1); }
+  }
+}
+
+@keyframes aud-rise {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+// La barre couvrirait sinon le dernier champ de chaque section.
+.ad-page { padding-bottom: 6rem; }
+
+// ── Adaptation ──
+@media (max-width: 1400px) {
+  .aud-layout { grid-template-columns: 11rem minmax(0, 1fr) 16rem; }
+}
+
+@media (max-width: 1200px) {
+  .aud-layout { grid-template-columns: 11rem minmax(0, 1fr); }
+  .aud-leviers { grid-column: 1 / -1; }
+  .aud-leviers__sticky {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .aud-layout { grid-template-columns: 1fr; }
+
+  // Le rail redevient une barre défilante : une colonne de huit entrées
+  // mangerait le haut de l'écran.
+  .aud-rail {
+    position: static;
+    flex-direction: row;
+    gap: 0.3rem;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+    &__lien { flex-shrink: 0; border-color: var(--line); }
+  }
+}
+
+@media (max-width: 560px) {
+  .aud-savebar__in { flex-direction: column; align-items: stretch; }
+  .aud-savebar__act { justify-content: stretch; button { flex: 1; justify-content: center; } }
+}

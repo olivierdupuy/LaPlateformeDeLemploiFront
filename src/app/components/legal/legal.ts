@@ -25,9 +25,13 @@ export type DocLegal = 'mentions-legales' | 'confidentialite' | 'cgu' | 'cookies
 interface Section {
   titre: string;
   /** Paragraphes ; une chaîne commençant par « - » devient une puce. */
-  corps: string[];
-  /** Signale une mention que seul l'exploitant peut fournir. */
-  aCompleter?: boolean;
+  corps?: string[];
+  /**
+   * Mentions tirées des paramètres de la plateforme : l'éditeur les
+   * saisit depuis la console, elles ne vivent pas dans le code. Chaque
+   * entrée porte la clé du paramètre et son libellé.
+   */
+  mentions?: { cle: string; libelle: string }[];
 }
 
 interface Document {
@@ -58,26 +62,21 @@ const DOCUMENTS: Document[] = [
     sections: [
       {
         titre: 'Éditeur du site',
-        aCompleter: true,
-        corps: [
-          'Raison sociale, forme juridique et capital social',
-          'Adresse du siège social',
-          'Numéro SIRET et numéro de TVA intracommunautaire',
-          'Numéro de téléphone',
+        mentions: [
+          { cle: 'raison_sociale', libelle: 'Raison sociale, forme juridique et capital' },
+          { cle: 'adresse', libelle: 'Siège social' },
+          { cle: 'siret', libelle: 'SIRET' },
+          { cle: 'tva', libelle: 'TVA intracommunautaire' },
+          { cle: 'telephone', libelle: 'Téléphone' },
         ],
       },
       {
         titre: 'Directeur de la publication',
-        aCompleter: true,
-        corps: ['Nom et qualité du directeur de la publication'],
+        mentions: [{ cle: 'directeur_publication', libelle: 'Directeur de la publication' }],
       },
       {
         titre: 'Hébergement',
-        aCompleter: true,
-        corps: [
-          'Nom de l’hébergeur, adresse et téléphone',
-          'Le site et son interface d’administration sont servis par un serveur IIS ; l’identité de l’hébergeur reste à préciser.',
-        ],
+        mentions: [{ cle: 'hebergeur', libelle: 'Hébergeur' }],
       },
       {
         titre: 'Contact',
@@ -102,10 +101,10 @@ const DOCUMENTS: Document[] = [
     sections: [
       {
         titre: 'Responsable du traitement',
-        aCompleter: true,
-        corps: [
-          'Identité et coordonnées du responsable du traitement',
-          'Coordonnées du délégué à la protection des données, s’il en a été désigné un',
+        mentions: [
+          { cle: 'raison_sociale', libelle: 'Responsable du traitement' },
+          { cle: 'adresse', libelle: 'Adresse' },
+          { cle: 'dpo', libelle: 'Délégué à la protection des données' },
         ],
       },
       {
@@ -141,13 +140,12 @@ const DOCUMENTS: Document[] = [
       },
       {
         titre: 'Combien de temps',
-        aCompleter: true,
-        corps: [
-          'Durée de conservation d’un compte inactif',
-          'Durée de conservation des candidatures et des messages',
-          'Durée de conservation du journal d’administration',
-          'À défaut de durée fixée, la suppression de votre compte efface immédiatement vos données (voir ci-dessous).',
+        mentions: [
+          { cle: 'conservation_compte', libelle: 'Compte inactif' },
+          { cle: 'conservation_candidatures', libelle: 'Candidatures et messages' },
+          { cle: 'conservation_journal', libelle: 'Journal d’administration' },
         ],
+        corps: ['Vous pouvez à tout moment supprimer votre compte : l’effacement est alors immédiat, sans attendre ces échéances.'],
       },
       {
         titre: 'Vos droits',
@@ -176,9 +174,9 @@ const DOCUMENTS: Document[] = [
     sections: [
       {
         titre: 'Avertissement',
-        aCompleter: true,
         corps: [
-          'Ce document est un squelette. Sa rédaction relève d’un conseil juridique et doit être revue avant toute mise en ligne : les paragraphes ci-dessous décrivent le fonctionnement réel du service mais n’ont pas valeur d’engagement contractuel en l’état.',
+          '**Ce document est un squelette et n’a pas valeur d’engagement contractuel en l’état.**',
+          'Les paragraphes qui suivent décrivent fidèlement le fonctionnement du service, mais leur rédaction relève d’un conseil juridique et doit être revue avant d’être opposable.',
         ],
       },
       {
@@ -206,9 +204,8 @@ const DOCUMENTS: Document[] = [
       },
       {
         titre: 'Responsabilité',
-        aCompleter: true,
         corps: [
-          'Clause de limitation de responsabilité à faire rédiger',
+          '_Clause de limitation de responsabilité à faire rédiger par un conseil._',
           'Le contenu des offres reprises chez France Travail relève de leurs auteurs : nous n’en garantissons ni l’exactitude, ni la disponibilité, ni la mise à jour. Les rémunérations affichées sont déduites du libellé publié par l’employeur et peuvent en différer.',
         ],
       },
@@ -279,8 +276,18 @@ export class Legal implements OnInit {
       .replace(/`(.+?)`/g, '<code>$1</code>');
   }
 
-  /** Combien de mentions restent à fournir : le dire en tête évite d'en oublier. */
-  aCompleter = computed(() => this.doc().sections.filter((s) => s.aCompleter).length);
+  /**
+   * Combien de mentions restent vides. Le compteur porte sur la valeur
+   * réelle du paramètre : dès que l'éditeur la saisit depuis la console,
+   * l'avertissement disparaît de lui-même.
+   */
+  aCompleter = computed(() =>
+    this.doc().sections
+      .flatMap((s) => s.mentions ?? [])
+      .filter((m) => !this.platform.legal(m.cle)).length,
+  );
+
+  valeur = (cle: string) => this.platform.legal(cle);
 
   ngOnInit() {
     this.route.data.subscribe((d) => {

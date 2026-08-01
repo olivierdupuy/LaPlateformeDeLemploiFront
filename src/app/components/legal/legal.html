@@ -30,32 +30,40 @@
           <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
           <span>
             <strong>Document incomplet.</strong>
-            {{ aCompleter() }} section{{ aCompleter() > 1 ? 's' : '' }} attend{{ aCompleter() > 1 ? 'ent' : '' }}
-            des informations que seul l'éditeur du site peut fournir. Elles sont signalées ci-dessous.
+            {{ aCompleter() }} mention{{ aCompleter() > 1 ? 's' : '' }} obligatoire{{ aCompleter() > 1 ? 's' : '' }}
+            n'{{ aCompleter() > 1 ? 'ont' : 'a' }} pas encore été renseignée{{ aCompleter() > 1 ? 's' : '' }}.
+            Elles se saisissent depuis <em>Administration &rsaquo; Paramètres</em>, sans modifier le site.
           </span>
         </p>
       }
 
       @for (s of doc().sections; track s.titre) {
-        <section class="lg-bloc" [class.is-todo]="s.aCompleter">
-          <h2>
-            {{ s.titre }}
-            @if (s.aCompleter) { <span class="lg-todo">à compléter</span> }
-          </h2>
+        <section class="lg-bloc">
+          <h2>{{ s.titre }}</h2>
 
-          @if (s.aCompleter) {
-            <ul class="lg-liste lg-liste--todo">
-              @for (l of s.corps; track l) {
-                <li [innerHTML]="enrichir(l)"></li>
+          <!-- Mentions tirées des paramètres de la plateforme. Une valeur
+               absente se dit ; elle ne se remplace pas par un blanc, qui
+               laisserait croire qu'il n'y a rien à déclarer. -->
+          @if (s.mentions?.length) {
+            <dl class="lg-mentions">
+              @for (m of s.mentions; track m.cle) {
+                <div [class.is-vide]="!valeur(m.cle)">
+                  <dt>{{ m.libelle }}</dt>
+                  @if (valeur(m.cle)) {
+                    <dd>{{ valeur(m.cle) }}</dd>
+                  } @else {
+                    <dd class="lg-vide">Non renseigné</dd>
+                  }
+                </div>
               }
-            </ul>
-          } @else {
-            @for (l of s.corps; track l) {
-              @if (estPuce(l)) {
-                <ul class="lg-liste"><li [innerHTML]="enrichir(l)"></li></ul>
-              } @else {
-                <p [innerHTML]="enrichir(l)"></p>
-              }
+            </dl>
+          }
+
+          @for (l of s.corps ?? []; track l) {
+            @if (estPuce(l)) {
+              <ul class="lg-liste"><li [innerHTML]="enrichir(l)"></li></ul>
+            } @else {
+              <p [innerHTML]="enrichir(l)"></p>
             }
           }
         </section>
