@@ -156,19 +156,6 @@ nav.scrolled .logo { --lock: 38px; }
   flex-shrink: 0;
 }
 
-.lang-switch {
-  display: inline-flex; align-items: center; gap: 0.32rem;
-  padding: 0.42rem 0.6rem;
-  border-radius: var(--r-sm);
-  font-family: var(--font-mono);
-  font-size: 0.68rem; font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  transition: color var(--t), background var(--t);
-  &:hover { color: var(--bleu-700); background: var(--bleu-tint); }
-  i { font-size: 0.85rem; }
-}
-
 .icon-btn {
   display: flex; align-items: center; justify-content: center;
   width: 38px; height: 38px;
@@ -429,7 +416,6 @@ nav.scrolled .logo { --lock: 38px; }
 @media (max-width: 1040px) {
   .mobile-toggle { display: flex; }
   .trigger-name { display: none; }
-  .lang-switch { display: none; }
 
   .nav-center {
     display: none;

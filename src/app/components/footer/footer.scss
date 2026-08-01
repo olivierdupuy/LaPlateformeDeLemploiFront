@@ -246,26 +246,6 @@ footer {
 
 .ft-copy { font-size: 0.78rem; color: var(--on-dark-muted); }
 
-.ft-country {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--on-dark-muted);
-  i { font-size: 0.85rem; }
-
-  select {
-    background: transparent;
-    border: none;
-    color: var(--on-plum-muted);
-    font-size: 0.78rem;
-    cursor: pointer;
-    outline: none;
-    padding: 0.2rem 0.1rem;
-    option { background: var(--plum-800); color: var(--on-plum); }
-    &:hover { color: var(--ambre); }
-  }
-}
-
 .ft-legal {
   display: flex;
   gap: 1.35rem;

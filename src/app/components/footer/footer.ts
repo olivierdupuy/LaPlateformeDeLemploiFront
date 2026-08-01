@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Router, RouterLink } from '@angular/router';
 import { PlatformService } from '../../services/platform.service';
-import { I18nService } from '../../services/i18n.service';
 import { NewsletterService } from '../../services/newsletter.service';
 
 @Component({
@@ -18,7 +17,6 @@ export class Footer {
   nlEnvoi = signal(false);
   nlMessage = signal<string | null>(null);
   platform = inject(PlatformService);
-  i18n = inject(I18nService);
   year = new Date().getFullYear();
 
   private router = inject(Router);
