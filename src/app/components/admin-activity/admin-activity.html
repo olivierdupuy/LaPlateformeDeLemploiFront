@@ -28,11 +28,7 @@
         <span>Objet</span>
         <select [(ngModel)]="filterEntity" (change)="applyFilter()" aria-label="Filtrer par type d'objet">
           <option value="">Tous</option>
-          <option value="User">Utilisateur</option>
-          <option value="JobOffer">Offre</option>
-          <option value="Application">Candidature</option>
-          <option value="Announcement">Annonce</option>
-          <option value="PlatformSetting">Paramètre</option>
+          @for (e of objets; track e.cle) { <option [value]="e.cle">{{ e.libelle }}</option> }
         </select>
       </label>
       @if (filtreActif) {

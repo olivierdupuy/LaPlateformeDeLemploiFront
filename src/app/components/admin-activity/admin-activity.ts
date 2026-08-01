@@ -49,6 +49,19 @@ const ACTIONS: Record<string, ActionMeta> = {
   UpdateInterview: { label: 'Entretien modifié', icon: 'bi-calendar-check', gravite: 'neutre' },
   DeleteApplication: { label: 'Candidature supprimée', icon: 'bi-trash3', gravite: 'critique' },
   DeleteOffers: { label: 'Offres supprimées', icon: 'bi-trash3', gravite: 'critique' },
+  DeleteSeedOffers: { label: 'Offres de démonstration supprimées', icon: 'bi-trash3', gravite: 'critique' },
+  DeleteOffersBySource: { label: 'Offres d’une source supprimées', icon: 'bi-trash3', gravite: 'critique' },
+  DeleteAnnouncement: { label: 'Annonce supprimée', icon: 'bi-megaphone', gravite: 'attention' },
+  ToggleAnnouncement: { label: 'Annonce activée ou coupée', icon: 'bi-megaphone', gravite: 'neutre' },
+  // Toucher au dossier de quelqu'un d'autre — sa recherche, son CV, ses
+  // notes — n'est jamais anodin, même quand le geste est petit.
+  UpdateSavedSearch: { label: 'Recherche modifiée', icon: 'bi-search', gravite: 'attention' },
+  DeleteSavedSearch: { label: 'Recherche supprimée', icon: 'bi-search', gravite: 'attention' },
+  DeleteInterview: { label: 'Entretien supprimé', icon: 'bi-calendar-x', gravite: 'critique' },
+  DeleteJobNote: { label: 'Note supprimée', icon: 'bi-sticky', gravite: 'attention' },
+  UpdateCvSection: { label: 'Section de CV modifiée', icon: 'bi-file-person', gravite: 'attention' },
+  DeleteCvSection: { label: 'Section de CV supprimée', icon: 'bi-file-person', gravite: 'critique' },
+  TestEmail: { label: 'Message de contrôle envoyé', icon: 'bi-envelope-check', gravite: 'neutre' },
   // Prendre la place d'un utilisateur est l'action la plus sensible du
   // panneau : elle doit se repérer sans lire.
   ImpersonateStart: { label: 'Emprunt d’identité', icon: 'bi-incognito', gravite: 'critique' },
@@ -71,6 +84,10 @@ const ENTITES: Record<string, string> = {
   Announcement: 'Annonce',
   PlatformSetting: 'Paramètre',
   Interview: 'Entretien',
+  SavedSearch: 'Recherche enregistrée',
+  JobNote: 'Note',
+  CvSection: 'Section de CV',
+  Email: 'Courriel',
 };
 
 const PAR_PAGE = 50;
@@ -211,6 +228,11 @@ export class AdminActivity implements OnInit {
   }
 
   // ── Lecture d'une ligne ──
+
+  // Le filtre par objet se lisait dans le gabarit, et il y a vieilli : il
+  // ignorait les entretiens depuis leur arrivée. Une seule table fait
+  // désormais foi, celle qui sert aussi à afficher les lignes.
+  readonly objets = Object.entries(ENTITES).map(([cle, libelle]) => ({ cle, libelle }));
 
   meta = (action: string): ActionMeta => ACTIONS[action] ?? { ...DEFAUT, label: action };
   actionLabel = (action: string) => this.meta(action).label;
