@@ -34,6 +34,28 @@
       </div>
     </header>
 
+    <!-- Une offre reprise chez un partenaire n'est pas notre contenu :
+         le dire d'emblée, plutôt que de laisser découvrir des champs
+         grisés sans savoir pourquoi. -->
+    @if (verrouille) {
+      <div class="aod-verrou animate-in">
+        <i class="bi bi-lock-fill" aria-hidden="true"></i>
+        <span class="aod-verrou__txt">
+          <strong>Offre reprise chez {{ partenaire }} — contenu non modifiable</strong>
+          <small>
+            {{ partenaire }} reste la source de cette annonce, et l'original demeure en ligne.
+            La réécrire ici ferait lire au candidat un intitulé ou un salaire que l'employeur
+            n'a jamais écrits. Pour la retirer des recherches, rejetez-la en modération.
+          </small>
+        </span>
+        @if (offre()!.externalUrl) {
+          <a class="btn-secondary" [href]="offre()!.externalUrl" target="_blank" rel="noopener">
+            <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Annonce d'origine
+          </a>
+        }
+      </div>
+    }
+
     <div class="aod-layout">
 
       <!-- ═══ SOMMAIRE ═══
@@ -56,24 +78,24 @@
 
           <div class="form-group">
             <label for="f-title">Intitulé</label>
-            <input id="f-title" type="text" [(ngModel)]="form['title']" name="title" />
+            <input id="f-title" type="text" [(ngModel)]="form['title']" name="title" [disabled]="verrouille" />
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="f-company">Entreprise</label>
-              <input id="f-company" type="text" [(ngModel)]="form['company']" name="company" />
+              <input id="f-company" type="text" [(ngModel)]="form['company']" name="company" [disabled]="verrouille" />
             </div>
             <div class="form-group">
               <label for="f-category">Catégorie</label>
-              <input id="f-category" type="text" [(ngModel)]="form['category']" name="category" />
+              <input id="f-category" type="text" [(ngModel)]="form['category']" name="category" [disabled]="verrouille" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="f-contractType">Type de contrat</label>
-              <select id="f-contractType" [(ngModel)]="form['contractType']" name="contractType">
+              <select id="f-contractType" [(ngModel)]="form['contractType']" name="contractType" [disabled]="verrouille">
                 <option value="">Non précisé</option>
                 @for (c of contrats; track c) { <option [value]="c">{{ c }}</option> }
               </select>
@@ -81,21 +103,21 @@
             <div class="form-group">
               <label for="f-contractDuration">Durée du contrat <span class="opt">CDD, stage, alternance</span></label>
               <input id="f-contractDuration" type="text" placeholder="ex : 6 mois"
-                     [(ngModel)]="form['contractDuration']" name="contractDuration" />
+                     [(ngModel)]="form['contractDuration']" name="contractDuration" [disabled]="verrouille" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="f-experienceRequired">Expérience demandée</label>
-              <select id="f-experienceRequired" [(ngModel)]="form['experienceRequired']" name="experienceRequired">
+              <select id="f-experienceRequired" [(ngModel)]="form['experienceRequired']" name="experienceRequired" [disabled]="verrouille">
                 <option value="">Non précisée</option>
                 @for (e of experiences; track e) { <option [value]="e">{{ e }}</option> }
               </select>
             </div>
             <div class="form-group">
               <label for="f-educationLevel">Niveau de formation</label>
-              <select id="f-educationLevel" [(ngModel)]="form['educationLevel']" name="educationLevel">
+              <select id="f-educationLevel" [(ngModel)]="form['educationLevel']" name="educationLevel" [disabled]="verrouille">
                 <option value="">Non précisé</option>
                 @for (d of diplomes; track d) { <option [value]="d">{{ d }}</option> }
               </select>
@@ -105,11 +127,11 @@
           <div class="form-row">
             <div class="form-group">
               <label for="f-openings">Postes à pourvoir</label>
-              <input id="f-openings" type="number" min="1" [(ngModel)]="form['openings']" name="openings" />
+              <input id="f-openings" type="number" min="1" [(ngModel)]="form['openings']" name="openings" [disabled]="verrouille" />
             </div>
             <div class="form-group">
               <label for="f-startDate">Prise de poste <span class="opt">facultatif</span></label>
-              <input id="f-startDate" type="date" [(ngModel)]="form['startDate']" name="startDate" />
+              <input id="f-startDate" type="date" [(ngModel)]="form['startDate']" name="startDate" [disabled]="verrouille" />
             </div>
           </div>
         </section>
@@ -122,26 +144,26 @@
             <div class="form-group">
               <label for="f-location">Lieu affiché</label>
               <input id="f-location" type="text" placeholder="ex : 75 - Paris"
-                     [(ngModel)]="form['location']" name="location" />
+                     [(ngModel)]="form['location']" name="location" [disabled]="verrouille" />
               <span class="hint">C'est de ce champ qu'est tirée la ville envoyée aux moteurs de recherche.</span>
             </div>
             <div class="form-group">
               <label for="f-address">Adresse précise <span class="opt">facultatif</span></label>
-              <input id="f-address" type="text" [(ngModel)]="form['address']" name="address" />
+              <input id="f-address" type="text" [(ngModel)]="form['address']" name="address" [disabled]="verrouille" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="f-workplaceType">Mode de travail</label>
-              <select id="f-workplaceType" [(ngModel)]="form['workplaceType']" name="workplaceType">
+              <select id="f-workplaceType" [(ngModel)]="form['workplaceType']" name="workplaceType" [disabled]="verrouille">
                 <option value="">Non précisé</option>
                 @for (l of lieuxTravail; track l) { <option [value]="l">{{ l }}</option> }
               </select>
             </div>
             <div class="form-group">
               <label for="f-workSchedule">Horaires</label>
-              <select id="f-workSchedule" [(ngModel)]="form['workSchedule']" name="workSchedule">
+              <select id="f-workSchedule" [(ngModel)]="form['workSchedule']" name="workSchedule" [disabled]="verrouille">
                 <option value="">Non précisés</option>
                 @for (h of horaires; track h) { <option [value]="h">{{ h }}</option> }
               </select>
@@ -152,16 +174,16 @@
             <div class="form-group">
               <label for="f-hoursPerWeek">Heures par semaine</label>
               <input id="f-hoursPerWeek" type="number" min="0" placeholder="35"
-                     [(ngModel)]="form['hoursPerWeek']" name="hoursPerWeek" />
+                     [(ngModel)]="form['hoursPerWeek']" name="hoursPerWeek" [disabled]="verrouille" />
             </div>
             <div class="form-group">
               <label for="f-languages">Langues <span class="opt">séparées par des virgules</span></label>
-              <input id="f-languages" type="text" [(ngModel)]="form['languages']" name="languages" />
+              <input id="f-languages" type="text" [(ngModel)]="form['languages']" name="languages" [disabled]="verrouille" />
             </div>
           </div>
 
           <label class="aod-check">
-            <input type="checkbox" [(ngModel)]="form['isRemote']" name="isRemote" />
+            <input type="checkbox" [(ngModel)]="form['isRemote']" name="isRemote" [disabled]="verrouille" />
             <span>Télétravail possible</span>
           </label>
         </section>
@@ -184,18 +206,18 @@
           <div class="form-row">
             <div class="form-group">
               <label for="f-minSalary">Minimum</label>
-              <input id="f-minSalary" type="number" min="0" [(ngModel)]="form['minSalary']" name="minSalary" />
+              <input id="f-minSalary" type="number" min="0" [(ngModel)]="form['minSalary']" name="minSalary" [disabled]="verrouille" />
             </div>
             <div class="form-group">
               <label for="f-maxSalary">Maximum</label>
-              <input id="f-maxSalary" type="number" min="0" [(ngModel)]="form['maxSalary']" name="maxSalary" />
+              <input id="f-maxSalary" type="number" min="0" [(ngModel)]="form['maxSalary']" name="maxSalary" [disabled]="verrouille" />
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="f-salaryPeriod">Périodicité</label>
-              <select id="f-salaryPeriod" [(ngModel)]="form['salaryPeriod']" name="salaryPeriod">
+              <select id="f-salaryPeriod" [(ngModel)]="form['salaryPeriod']" name="salaryPeriod" [disabled]="verrouille">
                 @for (p of periodes; track p.cle) { <option [value]="p.cle">{{ p.label }}</option> }
               </select>
               <span class="hint">Sans indication, les montants sont lus comme annuels.</span>
@@ -203,13 +225,13 @@
             <div class="form-group">
               <label for="f-supplementalPay">Primes <span class="opt">séparées par des virgules</span></label>
               <input id="f-supplementalPay" type="text" placeholder="13e mois, primes sur objectifs"
-                     [(ngModel)]="form['supplementalPay']" name="supplementalPay" />
+                     [(ngModel)]="form['supplementalPay']" name="supplementalPay" [disabled]="verrouille" />
             </div>
           </div>
 
           <div class="form-group">
             <label for="f-salary">Mention libre <span class="opt">telle qu'affichée si les montants manquent</span></label>
-            <input id="f-salary" type="text" [(ngModel)]="form['salary']" name="salary" />
+            <input id="f-salary" type="text" [(ngModel)]="form['salary']" name="salary" [disabled]="verrouille" />
             @if (form['salary']) {
               <span class="hint">Affiché : <strong>{{ salaryLabel(form) || '—' }}</strong></span>
             }
@@ -218,7 +240,7 @@
           <div class="form-group">
             <label for="f-benefits">Avantages <span class="opt">séparés par des virgules</span></label>
             <input id="f-benefits" type="text" placeholder="Tickets restaurant, RTT, mutuelle"
-                   [(ngModel)]="form['benefits']" name="benefits" />
+                   [(ngModel)]="form['benefits']" name="benefits" [disabled]="verrouille" />
           </div>
         </section>
 
@@ -236,24 +258,24 @@
 
           <div class="form-group">
             <label for="f-description">Descriptif du poste</label>
-            <textarea id="f-description" rows="12" [(ngModel)]="form['description']" name="description"></textarea>
+            <textarea id="f-description" rows="12" [(ngModel)]="form['description']" name="description" [disabled]="verrouille"></textarea>
             <span class="hint">{{ (form['description'] || '').length }} signes</span>
           </div>
 
           <div class="form-group">
             <label for="f-companyDescription">Présentation de l'entreprise <span class="opt">facultatif</span></label>
             <textarea id="f-companyDescription" rows="4"
-                      [(ngModel)]="form['companyDescription']" name="companyDescription"></textarea>
+                      [(ngModel)]="form['companyDescription']" name="companyDescription" [disabled]="verrouille"></textarea>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="f-tags">Mots-clés <span class="opt">séparés par des virgules</span></label>
-              <input id="f-tags" type="text" [(ngModel)]="form['tags']" name="tags" />
+              <input id="f-tags" type="text" [(ngModel)]="form['tags']" name="tags" [disabled]="verrouille" />
             </div>
             <div class="form-group">
               <label for="f-companyLogoUrl">Logo de l'entreprise <span class="opt">URL</span></label>
-              <input id="f-companyLogoUrl" type="url" [(ngModel)]="form['companyLogoUrl']" name="companyLogoUrl" />
+              <input id="f-companyLogoUrl" type="url" [(ngModel)]="form['companyLogoUrl']" name="companyLogoUrl" [disabled]="verrouille" />
             </div>
           </div>
         </section>
@@ -264,14 +286,14 @@
 
           <div class="aod-checks">
             <label class="aod-check">
-              <input type="checkbox" [(ngModel)]="form['easyApply']" name="easyApply" />
+              <input type="checkbox" [(ngModel)]="form['easyApply']" name="easyApply" [disabled]="verrouille" />
               <span>
                 <strong>Candidature simplifiée</strong>
                 <small>Le candidat postule ici, en un clic, sans quitter le site.</small>
               </span>
             </label>
             <label class="aod-check">
-              <input type="checkbox" [(ngModel)]="form['requireResume']" name="requireResume" />
+              <input type="checkbox" [(ngModel)]="form['requireResume']" name="requireResume" [disabled]="verrouille" />
               <span>
                 <strong>CV obligatoire</strong>
                 <small>Sans CV joint, la candidature ne peut pas être envoyée.</small>
@@ -281,7 +303,7 @@
 
           <div class="form-group">
             <label for="f-applicationEmail">Email de notification <span class="opt">facultatif</span></label>
-            <input id="f-applicationEmail" type="email" [(ngModel)]="form['applicationEmail']" name="applicationEmail" />
+            <input id="f-applicationEmail" type="email" [(ngModel)]="form['applicationEmail']" name="applicationEmail" [disabled]="verrouille" />
             <span class="hint">Averti à chaque nouvelle candidature.</span>
           </div>
 
@@ -289,13 +311,13 @@
             <label for="f-autoReplyMessage">Réponse automatique <span class="opt">facultatif</span></label>
             <textarea id="f-autoReplyMessage" rows="3"
                       placeholder="Envoyée au candidat dès réception de sa candidature."
-                      [(ngModel)]="form['autoReplyMessage']" name="autoReplyMessage"></textarea>
+                      [(ngModel)]="form['autoReplyMessage']" name="autoReplyMessage" [disabled]="verrouille"></textarea>
           </div>
 
           <div class="form-group">
             <label for="f-screeningQuestions">Questions de présélection <span class="opt">une par ligne</span></label>
             <textarea id="f-screeningQuestions" rows="3"
-                      [(ngModel)]="form['screeningQuestions']" name="screeningQuestions"></textarea>
+                      [(ngModel)]="form['screeningQuestions']" name="screeningQuestions" [disabled]="verrouille"></textarea>
           </div>
         </section>
 
@@ -305,21 +327,21 @@
 
           <div class="aod-checks">
             <label class="aod-check">
-              <input type="checkbox" [(ngModel)]="form['isActive']" name="isActive" />
+              <input type="checkbox" [(ngModel)]="form['isActive']" name="isActive" [disabled]="verrouille" />
               <span>
                 <strong>Offre active</strong>
                 <small>Décochée, elle disparaît des recherches et du plan de site.</small>
               </span>
             </label>
             <label class="aod-check">
-              <input type="checkbox" [(ngModel)]="form['isDraft']" name="isDraft" />
+              <input type="checkbox" [(ngModel)]="form['isDraft']" name="isDraft" [disabled]="verrouille" />
               <span>
                 <strong>Brouillon</strong>
                 <small>Visible de son seul auteur, jamais du public.</small>
               </span>
             </label>
             <label class="aod-check">
-              <input type="checkbox" [(ngModel)]="form['isUrgent']" name="isUrgent" />
+              <input type="checkbox" [(ngModel)]="form['isUrgent']" name="isUrgent" [disabled]="verrouille" />
               <span>
                 <strong>Recrutement urgent</strong>
                 <small>Signalé par une pastille dans les listes.</small>
@@ -329,7 +351,7 @@
 
           <div class="form-group">
             <label for="f-expiresAt">Date d'expiration</label>
-            <input id="f-expiresAt" type="date" [(ngModel)]="form['expiresAt']" name="expiresAt" />
+            <input id="f-expiresAt" type="date" [(ngModel)]="form['expiresAt']" name="expiresAt" [disabled]="verrouille" />
             <span class="hint">
               Passée cette date, l'offre quitte les recherches et le balisage envoyé à Google.
               Sans date, elle reste en ligne indéfiniment.
@@ -389,20 +411,19 @@
             <span class="aod-carte__titre">Provenance</span>
             <p class="aod-source" [class.is-local]="!importee">
               @if (importee) {
-                <i class="bi bi-broadcast-pin" aria-hidden="true"></i> Reprise chez {{ o.externalSource }}
+                <i class="bi bi-lock-fill" aria-hidden="true"></i> Reprise chez {{ partenaire }}
               } @else {
-                <i class="bi bi-house-door" aria-hidden="true"></i> Déposée sur la plateforme
+                <i class="bi bi-pencil-fill" aria-hidden="true"></i> Déposée sur la plateforme
               }
             </p>
-            @if (importee) {
-              <!-- L'import n'insère que les offres nouvelles : une
-                   correction faite ici ne sera pas écrasée au passage
-                   suivant. Le dire évite de ne pas oser corriger. -->
-              <p class="aod-carte__note">
-                Une correction apportée ici est conservée : l'import n'ajoute que
-                les offres qu'il ne connaît pas encore.
-              </p>
-            }
+            <p class="aod-carte__note">
+              @if (importee) {
+                Son contenu appartient à {{ partenaire }} et ne se modifie pas ici.
+                La modération et la mise en avant restent nos décisions.
+              } @else {
+                Cette offre est la nôtre : tous ses champs se modifient.
+              }
+            </p>
             <p class="aod-carte__note u-mono">Publiée le {{ o.createdAt | date:'dd/MM/yyyy' }}</p>
             <div class="aod-carte__liens">
               <a [routerLink]="['/offres', o.id]" target="_blank" rel="noopener">

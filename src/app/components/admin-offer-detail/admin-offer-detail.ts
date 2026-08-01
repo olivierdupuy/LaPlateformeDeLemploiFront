@@ -166,7 +166,7 @@ export class AdminOfferDetail implements OnInit {
    * d'enregistrement ne paraîtrait jamais.
    */
   get isDirty(): boolean {
-    return this.champsModifies.length > 0;
+    return !this.verrouille && this.champsModifies.length > 0;
   }
 
   get champsModifies(): string[] {
@@ -190,7 +190,7 @@ export class AdminOfferDetail implements OnInit {
   }
 
   enregistrer() {
-    if (!this.isDirty || this.saving()) return;
+    if (this.verrouille || !this.isDirty || this.saving()) return;
     this.saving.set(true);
 
     // Les dates repartent en ISO ; une chaîne vide vaut « pas de date »,
@@ -279,6 +279,30 @@ export class AdminOfferDetail implements OnInit {
 
   get importee(): boolean {
     return !!this.offre()?.externalSource;
+  }
+
+  /**
+   * Le contenu d'une offre reprise chez un partenaire ne se modifie pas.
+   *
+   * Ce n'est pas notre texte : France Travail en reste la source de
+   * vérité, et l'annonce d'origine reste en ligne. La réécrire ici
+   * ferait lire au candidat un intitulé ou un salaire que l'employeur
+   * n'a jamais écrits, que l'annonce d'origine contredirait aussitôt.
+   *
+   * Le serveur refuse de son côté : ce verrou-ci n'est là que pour
+   * l'expliquer et éviter une saisie perdue.
+   *
+   * Ce qui reste possible relève de nos décisions d'affichage, pas de
+   * son contenu : approuver, rejeter, mettre en avant.
+   */
+  get verrouille(): boolean {
+    return this.importee;
+  }
+
+  /** Nom lisible du partenaire, pour le dire plutôt que d'afficher une clé. */
+  get partenaire(): string {
+    const s = this.offre()?.externalSource ?? '';
+    return { francetravail: 'France Travail', arbeitnow: 'Arbeitnow', remotive: 'Remotive' }[s] ?? s;
   }
 
   get nbCandidatures(): number {

@@ -31,6 +31,56 @@
   i { color: var(--muted); font-size: 0.85em; }
 }
 
+// ── Bandeau de verrouillage ──
+// Un champ grisé sans explication se lit comme une panne. Le bandeau
+// dit d'où vient l'offre, pourquoi on n'y touche pas, et ce qu'on peut
+// faire à la place.
+.aod-verrou {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1.05rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--bleu-600);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+
+  > i {
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+    font-size: 1rem;
+    color: var(--bleu-600);
+  }
+
+  &__txt {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    strong { font-size: 0.9rem; color: var(--ink); }
+    small { font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+  }
+
+  .btn-secondary { flex-shrink: 0; align-self: center; white-space: nowrap; }
+}
+
+// Un champ verrouillé se distingue d'un champ vide : le fond le retire
+// de la saisie, le curseur le confirme au survol.
+.aod-form :is(input, select, textarea):disabled {
+  background: var(--nuage);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+  opacity: 1; // sans quoi le texte devient illisible sur le fond crème
+}
+
+.aod-check input:disabled + span {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 // ── Gabarit : sommaire · formulaire · état ──
 .aod-layout {
   display: grid;

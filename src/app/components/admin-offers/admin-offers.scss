@@ -87,6 +87,9 @@
 // remplissage distingue le dépôt local de la reprise partenaire, sans
 // ajouter une colonne à un tableau qui en compte déjà neuf.
 .aof-src {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
   flex-shrink: 0;
   font-size: 0.62rem;
   font-weight: 600;
@@ -97,6 +100,8 @@
   border: 1px solid var(--line);
   color: var(--muted);
   &:hover { border-color: var(--ciel); color: var(--bleu-900); }
+
+  i { font-size: 0.62em; }
 
   &--local {
     background: var(--bleu-900);

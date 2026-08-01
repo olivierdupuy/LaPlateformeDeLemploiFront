@@ -171,10 +171,21 @@
                       <span class="aof-sub">
                         <a class="aof-company" [routerLink]="['/admin/offres']"
                            [queryParams]="{ entreprise: o.company }">{{ o.company | employeur }}</a>
+                        <!-- La provenance decide de ce qu'on peut faire : une
+                             offre reprise chez un partenaire se consulte et se
+                             modere, elle ne se reecrit pas. Le cadenas le dit
+                             avant le clic, plutot qu'une fois la fiche ouverte. -->
                         <a class="aof-src" [class.aof-src--local]="!estImportee(o)"
                            [routerLink]="['/admin/offres']"
                            [queryParams]="{ source: o.externalSource || 'local' }"
-                           [title]="estImportee(o) ? 'Offre reprise chez un partenaire' : 'Offre déposée sur la plateforme'">
+                           [title]="estImportee(o)
+                             ? 'Offre reprise chez un partenaire — contenu non modifiable'
+                             : 'Offre déposée sur la plateforme — modifiable'">
+                          @if (estImportee(o)) {
+                            <i class="bi bi-lock-fill" aria-hidden="true"></i>
+                          } @else {
+                            <i class="bi bi-pencil-fill" aria-hidden="true"></i>
+                          }
                           {{ sourceLabel(o.externalSource) }}
                         </a>
                       </span>
