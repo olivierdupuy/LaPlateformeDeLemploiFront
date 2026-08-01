@@ -1,101 +1,176 @@
-<section class="ad-page">
+<section class="ad-page set-page">
   <div class="container">
 
     <header class="ad-head">
       <div class="ad-head__text">
-        <h1>Paramètres de la plateforme</h1>
-        <p class="ad-head__sub">Configurez le comportement global du site : modération, inscriptions, durées et messages.</p>
+        <h1>Réglages de la plateforme</h1>
+        <p class="ad-head__sub">
+          Chaque réglage indique ce qu'il produit dans son état actuel. Rien n'est appliqué
+          tant que vous n'avez pas enregistré.
+        </p>
       </div>
     </header>
-
-    <div class="import-card animate-in" style="animation-delay:.03s">
-      <div class="ic-icon"><i class="bi bi-cloud-download"></i></div>
-      <div class="ic-text">
-        <strong>Importer de vraies offres d'emploi</strong>
-        <p>Récupère des offres réelles depuis Arbeitnow, Remotive et France Travail (si configuré). L'import s'exécute aussi automatiquement au démarrage et toutes les 6 h.</p>
-      </div>
-      <button class="btn-primary" [disabled]="importing()" (click)="importJobs()">
-        @if (importing()) { <span class="sp"></span> Import en cours… } @else { <i class="bi bi-cloud-download"></i> Importer maintenant }
-      </button>
-    </div>
 
     @if (loading()) {
       <div class="empty-box"><div class="spinner"></div></div>
     } @else {
-      <div class="settings-card card animate-in" style="animation-delay:.05s">
-        <div class="set-list">
-          @for (s of reglages; track s.id) {
-            <div class="set-row">
-              <div class="set-icon"><i class="bi" [class]="settingIcon(s.key)"></i></div>
-              <div class="set-info">
-                <label class="set-label">{{ settingLabel(s.key) }}</label>
-                <span class="set-desc">{{ s.description }}</span>
-              </div>
-              <div class="set-input">
-                @if (s.type === 'bool') {
-                  <label class="toggle">
-                    <input type="checkbox" [checked]="s.value === 'true'" (change)="s.value = $any($event.target).checked ? 'true' : 'false'" />
-                    <span class="toggle-slider"></span>
-                  </label>
-                } @else if (s.type === 'int') {
-                  <input type="number" [(ngModel)]="s.value" class="input input-num" />
-                } @else {
-                  <input type="text" [(ngModel)]="s.value" class="input" />
+
+      <!-- ═══ RÉGLAGES, PAR CONSÉQUENCE ═══
+           Ils s'alignaient dans l'ordre où la base les rendait : les
+           inscriptions entre l'adresse de contact et la durée des offres.
+           Ils se rangent maintenant par ce sur quoi ils agissent. -->
+      @for (f of familles; track f.cle) {
+        <section class="set-fam animate-in">
+          <div class="set-fam__head">
+            <span class="set-fam__titre">
+              <i class="bi" [class]="f.icone" aria-hidden="true"></i> {{ f.titre }}
+            </span>
+            <p>{{ f.intro }}</p>
+          </div>
+
+          <div class="set-fam__corps">
+            @for (cle of f.cles; track cle) {
+              @if (entree(cle); as e) {
+                @if (reglage(cle); as r) {
+                  <div class="set-item" [class.is-modifie]="estModifie(cle)"
+                       [class.is-on]="e.type === 'bool' && estActif(cle)">
+                    <span class="set-item__ico"><i class="bi" [class]="r.icone" aria-hidden="true"></i></span>
+
+                    <div class="set-item__txt">
+                      <span class="set-item__lbl">
+                        {{ r.libelle }}
+                        @if (estModifie(cle)) { <span class="set-item__delta">modifié</span> }
+                      </span>
+                      <!-- La phrase change sous les yeux quand on bascule :
+                           c'est elle, et non l'interrupteur, qui dit ce
+                           qu'on est en train de décider. -->
+                      <p class="set-item__effet">{{ effet(cle) }}</p>
+                    </div>
+
+                    <div class="set-item__ctrl">
+                      @if (e.type === 'bool') {
+                        <label class="set-toggle" [attr.aria-label]="r.libelle">
+                          <input type="checkbox" [checked]="estActif(cle)"
+                                 (change)="ecrire(cle, $any($event.target).checked ? 'true' : 'false')" />
+                          <span class="set-toggle__piste"></span>
+                        </label>
+                      } @else if (e.type === 'int') {
+                        <span class="set-nombre">
+                          <input type="number" min="0" [ngModel]="valeur(cle)"
+                                 (ngModelChange)="ecrire(cle, $event)" />
+                          @if (r.unite) { <small>{{ r.unite }}</small> }
+                        </span>
+                      } @else {
+                        <input type="text" class="set-texte" [ngModel]="valeur(cle)"
+                               (ngModelChange)="ecrire(cle, $event)" />
+                      }
+                    </div>
+                  </div>
                 }
+              }
+            }
+          </div>
+        </section>
+      }
+
+      <!-- ═══ MENTIONS LÉGALES ═══
+           À part : ce sont les seuls réglages qui paraissent mot pour mot
+           sur des pages publiques. Un champ laissé vide y affiche
+           « Non renseigné » au visiteur. -->
+      @if (mentionsLegales.length) {
+        <section class="set-fam set-fam--legal animate-in">
+          <div class="set-fam__head">
+            <span class="set-fam__titre">
+              <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Mentions légales
+            </span>
+            <p>
+              Ces valeurs s'affichent telles quelles sur
+              <a routerLink="/mentions-legales" target="_blank">Mentions légales</a> et
+              <a routerLink="/confidentialite" target="_blank">Confidentialité</a>.
+            </p>
+            @if (mentionsVides) {
+              <span class="set-manque">
+                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                {{ mentionsVides }} mention{{ mentionsVides > 1 ? 's' : '' }} non renseignée{{ mentionsVides > 1 ? 's' : '' }} —
+                le visiteur lit « Non renseigné » à leur place.
+              </span>
+            }
+          </div>
+
+          <div class="set-fam__corps">
+            @for (s of mentionsLegales; track s.id) {
+              <div class="set-item set-item--legal" [class.is-vide]="!s.value" [class.is-modifie]="estModifie(s.key)">
+                <span class="set-item__ico"><i class="bi" [class]="settingIcon(s.key)" aria-hidden="true"></i></span>
+                <div class="set-item__txt">
+                  <span class="set-item__lbl">
+                    {{ settingLabel(s.key) }}
+                    @if (estModifie(s.key)) { <span class="set-item__delta">modifié</span> }
+                  </span>
+                </div>
+                <div class="set-item__ctrl">
+                  <input type="text" class="set-texte" placeholder="Non renseigné"
+                         [ngModel]="s.value" (ngModelChange)="s.value = $event" />
+                </div>
               </div>
-            </div>
-          }
+            }
+          </div>
+        </section>
+      }
+
+      <!-- ═══ CATALOGUE ═══
+           L'import trônait en tête de page : c'est une action ponctuelle,
+           pas le sujet. Il se range avec ce qu'il touche. -->
+      <section class="set-fam animate-in">
+        <div class="set-fam__head">
+          <span class="set-fam__titre">
+            <i class="bi bi-cloud-download" aria-hidden="true"></i> Catalogue d'offres
+          </span>
+          <p>L'import tourne seul au démarrage puis toutes les six heures.</p>
         </div>
 
-        <!-- Les mentions légales à part : ce sont les seuls réglages qui
-             paraissent tels quels sur des pages publiques, et un champ
-             laissé vide y affiche « Non renseigné » au visiteur. -->
-        @if (mentionsLegales.length) {
-          <div class="set-legal">
-            <div class="set-legal__head">
-              <span class="set-legal__titre">
-                <i class="bi bi-file-earmark-text" aria-hidden="true"></i> Mentions légales
-              </span>
-              <p>
-                Ces valeurs s'affichent telles quelles sur les pages
-                <a routerLink="/mentions-legales" target="_blank">Mentions légales</a> et
-                <a routerLink="/confidentialite" target="_blank">Confidentialité</a>.
+        <div class="set-fam__corps">
+          <div class="set-item">
+            <span class="set-item__ico"><i class="bi bi-arrow-repeat" aria-hidden="true"></i></span>
+            <div class="set-item__txt">
+              <span class="set-item__lbl">Importer maintenant</span>
+              <p class="set-item__effet">
+                Récupère les offres France Travail publiées depuis le dernier passage.
+                Seules les annonces inconnues sont ajoutées : rien n'est réécrit, et les
+                corrections faites à la main sont conservées.
               </p>
-              @if (mentionsVides) {
-                <span class="set-legal__manque">
-                  <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-                  {{ mentionsVides }} mention{{ mentionsVides > 1 ? 's' : '' }} non renseignée{{ mentionsVides > 1 ? 's' : '' }}
-                  — le visiteur le voit.
-                </span>
-              }
             </div>
-
-            <div class="set-list">
-              @for (s of mentionsLegales; track s.id) {
-                <div class="set-row" [class.is-vide]="!s.value">
-                  <div class="set-icon"><i class="bi" [class]="settingIcon(s.key)"></i></div>
-                  <div class="set-info">
-                    <label class="set-label">{{ settingLabel(s.key) }}</label>
-                    <span class="set-desc">{{ s.description }}</span>
-                  </div>
-                  <div class="set-input">
-                    <input type="text" [(ngModel)]="s.value" class="input"
-                           [placeholder]="'Non renseigné'" />
-                  </div>
-                </div>
-              }
+            <div class="set-item__ctrl">
+              <button class="btn-secondary" [disabled]="importing()" (click)="importJobs()">
+                @if (importing()) { <span class="sp" aria-hidden="true"></span> Import… }
+                @else { <i class="bi bi-cloud-download" aria-hidden="true"></i> Lancer }
+              </button>
             </div>
           </div>
-        }
-
-        <div class="set-actions">
-          <span class="set-hint u-mono">Les modifications s'appliquent immediatement après sauvegarde.</span>
-          <button (click)="save()" class="btn-primary" [disabled]="saving()">
-            @if (saving()) { <span class="sp"></span> } @else { <i class="bi bi-check-lg"></i> }
-            {{ saving() ? 'Sauvegarde...' : 'Sauvegarder' }}
-          </button>
         </div>
-      </div>
+      </section>
     }
   </div>
+
+  <!-- ═══ BARRE D'ENREGISTREMENT ═══
+       Le bouton vivait au bas de la page, hors de vue dès qu'on faisait
+       défiler : on modifiait un réglage en haut sans savoir qu'il fallait
+       encore l'enregistrer. -->
+  @if (isDirty) {
+    <div class="set-savebar" role="status">
+      <div class="container set-savebar__in">
+        <span class="set-savebar__txt">
+          <i class="bi bi-pencil-square" aria-hidden="true"></i>
+          {{ modifies.length }} réglage{{ modifies.length > 1 ? 's' : '' }} modifié{{ modifies.length > 1 ? 's' : '' }},
+          pas encore appliqué{{ modifies.length > 1 ? 's' : '' }}
+        </span>
+        <span class="set-savebar__act">
+          <button class="btn-ghost" (click)="annuler()" [disabled]="saving()">Annuler</button>
+          <button class="btn-primary" (click)="save()" [disabled]="saving()">
+            @if (saving()) { <span class="sp" aria-hidden="true"></span> Enregistrement… }
+            @else { <i class="bi bi-check-lg" aria-hidden="true"></i> Enregistrer }
+          </button>
+        </span>
+      </div>
+    </div>
+  }
 </section>
