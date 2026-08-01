@@ -39,6 +39,15 @@ export interface AuthResponse {
 
   /** Ne vaut que pour l'etape du code, et cinq minutes. */
   challengeToken?: string;
+
+  /** « Totp » ou « Sms » : de quoi savoir quoi demander, et où chercher le code. */
+  twoFactorMethod?: string;
+
+  /** Le numéro masqué, quand le code part par SMS. */
+  twoFactorTarget?: string;
+
+  /** Ce qui vient de se passer — envoi réussi, ou raison de son échec. */
+  twoFactorMessage?: string;
 }
 
 /** Une session ouverte, telle que la page Securite la montre. */
@@ -60,6 +69,13 @@ export interface EtatSecurite {
   emailConfirme: boolean;
   role: string;
   deuxFacteurs: boolean;
+  /** « Totp » ou « Sms ». Nul tant que la double authentification est inactive. */
+  methode?: string | null;
+  /** Le numéro masqué du compte, ou « numero inconnu ». */
+  telephone: string;
+  telephoneConfirme: boolean;
+  /** Faux quand le serveur n'a pas d'identifiants OVH : le SMS n'est alors pas proposé. */
+  smsDisponible: boolean;
   deuxFacteursDepuis?: string | null;
   codesDeSecoursRestants: number;
   deuxFacteursObligatoire: boolean;

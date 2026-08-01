@@ -52,6 +52,19 @@ export class SecurityService {
     ).pipe(tap(() => this.auth.majUtilisateur({ twoFactorEnabled: true })));
   }
 
+  /** Envoie un code au numéro donné, pour le vérifier avant qu'il ne serve. */
+  envoyerCodeSms(telephone: string): Observable<{ message: string; telephone: string }> {
+    return this.http.post<{ message: string; telephone: string }>(
+      `${this.url}/2fa/sms/envoyer`, { telephone });
+  }
+
+  activerSms(telephone: string, code: string): Observable<{ message: string; codesDeSecours: string[]; token?: string }> {
+    return this.adopter(
+      this.http.post<{ message: string; codesDeSecours: string[]; token?: string }>(
+        `${this.url}/2fa/sms/activer`, { telephone, code }),
+    ).pipe(tap(() => this.auth.majUtilisateur({ twoFactorEnabled: true })));
+  }
+
   desactiver2fa(motDePasse: string, code: string): Observable<{ message: string; token?: string }> {
     return this.adopter(
       this.http.post<{ message: string; token?: string }>(

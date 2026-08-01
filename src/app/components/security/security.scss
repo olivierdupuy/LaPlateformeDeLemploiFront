@@ -503,3 +503,113 @@
   .sec-install__qr { justify-self: center; }
   .sec-faits { grid-template-columns: 1fr; gap: 0.15rem; dd { margin-bottom: 0.5rem; } }
 }
+
+// ── Choix de la méthode ──
+// Deux portes de même apparence obligeraient à choisir sans savoir. Le SMS
+// se distingue visuellement de l'application : ce n'est pas un caprice de
+// mise en page, c'est la seule façon de dire qu'ils ne se valent pas.
+.sec-choix {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 0.8rem;
+  align-items: start;
+
+  &__note { grid-column: 1 / -1; }
+}
+
+.sec-methode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 1.1rem 1.2rem 1.2rem;
+  background: var(--canvas);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+
+  &__ico i { font-size: 1.3rem; color: var(--bleu-600); }
+
+  h3 { font-size: 1rem; font-weight: 700; color: var(--ink); }
+
+  &__atout {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--bleu-100);
+    color: var(--bleu-800);
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  p { font-size: 0.84rem; line-height: 1.55; color: var(--ink-soft); }
+
+  &__contre {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.2rem;
+    font-size: 0.79rem !important;
+    color: var(--muted) !important;
+    i { flex-shrink: 0; margin-top: 0.15rem; }
+  }
+
+  button { margin-top: 0.5rem; }
+
+  // Le moins sûr des deux : contour discontinu, pastille sans couleur
+  // d'approbation. La différence se voit avant qu'on lise.
+  &.est-moindre {
+    border-style: dashed;
+    .sec-methode__ico i { color: var(--muted); }
+    .sec-methode__atout { background: var(--nuage-3); color: var(--ink-soft); }
+    .sec-methode__contre { color: var(--danger) !important; i { color: var(--danger); } }
+  }
+}
+
+.sec-annuler {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 0.3rem 0;
+  border: 0;
+  background: transparent;
+  font-size: 0.84rem;
+  color: var(--muted);
+  cursor: pointer;
+  &:hover { color: var(--bleu-600); }
+}
+
+// ── Numéro et code reçu ──
+.sec-tel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h3 { font-size: 0.95rem; font-weight: 700; color: var(--ink); }
+  p { max-width: 62ch; font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); }
+
+  &__saisie {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.3rem;
+
+    input {
+      width: 12rem;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-sm);
+      background: var(--canvas);
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      outline: none;
+      transition: border-color var(--t), box-shadow var(--t);
+      &:focus { border-color: var(--bleu-600); box-shadow: 0 0 0 3px var(--bleu-tint); }
+    }
+  }
+}
+
+.sec-repos__txt {
+  max-width: 62ch;
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}

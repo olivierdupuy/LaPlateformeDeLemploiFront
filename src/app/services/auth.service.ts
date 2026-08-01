@@ -117,6 +117,11 @@ export class AuthService {
       .pipe(tap((res) => this.handleAuth(res)));
   }
 
+  /** Redemande un SMS pendant le défi : un message se perd ou arrive tard. */
+  renvoyerCode(challengeToken: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/2fa/renvoyer`, { challengeToken });
+  }
+
   motDePasseOublie(email: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/mot-de-passe-oublie`, { email });
   }

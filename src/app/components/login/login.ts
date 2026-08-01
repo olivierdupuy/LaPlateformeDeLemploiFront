@@ -40,6 +40,14 @@ export class Login implements OnInit {
   defi = signal<string | null>(null);
   code = '';
 
+  /** « Totp » ou « Sms » : la page ne demande pas la même chose. */
+  methode = signal<string>('Totp');
+  /** Le numéro masqué, quand le code part par SMS. */
+  destinataire = signal<string | null>(null);
+  /** Ce que l'envoi a donné, dit tel quel plutôt que traduit en devinettes. */
+  motSms = signal<string | null>(null);
+  renvoiEnCours = signal(false);
+
   /**
    * Le compte est bloqué par le compteur de tentatives. Le distinguer d'un
    * mot de passe faux évite de faire chercher une faute de frappe pendant
@@ -77,7 +85,7 @@ export class Login implements OnInit {
       next: (res) => {
         this.loading.set(false);
         if (res.requiresTwoFactor && res.challengeToken) {
-          this.defi.set(res.challengeToken);
+          this.ouvrirDefi(res);
           return;
         }
         this.toastr.success('Connecté avec LinkedIn');
@@ -129,7 +137,7 @@ export class Login implements OnInit {
       next: (res) => {
         this.loading.set(false);
         if (res.requiresTwoFactor && res.challengeToken) {
-          this.defi.set(res.challengeToken);
+          this.ouvrirDefi(res);
           return;
         }
         this.toastr.success('Connexion réussie');
@@ -169,10 +177,47 @@ export class Login implements OnInit {
     });
   }
 
+  /** Entre dans le deuxième temps, en retenant par quoi il passe. */
+  private ouvrirDefi(res: { challengeToken?: string; twoFactorMethod?: string;
+                            twoFactorTarget?: string; twoFactorMessage?: string }) {
+    this.defi.set(res.challengeToken ?? null);
+    this.methode.set(res.twoFactorMethod ?? 'Totp');
+    this.destinataire.set(res.twoFactorTarget ?? null);
+    this.motSms.set(res.twoFactorMessage ?? null);
+  }
+
+  /**
+   * Redemande un SMS.
+   *
+   * Un message se perd, arrive en retard, ou s'efface avant d'être lu.
+   * Sans ce bouton il faudrait ressaisir son mot de passe — et le délai
+   * entre deux envois se compterait depuis le premier, donnant
+   * l'impression que rien ne fonctionne.
+   */
+  renvoyer() {
+    const jeton = this.defi();
+    if (!jeton || this.renvoiEnCours()) return;
+    this.renvoiEnCours.set(true);
+    this.auth.renvoyerCode(jeton).subscribe({
+      next: (r) => {
+        this.renvoiEnCours.set(false);
+        this.motSms.set(r.message);
+        this.toastr.success(r.message);
+      },
+      error: (e) => {
+        this.renvoiEnCours.set(false);
+        this.motSms.set(e.error?.message ?? null);
+        this.toastr.error(e.error?.message ?? 'Le renvoi a échoué.');
+      },
+    });
+  }
+
   /** Revient au mot de passe : le défi devient sans objet. */
   annulerDefi() {
     this.defi.set(null);
     this.code = '';
     this.form.password = '';
+    this.motSms.set(null);
+    this.destinataire.set(null);
   }
 }

@@ -30,7 +30,15 @@ import { toDataURL } from 'qrcode';
  * quelqu'un dont l'application n'a pas enregistre la cle.
  */
 
-type Etape = 'repos' | 'cle' | 'codes';
+/**
+ * Les temps de l'activation.
+ *
+ * « choix » n'existait pas : il n'y avait qu'une méthode. Le SMS s'ajoute
+ * sans la remplacer, et deux portes de même apparence obligeraient à
+ * choisir sans savoir — la page dit donc ce que chacune vaut avant de
+ * demander laquelle.
+ */
+type Etape = 'repos' | 'choix' | 'cle' | 'telephone' | 'sms' | 'codes';
 
 const MOYENS: Record<string, string> = {
   Password: 'Mot de passe',
@@ -63,6 +71,11 @@ export class Security implements OnInit {
   code = '';
   codes = signal<string[]>([]);
 
+  // ── Second facteur par SMS ──
+  telephone = '';
+  telephoneMasque = signal('');
+  motSms = signal('');
+
   // ── Mot de passe ──
   actuel = '';
   nouveau = '';
@@ -85,6 +98,35 @@ export class Security implements OnInit {
     if (points === 3) return { niveau: 3, texte: 'Convenable', classe: 'est-bon' };
     return { niveau: 4, texte: 'Solide', classe: 'est-solide' };
   });
+
+  /** Ce que vaut chaque méthode, dit avant de faire choisir. */
+  readonly methodes = [
+    {
+      cle: 'Totp' as const,
+      titre: 'Application d’authentification',
+      icone: 'bi-phone-vibrate',
+      atout: 'Le plus sûr',
+      texte:
+        'Une application installée sur votre téléphone fabrique le code hors ligne. ' +
+        'Il ne circule jamais sur le réseau : ni votre opérateur, ni nous, ne pouvons le connaître.',
+      contre: 'Il faut installer une application, et conserver les codes de secours.',
+    },
+    {
+      cle: 'Sms' as const,
+      titre: 'Code par SMS',
+      icone: 'bi-chat-dots',
+      atout: 'Rien à installer',
+      texte:
+        'Un code à six chiffres vous est envoyé au moment de vous connecter. ' +
+        'Aucune application, aucune configuration.',
+      // Dit franchement : proposer les deux comme équivalentes serait
+      // laisser choisir le moins sûr sans le savoir.
+      contre:
+        'Moins sûr : quelqu’un qui obtient un duplicata de votre carte SIM chez ' +
+        'votre opérateur reçoit vos codes à votre place. Le message peut aussi ' +
+        'se perdre, ou n’arriver que hors de portée du réseau.',
+    },
+  ];
 
   ngOnInit() {
     this.charger();
@@ -110,6 +152,78 @@ export class Security implements OnInit {
   // ══════════════════════════════
   //  Double authentification
   // ══════════════════════════════
+
+  /** Le choix précède l'installation : on ne montre pas un QR à qui veut un SMS. */
+  commencerChoix() {
+    this.etape.set('choix');
+  }
+
+  choisir(methode: 'Totp' | 'Sms') {
+    if (methode === 'Totp') this.commencer2fa();
+    else { this.telephone = ''; this.motSms.set(''); this.etape.set('telephone'); }
+  }
+
+  // ══════════════════════════════
+  //  Second facteur par SMS
+  // ══════════════════════════════
+
+  envoyerCodeSms() {
+    if (!this.telephone.trim()) {
+      this.toastr.error('Saisissez votre numéro de téléphone mobile.');
+      return;
+    }
+    this.occupe.set(true);
+    this.api.envoyerCodeSms(this.telephone).subscribe({
+      next: (r) => {
+        this.occupe.set(false);
+        this.telephoneMasque.set(r.telephone);
+        this.motSms.set(r.message);
+        this.code = '';
+        this.etape.set('sms');
+      },
+      error: (e) => {
+        this.occupe.set(false);
+        this.toastr.error(e?.error?.message ?? 'Le SMS n’a pas pu être envoyé.');
+      },
+    });
+  }
+
+  renvoyerCodeSms() {
+    this.occupe.set(true);
+    this.api.envoyerCodeSms(this.telephone).subscribe({
+      next: (r) => {
+        this.occupe.set(false);
+        this.motSms.set(r.message);
+        this.toastr.success(r.message);
+      },
+      error: (e) => {
+        this.occupe.set(false);
+        this.motSms.set(e?.error?.message ?? '');
+        this.toastr.error(e?.error?.message ?? 'Le renvoi a échoué.');
+      },
+    });
+  }
+
+  activerSms() {
+    if (this.code.replace(/\s/g, '').length < 6) {
+      this.toastr.error('Le code compte six chiffres.');
+      return;
+    }
+    this.occupe.set(true);
+    this.api.activerSms(this.telephone, this.code).subscribe({
+      next: (r) => {
+        this.codes.set(r.codesDeSecours);
+        this.etape.set('codes');
+        this.code = '';
+        this.occupe.set(false);
+        this.charger();
+      },
+      error: (e) => {
+        this.occupe.set(false);
+        this.toastr.error(e?.error?.message ?? 'Code refusé.');
+      },
+    });
+  }
 
   async commencer2fa() {
     this.occupe.set(true);
@@ -161,6 +275,8 @@ export class Security implements OnInit {
     this.cle.set('');
     this.qr.set(null);
     this.code = '';
+    this.telephone = '';
+    this.motSms.set('');
   }
 
   terminer() {

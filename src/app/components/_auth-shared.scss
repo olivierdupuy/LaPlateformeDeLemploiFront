@@ -471,3 +471,33 @@
   color: var(--muted);
   &:hover { color: var(--bleu-600); text-decoration: underline; }
 }
+
+// Ce que l'envoi du SMS a donné, dit tel quel : plus de crédit, opérateur
+// qui refuse, délai entre deux envois. Sans cette phrase, on attend un
+// message qui ne viendra jamais.
+.auth-2fa__sms {
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--r-sm);
+  background: var(--nuage);
+  border: 1px solid var(--line);
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.auth-2fa__renvoi {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-xs);
+  background: transparent;
+  font-size: 0.83rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+  &:hover:not(:disabled) { border-color: var(--bleu-600); color: var(--bleu-600); }
+  &:disabled { opacity: 0.6; cursor: default; }
+}

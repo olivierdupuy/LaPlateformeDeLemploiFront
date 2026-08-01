@@ -49,10 +49,23 @@
       @if (defi()) {
         <div class="auth-2fa">
           <p class="auth-2fa__intro">
-            <i class="bi bi-shield-lock" aria-hidden="true"></i>
-            Ce compte demande un second facteur. Saisissez le code affiché par votre
-            application d'authentification.
+            <i class="bi" [class.bi-shield-lock]="methode() !== 'Sms'"
+               [class.bi-phone]="methode() === 'Sms'" aria-hidden="true"></i>
+            @if (methode() === 'Sms') {
+              Un code vient d'être envoyé par SMS
+              @if (destinataire()) { <span>au <strong>{{ destinataire() }}</strong></span> }.
+            } @else {
+              Ce compte demande un second facteur. Saisissez le code affiché par votre
+              application d'authentification.
+            }
           </p>
+
+          <!-- Ce que l'envoi a donné, dit tel quel : plus de crédit, opérateur
+               qui refuse, ou délai entre deux envois. Sans cette phrase, on
+               attend un SMS qui ne viendra jamais. -->
+          @if (motSms(); as m) {
+            <p class="auth-2fa__sms">{{ m }}</p>
+          }
 
           <form (ngSubmit)="verifier()" class="auth-form">
             <div class="form-group">
@@ -66,6 +79,13 @@
               @if (loading()) { <span class="sp"></span> Vérification… } @else { Continuer }
             </button>
           </form>
+
+          @if (methode() === 'Sms') {
+            <button type="button" class="auth-2fa__renvoi" (click)="renvoyer()" [disabled]="renvoiEnCours()">
+              <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+              {{ renvoiEnCours() ? 'Envoi…' : 'Renvoyer un code' }}
+            </button>
+          }
 
           <p class="auth-2fa__secours">
             Téléphone perdu ou hors de portée ? Saisissez à la place l'un de vos

@@ -62,9 +62,8 @@
           <div>
             <h2><i class="bi bi-shield-lock"></i> Double authentification</h2>
             <p class="sec-bloc__sub">
-              Un code à six chiffres, renouvelé toutes les trente secondes par une
-              application installée sur votre téléphone. Il ne circule jamais sur le
-              réseau : même intercepté, votre mot de passe ne suffit plus.
+              Un code à six chiffres demandé en plus de votre mot de passe. Même deviné,
+              même réutilisé ailleurs, votre mot de passe ne suffit alors plus à entrer.
             </p>
           </div>
           @if (e.deuxFacteursObligatoire) {
@@ -78,7 +77,12 @@
             <div class="sec-actif">
               <p class="sec-actif__etat">
                 <i class="bi bi-check-circle-fill"></i>
-                Active @if (e.deuxFacteursDepuis) { <span>depuis le {{ e.deuxFacteursDepuis | date:'dd MMMM yyyy' }}</span> }
+                @if (e.methode === 'Sms') {
+                  Par SMS au {{ e.telephone }}
+                } @else {
+                  Par application d'authentification
+                }
+                @if (e.deuxFacteursDepuis) { <span>depuis le {{ e.deuxFacteursDepuis | date:'dd MMMM yyyy' }}</span> }
               </p>
               <p class="sec-actif__codes" [class.est-bas]="e.codesDeSecoursRestants <= 3">
                 <i class="bi bi-key"></i>
@@ -100,18 +104,88 @@
             </div>
           } @else {
             <div class="sec-repos">
-              <ol class="sec-etapes">
-                <li>Installez une application d'authentification sur votre téléphone —
-                    Google Authenticator, Authy, Microsoft Authenticator, ou celle de votre
-                    gestionnaire de mots de passe.</li>
-                <li>Scannez le carré qui s'affichera, ou recopiez la clé.</li>
-                <li>Saisissez le code affiché pour prouver que l'installation a réussi.</li>
-              </ol>
-              <button class="btn-primary" (click)="commencer2fa()" [disabled]="occupe()">
+              <p class="sec-repos__txt">
+                Deux façons de prouver que c'est bien vous, au choix. Elles ne se valent
+                pas, et l'écran suivant dit pourquoi.
+              </p>
+              <button class="btn-primary" (click)="commencerChoix()" [disabled]="occupe()">
                 <i class="bi bi-shield-plus"></i> Activer la double authentification
               </button>
             </div>
           }
+        }
+
+        <!-- ═══ CHOIX DE LA MÉTHODE ═══
+             Deux portes de même apparence obligeraient à choisir sans
+             savoir. Chacune dit son atout et sa faiblesse. -->
+        @if (etape() === 'choix') {
+          <div class="sec-choix">
+            @for (m of methodes; track m.cle) {
+              @if (m.cle !== 'Sms' || e.smsDisponible) {
+                <article class="sec-methode" [class.est-moindre]="m.cle === 'Sms'">
+                  <span class="sec-methode__ico"><i class="bi" [class]="m.icone"></i></span>
+                  <h3>{{ m.titre }}</h3>
+                  <span class="sec-methode__atout">{{ m.atout }}</span>
+                  <p>{{ m.texte }}</p>
+                  <p class="sec-methode__contre"><i class="bi bi-exclamation-circle"></i> {{ m.contre }}</p>
+                  <button class="btn-secondary" (click)="choisir(m.cle)" [disabled]="occupe()">
+                    Choisir
+                  </button>
+                </article>
+              }
+            }
+            @if (!e.smsDisponible) {
+              <p class="sec-aide sec-choix__note">
+                Le code par SMS n'est pas proposé : ce serveur n'a pas d'identifiants
+                d'envoi. L'application d'authentification reste la méthode la plus sûre
+                de toute façon.
+              </p>
+            }
+            <button class="sec-annuler" (click)="annulerActivation()">Annuler</button>
+          </div>
+        }
+
+        <!-- ═══ NUMÉRO ═══ -->
+        @if (etape() === 'telephone') {
+          <div class="sec-tel">
+            <h3>Votre numéro de mobile</h3>
+            <p>
+              Nous y enverrons un code pour vérifier qu'il est bien à vous. Ce numéro ne
+              servira qu'à cela : il n'apparaît sur aucun profil et n'est communiqué à
+              aucun recruteur.
+            </p>
+            <div class="sec-tel__saisie">
+              <input type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78"
+                     [(ngModel)]="telephone" (keyup.enter)="envoyerCodeSms()"
+                     aria-label="Numéro de téléphone mobile" />
+              <button class="btn-primary" (click)="envoyerCodeSms()" [disabled]="occupe()">
+                @if (occupe()) { <span class="sp"></span> Envoi… } @else { Recevoir un code }
+              </button>
+              <button class="btn-ghost" (click)="annulerActivation()" [disabled]="occupe()">Annuler</button>
+            </div>
+          </div>
+        }
+
+        <!-- ═══ VÉRIFICATION DU NUMÉRO ═══ -->
+        @if (etape() === 'sms') {
+          <div class="sec-tel">
+            <h3>Le code reçu au {{ telephoneMasque() }}</h3>
+            @if (motSms()) { <p>{{ motSms() }}</p> }
+            <div class="sec-code">
+              <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="7"
+                     placeholder="123456" [(ngModel)]="code" (keyup.enter)="activerSms()"
+                     aria-label="Code reçu par SMS" />
+              <button class="btn-primary" (click)="activerSms()" [disabled]="occupe()">Vérifier et activer</button>
+              <button class="btn-ghost" (click)="renvoyerCodeSms()" [disabled]="occupe()">
+                <i class="bi bi-arrow-repeat"></i> Renvoyer
+              </button>
+              <button class="btn-ghost" (click)="annulerActivation()" [disabled]="occupe()">Annuler</button>
+            </div>
+            <p class="sec-aide">
+              Un SMS met parfois une minute à arriver. Un code n'est valable que quelques
+              minutes : au-delà, demandez-en un nouveau.
+            </p>
+          </div>
         }
 
         <!-- La clé, puis la vérification. Rien n'est activé tant que le
