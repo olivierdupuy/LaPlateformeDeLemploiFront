@@ -1,0 +1,461 @@
+<div class="container ad-page aod">
+
+  @if (loading()) {
+    <div class="empty-box"><div class="spinner"></div></div>
+  } @else if (failed() || !offre()) {
+    <div class="empty-box animate-in">
+      <i class="bi bi-exclamation-triangle"></i>
+      <h3>Offre introuvable</h3>
+      <p>Cette offre a peut-être été supprimée.</p>
+      <a routerLink="/admin/offres" class="btn-primary">Retour au catalogue</a>
+    </div>
+  } @else if (offre(); as o) {
+
+    <!-- ═══ EN-TÊTE ═══ -->
+    <header class="ad-head aod-head">
+      <div class="ad-head__text">
+        <!-- Une fiche s'ouvre depuis une liste : le chemin du retour se
+             pose avant le titre, pas dans un coin. -->
+        <a routerLink="/admin/offres" class="back-link">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i> Toutes les offres
+        </a>
+        <h1>{{ form['title'] || o.title }}</h1>
+        <p class="ad-head__sub">
+          <span class="aod-emp">
+            @if (employeurAnonyme(form['company'])) {
+              <i class="bi bi-building" aria-hidden="true"></i> Employeur non précisé
+            } @else {
+              {{ form['company'] }}
+            }
+          </span>
+          @if (form['location']) { · {{ form['location'] }} }
+          · <span class="u-mono">#{{ o.id }}</span>
+        </p>
+      </div>
+    </header>
+
+    <div class="aod-layout">
+
+      <!-- ═══ SOMMAIRE ═══
+           Tout est sur la page ; ceci ne découpe rien, cela évite
+           seulement de dérouler pour atteindre un champ précis. -->
+      <nav class="aod-toc" aria-label="Sections de la fiche">
+        @for (b of blocs; track b.cle) {
+          <button class="aod-toc__lien" (click)="faireDefiler(b.cle)">
+            <i class="bi" [class]="b.icone" aria-hidden="true"></i> {{ b.titre }}
+          </button>
+        }
+      </nav>
+
+      <!-- ═══ FORMULAIRE ═══ -->
+      <main class="aod-form">
+
+        <!-- ── Le poste ── -->
+        <section class="aod-bloc" id="bloc-poste">
+          <h2><i class="bi bi-briefcase" aria-hidden="true"></i> Le poste</h2>
+
+          <div class="form-group">
+            <label for="f-title">Intitulé</label>
+            <input id="f-title" type="text" [(ngModel)]="form['title']" name="title" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-company">Entreprise</label>
+              <input id="f-company" type="text" [(ngModel)]="form['company']" name="company" />
+            </div>
+            <div class="form-group">
+              <label for="f-category">Catégorie</label>
+              <input id="f-category" type="text" [(ngModel)]="form['category']" name="category" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-contractType">Type de contrat</label>
+              <select id="f-contractType" [(ngModel)]="form['contractType']" name="contractType">
+                <option value="">Non précisé</option>
+                @for (c of contrats; track c) { <option [value]="c">{{ c }}</option> }
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="f-contractDuration">Durée du contrat <span class="opt">CDD, stage, alternance</span></label>
+              <input id="f-contractDuration" type="text" placeholder="ex : 6 mois"
+                     [(ngModel)]="form['contractDuration']" name="contractDuration" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-experienceRequired">Expérience demandée</label>
+              <select id="f-experienceRequired" [(ngModel)]="form['experienceRequired']" name="experienceRequired">
+                <option value="">Non précisée</option>
+                @for (e of experiences; track e) { <option [value]="e">{{ e }}</option> }
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="f-educationLevel">Niveau de formation</label>
+              <select id="f-educationLevel" [(ngModel)]="form['educationLevel']" name="educationLevel">
+                <option value="">Non précisé</option>
+                @for (d of diplomes; track d) { <option [value]="d">{{ d }}</option> }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-openings">Postes à pourvoir</label>
+              <input id="f-openings" type="number" min="1" [(ngModel)]="form['openings']" name="openings" />
+            </div>
+            <div class="form-group">
+              <label for="f-startDate">Prise de poste <span class="opt">facultatif</span></label>
+              <input id="f-startDate" type="date" [(ngModel)]="form['startDate']" name="startDate" />
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Lieu et organisation ── -->
+        <section class="aod-bloc" id="bloc-lieu">
+          <h2><i class="bi bi-geo-alt" aria-hidden="true"></i> Lieu et organisation</h2>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-location">Lieu affiché</label>
+              <input id="f-location" type="text" placeholder="ex : 75 - Paris"
+                     [(ngModel)]="form['location']" name="location" />
+              <span class="hint">C'est de ce champ qu'est tirée la ville envoyée aux moteurs de recherche.</span>
+            </div>
+            <div class="form-group">
+              <label for="f-address">Adresse précise <span class="opt">facultatif</span></label>
+              <input id="f-address" type="text" [(ngModel)]="form['address']" name="address" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-workplaceType">Mode de travail</label>
+              <select id="f-workplaceType" [(ngModel)]="form['workplaceType']" name="workplaceType">
+                <option value="">Non précisé</option>
+                @for (l of lieuxTravail; track l) { <option [value]="l">{{ l }}</option> }
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="f-workSchedule">Horaires</label>
+              <select id="f-workSchedule" [(ngModel)]="form['workSchedule']" name="workSchedule">
+                <option value="">Non précisés</option>
+                @for (h of horaires; track h) { <option [value]="h">{{ h }}</option> }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-hoursPerWeek">Heures par semaine</label>
+              <input id="f-hoursPerWeek" type="number" min="0" placeholder="35"
+                     [(ngModel)]="form['hoursPerWeek']" name="hoursPerWeek" />
+            </div>
+            <div class="form-group">
+              <label for="f-languages">Langues <span class="opt">séparées par des virgules</span></label>
+              <input id="f-languages" type="text" [(ngModel)]="form['languages']" name="languages" />
+            </div>
+          </div>
+
+          <label class="aod-check">
+            <input type="checkbox" [(ngModel)]="form['isRemote']" name="isRemote" />
+            <span>Télétravail possible</span>
+          </label>
+        </section>
+
+        <!-- ── Rémunération ── -->
+        <section class="aod-bloc" id="bloc-remuneration">
+          <h2><i class="bi bi-cash-stack" aria-hidden="true"></i> Rémunération</h2>
+
+          <!-- Le catalogue est massivement importé, et l'analyse des
+               libellés source produit encore quelques montants absurdes.
+               Les signaler ici, c'est permettre de les corriger à la main. -->
+          @if (salaireSuspect) {
+            <p class="aod-alerte">
+              <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+              Ce montant sort des bornes du marché. Il provient probablement d'une analyse
+              erronée du libellé d'origine — et il est envoyé tel quel à Google.
+            </p>
+          }
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-minSalary">Minimum</label>
+              <input id="f-minSalary" type="number" min="0" [(ngModel)]="form['minSalary']" name="minSalary" />
+            </div>
+            <div class="form-group">
+              <label for="f-maxSalary">Maximum</label>
+              <input id="f-maxSalary" type="number" min="0" [(ngModel)]="form['maxSalary']" name="maxSalary" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-salaryPeriod">Périodicité</label>
+              <select id="f-salaryPeriod" [(ngModel)]="form['salaryPeriod']" name="salaryPeriod">
+                @for (p of periodes; track p.cle) { <option [value]="p.cle">{{ p.label }}</option> }
+              </select>
+              <span class="hint">Sans indication, les montants sont lus comme annuels.</span>
+            </div>
+            <div class="form-group">
+              <label for="f-supplementalPay">Primes <span class="opt">séparées par des virgules</span></label>
+              <input id="f-supplementalPay" type="text" placeholder="13e mois, primes sur objectifs"
+                     [(ngModel)]="form['supplementalPay']" name="supplementalPay" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="f-salary">Mention libre <span class="opt">telle qu'affichée si les montants manquent</span></label>
+            <input id="f-salary" type="text" [(ngModel)]="form['salary']" name="salary" />
+            @if (form['salary']) {
+              <span class="hint">Affiché : <strong>{{ salaryLabel(form) || '—' }}</strong></span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="f-benefits">Avantages <span class="opt">séparés par des virgules</span></label>
+            <input id="f-benefits" type="text" placeholder="Tickets restaurant, RTT, mutuelle"
+                   [(ngModel)]="form['benefits']" name="benefits" />
+          </div>
+        </section>
+
+        <!-- ── Description ── -->
+        <section class="aod-bloc" id="bloc-description">
+          <h2><i class="bi bi-file-text" aria-hidden="true"></i> Description</h2>
+
+          @if (descriptionCourte) {
+            <p class="aod-note">
+              <i class="bi bi-info-circle" aria-hidden="true"></i>
+              Sous 120 signes, l'annonce n'est ni indexée ni éligible aux résultats
+              d'emploi de Google. Elle reste visible sur le site.
+            </p>
+          }
+
+          <div class="form-group">
+            <label for="f-description">Descriptif du poste</label>
+            <textarea id="f-description" rows="12" [(ngModel)]="form['description']" name="description"></textarea>
+            <span class="hint">{{ (form['description'] || '').length }} signes</span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-companyDescription">Présentation de l'entreprise <span class="opt">facultatif</span></label>
+            <textarea id="f-companyDescription" rows="4"
+                      [(ngModel)]="form['companyDescription']" name="companyDescription"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="f-tags">Mots-clés <span class="opt">séparés par des virgules</span></label>
+              <input id="f-tags" type="text" [(ngModel)]="form['tags']" name="tags" />
+            </div>
+            <div class="form-group">
+              <label for="f-companyLogoUrl">Logo de l'entreprise <span class="opt">URL</span></label>
+              <input id="f-companyLogoUrl" type="url" [(ngModel)]="form['companyLogoUrl']" name="companyLogoUrl" />
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Candidature ── -->
+        <section class="aod-bloc" id="bloc-candidature">
+          <h2><i class="bi bi-send" aria-hidden="true"></i> Candidature</h2>
+
+          <div class="aod-checks">
+            <label class="aod-check">
+              <input type="checkbox" [(ngModel)]="form['easyApply']" name="easyApply" />
+              <span>
+                <strong>Candidature simplifiée</strong>
+                <small>Le candidat postule ici, en un clic, sans quitter le site.</small>
+              </span>
+            </label>
+            <label class="aod-check">
+              <input type="checkbox" [(ngModel)]="form['requireResume']" name="requireResume" />
+              <span>
+                <strong>CV obligatoire</strong>
+                <small>Sans CV joint, la candidature ne peut pas être envoyée.</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="f-applicationEmail">Email de notification <span class="opt">facultatif</span></label>
+            <input id="f-applicationEmail" type="email" [(ngModel)]="form['applicationEmail']" name="applicationEmail" />
+            <span class="hint">Averti à chaque nouvelle candidature.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-autoReplyMessage">Réponse automatique <span class="opt">facultatif</span></label>
+            <textarea id="f-autoReplyMessage" rows="3"
+                      placeholder="Envoyée au candidat dès réception de sa candidature."
+                      [(ngModel)]="form['autoReplyMessage']" name="autoReplyMessage"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="f-screeningQuestions">Questions de présélection <span class="opt">une par ligne</span></label>
+            <textarea id="f-screeningQuestions" rows="3"
+                      [(ngModel)]="form['screeningQuestions']" name="screeningQuestions"></textarea>
+          </div>
+        </section>
+
+        <!-- ── Publication ── -->
+        <section class="aod-bloc" id="bloc-publication">
+          <h2><i class="bi bi-broadcast" aria-hidden="true"></i> Publication</h2>
+
+          <div class="aod-checks">
+            <label class="aod-check">
+              <input type="checkbox" [(ngModel)]="form['isActive']" name="isActive" />
+              <span>
+                <strong>Offre active</strong>
+                <small>Décochée, elle disparaît des recherches et du plan de site.</small>
+              </span>
+            </label>
+            <label class="aod-check">
+              <input type="checkbox" [(ngModel)]="form['isDraft']" name="isDraft" />
+              <span>
+                <strong>Brouillon</strong>
+                <small>Visible de son seul auteur, jamais du public.</small>
+              </span>
+            </label>
+            <label class="aod-check">
+              <input type="checkbox" [(ngModel)]="form['isUrgent']" name="isUrgent" />
+              <span>
+                <strong>Recrutement urgent</strong>
+                <small>Signalé par une pastille dans les listes.</small>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="f-expiresAt">Date d'expiration</label>
+            <input id="f-expiresAt" type="date" [(ngModel)]="form['expiresAt']" name="expiresAt" />
+            <span class="hint">
+              Passée cette date, l'offre quitte les recherches et le balisage envoyé à Google.
+              Sans date, elle reste en ligne indéfiniment.
+            </span>
+          </div>
+        </section>
+      </main>
+
+      <!-- ═══ RAIL D'ÉTAT ═══ -->
+      <aside class="aod-rail">
+        <div class="aod-rail__sticky">
+
+          <!-- Modération -->
+          <div class="aod-carte">
+            <span class="aod-carte__titre">Modération</span>
+            @if (etatModeration(); as e) {
+              <p class="aod-etat">
+                <i class="bi" [class]="e.icon" [style.color]="e.color" aria-hidden="true"></i>
+                <strong>{{ e.label }}</strong>
+              </p>
+            }
+            @if (o.moderationNote) {
+              <p class="aod-motif">« {{ o.moderationNote }} »</p>
+            }
+            <div class="aod-carte__actions">
+              <button class="btn-secondary" (click)="approuver()"
+                      [disabled]="moderating() || o.moderationStatus === 'Approved'">
+                <i class="bi bi-check-lg" aria-hidden="true"></i> Approuver
+              </button>
+              <button class="btn-ghost aod-rejet" (click)="rejeter()"
+                      [disabled]="moderating() || o.moderationStatus === 'Rejected'">
+                <i class="bi bi-x-lg" aria-hidden="true"></i> Rejeter
+              </button>
+            </div>
+          </div>
+
+          <!-- Ce que l'offre a produit -->
+          <div class="aod-carte">
+            <span class="aod-carte__titre">Audience</span>
+            <div class="aod-mesures">
+              <span class="aod-mesure">
+                <b class="u-mono">{{ o.viewCount || 0 | number }}</b>
+                <i>vues</i>
+              </span>
+              <span class="aod-mesure">
+                <b class="u-mono">{{ nbCandidatures | number }}</b>
+                <i>candidature{{ nbCandidatures > 1 ? 's' : '' }}</i>
+              </span>
+            </div>
+            <a class="aod-lien" [routerLink]="['/admin/candidatures']" [queryParams]="{ offre: o.id }">
+              Voir les candidatures <i class="bi bi-arrow-right-short" aria-hidden="true"></i>
+            </a>
+          </div>
+
+          <!-- Provenance -->
+          <div class="aod-carte">
+            <span class="aod-carte__titre">Provenance</span>
+            <p class="aod-source" [class.is-local]="!importee">
+              @if (importee) {
+                <i class="bi bi-broadcast-pin" aria-hidden="true"></i> Reprise chez {{ o.externalSource }}
+              } @else {
+                <i class="bi bi-house-door" aria-hidden="true"></i> Déposée sur la plateforme
+              }
+            </p>
+            @if (importee) {
+              <!-- L'import n'insère que les offres nouvelles : une
+                   correction faite ici ne sera pas écrasée au passage
+                   suivant. Le dire évite de ne pas oser corriger. -->
+              <p class="aod-carte__note">
+                Une correction apportée ici est conservée : l'import n'ajoute que
+                les offres qu'il ne connaît pas encore.
+              </p>
+            }
+            <p class="aod-carte__note u-mono">Publiée le {{ o.createdAt | date:'dd/MM/yyyy' }}</p>
+            <div class="aod-carte__liens">
+              <a [routerLink]="['/offres', o.id]" target="_blank" rel="noopener">
+                <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Fiche publique
+              </a>
+              @if (o.externalUrl) {
+                <a [href]="o.externalUrl" target="_blank" rel="noopener">
+                  <i class="bi bi-link-45deg" aria-hidden="true"></i> Annonce d'origine
+                </a>
+              }
+              @if (!employeurAnonyme(form['company'])) {
+                <a [routerLink]="['/admin/offres']" [queryParams]="{ entreprise: form['company'] }">
+                  <i class="bi bi-collection" aria-hidden="true"></i> Ses autres offres
+                </a>
+              }
+            </div>
+          </div>
+
+          <!-- Mise en avant -->
+          <div class="aod-carte">
+            <span class="aod-carte__titre">Mise en avant</span>
+            <p class="aod-carte__note">
+              {{ o.isFeatured ? 'Cette offre remonte en tête des listes.' : 'Offre affichée normalement.' }}
+            </p>
+            <button class="btn-ghost aod-plein" (click)="basculerMiseEnAvant()">
+              <i class="bi" [class.bi-star-fill]="o.isFeatured" [class.bi-star]="!o.isFeatured" aria-hidden="true"></i>
+              {{ o.isFeatured ? 'Retirer de la une' : 'Mettre en avant' }}
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ═══ BARRE D'ENREGISTREMENT ═══
+         Elle ne paraît que s'il y a quelque chose à enregistrer, et dit
+         quoi : sur trente-cinq champs, savoir lesquels ont bougé importe
+         autant que de pouvoir enregistrer. -->
+    @if (isDirty) {
+      <div class="aod-savebar" role="status">
+        <div class="container aod-savebar__in">
+          <span class="aod-savebar__txt">
+            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+            {{ champsModifies.length }} champ{{ champsModifies.length > 1 ? 's' : '' }} modifié{{ champsModifies.length > 1 ? 's' : '' }}
+          </span>
+          <span class="aod-savebar__acts">
+            <button class="btn-ghost" (click)="annuler()" [disabled]="saving()">Annuler</button>
+            <button class="btn-primary" (click)="enregistrer()" [disabled]="saving()">
+              @if (saving()) { <span class="sp" aria-hidden="true"></span> Enregistrement… }
+              @else { <i class="bi bi-check-lg" aria-hidden="true"></i> Enregistrer }
+            </button>
+          </span>
+        </div>
+      </div>
+    }
+  }
+</div>

@@ -46,7 +46,14 @@ export class JobDetail implements OnInit {
   stars5 = [1, 2, 3, 4, 5];
   loading = signal(true);
   noteContent = '';
-  noteSaving = false;
+  /**
+   * Signal et non propriété simple : l'application tourne sans zone.js,
+   * et une écriture faite depuis un rappel HTTP n'y déclenche aucun
+   * rendu. Cet indicateur ne se remettait à zéro à l'écran que parce
+   * qu'un toast l'accompagnait et provoquait la détection au passage —
+   * le bouton dépendait donc d'un effet de bord pour se débloquer.
+   */
+  noteSaving = signal(false);
   showNote = signal(false);
 
   // Signalement
@@ -211,10 +218,10 @@ export class JobDetail implements OnInit {
   saveNote() {
     const j = this.job();
     if (!j) return;
-    this.noteSaving = true;
+    this.noteSaving.set(true);
     this.candidateService.saveNote(j.id, this.noteContent).subscribe({
-      next: () => { this.noteSaving = false; this.toastr.success('Note enregistrée'); },
-      error: () => { this.noteSaving = false; this.toastr.error('Erreur'); },
+      next: () => { this.noteSaving.set(false); this.toastr.success('Note enregistrée'); },
+      error: () => { this.noteSaving.set(false); this.toastr.error('Erreur'); },
     });
   }
 

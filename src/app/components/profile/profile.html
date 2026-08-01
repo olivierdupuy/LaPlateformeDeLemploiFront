@@ -461,9 +461,9 @@
           {{ dirtyCount }} modification{{ dirtyCount > 1 ? 's' : '' }} non enregistrée{{ dirtyCount > 1 ? 's' : '' }}
         </span>
         <span class="pf-savebar__acts">
-          <button class="btn-ghost" (click)="revert()" [disabled]="savingProfile">Annuler</button>
-          <button class="btn-primary" (click)="saveProfile()" [disabled]="savingProfile">
-            @if (savingProfile) { <span class="sp" aria-hidden="true"></span> Enregistrement… }
+          <button class="btn-ghost" (click)="revert()" [disabled]="savingProfile()">Annuler</button>
+          <button class="btn-primary" (click)="saveProfile()" [disabled]="savingProfile()">
+            @if (savingProfile()) { <span class="sp" aria-hidden="true"></span> Enregistrement… }
             @else { <i class="bi bi-check-lg" aria-hidden="true"></i> Enregistrer }
           </button>
         </span>

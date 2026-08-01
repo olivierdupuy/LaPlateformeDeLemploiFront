@@ -67,8 +67,8 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary full-w" [disabled]="loading">
-          @if (loading) { <span class="sp"></span> Connexion… } @else { Se connecter }
+        <button type="submit" class="btn-primary full-w" [disabled]="loading()">
+          @if (loading()) { <span class="sp"></span> Connexion… } @else { Se connecter }
         </button>
       </form>
 

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,14 @@ export class Login {
   private toastr = inject(ToastrService);
 
   form = { email: '', password: '' };
-  loading = false;
+  /**
+   * Signal et non propriété simple : l'application tourne sans zone.js,
+   * et une écriture faite depuis un rappel HTTP n'y déclenche aucun
+   * rendu. Cet indicateur ne se remettait à zéro à l'écran que parce
+   * qu'un toast l'accompagnait et provoquait la détection au passage —
+   * le bouton dépendait donc d'un effet de bord pour se débloquer.
+   */
+  loading = signal(false);
   showPassword = false;
 
   /** Page demandée avant la connexion (ex. un tunnel de candidature interrompu). */
@@ -52,10 +59,10 @@ export class Login {
 
   submit() {
     if (!this.form.email || !this.form.password) { this.toastr.warning('Remplissez tous les champs'); return; }
-    this.loading = true;
+    this.loading.set(true);
     this.auth.login(this.form).subscribe({
       next: () => { this.toastr.success('Connexion réussie'); this.router.navigateByUrl(this.redirectTo); },
-      error: (err) => { this.loading = false; this.toastr.error(err.error?.message || 'Erreur de connexion'); },
+      error: (err) => { this.loading.set(false); this.toastr.error(err.error?.message || 'Erreur de connexion'); },
     });
   }
 }

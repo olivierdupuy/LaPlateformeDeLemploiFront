@@ -118,8 +118,8 @@
           }
         </div>
 
-        <button type="submit" class="btn-primary full-w" [disabled]="loading || !platform.allowRegistration">
-          @if (loading) { <span class="sp"></span> Création… } @else { Créer mon compte }
+        <button type="submit" class="btn-primary full-w" [disabled]="loading() || !platform.allowRegistration">
+          @if (loading()) { <span class="sp"></span> Création… } @else { Créer mon compte }
         </button>
       </form>
 

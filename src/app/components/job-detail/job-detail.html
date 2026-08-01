@@ -238,8 +238,8 @@
               @if (showNote()) {
                 <div class="note-body">
                   <textarea [(ngModel)]="noteContent" placeholder="Notez vos impressions, questions pour l'entretien…" rows="4" class="note-input"></textarea>
-                  <button class="note-save" (click)="saveNote()" [disabled]="noteSaving">
-                    <i class="bi bi-check-lg"></i> {{ noteSaving ? 'Sauvegarde…' : 'Sauvegarder' }}
+                  <button class="note-save" (click)="saveNote()" [disabled]="noteSaving()">
+                    <i class="bi bi-check-lg"></i> {{ noteSaving() ? 'Sauvegarde…' : 'Sauvegarder' }}
                   </button>
                 </div>
               }

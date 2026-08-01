@@ -100,7 +100,12 @@ export class Profile implements OnInit {
 
   pwForm = { currentPassword: '', newPassword: '' };
   pwVisible = signal(false);
-  savingProfile = false;
+  /**
+   * Signal et non propriété simple : sans zone.js, l'écriture faite au
+   * retour de la requête ne repeint rien par elle-même. La barre
+   * d'enregistrement ne se débloquait que grâce au toast qui suivait.
+   */
+  savingProfile = signal(false);
   savingPw = false;
   uploadingCv = false;
   importingProfile = false;
@@ -323,17 +328,17 @@ export class Profile implements OnInit {
 
   saveProfile() {
     if (!this.isDirty) return;
-    this.savingProfile = true;
+    this.savingProfile.set(true);
     this.auth.updateProfile(this.profileForm).subscribe({
       next: () => {
-        this.savingProfile = false;
+        this.savingProfile.set(false);
         // La nouvelle reference est ce qu'on vient d'envoyer : sans ca la
         // barre resterait affichee alors qu'il n'y a plus rien a enregistrer.
         this.origine = { ...this.profileForm };
         this.toastr.success('Profil enregistré');
       },
       error: () => {
-        this.savingProfile = false;
+        this.savingProfile.set(false);
         this.toastr.error("Le profil n'a pas pu être enregistré.");
       },
     });

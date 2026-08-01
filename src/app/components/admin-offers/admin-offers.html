@@ -162,7 +162,7 @@
                     }
                     <span class="aof-offer__txt">
                       <span class="aof-title-row">
-                        <a [routerLink]="['/offres', o.id]" class="aof-title" [title]="o.title">{{ o.title }}</a>
+                        <a [routerLink]="['/admin/offres', o.id]" class="aof-title" [title]="o.title">{{ o.title }}</a>
                         @if (o.isUrgent) { <span class="aof-flag" title="Offre urgente"><i class="bi bi-lightning-fill" aria-hidden="true"></i></span> }
                         @if (o.isFeatured) { <span class="aof-flag" title="Offre mise en avant"><i class="bi bi-star-fill" aria-hidden="true"></i></span> }
                       </span>

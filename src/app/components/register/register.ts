@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,14 @@ export class Register {
   platform = inject(PlatformService);
 
   form = { firstName: '', lastName: '', email: '', password: '', role: 'Candidate', company: '' };
-  loading = false;
+  /**
+   * Signal et non propriété simple : l'application tourne sans zone.js,
+   * et une écriture faite depuis un rappel HTTP n'y déclenche aucun
+   * rendu. Cet indicateur ne se remettait à zéro à l'écran que parce
+   * qu'un toast l'accompagnait et provoquait la détection au passage —
+   * le bouton dépendait donc d'un effet de bord pour se débloquer.
+   */
+  loading = signal(false);
   showPassword = false;
 
   setRole(role: string) { this.form.role = role; }
@@ -55,10 +62,10 @@ export class Register {
       this.toastr.warning('Remplissez tous les champs obligatoires'); return;
     }
     if (this.form.password.length < 6) { this.toastr.warning('Mot de passe : 6 caracteres minimum'); return;  }
-    this.loading = true;
+    this.loading.set(true);
     this.auth.register(this.form).subscribe({
       next: () => { this.toastr.success('Compte créé avec succes'); this.router.navigate(['/']); },
-      error: (err) => { this.loading = false; this.toastr.error(err.error?.message || 'Erreur lors de l\'inscription'); },
+      error: (err) => { this.loading.set(false); this.toastr.error(err.error?.message || 'Erreur lors de l\'inscription'); },
     });
   }
 }

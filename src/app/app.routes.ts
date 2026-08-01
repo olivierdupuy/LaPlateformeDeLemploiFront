@@ -23,6 +23,7 @@ import { AdminStats } from './components/admin-stats/admin-stats';
 import { AdminActivity } from './components/admin-activity/admin-activity';
 import { AdminModeration } from './components/admin-moderation/admin-moderation';
 import { AdminOffers } from './components/admin-offers/admin-offers';
+import { AdminOfferDetail } from './components/admin-offer-detail/admin-offer-detail';
 import { AdminApplications } from './components/admin-applications/admin-applications';
 import { AdminInterviews } from './components/admin-interviews/admin-interviews';
 import { AdminUserDetail } from './components/admin-user-detail/admin-user-detail';
@@ -113,6 +114,7 @@ export const routes: Routes = [
       { path: 'tableau-de-bord', component: Dashboard },
       { path: 'statistiques', component: AdminStats },
       { path: 'offres', component: AdminOffers },
+      { path: 'offres/:id', component: AdminOfferDetail },
       { path: 'candidatures', component: AdminApplications },
       { path: 'entretiens', component: AdminInterviews },
       { path: 'moderation', component: AdminModeration },
