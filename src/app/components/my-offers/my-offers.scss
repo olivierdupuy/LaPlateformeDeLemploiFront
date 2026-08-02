@@ -390,3 +390,66 @@
   .oc-stat-val { color: var(--bleu-700); }
   i { color: var(--bleu-500); }
 }
+
+/* ═══════════════ Multidiffusion ═══════════════
+   Une ligne par partenaire, avec son état et son action. Le panneau
+   reprend le fond du panneau de statistiques : ce sont deux tiroirs de
+   la même carte, ils n'ont pas de raison de se distinguer. */
+.oc-diff {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ocd-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+
+  &:last-child { border-bottom: 0; }
+}
+
+.ocd-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+  flex: 1;
+
+  strong { font-size: 0.86rem; font-weight: 600; }
+}
+
+.ocd-apport { font-size: 0.78rem; color: var(--muted); }
+
+/* L'état porte sa couleur : « échec » et « en ligne » ne doivent pas se
+   lire de la même façon en diagonale. */
+.ocd-etat {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+
+  &[data-statut='diffusee'] { color: var(--spring-600); }
+  &[data-statut='echec']    { color: var(--red); }
+  &[data-statut='retiree']  { color: var(--faint); }
+
+  a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+}
+
+/* Le motif d'échec est la seule chose utile quand rien ne part : il est
+   lisible, pas relégué en gris pâle. */
+.ocd-motif {
+  font-style: normal;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.ocd-act { flex-shrink: 0; }
+
+@media (max-width: 620px) {
+  .ocd-ligne { flex-direction: column; align-items: stretch; }
+}

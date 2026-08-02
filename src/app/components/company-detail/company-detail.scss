@@ -284,7 +284,7 @@
 .rvm-close { width: 34px; height: 34px; border-radius: var(--r-sm); color: var(--muted); &:hover { background: var(--paper-2); color: var(--ink); } }
 .am-req { color: var(--red); }
 .rvm-overall { margin-bottom: 1.1rem;
-  label { display: block; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.4rem; } }
+  label, .group-lbl { display: block; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.4rem; } }
 .star-picker { display: inline-flex; gap: 0.25rem;
   button { font-size: 1.6rem; color: var(--line-strong); transition: color var(--t), transform var(--t);
     &:hover { transform: scale(1.1); } &.on { color: var(--spring-600); } }

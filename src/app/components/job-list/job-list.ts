@@ -13,10 +13,11 @@ import { SavedSearchService } from '../../services/saved-search.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor, salaryLabel } from '../../utils/job.utils';
 import { EmployerNamePipe, estEmployeurGenerique } from '../../pipes/employer-name.pipe';
+import { Modale } from '../../utils/modale.directive';
 
 @Component({
   selector: 'app-job-list',
-  imports: [RouterLink, FormsModule, DecimalPipe, EmployerNamePipe],
+  imports: [RouterLink, FormsModule, DecimalPipe, EmployerNamePipe, Modale],
   templateUrl: './job-list.html',
   styleUrl: './job-list.scss',
 })

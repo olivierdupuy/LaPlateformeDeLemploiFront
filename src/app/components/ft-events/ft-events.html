@@ -117,7 +117,13 @@
 
 <!-- Détail : un panneau plutôt qu'une page, pour ne pas perdre la liste -->
 @if (selection(); as e) {
-  <div class="fte-scrim" (click)="fermer()"></div>
+  <!-- Le voile contient le panneau plutôt que de le précéder : c'est ce
+       qui permet à `appModale` de distinguer un clic sur le fond d'un
+       clic dans le panneau, et de piéger le focus dans ce dernier. Le
+       panneau reste en `position: fixed` — un voile fixe sans transform
+       ne fabrique pas de nouveau bloc conteneur, la mise en page ne
+       bouge pas. -->
+  <div class="fte-scrim" appModale (fermeture)="fermer()">
   <aside class="fte-panel" role="dialog" aria-modal="true" [attr.aria-label]="e.titre">
     <header class="fte-panel__head">
       <span class="fte-ico"><i class="bi" [class]="typeIcon(e.type)" aria-hidden="true"></i></span>
@@ -199,4 +205,5 @@
       <button class="btn-ghost" (click)="fermer()">Fermer</button>
     </footer>
   </aside>
+  </div>
 }

@@ -139,30 +139,30 @@
       @if (showAdvanced) {
         <div class="adv-panel animate-in">
           <div class="form-group">
-            <label>Salaire min (€/an)</label>
-            <input type="number" placeholder="25000" [(ngModel)]="salaryMin" (change)="loadJobs()" />
+            <label for="jl-salary-min">Salaire min (€/an)</label>
+            <input id="jl-salary-min" type="number" placeholder="25000" [(ngModel)]="salaryMin" (change)="loadJobs()" />
           </div>
           <div class="form-group">
-            <label>Salaire max (€/an)</label>
-            <input type="number" placeholder="60000" [(ngModel)]="salaryMax" (change)="loadJobs()" />
+            <label for="jl-salary-max">Salaire max (€/an)</label>
+            <input id="jl-salary-max" type="number" placeholder="60000" [(ngModel)]="salaryMax" (change)="loadJobs()" />
           </div>
           <div class="form-group">
-            <label>Expérience</label>
-            <select [(ngModel)]="experience" (change)="loadJobs()">
+            <label for="jl-experience">Expérience</label>
+            <select id="jl-experience" [(ngModel)]="experience" (change)="loadJobs()">
               <option value="">Tous niveaux</option>
               @for (l of experienceLevels(); track l) { <option [value]="l">{{ l }}</option> }
             </select>
           </div>
           <div class="form-group">
-            <label>Formation</label>
-            <select [(ngModel)]="education" (change)="loadJobs()">
+            <label for="jl-education">Formation</label>
+            <select id="jl-education" [(ngModel)]="education" (change)="loadJobs()">
               <option value="">Tous niveaux</option>
               @for (l of educationLevels(); track l) { <option [value]="l">{{ l }}</option> }
             </select>
           </div>
           <div class="form-group">
-            <label>Langue</label>
-            <select [(ngModel)]="language" (change)="loadJobs()">
+            <label for="jl-language">Langue</label>
+            <select id="jl-language" [(ngModel)]="language" (change)="loadJobs()">
               <option value="">Toutes</option>
               @for (l of languagesList(); track l) { <option [value]="l">{{ l }}</option> }
             </select>
@@ -325,7 +325,13 @@
         </div>
 
       <!-- Tiroir détail coulissant (droite) -->
-      <div class="drawer-backdrop" [class.show]="!!selected()" (click)="closeDetail()"></div>
+      <!-- Le voile reste dans le document en permanence : c'est sa
+           transition d'opacité qui fait glisser le tiroir. `appModale`
+           ne convient donc pas, elle s'initialise à l'ouverture. Le
+           clavier a déjà son équivalent — Échap ferme, via le
+           `HostListener` du composant — et le voile n'est plus qu'un
+           raccourci de souris : `aria-hidden` le dit. -->
+      <div class="drawer-backdrop" aria-hidden="true" [class.show]="!!selected()" (click)="closeDetail()"></div>
       <aside class="offer-drawer" [class.open]="!!selected()" role="dialog" aria-modal="true"
              [attr.aria-hidden]="!selected()" [attr.inert]="!selected() ? '' : null"
              [attr.aria-label]="selected() ? selected()!.title : 'Détail de l\'offre'">
@@ -451,8 +457,12 @@
 
 <!-- ═══ MODALE SIGNALEMENT ═══ -->
 @if (reportOpen()) {
-  <div class="modal-overlay" (click)="closeReport()">
-    <div class="modal-content report-modal" (click)="$event.stopPropagation()">
+    <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :
+         tout est dans la directive appModale. Le voile ne porte plus
+         de gestionnaire de clic, et le panneau n\'a plus rien à
+         annuler par stopPropagation. -->
+    <div class="modal-overlay" appModale (fermeture)="closeReport()">
+    <div class="modal-content report-modal">
       <div class="rm-head">
         <div>
           <span class="eyebrow">Signalement</span>
@@ -463,20 +473,20 @@
       @if (reportJob) { <p class="rm-job">{{ reportJob.title }} · {{ reportJob.company }}</p> }
 
       <div class="form-group">
-        <label>Motif</label>
-        <div class="rm-reasons">
+        <span id="jl-report-reason-lbl" class="group-lbl">Motif</span>
+        <div class="rm-reasons" role="group" aria-labelledby="jl-report-reason-lbl">
           @for (r of reportReasons; track r) {
             <button type="button" class="rm-reason" [class.active]="reportReason === r" (click)="reportReason = r">{{ r }}</button>
           }
         </div>
       </div>
       <div class="form-group">
-        <label>Détails (optionnel)</label>
-        <textarea [(ngModel)]="reportDetails" placeholder="Précisez le problème…"></textarea>
+        <label for="jl-report-details">Détails (optionnel)</label>
+        <textarea id="jl-report-details" [(ngModel)]="reportDetails" placeholder="Précisez le problème…"></textarea>
       </div>
       <div class="form-group">
-        <label>Votre email (optionnel)</label>
-        <input type="email" [(ngModel)]="reportEmail" placeholder="pour un suivi éventuel" />
+        <label for="jl-report-email">Votre email (optionnel)</label>
+        <input id="jl-report-email" type="email" [(ngModel)]="reportEmail" placeholder="pour un suivi éventuel" />
       </div>
 
       <div class="rm-actions">

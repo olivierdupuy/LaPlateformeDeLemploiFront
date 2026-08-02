@@ -1,0 +1,124 @@
+.lp {
+  &__hero {
+    margin: 1rem 0 clamp(2rem, 5vw, 3rem);
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+      line-height: 1.1;
+      letter-spacing: -0.015em;
+      margin: 0;
+    }
+  }
+
+  &__sub {
+    margin: 0.8rem 0 1.1rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 44rem;
+  }
+
+  &__contrats {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 1.4rem;
+    padding: 0;
+  }
+
+  &__offres h2,
+  &__ailleurs h2 {
+    font-size: 1.15rem;
+    margin: 0 0 1rem;
+  }
+
+  &__liste {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  &__offre {
+    padding: 0;
+    transition: border-color 0.15s ease;
+
+    &:hover {
+      border-color: var(--brand-300);
+    }
+
+    /* Une offre mise en avant se distingue sans crier : un filet, pas
+       un aplat. Le classement se lit, il ne s'impose pas. */
+    &.is-mise-en-avant {
+      border-left: 3px solid var(--brand);
+    }
+  }
+
+  &__offre-lien {
+    display: block;
+    padding: 0.95rem 1.15rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__offre-titre {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+
+  &__offre-meta {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+
+  &__offre-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+  }
+
+  &__toutes {
+    display: inline-flex;
+    margin-top: 1.1rem;
+  }
+
+  &__ailleurs {
+    margin-top: clamp(2rem, 5vw, 3rem);
+  }
+
+  &__chips {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  &__pivots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+
+    a {
+      color: var(--brand);
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+  }
+}

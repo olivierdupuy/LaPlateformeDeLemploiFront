@@ -403,7 +403,43 @@ export class JobForm implements OnInit {
             }).then(() => this.router.navigate(['/offres', job.id]));
           }
         },
-        error: () => { this.submitting.set(false); this.toastr.error('Erreur lors de la creation'); },
+        error: (e) => {
+          this.submitting.set(false);
+
+          // ── Quota de formule atteint ──
+          //
+          // Le serveur repond 402 avec le motif exact : « votre formule
+          // autorise N offres en ligne ». Traite comme une erreur
+          // quelconque, cela donnait « Erreur lors de la creation » a
+          // quelqu'un qui venait de remplir sept ecrans — sans lui dire
+          // pourquoi, ni ou aller. Il recommencait, et echouait encore.
+          //
+          // Le brouillon a deja ete enregistre a chaque etape : son
+          // travail n'est pas perdu, et il faut le lui dire, c'est la
+          // seule chose qui compte a cet instant.
+          if (e?.status === 402) {
+            Swal.fire({
+              icon: 'info',
+              title: 'Votre formule est complète',
+              text: e?.error?.message
+                ?? 'Fermez une offre en ligne ou changez de formule pour en publier une nouvelle.',
+              footer: 'Votre saisie est conservée en brouillon.',
+              confirmButtonText: 'Voir les formules',
+              confirmButtonColor: '#15616d',
+              showCancelButton: true,
+              cancelButtonText: 'Revenir à mes offres',
+            }).then((choix) => {
+              this.router.navigate([
+                choix.isConfirmed ? '/recruteur/facturation' : '/recruteur/offres',
+              ]);
+            });
+            return;
+          }
+
+          this.toastr.error(
+            e?.error?.message ?? "La publication n'a pas abouti. Votre saisie est conservée.",
+          );
+        },
       });
     }
   }

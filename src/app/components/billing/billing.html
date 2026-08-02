@@ -1,0 +1,248 @@
+<div class="page billing">
+  <div class="container">
+    <div class="page-head">
+      <div class="page-head__text">
+        <h1>Facturation</h1>
+        <p class="page-head__sub">Votre formule, vos mises en avant et vos factures.</p>
+      </div>
+    </div>
+
+    @if (chargement()) {
+      <p class="u-muted">Chargement…</p>
+    } @else if (compte(); as c) {
+      <div class="billing__resume">
+        <div class="stat">
+          <span class="stat__label">Formule</span>
+          <span class="stat__value">{{ c.formule.nom }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">Offres en ligne</span>
+          <span class="stat__value u-num">
+            {{ c.offres.utilisees }} / {{ quotaLisible(c.offres.quota) }}
+          </span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">Mises en avant restantes</span>
+          <span class="stat__value u-num">{{ c.misesEnAvant.restantes }}</span>
+        </div>
+      </div>
+
+      @if (!c.offres.peutPublier && c.offres.motif) {
+        <p class="billing__alerte" role="status">
+          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> {{ c.offres.motif }}
+        </p>
+      }
+
+      @if (!c.paiementDisponible) {
+        <p class="billing__note">
+          Le paiement en ligne n'est pas encore ouvert. Votre formule actuelle reste active et
+          toutes les fonctionnalités incluses fonctionnent normalement.
+        </p>
+      }
+
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" [attr.aria-selected]="onglet() === 'formule'"
+                [class.is-active]="onglet() === 'formule'" (click)="onglet.set('formule')">
+          Formules
+        </button>
+        <button type="button" role="tab" [attr.aria-selected]="onglet() === 'factures'"
+                [class.is-active]="onglet() === 'factures'" (click)="onglet.set('factures')">
+          Factures ({{ factures().length }})
+        </button>
+        <button type="button" role="tab" [attr.aria-selected]="onglet() === 'api'"
+                [class.is-active]="onglet() === 'api'" (click)="onglet.set('api')">
+          API et webhooks
+        </button>
+      </div>
+
+      @switch (onglet()) {
+        @case ('formule') {
+          <ul class="billing__formules">
+            @for (f of formules(); track f.cle) {
+              <li class="card billing__formule" [class.is-active]="f.cle === c.formule.cle">
+                <h2>{{ f.nom }}</h2>
+                <p class="billing__prix">
+                  @if (f.prixMensuelCentimes === 0) {
+                    Gratuit
+                  } @else {
+                    {{ euros(f.prixMensuelCentimes) }}<span class="billing__par">/mois HT</span>
+                  }
+                </p>
+                <ul class="billing__args">
+                  @for (a of f.arguments; track a) {
+                    <li><i class="bi bi-check2" aria-hidden="true"></i> {{ a }}</li>
+                  }
+                </ul>
+                @if (f.cle === c.formule.cle) {
+                  <span class="badge badge-fill">Votre formule</span>
+                } @else if (f.prixMensuelCentimes > 0) {
+                  <button type="button" class="btn-primary btn-block" (click)="souscrire(f.cle)">
+                    Passer à {{ f.nom }}
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        }
+
+        @case ('factures') {
+          @if (!factures().length) {
+            <div class="empty-box">
+              <i class="bi bi-receipt" aria-hidden="true"></i>
+              <p>Aucune facture pour l'instant.</p>
+            </div>
+          } @else {
+            <div class="table-wrap">
+              <table class="billing__table">
+                <caption class="sr-only">Vos factures</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Numéro</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Libellé</th>
+                    <th scope="col" class="ta-r">HT</th>
+                    <th scope="col" class="ta-r">TTC</th>
+                    <th scope="col">État</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (f of factures(); track f.id) {
+                    <tr>
+                      <td class="u-mono">{{ f.numero }}</td>
+                      <td>{{ f.emiseLe | date: 'dd/MM/yyyy' }}</td>
+                      <td>{{ f.libelle }}</td>
+                      <td class="ta-r u-num">{{ euros(f.montantHtCentimes) }}</td>
+                      <td class="ta-r u-num">{{ euros(f.montantTtcCentimes) }}</td>
+                      <td><span class="badge">{{ f.statut }}</span></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+
+        @case ('api') {
+          @if (!estPro()) {
+            <div class="empty-box">
+              <i class="bi bi-plug" aria-hidden="true"></i>
+              <p>
+                L'accès à l'API et les webhooks sont inclus dans la formule Pro. Ils permettent à
+                votre logiciel de recrutement de publier vos offres et de relever les candidatures
+                sans passer par ces écrans.
+              </p>
+              <button type="button" class="btn-primary" (click)="souscrire('pro')">
+                Découvrir la formule Pro
+              </button>
+            </div>
+          } @else {
+            @if (secretAffiche(); as s) {
+              <div class="billing__secret" role="status">
+                <p class="billing__secret-titre">{{ s.titre }}</p>
+                <code>{{ s.valeur }}</code>
+                <div class="billing__secret-actions">
+                  <button type="button" class="btn-sm btn-secondary" (click)="copier(s.valeur)">
+                    Copier
+                  </button>
+                  <button type="button" class="btn-sm btn-ghost" (click)="secretAffiche.set(null)">
+                    J'ai copié
+                  </button>
+                </div>
+                <p class="billing__secret-note">{{ s.note }}</p>
+              </div>
+            }
+
+            <section class="billing__section">
+              <div class="billing__section-head">
+                <h2>Clés d'API</h2>
+                <button type="button" class="btn-sm btn-primary" (click)="creerCle()">
+                  Nouvelle clé
+                </button>
+              </div>
+
+              @if (!cles().length) {
+                <p class="u-muted">
+                  Aucune clé.
+                  <a routerLink="/guide/api">Comment brancher votre logiciel de recrutement</a> —
+                  points d'entrée, portées, vérification de signature.
+                </p>
+              } @else {
+                <ul class="billing__liste">
+                  @for (k of cles(); track k.id) {
+                    <li [class.is-revoquee]="k.revoquee">
+                      <div>
+                        <strong>{{ k.nom }}</strong>
+                        <span class="u-mono billing__prefixe">{{ k.prefixe }}…</span>
+                        <span class="billing__meta">
+                          {{ k.portees }} · créée le {{ k.creeLe | date: 'dd/MM/yyyy' }}
+                          @if (k.derniereUtilisation) {
+                            · utilisée le {{ k.derniereUtilisation | date: 'dd/MM/yyyy' }}
+                          } @else {
+                            · jamais utilisée
+                          }
+                        </span>
+                      </div>
+                      @if (!k.revoquee) {
+                        <button type="button" class="btn-sm btn-ghost" (click)="revoquerCle(k.id)">
+                          Révoquer
+                        </button>
+                      } @else {
+                        <span class="badge">Révoquée</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+
+            <section class="billing__section">
+              <div class="billing__section-head">
+                <h2>Webhooks</h2>
+                <button type="button" class="btn-sm btn-primary" (click)="creerWebhook()">
+                  Nouvel abonnement
+                </button>
+              </div>
+
+              @if (!abonnes().length) {
+                <p class="u-muted">
+                  Aucun abonnement. Un webhook vous prévient d'une nouvelle candidature sans que
+                  vous ayez à interroger l'API.
+                </p>
+              } @else {
+                <ul class="billing__liste">
+                  @for (w of abonnes(); track w.id) {
+                    <li [class.is-revoquee]="!w.actif">
+                      <div>
+                        <strong class="u-mono">{{ w.url }}</strong>
+                        <span class="billing__meta">
+                          {{ w.evenements }}
+                          @if (w.derniereLivraison) {
+                            · dernière livraison {{ w.derniereLivraison | date: 'dd/MM HH:mm' }}
+                          }
+                          @if (w.derniereErreur) {
+                            · <span class="billing__echec">{{ w.derniereErreur }}</span>
+                          }
+                          @if (!w.actif) {
+                            · désactivé après {{ w.echecsConsecutifs }} échecs
+                          }
+                        </span>
+                      </div>
+                      <button type="button" class="btn-sm btn-ghost" (click)="supprimerWebhook(w.id)">
+                        Supprimer
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+          }
+        }
+      }
+    } @else {
+      <div class="empty-box">
+        <p>Impossible de charger votre compte de facturation.</p>
+        <a routerLink="/espace-recruteur" class="btn-secondary">Retour au tableau de bord</a>
+      </div>
+    }
+  </div>
+</div>

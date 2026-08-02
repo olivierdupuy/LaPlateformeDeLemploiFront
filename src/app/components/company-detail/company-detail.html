@@ -67,17 +67,17 @@
           <div class="about-editor card">
             <h3>Éditer la fiche entreprise</h3>
             <div class="form-row">
-              <div class="form-group"><label>Année de création</label><input type="number" [(ngModel)]="profileForm.foundedYear" placeholder="ex: 2003" /></div>
-              <div class="form-group"><label>Effectif</label>
-                <select [(ngModel)]="profileForm.size"><option value="">—</option>@for (s of companySizes; track s) { <option [value]="s">{{ s }} employés</option> }</select>
+              <div class="form-group"><label for="cd-founded-year">Année de création</label><input id="cd-founded-year" type="number" [(ngModel)]="profileForm.foundedYear" placeholder="ex: 2003" /></div>
+              <div class="form-group"><label for="cd-size">Effectif</label>
+                <select id="cd-size" [(ngModel)]="profileForm.size"><option value="">—</option>@for (s of companySizes; track s) { <option [value]="s">{{ s }} employés</option> }</select>
               </div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label>Secteur</label><input type="text" [(ngModel)]="profileForm.industry" placeholder="ex: Informatique" /></div>
-              <div class="form-group"><label>Siège social</label><input type="text" [(ngModel)]="profileForm.headquarters" placeholder="ex: Paris, FR" /></div>
+              <div class="form-group"><label for="cd-industry">Secteur</label><input id="cd-industry" type="text" [(ngModel)]="profileForm.industry" placeholder="ex: Informatique" /></div>
+              <div class="form-group"><label for="cd-headquarters">Siège social</label><input id="cd-headquarters" type="text" [(ngModel)]="profileForm.headquarters" placeholder="ex: Paris, FR" /></div>
             </div>
-            <div class="form-group"><label>Site web</label><input type="url" [(ngModel)]="profileForm.website" placeholder="https://…" /></div>
-            <div class="form-group"><label>Présentation</label><textarea [(ngModel)]="profileForm.about" rows="5" placeholder="Décrivez l'entreprise, sa mission, sa culture…"></textarea></div>
+            <div class="form-group"><label for="cd-website">Site web</label><input id="cd-website" type="url" [(ngModel)]="profileForm.website" placeholder="https://…" /></div>
+            <div class="form-group"><label for="cd-about">Présentation</label><textarea id="cd-about" [(ngModel)]="profileForm.about" rows="5" placeholder="Décrivez l'entreprise, sa mission, sa culture…"></textarea></div>
             <div class="about-editor-actions">
               <button class="btn-secondary" (click)="cancelEditProfile()">Annuler</button>
               <button class="btn-primary" [disabled]="savingProfile()" (click)="saveProfile()">
@@ -338,8 +338,12 @@
 
 <!-- ═══ MODALE — écrire un avis ═══ -->
 @if (reviewOpen()) {
-  <div class="modal-overlay" (click)="closeReview()">
-    <div class="modal-content review-modal" (click)="$event.stopPropagation()">
+    <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :
+         tout est dans la directive appModale. Le voile ne porte plus
+         de gestionnaire de clic, et le panneau n\'a plus rien à
+         annuler par stopPropagation. -->
+    <div class="modal-overlay" appModale (fermeture)="closeReview()">
+    <div class="modal-content review-modal">
       <div class="rvm-head">
         <div>
           <span class="eyebrow">Votre avis</span>
@@ -348,12 +352,20 @@
         <button class="rvm-close" (click)="closeReview()"><i class="bi bi-x-lg"></i></button>
       </div>
 
+      <!-- Cinq boutons pour une note : c'est un groupe, pas un champ.
+           Et les cinq annonçaient « Note » à l'identique — au lecteur
+           d'écran, choisir entre cinq boutons de même nom revient à
+           tirer au sort. Chacun dit maintenant le sien, et l'état de la
+           note est porté par `aria-pressed` plutôt que par la seule
+           couleur de l'étoile. -->
       <div class="rvm-overall">
-        <label>Note globale <span class="am-req">*</span></label>
-        <div class="star-picker">
+        <span id="cd-overall-lbl" class="group-lbl">Note globale <span class="am-req">*</span></span>
+        <div class="star-picker" role="group" aria-labelledby="cd-overall-lbl">
           @for (i of stars; track i) {
-            <button type="button" (click)="setStar('overallRating', i)" [class.on]="reviewForm.overallRating >= i" aria-label="Note">
-              <i class="bi" [class.bi-star-fill]="reviewForm.overallRating >= i" [class.bi-star]="reviewForm.overallRating < i"></i>
+            <button type="button" (click)="setStar('overallRating', i)" [class.on]="reviewForm.overallRating >= i"
+                    [attr.aria-pressed]="reviewForm.overallRating === i"
+                    [attr.aria-label]="i + (i > 1 ? ' étoiles' : ' étoile')">
+              <i class="bi" [class.bi-star-fill]="reviewForm.overallRating >= i" [class.bi-star]="reviewForm.overallRating < i" aria-hidden="true"></i>
             </button>
           }
         </div>
@@ -362,11 +374,13 @@
       <div class="rvm-criteria">
         @for (c of criteriaList; track c.key) {
           <div class="rvm-crit">
-            <span>{{ c.label }}</span>
-            <div class="star-picker star-picker-sm">
+            <span [attr.id]="'cd-crit-' + c.key">{{ c.label }}</span>
+            <div class="star-picker star-picker-sm" role="group" [attr.aria-labelledby]="'cd-crit-' + c.key">
               @for (i of stars; track i) {
-                <button type="button" (click)="setStar(c.key, i)" [class.on]="reviewForm[c.key] >= i" aria-label="Note">
-                  <i class="bi" [class.bi-star-fill]="reviewForm[c.key] >= i" [class.bi-star]="reviewForm[c.key] < i"></i>
+                <button type="button" (click)="setStar(c.key, i)" [class.on]="reviewForm[c.key] >= i"
+                        [attr.aria-pressed]="reviewForm[c.key] === i"
+                        [attr.aria-label]="i + (i > 1 ? ' étoiles' : ' étoile')">
+                  <i class="bi" [class.bi-star-fill]="reviewForm[c.key] >= i" [class.bi-star]="reviewForm[c.key] < i" aria-hidden="true"></i>
                 </button>
               }
             </div>
@@ -375,16 +389,16 @@
       </div>
 
       <div class="form-group">
-        <label>Titre <span class="am-req">*</span></label>
-        <input type="text" [(ngModel)]="reviewForm.title" placeholder="ex: Bonne ambiance, management à revoir" maxlength="120" />
+        <label for="cd-title">Titre <span class="am-req">*</span></label>
+        <input id="cd-title" type="text" [(ngModel)]="reviewForm.title" placeholder="ex: Bonne ambiance, management à revoir" maxlength="120" />
       </div>
       <div class="form-group">
-        <label>Votre expérience</label>
-        <textarea [(ngModel)]="reviewForm.body" placeholder="Points positifs, points à améliorer…" rows="4"></textarea>
+        <label for="cd-body">Votre expérience</label>
+        <textarea id="cd-body" [(ngModel)]="reviewForm.body" placeholder="Points positifs, points à améliorer…" rows="4"></textarea>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Votre poste</label><input type="text" [(ngModel)]="reviewForm.jobTitle" placeholder="ex: Développeur" /></div>
-        <div class="form-group"><label>Lieu</label><input type="text" [(ngModel)]="reviewForm.location" placeholder="ex: Paris" /></div>
+        <div class="form-group"><label for="cd-job-title">Votre poste</label><input id="cd-job-title" type="text" [(ngModel)]="reviewForm.jobTitle" placeholder="ex: Développeur" /></div>
+        <div class="form-group"><label for="cd-location">Lieu</label><input id="cd-location" type="text" [(ngModel)]="reviewForm.location" placeholder="ex: Paris" /></div>
       </div>
 
       <div class="rvm-actions">

@@ -56,7 +56,11 @@
         } @else {
           <div class="chip-grid">
             @for (facet of st.items(); track facet.label) {
-              <a class="browse-chip" [routerLink]="['/offres']" [queryParams]="queryParams(section, facet)">
+              <a
+                class="browse-chip"
+                [routerLink]="lienPastille(section.key, facet.label)"
+                [queryParams]="section.key === 'categories' ? null : queryParams(section, facet)"
+              >
                 <span class="bc-label">{{ facet.label }}</span>
                 <span class="bc-count u-mono">{{ facet.count | number }}</span>
               </a>

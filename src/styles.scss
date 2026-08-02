@@ -731,7 +731,13 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   border: none; // sert aussi de <fieldset> pour les groupes de boutons
   min-width: 0;
 
-  label, legend {
+  // `.group-lbl` : le libellé d'un groupe de contrôles — une rangée de
+  // boutons de choix, un sélecteur d'étoiles. Il ressemble en tout
+  // point à une étiquette, mais n'en est pas une : il n'y a pas un
+  // champ à désigner, il y en a plusieurs. Il est porté par un
+  // `<span>` que le `role="group"` voisin cite en `aria-labelledby`.
+  // Un `<label>` sans `for` annoncerait un champ qui n'existe pas.
+  label, legend, .group-lbl {
     padding: 0; // reset <legend>
     font-family: var(--font-mono);
     font-size: 0.6rem;

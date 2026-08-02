@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { SalaryService, SalaryEstimate } from '../../services/salary.service';
 import { AuthService } from '../../services/auth.service';
+import { SeoService } from '../../services/seo.service';
+import { Modale } from '../../utils/modale.directive';
 
 @Component({
   selector: 'app-salary-detail',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, Modale],
   templateUrl: './salary-detail.html',
   styleUrl: './salary-detail.scss',
 })
@@ -16,6 +18,7 @@ export class SalaryDetail implements OnInit {
   private salarySvc = inject(SalaryService);
   private toastr = inject(ToastrService);
   auth = inject(AuthService);
+  private seo = inject(SeoService);
 
   title = '';
   estimate = signal<SalaryEstimate | null>(null);
@@ -30,6 +33,23 @@ export class SalaryDetail implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe((p) => {
       this.title = p.get('title') || '';
+
+      // « Salaire <métier> » est une requête très cherchée, et la page
+      // qui y répondait portait le même titre générique que toutes les
+      // autres. Posé avant l'appel : si l'estimation tarde, le titre
+      // est déjà juste.
+      const metier = decodeURIComponent(this.title);
+      this.seo.set({
+        title: `Salaire ${metier} — combien gagne-t-on ?`,
+        description: `Salaire moyen, fourchette et écarts par ville pour le métier de ${metier}, d'après les données de la plateforme.`,
+        canonicalPath: `/salaires/metier/${this.title}`,
+      });
+
+      this.seo.breadcrumb([
+        { nom: 'Salaires', chemin: '/salaires' },
+        { nom: metier, chemin: `/salaires/metier/${this.title}` },
+      ]);
+
       this.load();
     });
   }

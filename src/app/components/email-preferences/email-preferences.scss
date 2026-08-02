@@ -1,0 +1,171 @@
+.prefs {
+  /* Une page de réglages ne gagne rien à s'étaler : au-delà, l'œil
+     perd la colonne de gauche en revenant à la ligne. */
+  .container {
+    max-width: 46rem;
+  }
+
+  &__adresse {
+    color: var(--ink-soft);
+    margin: 0 0 1.5rem;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0 0 1.75rem;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--canvas);
+    overflow: hidden;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 1rem 1.15rem;
+
+    & + & {
+      border-top: 1px solid var(--line);
+    }
+  }
+
+  &__texte {
+    min-width: 0;
+  }
+
+  &__titre {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  &__detail {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.86rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Interrupteur : la case native reste en place, invisible mais
+     focalisable — sans elle, le réglage devient inatteignable au
+     clavier et au lecteur d'écran. */
+  &__switch {
+    position: relative;
+    flex: 0 0 auto;
+    width: 2.85rem;
+    height: 1.6rem;
+
+    input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+  }
+
+  &__slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: var(--nuage-3);
+    transition: background 0.18s ease;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0.2rem;
+      left: 0.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+      transition: transform 0.18s ease;
+    }
+  }
+
+  input:checked + &__slider {
+    background: var(--brand);
+
+    &::after {
+      transform: translateX(1.25rem);
+    }
+  }
+
+  input:focus-visible + &__slider {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+
+  &__tout {
+    padding: 1rem 1.15rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--nuage);
+    margin-bottom: 1.75rem;
+  }
+
+  &__tout-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  &__tout-detail {
+    margin: 0.35rem 0 0 1.6rem;
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+
+  &__incontournables {
+    padding: 1.15rem;
+    border-left: 3px solid var(--brand-300);
+    background: var(--brand-100);
+    border-radius: 0 var(--r-lg) var(--r-lg) 0;
+    margin-bottom: 1.75rem;
+
+    h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+      color: var(--ink);
+    }
+
+    p {
+      margin: 0 0 0.7rem;
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+      line-height: 1.55;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.15rem;
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+    }
+
+    li + li {
+      margin-top: 0.2rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prefs__slider,
+  .prefs__slider::after {
+    transition: none;
+  }
+}

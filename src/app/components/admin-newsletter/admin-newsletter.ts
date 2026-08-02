@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import {
   NewsletterService, Abonne, Campagne, EtatNewsletter, BrouillonCampagne,
 } from '../../services/newsletter.service';
+import { Modale } from '../../utils/modale.directive';
 
 /**
  * La lettre d'information, côté console.
@@ -49,7 +50,7 @@ const STATUTS: Record<string, { libelle: string; classe: string }> = {
 
 @Component({
   selector: 'app-admin-newsletter',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, Modale],
   templateUrl: './admin-newsletter.html',
   styleUrl: './admin-newsletter.scss',
 })

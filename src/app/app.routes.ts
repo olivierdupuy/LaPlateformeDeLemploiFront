@@ -1,67 +1,122 @@
 import { Routes } from '@angular/router';
 import { Home } from './components/home/home';
-import { JobList } from './components/job-list/job-list';
-import { BrowseJobs } from './components/browse-jobs/browse-jobs';
-import { Salaries } from './components/salaries/salaries';
-import { SalaryDetail } from './components/salary-detail/salary-detail';
-import { CareersGuide } from './components/careers-guide/careers-guide';
-import { Legal } from './components/legal/legal';
-import { Events } from './components/events/events';
-import { JobDetail } from './components/job-detail/job-detail';
-import { JobForm } from './components/job-form/job-form';
-import { Applications } from './components/applications/applications';
-import { TrackApplications } from './components/track-applications/track-applications';
-import { CompanyList } from './components/company-list/company-list';
-import { CompanyDetail } from './components/company-detail/company-detail';
-import { Dashboard } from './components/dashboard/dashboard';
-import { DashboardRecruiter } from './components/dashboard-recruiter/dashboard-recruiter';
-import { DashboardCandidate } from './components/dashboard-candidate/dashboard-candidate';
-import { Security } from './components/security/security';
-import { Newsletter } from './components/newsletter/newsletter';
-import { AuthRoute } from './components/auth-modal/auth-route';
-import { Profile } from './components/profile/profile';
-import { AdminUsers } from './components/admin-users/admin-users';
-import { AdminStats } from './components/admin-stats/admin-stats';
-import { AdminActivity } from './components/admin-activity/admin-activity';
-import { AdminModeration } from './components/admin-moderation/admin-moderation';
-import { AdminOffers } from './components/admin-offers/admin-offers';
-import { AdminOfferDetail } from './components/admin-offer-detail/admin-offer-detail';
-import { AdminApplications } from './components/admin-applications/admin-applications';
-import { AdminInterviews } from './components/admin-interviews/admin-interviews';
-import { AdminUserDetail } from './components/admin-user-detail/admin-user-detail';
-import { AdminNewsletter } from './components/admin-newsletter/admin-newsletter';
-import { HiringCompanies } from './components/hiring-companies/hiring-companies';
-import { JobMarket } from './components/job-market/job-market';
-import { AdminAnnouncements } from './components/admin-announcements/admin-announcements';
-import { AdminSettings } from './components/admin-settings/admin-settings';
-import { MyOffers } from './components/my-offers/my-offers';
-import { SavedSearches } from './components/saved-searches/saved-searches';
-import { CandidateList } from './components/candidate-list/candidate-list';
-import { CandidateProfile } from './components/candidate-profile/candidate-profile';
-import { Interviews } from './components/interviews/interviews';
-import { Inbox } from './components/inbox/inbox';
-import { CvBuilder } from './components/cv-builder/cv-builder';
-import { AdminLayout } from './components/admin-layout/admin-layout';
 import { authGuard, recruiterGuard, adminGuard, deuxFacteursAdminGuard } from './auth.guard';
 
+/**
+ * ── Pourquoi tout est chargé à la demande ──
+ *
+ * Ces routes importaient leurs quarante composants en tête de fichier.
+ * Un import statique dans le fichier de routes n'a rien de paresseux :
+ * tout atterrissait dans le paquet initial. Un visiteur qui consultait
+ * une offre téléchargeait donc l'écran d'administration des
+ * utilisateurs, les graphiques du tableau de bord recruteur, l'éditeur
+ * de CV et la carte Leaflet — 1,8 Mo avant le premier pixel.
+ *
+ * `loadComponent` renvoie chaque écran dans son propre morceau, ramené
+ * au moment où on y va. Les bibliothèques lourdes suivent leur
+ * composant : Chart.js part avec les tableaux de bord, Leaflet avec la
+ * fiche offre et les statistiques, QRCode avec la page de sécurité.
+ *
+ * L'accueil fait exception et reste importé ici. C'est la page d'entrée
+ * la plus vue, celle que Google chronomètre ; lui faire attendre un
+ * aller-retour de plus pour économiser quelques kilo-octets qu'on
+ * télécharge de toute façon serait un mauvais échange.
+ *
+ * `precharger: true` marque les écrans du parcours normal : ils sont
+ * ramenés en tâche de fond une fois l'accueil affiché, pour que le
+ * découpage ne se paie pas en attente au clic. Voir `precharge.ts`.
+ */
 export const routes: Routes = [
   // Public
   { path: '', component: Home },
-  { path: 'offres', component: JobList },
-  { path: 'parcourir', component: BrowseJobs },
-  { path: 'salaires', component: Salaries },
-  { path: 'salaires/metier/:title', component: SalaryDetail },
-  { path: 'guide', component: CareersGuide },
-  { path: 'guide/:slug', component: CareersGuide },
-  { path: 'evenements', component: Events },
+  {
+    path: 'offres',
+    data: { precharger: true },
+    loadComponent: () => import('./components/job-list/job-list').then((m) => m.JobList),
+  },
+  {
+    path: 'parcourir',
+    loadComponent: () => import('./components/browse-jobs/browse-jobs').then((m) => m.BrowseJobs),
+  },
+
+  // ── Pages d'atterrissage ──
+  //
+  // « /emploi/developpeur-web/paris » : l'adresse que les gens tapent,
+  // et celle qui manquait. Les mêmes vues existaient derrière des
+  // paramètres de requête — que le robots.txt exclut lui-même de
+  // l'exploration, à juste titre, les combinaisons se comptant par
+  // milliers. Ici le jeu est fini : seules les combinaisons portant
+  // assez d'offres pour qu'une page ait du contenu, les autres rendent
+  // 404 côté API.
+  //
+  // Déclarées avant `offres/:id` sans risque de collision — le préfixe
+  // diffère — mais après `parcourir`, qui reste le point d'entrée
+  // humain vers ces pages.
+  {
+    path: 'emploi/:metier',
+    data: { precharger: true },
+    loadComponent: () => import('./components/landing/landing').then((m) => m.Landing),
+  },
+  {
+    path: 'emploi/:metier/:ville',
+    loadComponent: () => import('./components/landing/landing').then((m) => m.Landing),
+  },
+  {
+    path: 'salaires',
+    loadComponent: () => import('./components/salaries/salaries').then((m) => m.Salaries),
+  },
+  {
+    path: 'salaires/metier/:title',
+    loadComponent: () =>
+      import('./components/salary-detail/salary-detail').then((m) => m.SalaryDetail),
+  },
+  {
+    path: 'guide',
+    loadComponent: () =>
+      import('./components/careers-guide/careers-guide').then((m) => m.CareersGuide),
+  },
+  {
+    path: 'guide/:slug',
+    loadComponent: () =>
+      import('./components/careers-guide/careers-guide').then((m) => m.CareersGuide),
+  },
+  {
+    path: 'evenements',
+    loadComponent: () => import('./components/events/events').then((m) => m.Events),
+  },
 
   // Pages légales. Un seul composant les sert toutes : elles partagent la
   // mise en page et se renvoient l'une à l'autre.
-  { path: 'mentions-legales', component: Legal, data: { doc: 'mentions-legales' } },
-  { path: 'confidentialite', component: Legal, data: { doc: 'confidentialite' } },
-  { path: 'cgu', component: Legal, data: { doc: 'cgu' } },
-  { path: 'cookies', component: Legal, data: { doc: 'cookies' } },
-  { path: 'offres/:id', component: JobDetail },
+  {
+    path: 'mentions-legales',
+    data: { doc: 'mentions-legales' },
+    loadComponent: () => import('./components/legal/legal').then((m) => m.Legal),
+  },
+  {
+    path: 'confidentialite',
+    data: { doc: 'confidentialite' },
+    loadComponent: () => import('./components/legal/legal').then((m) => m.Legal),
+  },
+  {
+    path: 'cgu',
+    data: { doc: 'cgu' },
+    loadComponent: () => import('./components/legal/legal').then((m) => m.Legal),
+  },
+  {
+    path: 'cookies',
+    data: { doc: 'cookies' },
+    loadComponent: () => import('./components/legal/legal').then((m) => m.Legal),
+  },
+  {
+    path: 'accessibilite',
+    data: { doc: 'accessibilite' },
+    loadComponent: () => import('./components/legal/legal').then((m) => m.Legal),
+  },
+  {
+    path: 'offres/:id',
+    data: { precharger: true },
+    loadComponent: () => import('./components/job-detail/job-detail').then((m) => m.JobDetail),
+  },
   // Tunnel de candidature : charge a la demande (il ne sert qu'apres avoir
   // choisi une offre) et sans garde de route, le composant renvoyant lui-meme
   // vers la connexion en gardant l'offre en adresse de retour.
@@ -69,23 +124,50 @@ export const routes: Routes = [
     path: 'offres/:id/postuler',
     loadComponent: () => import('./components/apply-flow/apply-flow').then((m) => m.ApplyFlow),
   },
-  { path: 'entreprises', component: CompanyList },
-  { path: 'entreprises/:name', component: CompanyDetail },
+  {
+    path: 'entreprises',
+    loadComponent: () => import('./components/company-list/company-list').then((m) => m.CompanyList),
+  },
+  {
+    path: 'entreprises/:name',
+    loadComponent: () =>
+      import('./components/company-detail/company-detail').then((m) => m.CompanyDetail),
+  },
   // ── Authentification ──
   // Ces routes n'affichent plus de page : elles ouvrent la couche
   // d'authentification par-dessus l'accueil. Elles subsistent parce
   // qu'elles sont des points d'arrivee — LinkedIn renvoie sur /login, et
   // les liens deja partis par courriel pointent ici.
-  { path: 'login', component: AuthRoute, data: { vue: 'connexion' } },
-  { path: 'register', component: AuthRoute, data: { vue: 'inscription' } },
+  {
+    path: 'login',
+    data: { vue: 'connexion', precharger: true },
+    loadComponent: () => import('./components/auth-modal/auth-route').then((m) => m.AuthRoute),
+  },
+  {
+    path: 'register',
+    data: { vue: 'inscription' },
+    loadComponent: () => import('./components/auth-modal/auth-route').then((m) => m.AuthRoute),
+  },
 
   // ── Recuperation ──
   // Trois moments d'un meme parcours, servis par un composant unique :
   // le mode vient de la route. Les adresses sont celles que les courriels
   // fabriquent — les changer ici casserait les liens deja envoyes.
-  { path: 'mot-de-passe-oublie', component: AuthRoute, data: { vue: 'oubli' } },
-  { path: 'reinitialiser-mot-de-passe', component: AuthRoute, data: { vue: 'reinitialisation' } },
-  { path: 'confirmer-email', component: AuthRoute, data: { vue: 'confirmation' } },
+  {
+    path: 'mot-de-passe-oublie',
+    data: { vue: 'oubli' },
+    loadComponent: () => import('./components/auth-modal/auth-route').then((m) => m.AuthRoute),
+  },
+  {
+    path: 'reinitialiser-mot-de-passe',
+    data: { vue: 'reinitialisation' },
+    loadComponent: () => import('./components/auth-modal/auth-route').then((m) => m.AuthRoute),
+  },
+  {
+    path: 'confirmer-email',
+    data: { vue: 'confirmation' },
+    loadComponent: () => import('./components/auth-modal/auth-route').then((m) => m.AuthRoute),
+  },
 
   // ── Lettre d'information ──
   // Ouvertes sans compte, la desinscription surtout : quelqu'un qu'on force
@@ -93,38 +175,152 @@ export const routes: Routes = [
   // main, celui qui nous signale comme indesirable. Les adresses sont
   // celles que les courriels fabriquent : les changer casserait les liens
   // deja partis.
-  { path: 'newsletter', component: Newsletter, data: { mode: 'inscription' } },
-  { path: 'newsletter/confirmer', component: Newsletter, data: { mode: 'confirmation' } },
-  { path: 'newsletter/desinscription', component: Newsletter, data: { mode: 'desinscription' } },
-  { path: 'suivi', component: TrackApplications },
+  {
+    path: 'newsletter',
+    data: { mode: 'inscription' },
+    loadComponent: () => import('./components/newsletter/newsletter').then((m) => m.Newsletter),
+  },
+  {
+    path: 'newsletter/confirmer',
+    data: { mode: 'confirmation' },
+    loadComponent: () => import('./components/newsletter/newsletter').then((m) => m.Newsletter),
+  },
+  {
+    path: 'newsletter/desinscription',
+    data: { mode: 'desinscription' },
+    loadComponent: () => import('./components/newsletter/newsletter').then((m) => m.Newsletter),
+  },
+  // Les préférences d'envoi : accessibles sans compte depuis un lien de
+  // courriel, comme la désinscription et pour la même raison.
+  {
+    path: 'preferences-courriel',
+    loadComponent: () =>
+      import('./components/email-preferences/email-preferences').then((m) => m.EmailPreferences),
+  },
+  // Signalement au titre du règlement européen sur les services
+  // numériques. Ouvert à tous, y compris à qui n'a pas de compte : c'est
+  // la condition pour que le mécanisme compte.
+  {
+    path: 'signalement',
+    loadComponent: () => import('./components/dsa-report/dsa-report').then((m) => m.DsaReport),
+  },
+  {
+    path: 'suivi',
+    loadComponent: () =>
+      import('./components/track-applications/track-applications').then((m) => m.TrackApplications),
+  },
 
   // Authenticated
   // Les favoris sont un onglet de « Mes candidatures » ; l'ancienne
   // adresse reste valide et ouvre le bon onglet.
-  { path: 'favoris', component: TrackApplications, data: { tab: 'saved' } },
-  { path: 'profil', component: Profile, canActivate: [authGuard] },
+  {
+    path: 'favoris',
+    data: { tab: 'saved' },
+    loadComponent: () =>
+      import('./components/track-applications/track-applications').then((m) => m.TrackApplications),
+  },
+  {
+    path: 'profil',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/profile/profile').then((m) => m.Profile),
+  },
   // La meme page pour les trois espaces : ce qui protege un compte ne
   // depend pas de ce qu'on en fait.
-  { path: 'securite', component: Security, canActivate: [authGuard] },
-  { path: 'entreprises-qui-recrutent', component: HiringCompanies, canActivate: [authGuard] },
-  { path: 'mon-metier', component: JobMarket, canActivate: [authGuard] },
-  { path: 'recherches-sauvegardees', component: SavedSearches, canActivate: [authGuard] },
-  { path: 'entretiens', component: Interviews, canActivate: [authGuard] },
-  { path: 'messagerie', component: Inbox, canActivate: [authGuard] },
-  { path: 'mon-cv', component: CvBuilder, canActivate: [authGuard] },
-  { path: 'candidats', component: CandidateList, canActivate: [recruiterGuard] },
-  { path: 'candidats/:id', component: CandidateProfile },
+  {
+    path: 'securite',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/security/security').then((m) => m.Security),
+  },
+  {
+    path: 'entreprises-qui-recrutent',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/hiring-companies/hiring-companies').then((m) => m.HiringCompanies),
+  },
+  {
+    path: 'mon-metier',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/job-market/job-market').then((m) => m.JobMarket),
+  },
+  {
+    path: 'recherches-sauvegardees',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/saved-searches/saved-searches').then((m) => m.SavedSearches),
+  },
+  {
+    path: 'entretiens',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/interviews/interviews').then((m) => m.Interviews),
+  },
+  {
+    path: 'messagerie',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/inbox/inbox').then((m) => m.Inbox),
+  },
+  {
+    path: 'mon-cv',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/cv-builder/cv-builder').then((m) => m.CvBuilder),
+  },
+  {
+    path: 'candidats',
+    canActivate: [recruiterGuard],
+    loadComponent: () =>
+      import('./components/candidate-list/candidate-list').then((m) => m.CandidateList),
+  },
+  {
+    path: 'candidats/:id',
+    loadComponent: () =>
+      import('./components/candidate-profile/candidate-profile').then((m) => m.CandidateProfile),
+  },
 
   // Dashboards par role
-  { path: 'mon-espace', component: DashboardCandidate, canActivate: [authGuard] },
-  { path: 'espace-recruteur', component: DashboardRecruiter, canActivate: [recruiterGuard] },
+  {
+    path: 'mon-espace',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/dashboard-candidate/dashboard-candidate').then(
+        (m) => m.DashboardCandidate,
+      ),
+  },
+  {
+    path: 'espace-recruteur',
+    canActivate: [recruiterGuard],
+    loadComponent: () =>
+      import('./components/dashboard-recruiter/dashboard-recruiter').then(
+        (m) => m.DashboardRecruiter,
+      ),
+  },
 
   // ── Espace recruteur ──
   // Ces pages vivaient sous /admin/, ce qui melangeait deux metiers.
-  { path: 'recruteur/offres', component: MyOffers, canActivate: [recruiterGuard] },
-  { path: 'recruteur/offres/nouvelle', component: JobForm, canActivate: [recruiterGuard] },
-  { path: 'recruteur/offres/:id/modifier', component: JobForm, canActivate: [recruiterGuard] },
-  { path: 'recruteur/candidatures', component: Applications, canActivate: [recruiterGuard] },
+  {
+    path: 'recruteur/offres',
+    canActivate: [recruiterGuard],
+    loadComponent: () => import('./components/my-offers/my-offers').then((m) => m.MyOffers),
+  },
+  {
+    path: 'recruteur/offres/nouvelle',
+    canActivate: [recruiterGuard],
+    loadComponent: () => import('./components/job-form/job-form').then((m) => m.JobForm),
+  },
+  {
+    path: 'recruteur/offres/:id/modifier',
+    canActivate: [recruiterGuard],
+    loadComponent: () => import('./components/job-form/job-form').then((m) => m.JobForm),
+  },
+  {
+    path: 'recruteur/candidatures',
+    canActivate: [recruiterGuard],
+    loadComponent: () => import('./components/applications/applications').then((m) => m.Applications),
+  },
+  // Facturation : formules, mises en avant achetées, factures.
+  {
+    path: 'recruteur/facturation',
+    canActivate: [recruiterGuard],
+    loadComponent: () => import('./components/billing/billing').then((m) => m.Billing),
+  },
 
   // Anciennes adresses recruteur, conservees pour ne casser aucun lien.
   // Declarees avant le parent 'admin', qui capterait sinon ces chemins.
@@ -143,28 +339,105 @@ export const routes: Routes = [
   // Gabarit dedie (barre laterale, sans la navbar publique).
   {
     path: 'admin',
-    component: AdminLayout,
+    loadComponent: () => import('./components/admin-layout/admin-layout').then((m) => m.AdminLayout),
     // La console est aussi gardee par l'exigence de double
     // authentification : un compte qui voit toute la base et peut prendre
     // la main sur n'importe qui ne tient pas sur un mot de passe seul.
     canActivate: [adminGuard, deuxFacteursAdminGuard],
     children: [
       { path: '', redirectTo: 'tableau-de-bord', pathMatch: 'full' },
-      { path: 'tableau-de-bord', component: Dashboard },
-      { path: 'statistiques', component: AdminStats },
-      { path: 'offres', component: AdminOffers },
-      { path: 'offres/:id', component: AdminOfferDetail },
-      { path: 'candidatures', component: AdminApplications },
-      { path: 'entretiens', component: AdminInterviews },
-      { path: 'moderation', component: AdminModeration },
-      { path: 'utilisateurs', component: AdminUsers },
-      { path: 'utilisateurs/:id', component: AdminUserDetail },
-      { path: 'annonces', component: AdminAnnouncements },
-      { path: 'activite', component: AdminActivity },
-      { path: 'newsletter', component: AdminNewsletter },
-      { path: 'parametres', component: AdminSettings },
+      {
+        path: 'tableau-de-bord',
+        loadComponent: () => import('./components/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        path: 'statistiques',
+        loadComponent: () =>
+          import('./components/admin-stats/admin-stats').then((m) => m.AdminStats),
+      },
+      {
+        path: 'offres',
+        loadComponent: () =>
+          import('./components/admin-offers/admin-offers').then((m) => m.AdminOffers),
+      },
+      {
+        path: 'offres/:id',
+        loadComponent: () =>
+          import('./components/admin-offer-detail/admin-offer-detail').then(
+            (m) => m.AdminOfferDetail,
+          ),
+      },
+      {
+        path: 'candidatures',
+        loadComponent: () =>
+          import('./components/admin-applications/admin-applications').then(
+            (m) => m.AdminApplications,
+          ),
+      },
+      {
+        path: 'entretiens',
+        loadComponent: () =>
+          import('./components/admin-interviews/admin-interviews').then((m) => m.AdminInterviews),
+      },
+      {
+        path: 'moderation',
+        loadComponent: () =>
+          import('./components/admin-moderation/admin-moderation').then((m) => m.AdminModeration),
+      },
+      {
+        path: 'utilisateurs',
+        loadComponent: () =>
+          import('./components/admin-users/admin-users').then((m) => m.AdminUsers),
+      },
+      {
+        path: 'utilisateurs/:id',
+        loadComponent: () =>
+          import('./components/admin-user-detail/admin-user-detail').then((m) => m.AdminUserDetail),
+      },
+      {
+        path: 'annonces',
+        loadComponent: () =>
+          import('./components/admin-announcements/admin-announcements').then(
+            (m) => m.AdminAnnouncements,
+          ),
+      },
+      {
+        path: 'activite',
+        loadComponent: () =>
+          import('./components/admin-activity/admin-activity').then((m) => m.AdminActivity),
+      },
+      {
+        path: 'newsletter',
+        loadComponent: () =>
+          import('./components/admin-newsletter/admin-newsletter').then((m) => m.AdminNewsletter),
+      },
+      // Exploitation : ce qui casse, ce qui tourne, ce qui a vieilli.
+      {
+        path: 'exploitation',
+        loadComponent: () =>
+          import('./components/admin-operations/admin-operations').then((m) => m.AdminOperations),
+      },
+      {
+        path: 'parametres',
+        loadComponent: () =>
+          import('./components/admin-settings/admin-settings').then((m) => m.AdminSettings),
+      },
     ],
   },
 
-  { path: '**', redirectTo: '' },
+  // ── Adresses inconnues ──
+  // Elles renvoyaient vers l'accueil, ce qui répondait 200 à une page
+  // morte : un moteur enregistrait alors l'accueil sous mille adresses
+  // différentes, et le visiteur perdait ce qu'il cherchait sans qu'on le
+  // lui dise. Une vraie page d'erreur le dit, et propose des offres.
+  // Adresse nommée, pour que les pages qui découvrent l'absence de
+  // contenu après coup puissent y renvoyer sans changer l'URL affichée.
+  {
+    path: 'introuvable',
+    loadComponent: () => import('./components/not-found/not-found').then((m) => m.NotFound),
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./components/not-found/not-found').then((m) => m.NotFound),
+  },
 ];

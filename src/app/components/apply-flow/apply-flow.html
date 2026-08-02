@@ -157,16 +157,16 @@
                 </div>
                 <div class="af-card-body">
                   <div class="form-row">
-                    <div class="form-group"><label>Prénom *</label><input type="text" [(ngModel)]="form.firstName" name="firstName" autocomplete="given-name" /></div>
-                    <div class="form-group"><label>Nom *</label><input type="text" [(ngModel)]="form.lastName" name="lastName" autocomplete="family-name" /></div>
+                    <div class="form-group"><label for="af-firstname">Prénom *</label><input id="af-firstname" type="text" [(ngModel)]="form.firstName" name="firstName" autocomplete="given-name" /></div>
+                    <div class="form-group"><label for="af-lastname">Nom *</label><input id="af-lastname" type="text" [(ngModel)]="form.lastName" name="lastName" autocomplete="family-name" /></div>
                   </div>
                   <div class="form-row">
-                    <div class="form-group"><label>E-mail *</label><input type="email" [(ngModel)]="form.email" name="email" autocomplete="email" /></div>
-                    <div class="form-group"><label>Téléphone</label><input type="tel" placeholder="06 12 34 56 78" [(ngModel)]="form.phone" name="phone" autocomplete="tel" /></div>
+                    <div class="form-group"><label for="af-email">E-mail *</label><input id="af-email" type="email" [(ngModel)]="form.email" name="email" autocomplete="email" /></div>
+                    <div class="form-group"><label for="af-phone">Téléphone</label><input id="af-phone" type="tel" placeholder="06 12 34 56 78" [(ngModel)]="form.phone" name="phone" autocomplete="tel" /></div>
                   </div>
                   <div class="form-group">
-                    <label>Ville</label>
-                    <input type="text" placeholder="ex : Marseille" [(ngModel)]="form.city" name="city" autocomplete="address-level2" />
+                    <label for="af-city">Ville</label>
+                    <input id="af-city" type="text" placeholder="ex : Marseille" [(ngModel)]="form.city" name="city" autocomplete="address-level2" />
                     <span class="af-hint">Indique au recruteur votre distance au lieu de travail.</span>
                   </div>
                 </div>
@@ -243,26 +243,39 @@
                   <div><h2>Questions du recruteur</h2><p>{{ questions().length }} question{{ questions().length > 1 ? 's' : '' }} de présélection pour ce poste.</p></div>
                 </div>
                 <div class="af-card-body">
-                  @for (q of questions(); track $index) {
+                  <!-- L'index de la question est nommé : la boucle des
+                       options rouvre un `$index` qui masque celui de la
+                       question, et « answers()[$index] » désignait alors
+                       le rang de l'option cliquée. Répondre « Non » à la
+                       deuxième question écrivait la réponse dans la
+                       case 1 — la bonne réponse rangée sous la mauvaise
+                       question, sans que rien ne le signale.
+
+                       L'intitulé n'est plus un `<label>` : selon le type
+                       de question il désigne un groupe de boutons ou un
+                       champ unique, et un `for` ne peut pas couvrir les
+                       deux. `aria-labelledby` le peut, et vaut aussi
+                       bien sur un `role="group"` que sur un champ. -->
+                  @for (q of questions(); track $index; let qi = $index) {
                     <div class="af-question">
-                      <label class="af-q-label">
-                        <span class="af-q-num u-mono">Q{{ $index + 1 }}</span>
+                      <span class="af-q-label" [attr.id]="'af-q-lbl-' + qi">
+                        <span class="af-q-num u-mono">Q{{ qi + 1 }}</span>
                         {{ q.text }}
                         @if (q.required) { <span class="af-req">*</span> }
-                      </label>
+                      </span>
 
                       @if (q.type === 'boolean' || q.type === 'choice') {
-                        <div class="af-options">
+                        <div class="af-options" role="group" [attr.aria-labelledby]="'af-q-lbl-' + qi">
                           @for (opt of answerOptions(q); track opt) {
-                            <button type="button" class="af-option" [class.active]="answers()[$index] === opt" (click)="setAnswer($index, opt)">
+                            <button type="button" class="af-option" [class.active]="answers()[qi] === opt" (click)="setAnswer(qi, opt)">
                               {{ opt }}
                             </button>
                           }
                         </div>
                       } @else if (q.type === 'number') {
-                        <input type="number" [ngModel]="answers()[$index]" (ngModelChange)="setAnswer($index, $event)" [name]="'answer' + $index" placeholder="ex : 3" />
+                        <input type="number" [attr.aria-labelledby]="'af-q-lbl-' + qi" [ngModel]="answers()[qi]" (ngModelChange)="setAnswer(qi, $event)" [name]="'answer' + qi" placeholder="ex : 3" />
                       } @else {
-                        <textarea [ngModel]="answers()[$index]" (ngModelChange)="setAnswer($index, $event)" [name]="'answer' + $index" rows="3" placeholder="Votre réponse…"></textarea>
+                        <textarea [attr.aria-labelledby]="'af-q-lbl-' + qi" [ngModel]="answers()[qi]" (ngModelChange)="setAnswer(qi, $event)" [name]="'answer' + qi" rows="3" placeholder="Votre réponse…"></textarea>
                       }
                     </div>
                   }
@@ -277,8 +290,8 @@
                 </div>
                 <div class="af-card-body">
                   <div class="form-group">
-                    <label>Votre message au recruteur</label>
-                    <textarea rows="10" [(ngModel)]="form.coverLetter" name="coverLetter"
+                    <label for="af-coverletter">Votre message au recruteur</label>
+                    <textarea id="af-coverletter" rows="10" [(ngModel)]="form.coverLetter" name="coverLetter"
                               placeholder="Expliquez ce qui vous attire dans ce poste, ce que vous avez déjà fait de comparable, ce que vous apporteriez à l'équipe…"></textarea>
                     <span class="af-hint">{{ form.coverLetter.length }} caractères</span>
                   </div>
@@ -302,13 +315,13 @@
                 <div class="af-card-body">
                   <div class="form-row">
                     <div class="form-group">
-                      <label>Disponible à partir du</label>
-                      <input type="date" [(ngModel)]="form.availableFrom" name="availableFrom" />
+                      <label for="af-availablefrom">Disponible à partir du</label>
+                      <input id="af-availablefrom" type="date" [(ngModel)]="form.availableFrom" name="availableFrom" />
                       @if (j.startDate) { <span class="af-hint">Prise de poste souhaitée : {{ j.startDate | date:'dd/MM/yyyy' }}</span> }
                     </div>
                     <div class="form-group">
-                      <label>Prétentions salariales</label>
-                      <input type="text" placeholder="ex : 42 000 € brut / an" [(ngModel)]="form.salaryExpectation" name="salaryExpectation" />
+                      <label for="af-salaryexpectation">Prétentions salariales</label>
+                      <input id="af-salaryexpectation" type="text" placeholder="ex : 42 000 € brut / an" [(ngModel)]="form.salaryExpectation" name="salaryExpectation" />
                       @if (salaryLabel(j)) { <span class="af-hint">Fourchette annoncée : {{ salaryLabel(j) }}</span> }
                     </div>
                   </div>

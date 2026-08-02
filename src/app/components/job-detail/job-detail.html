@@ -346,8 +346,12 @@
   </section>
 
   @if (reportOpen()) {
-    <div class="modal-overlay" (click)="closeReport()">
-      <div class="modal-content report-modal" (click)="$event.stopPropagation()">
+    <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :
+         tout est dans la directive appModale. Le voile ne porte plus
+         de gestionnaire de clic, et le panneau n\'a plus rien à
+         annuler par stopPropagation. -->
+    <div class="modal-overlay" appModale (fermeture)="closeReport()">
+      <div class="modal-content report-modal">
         <div class="rm-head">
           <div>
             <span class="eyebrow">Signalement</span>
@@ -358,21 +362,41 @@
         <p class="rm-job">{{ j.title }} &bull; {{ j.company }}</p>
 
         <div class="form-group">
-          <label>Motif</label>
-          <div class="rm-reasons">
+          <span id="jd-report-reason-lbl" class="group-lbl">Motif</span>
+          <div class="rm-reasons" role="group" aria-labelledby="jd-report-reason-lbl">
             @for (r of reportReasons; track r) {
               <button type="button" class="rm-reason" [class.active]="reportReason === r" (click)="reportReason = r">{{ r }}</button>
             }
           </div>
         </div>
         <div class="form-group">
-          <label>Détails (optionnel)</label>
-          <textarea [(ngModel)]="reportDetails" placeholder="Précisez le problème…"></textarea>
+          <label for="jd-report-details">Détails (optionnel)</label>
+          <textarea id="jd-report-details" [(ngModel)]="reportDetails" placeholder="Précisez le problème…"></textarea>
         </div>
         <div class="form-group">
-          <label>Votre email (optionnel)</label>
-          <input type="email" [(ngModel)]="reportEmail" placeholder="pour un suivi éventuel" />
+          <label for="jd-report-email">Votre email (optionnel)</label>
+          <input id="jd-report-email" type="email" [(ngModel)]="reportEmail" placeholder="pour un suivi éventuel" />
         </div>
+
+        <!-- ── Deux mécanismes, et il faut le dire ──
+             Ce formulaire alimente notre file de modération : rapide,
+             contextuel, sans engagement de délai. Le signalement au
+             titre du règlement européen est autre chose — il ouvre un
+             dossier avec accusé de réception, décision motivée et voies
+             de recours. Quelqu'un qui signale une annonce frauduleuse a
+             droit au second, et n'a aucun moyen de le savoir depuis
+             ici. Le lien porte l'offre avec lui : sans cela, la
+             personne recopie l'adresse à la main. -->
+        <p class="rm-dsa">
+          Vous signalez un contenu <strong>illicite</strong> (fraude, discrimination,
+          escroquerie) ?
+          <a
+            [routerLink]="['/signalement']"
+            [queryParams]="{ type: 'offre', id: job()?.id, chemin: '/offres/' + job()?.id }"
+            (click)="closeReport()"
+          >Utilisez le formulaire dédié</a> : il vous donne une référence de suivi, une
+          décision motivée et des voies de recours.
+        </p>
 
         <div class="rm-actions">
           <button class="btn-secondary" (click)="closeReport()">Annuler</button>

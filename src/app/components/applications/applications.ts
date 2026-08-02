@@ -223,7 +223,7 @@ export class Applications implements OnInit {
   }
 
   // ── Bulk ──
-  toggleSelect(id: number) { this.selectedIds.update(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; }); }
+  toggleSelect(id: number) { this.selectedIds.update(s => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; }); }
   isSelected(id: number): boolean { return this.selectedIds().has(id); }
   selectAll() { this.selectedIds.set(new Set(this.filtered().map(a => a.id))); }
   deselectAll() { this.selectedIds.set(new Set()); }

@@ -6,14 +6,16 @@ import { ToastrService } from 'ngx-toastr';
 import { JobOfferService } from '../../services/job-offer';
 import { BookmarkService } from '../../services/bookmark.service';
 import { AuthService } from '../../services/auth.service';
+import { SeoService } from '../../services/seo.service';
 import { CompanyReviewService, CompanyReviewSummary, CompanyQuestion, CompanyProfile } from '../../services/company-review.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor } from '../../utils/job.utils';
 import Chart from 'chart.js/auto';
+import { Modale } from '../../utils/modale.directive';
 
 @Component({
   selector: 'app-company-detail',
-  imports: [RouterLink, FormsModule, DatePipe],
+  imports: [RouterLink, FormsModule, DatePipe, Modale],
   templateUrl: './company-detail.html',
   styleUrl: './company-detail.scss',
 })
@@ -24,6 +26,7 @@ export class CompanyDetail implements OnInit {
   private toastr = inject(ToastrService);
   bookmarkService = inject(BookmarkService);
   auth = inject(AuthService);
+  private seo = inject(SeoService);
 
   companyName = '';
   jobs = signal<JobOffer[]>([]);
@@ -76,9 +79,44 @@ export class CompanyDetail implements OnInit {
 
   ngOnInit() {
     this.companyName = decodeURIComponent(this.route.snapshot.paramMap.get('name') || '');
+
+    // ── Ce que la page déclare d'elle-même ──
+    //
+    // La coquille posait un titre de section identique pour toutes les
+    // entreprises. Des milliers de fiches au même titre et à la même
+    // description sont, pour un moteur, des milliers de doublons — et
+    // ce sont précisément les pages qu'on cherche quand on tape le nom
+    // d'un employeur.
+    //
+    // Posé avant les appels : si l'API tarde ou échoue, la page garde
+    // un titre juste au lieu de celui de la page précédente. Il sera
+    // précisé plus bas dès que le nombre d'offres sera connu.
+    this.seo.set({
+      title: `${this.companyName} — offres d'emploi et avis`,
+      description: `Les offres d'emploi de ${this.companyName}, les avis de ses salariés, ses salaires par poste et sa présentation.`,
+      canonicalPath: `/entreprises/${encodeURIComponent(this.companyName)}`,
+    });
+
+    this.seo.breadcrumb([
+      { nom: 'Entreprises', chemin: '/entreprises' },
+      { nom: this.companyName, chemin: `/entreprises/${encodeURIComponent(this.companyName)}` },
+    ]);
+
     this.jobService.getByCompany(this.companyName).subscribe((jobs) => {
       this.jobs.set(jobs);
       this.loading.set(false);
+
+      // Le nombre d'offres est ce qui distingue cette fiche des autres
+      // dans un résultat de recherche, et ce qui décide du clic.
+      if (jobs.length) {
+        this.seo.set({
+          title: `${this.companyName} — ${jobs.length} offre${jobs.length > 1 ? 's' : ''} d'emploi`,
+          description:
+            `${jobs.length} offre${jobs.length > 1 ? 's' : ''} d'emploi chez ${this.companyName}. ` +
+            `Avis de salariés, salaires par poste, lieux et présentation de l'entreprise.`,
+          canonicalPath: `/entreprises/${encodeURIComponent(this.companyName)}`,
+        });
+      }
     });
     this.loadReviews();
     this.reviewSvc.getFollow(this.companyName).subscribe((f) => { this.following.set(f.following); this.followCount.set(f.count); });

@@ -1,0 +1,164 @@
+<div class="page dsa">
+  <div class="container">
+    <div class="page-head">
+      <div class="page-head__text">
+        <p class="eyebrow eyebrow--bare">Règlement (UE) 2022/2065</p>
+        <h1>Signaler un contenu illicite</h1>
+        <p class="page-head__sub">
+          Ce formulaire est le mécanisme de signalement prévu par l'article 16 du règlement
+          européen sur les services numériques. Chaque signalement reçoit un accusé de réception,
+          puis une décision motivée.
+        </p>
+      </div>
+    </div>
+
+    @if (reference(); as ref) {
+      <div class="dsa__recu" role="status">
+        <i class="bi bi-check-circle" aria-hidden="true"></i>
+        <h2>Signalement enregistré</h2>
+        <p class="dsa__ref">
+          Référence : <strong class="u-mono">{{ ref }}</strong>
+        </p>
+        <p>{{ confirmation() }}</p>
+        <a routerLink="/" class="btn-secondary">Retour à l'accueil</a>
+      </div>
+    } @else {
+      <form class="dsa__form" (ngSubmit)="envoyer()" novalidate>
+        <!-- Champ-piège : invisible et hors du parcours au clavier. Une
+             personne ne peut pas le remplir ; un robot qui remplit tout
+             ce qu'il trouve le remplit. -->
+        <div class="dsa__piege" aria-hidden="true">
+          <label for="dsa-site">Site web</label>
+          <input id="dsa-site" type="text" tabindex="-1" autocomplete="off"
+                 [(ngModel)]="formulaire.siteWeb" name="siteWeb" />
+        </div>
+
+        <fieldset class="dsa__bloc">
+          <legend>Que signalez-vous ?</legend>
+
+          <label class="dsa__champ">
+            <span>Type de contenu</span>
+            <select [(ngModel)]="formulaire.typeContenu" name="typeContenu">
+              @for (t of typesContenu; track t.cle) {
+                <option [value]="t.cle">{{ t.libelle }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="dsa__champ">
+            <span>Adresse de la page <em>(facultatif)</em></span>
+            <input type="url" [(ngModel)]="formulaire.url" name="url"
+                   placeholder="https://www.laplateformedelemploi.com/offres/123" />
+          </label>
+        </fieldset>
+
+        <fieldset class="dsa__bloc">
+          <legend>En quoi ce contenu est-il illicite ?</legend>
+
+          <label class="dsa__champ">
+            <span>Motif <em class="dsa__requis">obligatoire</em></span>
+            <select [(ngModel)]="formulaire.motif" name="motif" required>
+              <option value="">Choisissez un motif…</option>
+              @for (m of motifs(); track m.cle) {
+                <option [value]="m.cle">{{ m.libelle }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="dsa__champ">
+            <span>Explication <em class="dsa__requis">obligatoire</em></span>
+            <textarea
+              rows="6"
+              [(ngModel)]="formulaire.explication"
+              name="explication"
+              required
+              placeholder="Décrivez précisément ce qui pose problème. Plus votre exposé est factuel, plus l'instruction est rapide."
+            ></textarea>
+            <small class="dsa__aide">
+              {{ formulaire.explication.length }} / 30 caractères minimum
+            </small>
+          </label>
+        </fieldset>
+
+        <fieldset class="dsa__bloc">
+          <legend>Vous</legend>
+
+          <label class="dsa__champ">
+            <span>Votre adresse de courriel <em>(facultatif)</em></span>
+            <input type="email" [(ngModel)]="formulaire.emailDeclarant" name="emailDeclarant" />
+            <small class="dsa__aide">
+              Sans elle, nous ne pourrons vous transmettre ni l'accusé de réception ni la décision.
+              Le signalement anonyme reste possible : vous suivrez le dossier par sa référence.
+            </small>
+          </label>
+
+          <label class="dsa__case">
+            <input type="checkbox" [(ngModel)]="formulaire.declareBonneFoi" name="declareBonneFoi" required />
+            <span>
+              Je déclare de bonne foi que les informations ci-dessus sont exactes et complètes.
+            </span>
+          </label>
+        </fieldset>
+
+        @if (erreur()) {
+          <p class="dsa__erreur" role="alert">{{ erreur() }}</p>
+        }
+
+        <div class="dsa__actions">
+          <button type="submit" class="btn-primary btn-lg" [disabled]="!valide || envoi()">
+            {{ envoi() ? 'Envoi…' : 'Envoyer le signalement' }}
+          </button>
+        </div>
+      </form>
+    }
+
+    <section class="dsa__suivi" aria-labelledby="dsa-suivi">
+      <h2 id="dsa-suivi">Suivre un signalement</h2>
+      <p>Saisissez la référence reçue lors du dépôt.</p>
+
+      <div class="dsa__suivi-ligne">
+        <label class="sr-only" for="dsa-ref">Référence du signalement</label>
+        <input
+          id="dsa-ref"
+          type="text"
+          placeholder="SIG-2026-0001"
+          [ngModel]="referenceCherchee()"
+          (ngModelChange)="referenceCherchee.set($event)"
+          name="referenceCherchee"
+        />
+        <button type="button" class="btn-secondary" (click)="chercher()">Rechercher</button>
+      </div>
+
+      @if (erreurSuivi()) {
+        <p class="dsa__erreur" role="alert">{{ erreurSuivi() }}</p>
+      }
+
+      @if (suivi(); as s) {
+        <div class="dsa__dossier">
+          <p><strong>{{ s.reference }}</strong> — {{ s.motif }}</p>
+          <p>Déposé le {{ s.creeLe | date: 'dd/MM/yyyy' }}</p>
+          <p>État : <strong>{{ libelleStatut(s.statut) }}</strong></p>
+          @if (s.decision) {
+            <p class="dsa__decision">{{ s.decision }}</p>
+            <p class="u-muted">Mesure prise : {{ s.mesurePrise || 'aucune' }}</p>
+          }
+        </div>
+      }
+    </section>
+
+    <aside class="dsa__recours">
+      <h2>Voies de recours</h2>
+      <p>
+        Si vous contestez une décision, vous pouvez demander un réexamen interne en citant la
+        référence du dossier. Vous pouvez également saisir un organe de règlement extrajudiciaire
+        des litiges certifié au titre de l'article 21 du règlement (UE) 2022/2065, ou porter
+        l'affaire devant les tribunaux compétents. Le coordinateur français pour les services
+        numériques est l'Arcom.
+      </p>
+      <p class="u-muted">
+        Voir aussi nos <a routerLink="/cgu">conditions d'utilisation</a> et notre
+        <a routerLink="/confidentialite">politique de confidentialité</a>.
+      </p>
+    </aside>
+  </div>
+</div>

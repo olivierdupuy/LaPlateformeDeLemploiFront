@@ -92,25 +92,29 @@
 
 <!-- Modale création -->
 @if (modalOpen()) {
-  <div class="modal-overlay" (click)="closeCreate()">
-    <div class="modal-content ev-modal" (click)="$event.stopPropagation()">
+    <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :
+         tout est dans la directive appModale. Le voile ne porte plus
+         de gestionnaire de clic, et le panneau n\'a plus rien à
+         annuler par stopPropagation. -->
+    <div class="modal-overlay" appModale (fermeture)="closeCreate()">
+    <div class="modal-content ev-modal">
       <div class="evm-head">
         <div><span class="eyebrow">Nouvel événement</span><h3>Proposer un événement</h3></div>
         <button class="evm-close" (click)="closeCreate()"><i class="bi bi-x-lg"></i></button>
       </div>
-      <div class="form-group"><label>Titre <span class="req">*</span></label><input type="text" [(ngModel)]="form.title" placeholder="ex: Salon de l'emploi Tech" /></div>
+      <div class="form-group"><label for="e-title">Titre <span class="req">*</span></label><input id="e-title" type="text" [(ngModel)]="form.title" placeholder="ex: Salon de l'emploi Tech" /></div>
       <div class="form-row">
-        <div class="form-group"><label>Type</label><select [(ngModel)]="form.type">@for (t of types; track t) { <option [value]="t">{{ t }}</option> }</select></div>
-        <div class="form-group"><label>Organisateur</label><input type="text" [(ngModel)]="form.organizer" placeholder="optionnel" /></div>
+        <div class="form-group"><label for="e-type">Type</label><select id="e-type" [(ngModel)]="form.type">@for (t of types; track t) { <option [value]="t">{{ t }}</option> }</select></div>
+        <div class="form-group"><label for="e-organizer">Organisateur</label><input id="e-organizer" type="text" [(ngModel)]="form.organizer" placeholder="optionnel" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Début <span class="req">*</span></label><input type="datetime-local" [(ngModel)]="form.startsAt" /></div>
-        <div class="form-group"><label>Fin</label><input type="datetime-local" [(ngModel)]="form.endsAt" /></div>
+        <div class="form-group"><label for="e-starts-at">Début <span class="req">*</span></label><input id="e-starts-at" type="datetime-local" [(ngModel)]="form.startsAt" /></div>
+        <div class="form-group"><label for="e-ends-at">Fin</label><input id="e-ends-at" type="datetime-local" [(ngModel)]="form.endsAt" /></div>
       </div>
       <label class="ev-online"><input type="checkbox" [(ngModel)]="form.isOnline" /> Événement en ligne</label>
-      <div class="form-group"><label>{{ form.isOnline ? 'Plateforme / lien' : 'Lieu' }}</label><input type="text" [(ngModel)]="form.location" [placeholder]="form.isOnline ? 'Zoom, Teams…' : 'Adresse'" /></div>
-      <div class="form-group"><label>Lien d'inscription</label><input type="url" [(ngModel)]="form.url" placeholder="https://…" /></div>
-      <div class="form-group"><label>Description</label><textarea [(ngModel)]="form.description" rows="3" placeholder="Programme, public visé…"></textarea></div>
+      <div class="form-group"><label for="e-location">{{ form.isOnline ? 'Plateforme / lien' : 'Lieu' }}</label><input id="e-location" type="text" [(ngModel)]="form.location" [placeholder]="form.isOnline ? 'Zoom, Teams…' : 'Adresse'" /></div>
+      <div class="form-group"><label for="e-url">Lien d'inscription</label><input id="e-url" type="url" [(ngModel)]="form.url" placeholder="https://…" /></div>
+      <div class="form-group"><label for="e-description">Description</label><textarea id="e-description" [(ngModel)]="form.description" rows="3" placeholder="Programme, public visé…"></textarea></div>
       <div class="evm-actions">
         <button class="btn-secondary" (click)="closeCreate()">Annuler</button>
         <button class="btn-primary" [disabled]="submitting()" (click)="submitCreate()">

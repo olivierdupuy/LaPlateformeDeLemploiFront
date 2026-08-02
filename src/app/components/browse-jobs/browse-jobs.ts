@@ -89,6 +89,37 @@ export class BrowseJobs implements OnInit {
     for (const s of this.sections) this.load(s.key);
   }
 
+  /**
+   * Le fragment d'adresse d'un libellé.
+   *
+   * Doit produire exactement ce que fabrique `Slugs.Fabriquer` côté
+   * serveur : c'est le même calcul des deux côtés, et un écart
+   * enverrait le visiteur sur une page qui rend 404. Accents retirés,
+   * mention de genre écartée, tout le reste en tirets.
+   */
+  fragment(libelle: string): string {
+    return libelle
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/\(?\s*[hf]\s*\/\s*[hf]\s*\)?/g, ' ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  /**
+   * Où mène une pastille.
+   *
+   * Les métiers et les villes ont désormais une page dédiée à adresse
+   * propre — c'est elle qui se classe et qui se partage. Les types de
+   * contrat n'en ont pas : « CDI » seul ne fait pas une page, et
+   * renvoie donc vers la recherche filtrée comme avant.
+   */
+  lienPastille(key: BrowseSection, libelle: string): unknown[] {
+    if (key === 'categories') return ['/emploi', this.fragment(libelle)];
+    return ['/offres'];
+  }
+
   state(key: BrowseSection): SectionState {
     return this.states.get(key)!;
   }

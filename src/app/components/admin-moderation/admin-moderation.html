@@ -9,6 +9,12 @@
       <div class="ad-head__actions">
         @if (activeTab() === 'Reports') {
         <span class="ad-count">{{ reports().length }} signalement{{ reports().length > 1 ? 's' : '' }}</span>
+        } @else if (activeTab() === 'Dsa') {
+        <span class="ad-count">{{ dsa().length }} dossier{{ dsa().length > 1 ? 's' : '' }}</span>
+        } @else if (activeTab() === 'Retours') {
+        <span class="ad-count">{{ retours().length }} adresse{{ retours().length > 1 ? 's' : '' }}</span>
+        } @else if (activeTab() === 'Reviews') {
+        <span class="ad-count">{{ companyReviews().length }} avis</span>
         } @else {
         <span class="ad-count">{{ offers().length }} offre{{ offers().length > 1 ? 's' : '' }}</span>
         }
@@ -30,6 +36,16 @@
       </button>
       <button class="tab" [class.active]="activeTab() === 'Reviews'" (click)="switchTab('Reviews')">
         <i class="bi bi-star"></i> Avis entreprises
+      </button>
+      <!-- Distinct des signalements ordinaires : celui-ci ouvre un
+           dossier qui doit recevoir une décision motivée et des voies
+           de recours. Les mélanger ferait traiter les deux avec le même
+           soin, c'est-à-dire le moindre des deux. -->
+      <button class="tab" [class.active]="activeTab() === 'Dsa'" (click)="switchTab('Dsa')">
+        <i class="bi bi-shield-exclamation"></i> Contenus illicites
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'Retours'" (click)="switchTab('Retours')">
+        <i class="bi bi-envelope-slash"></i> Adresses bloquées
       </button>
     </div>
 
@@ -134,6 +150,11 @@
           }
         </div>
       }
+    } @else if (activeTab() === 'Dsa' || activeTab() === 'Retours') {
+      <!-- Ces deux onglets ont leur propre bloc, plus bas. Sans cette
+           branche, le « @else » final de la chaîne — celui qui rend la
+           file d'offres — s'afficherait par-dessus : la chaîne ne
+           connaissait que trois onglets. -->
     } @else if (offers().length === 0) {
       <div class="empty-box animate-in">
         <i class="bi bi-inbox"></i>
@@ -192,8 +213,8 @@
 
             @if (rejectingId() === o.id) {
               <div class="reject-form form-group">
-                <label>Motif du rejet</label>
-                <textarea [(ngModel)]="rejectNote" placeholder="Raison du rejet (optionnel)..." rows="2"></textarea>
+                <label for="am-reject-note">Motif du rejet</label>
+                <textarea id="am-reject-note" [(ngModel)]="rejectNote" placeholder="Raison du rejet (optionnel)..." rows="2"></textarea>
                 <div class="rej-actions">
                   <button (click)="confirmReject(o.id)" class="btn-red"><i class="bi bi-x-circle"></i> Confirmer le rejet</button>
                   <button (click)="cancelReject()" class="btn-ghost">Annuler</button>
@@ -216,6 +237,167 @@
           </article>
         }
       </div>
+    }
+    @if (activeTab() === 'Dsa' && !loading()) {
+      <div class="dsa-filtres" role="group" aria-label="Filtrer par état">
+        @for (f of [{c:'Recu',l:'À instruire'},{c:'Fonde',l:'Fondés'},{c:'NonFonde',l:'Non retenus'},{c:'',l:'Tous'}]; track f.c) {
+          <button type="button" class="chip" [class.active]="dsaFiltre() === f.c" (click)="filtrerDsa(f.c)">
+            {{ f.l }}
+          </button>
+        }
+      </div>
+
+      @if (!dsa().length) {
+        <div class="empty-box">
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
+          <p>Aucun dossier dans cet état.</p>
+        </div>
+      } @else {
+        <div class="dsa-liste">
+          @for (s of dsa(); track s.id) {
+            <article class="dsa-dossier" [class.is-urgent]="s.statut === 'Recu' && attenteEnJours(s) >= 3">
+              <header class="dsa-dossier__tete">
+                <div>
+                  <span class="u-mono dsa-dossier__ref">{{ s.reference }}</span>
+                  <span class="badge">{{ libelleStatutDsa(s.statut) }}</span>
+                  @if (s.statut === 'Recu') {
+                    <span class="dsa-dossier__attente" [class.is-urgent]="attenteEnJours(s) >= 3">
+                      en attente depuis {{ attenteEnJours(s) }} j
+                    </span>
+                  }
+                  <p class="dsa-dossier__quoi">
+                    {{ s.typeContenu }} · {{ s.motif }}
+                    @if (s.url) {
+                      · <a [href]="s.url" target="_blank" rel="noopener">voir le contenu</a>
+                    }
+                  </p>
+                </div>
+                <button type="button" class="btn-sm btn-secondary" (click)="ouvrirDossier(s)">
+                  {{ dsaOuvert() === s.id ? 'Fermer' : (s.statut === 'Recu' ? 'Instruire' : 'Revoir') }}
+                </button>
+              </header>
+
+              <blockquote class="dsa-dossier__expose">{{ s.explication }}</blockquote>
+
+              <p class="dsa-dossier__meta">
+                Déposé le {{ s.creeLe | date: 'dd/MM/yyyy à HH:mm' }}
+                @if (s.emailDeclarant) {
+                  · le déclarant recevra la décision
+                } @else {
+                  · <strong>anonyme</strong> : la décision ne sera lisible que par la référence
+                }
+                @if (s.declareBonneFoi) { · déclaré de bonne foi }
+              </p>
+
+              @if (s.decision) {
+                <div class="dsa-dossier__rendue">
+                  <strong>Décision rendue</strong>
+                  <p>{{ s.decision }}</p>
+                  <p class="u-muted">Mesure : {{ s.mesurePrise || 'aucune' }} · le {{ s.traiteLe | date: 'dd/MM/yyyy' }}</p>
+                </div>
+              }
+
+              @if (dsaOuvert() === s.id) {
+                <div class="dsa-dossier__form">
+                  <div class="dsa-dossier__ligne">
+                    <label for="dsa-statut">Décision</label>
+                    <select id="dsa-statut" [(ngModel)]="dsaDecision.statut">
+                      <option value="Fonde">Signalement fondé</option>
+                      <option value="NonFonde">Signalement non retenu</option>
+                    </select>
+
+                    <label for="dsa-mesure">Mesure prise</label>
+                    <select id="dsa-mesure" [(ngModel)]="dsaDecision.mesurePrise">
+                      <option value="Aucune">Aucune</option>
+                      <option value="ContenuRetire">Contenu retiré</option>
+                      <option value="CompteSuspendu">Compte suspendu</option>
+                    </select>
+                  </div>
+
+                  <label for="dsa-motivation">
+                    Motivation <em>— transmise au déclarant, le règlement l'exige</em>
+                  </label>
+                  <textarea
+                    id="dsa-motivation"
+                    rows="4"
+                    [(ngModel)]="dsaDecision.decision"
+                    placeholder="Expliquez ce qui a été constaté et ce qui en découle. « Rejeté » n'est pas une motivation."
+                  ></textarea>
+                  <small class="dsa-dossier__compte">
+                    {{ dsaDecision.decision.length }} / 20 caractères minimum
+                  </small>
+
+                  <div class="dsa-dossier__actions">
+                    <button type="button" class="btn-secondary btn-sm" (click)="ouvrirDossier(s)">Annuler</button>
+                    <button
+                      type="button"
+                      class="btn-primary btn-sm"
+                      [disabled]="!decisionValide"
+                      (click)="deciderDsa(s)"
+                    >
+                      Rendre la décision
+                    </button>
+                  </div>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+    }
+
+    @if (activeTab() === 'Retours' && !loading()) {
+      @if (!retours().length) {
+        <div class="empty-box">
+          <i class="bi bi-envelope-check" aria-hidden="true"></i>
+          <p>Aucune adresse bloquée. Tout ce qui part arrive.</p>
+        </div>
+      } @else {
+        <p class="u-muted dsa-intro">
+          Une adresse cesse d'être servie après un rejet dur, une plainte, ou trois rejets
+          doux. Continuer à écrire à une boîte morte abîme la réputation du domaine — et
+          c'est cette réputation qui fait arriver les mots de passe oubliés.
+        </p>
+        <div class="table-wrap">
+          <table class="dsa-table">
+            <caption class="sr-only">Adresses ayant rejeté nos envois</caption>
+            <thead>
+              <tr>
+                <th scope="col">Adresse</th>
+                <th scope="col">Type</th>
+                <th scope="col">Motif</th>
+                <th scope="col" class="ta-r">Rejets</th>
+                <th scope="col">Dernier</th>
+                <th scope="col">État</th>
+                <th scope="col"><span class="sr-only">Action</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of retours(); track r.id) {
+                <tr>
+                  <td class="u-mono">{{ r.email }}</td>
+                  <td>{{ r.type }}</td>
+                  <td>{{ r.motif || '—' }}</td>
+                  <td class="ta-r u-num">{{ r.occurrences }}</td>
+                  <td>{{ r.dernierLe | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span class="badge" [class.badge-red]="r.bloque">
+                      {{ r.bloque ? 'Bloquée' : 'Tolérée' }}
+                    </span>
+                  </td>
+                  <td class="ta-r">
+                    @if (r.bloque) {
+                      <button type="button" class="btn-sm btn-secondary" (click)="debloquer(r)">
+                        Rouvrir
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     }
   </div>
 </section>

@@ -70,20 +70,20 @@
           </div>
           <div class="jfc-body">
             <div class="form-group">
-              <label>Intitulé du poste *</label>
-              <input type="text" placeholder="ex : Développeur Full Stack Angular / .NET" [(ngModel)]="form.title" name="title" />
+              <label for="jf-title">Intitulé du poste *</label>
+              <input id="jf-title" type="text" placeholder="ex : Développeur Full Stack Angular / .NET" [(ngModel)]="form.title" name="title" />
               <span class="jf-hint">Évitez les titres internes (« Ingénieur niveau 3 ») : personne ne les recherche.</span>
             </div>
             <div class="form-row">
-              <div class="form-group"><label>Entreprise *</label><input type="text" placeholder="ex : TechCorp" [(ngModel)]="form.company" name="company" /></div>
+              <div class="form-group"><label for="jf-company">Entreprise *</label><input id="jf-company" type="text" placeholder="ex : TechCorp" [(ngModel)]="form.company" name="company" /></div>
               <div class="form-group">
-                <label>Nombre de postes à pourvoir</label>
-                <input type="number" min="1" max="99" [(ngModel)]="form.openings" name="openings" />
+                <label for="jf-openings">Nombre de postes à pourvoir</label>
+                <input id="jf-openings" type="number" min="1" max="99" [(ngModel)]="form.openings" name="openings" />
               </div>
             </div>
             <div class="form-group">
-              <label>Catégorie</label>
-              <select [(ngModel)]="form.category" name="category">@for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }</select>
+              <label for="jf-category">Catégorie</label>
+              <select id="jf-category" [(ngModel)]="form.category" name="category">@for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }</select>
             </div>
           </div>
         }
@@ -96,8 +96,13 @@
           </div>
           <div class="jfc-body">
             <div class="form-group">
-              <label>Type de lieu de travail</label>
-              <div class="jf-radios">
+              <!-- Ce libellé annonce un choix entre trois boutons, pas un
+                   champ : `for` n'a rien à désigner. `role="group"` et
+                   `aria-labelledby` disent la même chose correctement —
+                   le lecteur d'écran annonce « Type de lieu de travail,
+                   groupe » avant d'énumérer les options. -->
+              <span id="jf-workplace-lbl" class="group-lbl">Type de lieu de travail</span>
+              <div class="jf-radios" role="group" aria-labelledby="jf-workplace-lbl">
                 @for (w of workplaceTypes; track w) {
                   <button type="button" class="jf-radio" [class.active]="form.workplaceType === w" (click)="form.workplaceType = w">
                     <i class="bi" [class.bi-building]="w === 'Sur site'" [class.bi-shuffle]="w === 'Hybride'" [class.bi-house-door]="w === 'Télétravail'"></i>
@@ -108,12 +113,12 @@
               <span class="jf-hint">« Hybride » et « Télétravail » font apparaître l'offre dans le filtre télétravail.</span>
             </div>
             <div class="form-group">
-              <label>Ville ou région *</label>
-              <input type="text" placeholder="ex : Marseille" [(ngModel)]="form.location" name="location" />
+              <label for="jf-location">Ville ou région *</label>
+              <input id="jf-location" type="text" placeholder="ex : Marseille" [(ngModel)]="form.location" name="location" />
             </div>
             <div class="form-group">
-              <label>Adresse précise</label>
-              <input type="text" placeholder="ex : 12 rue de la République, 13001 Marseille" [(ngModel)]="form.address" name="address" />
+              <label for="jf-address">Adresse précise</label>
+              <input id="jf-address" type="text" placeholder="ex : 12 rue de la République, 13001 Marseille" [(ngModel)]="form.address" name="address" />
               <span class="jf-hint">Facultative — affichée sur la fiche de l'offre, utile pour les postes sur site.</span>
             </div>
           </div>
@@ -127,49 +132,49 @@
           </div>
           <div class="jfc-body">
             <div class="form-row">
-              <div class="form-group"><label>Type de contrat</label>
-                <select [(ngModel)]="form.contractType" name="contractType">@for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }</select>
+              <div class="form-group"><label for="jf-contracttype">Type de contrat</label>
+                <select id="jf-contracttype" [(ngModel)]="form.contractType" name="contractType">@for (ct of contractTypes; track ct) { <option [value]="ct">{{ ct }}</option> }</select>
               </div>
               <div class="form-group">
-                <label>Durée du contrat</label>
-                <input type="text" placeholder="ex : 6 mois" [(ngModel)]="form.contractDuration" name="contractDuration" [disabled]="form.contractType === 'CDI'" />
+                <label for="jf-contractduration">Durée du contrat</label>
+                <input id="jf-contractduration" type="text" placeholder="ex : 6 mois" [(ngModel)]="form.contractDuration" name="contractDuration" [disabled]="form.contractType === 'CDI'" />
                 <span class="jf-hint">{{ form.contractType === 'CDI' ? 'Sans objet pour un CDI.' : 'Pour les CDD, stages et alternances.' }}</span>
               </div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label>Horaires de travail</label>
-                <select [(ngModel)]="form.workSchedule" name="workSchedule">
+              <div class="form-group"><label for="jf-workschedule">Horaires de travail</label>
+                <select id="jf-workschedule" [(ngModel)]="form.workSchedule" name="workSchedule">
                   <option value="">Non spécifié</option>
                   @for (w of workSchedules; track w) { <option [value]="w">{{ w }}</option> }
                 </select>
               </div>
               <div class="form-group">
-                <label>Heures par semaine</label>
-                <input type="number" min="1" max="60" placeholder="35" [(ngModel)]="form.hoursPerWeek" name="hoursPerWeek" />
+                <label for="jf-hoursperweek">Heures par semaine</label>
+                <input id="jf-hoursperweek" type="number" min="1" max="60" placeholder="35" [(ngModel)]="form.hoursPerWeek" name="hoursPerWeek" />
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Date de prise de poste souhaitée</label>
-                <input type="date" [(ngModel)]="form.startDate" name="startDate" />
+                <label for="jf-startdate">Date de prise de poste souhaitée</label>
+                <input id="jf-startdate" type="date" [(ngModel)]="form.startDate" name="startDate" />
               </div>
-              <div class="form-group"><label>Niveau d'expérience</label>
-                <select [(ngModel)]="form.experienceRequired" name="experienceRequired">
+              <div class="form-group"><label for="jf-experiencerequired">Niveau d'expérience</label>
+                <select id="jf-experiencerequired" [(ngModel)]="form.experienceRequired" name="experienceRequired">
                   <option value="">Non spécifié</option>
                   @for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }
                 </select>
               </div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label>Formation requise</label>
-                <select [(ngModel)]="form.educationLevel" name="educationLevel">
+              <div class="form-group"><label for="jf-educationlevel">Formation requise</label>
+                <select id="jf-educationlevel" [(ngModel)]="form.educationLevel" name="educationLevel">
                   <option value="">Non spécifié</option>
                   @for (l of educationLevels; track l) { <option [value]="l">{{ l }}</option> }
                 </select>
               </div>
               <div class="form-group">
-                <label>Langues demandées</label>
-                <input type="text" placeholder="Français, Anglais…" [(ngModel)]="form.languages" name="languages" />
+                <label for="jf-languages">Langues demandées</label>
+                <input id="jf-languages" type="text" placeholder="Français, Anglais…" [(ngModel)]="form.languages" name="languages" />
               </div>
             </div>
           </div>
@@ -183,10 +188,10 @@
           </div>
           <div class="jfc-body">
             <div class="form-row jf-salary-row">
-              <div class="form-group"><label>Salaire minimum</label><input type="number" placeholder="35000" [(ngModel)]="form.minSalary" name="minSalary" /></div>
-              <div class="form-group"><label>Salaire maximum</label><input type="number" placeholder="50000" [(ngModel)]="form.maxSalary" name="maxSalary" /></div>
-              <div class="form-group"><label>Périodicité</label>
-                <select [(ngModel)]="form.salaryPeriod" name="salaryPeriod">
+              <div class="form-group"><label for="jf-minsalary">Salaire minimum</label><input id="jf-minsalary" type="number" placeholder="35000" [(ngModel)]="form.minSalary" name="minSalary" /></div>
+              <div class="form-group"><label for="jf-maxsalary">Salaire maximum</label><input id="jf-maxsalary" type="number" placeholder="50000" [(ngModel)]="form.maxSalary" name="maxSalary" /></div>
+              <div class="form-group"><label for="jf-salaryperiod">Périodicité</label>
+                <select id="jf-salaryperiod" [(ngModel)]="form.salaryPeriod" name="salaryPeriod">
                   @for (p of salaryPeriods; track p.value) { <option [value]="p.value">{{ p.label }}</option> }
                 </select>
               </div>
@@ -196,26 +201,28 @@
             }
 
             <div class="form-group">
-              <label>Mention libre de rémunération</label>
-              <input type="text" placeholder="ex : selon profil + variable" [(ngModel)]="form.salary" name="salary" />
+              <label for="jf-salary">Mention libre de rémunération</label>
+              <input id="jf-salary" type="text" placeholder="ex : selon profil + variable" [(ngModel)]="form.salary" name="salary" />
               <span class="jf-hint">Utilisée telle quelle si vous ne renseignez pas de fourchette.</span>
             </div>
 
             <div class="form-group">
-              <label>Primes et compléments</label>
-              <div class="jf-chips">
+              <span id="jf-supp-lbl" class="group-lbl">Primes et compléments</span>
+              <div class="jf-chips" role="group" aria-labelledby="jf-supp-lbl">
                 @for (p of commonSupplementalPay; track p) {
                   <button type="button" class="jf-chip" [class.active]="hasSupplemental(p)" (click)="toggleSupplemental(p)">
                     <i class="bi" [class.bi-plus-lg]="!hasSupplemental(p)" [class.bi-check-lg]="hasSupplemental(p)"></i> {{ p }}
                   </button>
                 }
               </div>
-              <input type="text" placeholder="Autres primes, séparées par des virgules" [(ngModel)]="form.supplementalPay" name="supplementalPay" />
+              <input type="text" placeholder="Autres primes, séparées par des virgules"
+                     aria-label="Autres primes et compléments, séparés par des virgules"
+                     [(ngModel)]="form.supplementalPay" name="supplementalPay" />
             </div>
 
             <div class="form-group">
-              <label>Avantages</label>
-              <div class="jf-chips">
+              <span id="jf-benefits-lbl" class="group-lbl">Avantages</span>
+              <div class="jf-chips" role="group" aria-labelledby="jf-benefits-lbl">
                 @for (b of commonBenefits; track b) {
                   <button type="button" class="jf-chip" [class.active]="hasBenefit(b)" (click)="toggleBenefit(b)">
                     <i class="bi" [class.bi-plus-lg]="!hasBenefit(b)" [class.bi-check-lg]="hasBenefit(b)"></i> {{ b }}
@@ -235,8 +242,8 @@
           </div>
           <div class="jfc-body">
             <div class="form-group">
-              <label>Description *</label>
-              <textarea [(ngModel)]="form.description" name="description" rows="12"
+              <label for="jf-description">Description *</label>
+              <textarea id="jf-description" [(ngModel)]="form.description" name="description" rows="12"
                         placeholder="## Vos missions&#10;- …&#10;&#10;## Profil recherché&#10;- …&#10;&#10;## Ce que nous proposons&#10;- …"></textarea>
               <span class="jf-hint">
                 <i class="bi bi-markdown"></i> Mise en forme : **gras**, *italique*, « - » pour les listes, ## pour les sous-titres.
@@ -244,13 +251,13 @@
               </span>
             </div>
             <div class="form-group">
-              <label>Compétences recherchées</label>
-              <input type="text" placeholder="Angular, .NET, TypeScript" [(ngModel)]="form.tags" name="tags" />
+              <label for="jf-tags">Compétences recherchées</label>
+              <input id="jf-tags" type="text" placeholder="Angular, .NET, TypeScript" [(ngModel)]="form.tags" name="tags" />
               <span class="jf-hint">Séparées par des virgules, affichées en étiquettes sur l'annonce.</span>
             </div>
             <div class="form-group">
-              <label>À propos de l'entreprise</label>
-              <textarea [(ngModel)]="form.companyDescription" name="companyDescription" rows="4"
+              <label for="jf-companydescription">À propos de l'entreprise</label>
+              <textarea id="jf-companydescription" [(ngModel)]="form.companyDescription" name="companyDescription" rows="4"
                         placeholder="Votre activité, votre taille, votre culture…"></textarea>
             </div>
           </div>
@@ -276,13 +283,13 @@
 
             <div class="form-row">
               <div class="form-group">
-                <label>Adresse de réception</label>
-                <input type="email" placeholder="recrutement@entreprise.fr" [(ngModel)]="form.applicationEmail" name="applicationEmail" />
+                <label for="jf-applicationemail">Adresse de réception</label>
+                <input id="jf-applicationemail" type="email" placeholder="recrutement@entreprise.fr" [(ngModel)]="form.applicationEmail" name="applicationEmail" />
                 <span class="jf-hint">Si cette adresse correspond à un compte de la plateforme, cette personne sera notifiée à chaque candidature.</span>
               </div>
               <div class="form-group">
-                <label>Date limite de candidature</label>
-                <input type="date" [(ngModel)]="form.expiresAt" name="expiresAt" />
+                <label for="jf-expiresat">Date limite de candidature</label>
+                <input id="jf-expiresat" type="date" [(ngModel)]="form.expiresAt" name="expiresAt" />
                 <span class="jf-hint">Passé ce délai, l'offre est retirée automatiquement.</span>
               </div>
             </div>
@@ -320,7 +327,9 @@
             <div class="jf-screening">
               <div class="jf-screening-head">
                 <div>
-                  <label class="jf-screening-title">Questions de présélection</label>
+                  <!-- Un titre de section, pas une étiquette : il n'y a
+                       aucun champ unique à désigner sous lui. -->
+                  <span class="jf-screening-title">Questions de présélection</span>
                   <span class="jf-screening-hint">Posées au candidat pendant sa candidature. Une réponse attendue permet de mesurer son adéquation.</span>
                 </div>
                 <button type="button" class="btn-ghost" (click)="addQuestion()"><i class="bi bi-plus-lg"></i> Ajouter</button>
@@ -330,26 +339,35 @@
                 <div class="jf-q-card">
                   <div class="jf-q-top">
                     <span class="jf-q-num u-mono">Q{{ qi + 1 }}</span>
-                    <input type="text" class="jf-q-text" placeholder="ex : Avez-vous le permis B ?" [(ngModel)]="q.text" [name]="'sq' + qi" />
+                    <input type="text" class="jf-q-text" placeholder="ex : Avez-vous le permis B ?"
+                           [attr.aria-label]="'Question ' + (qi + 1)"
+                           [(ngModel)]="q.text" [name]="'sq' + qi" />
                     <button type="button" class="jf-q-remove" (click)="removeQuestion(qi)" title="Supprimer"><i class="bi bi-x-lg"></i></button>
                   </div>
 
                   <div class="jf-q-row">
+                    <!-- Les identifiants portent le numéro de la question.
+                         Ils étaient fixes à l'intérieur de la boucle : à
+                         partir de la deuxième question, « Réponse
+                         attendue » désignait le champ de la première, et
+                         cliquer dessus déplaçait le curseur dans la
+                         mauvaise carte. Une étiquette qui désigne le
+                         mauvais champ est pire que pas d'étiquette. -->
                     <div class="form-group">
-                      <label>Type de réponse</label>
-                      <select [(ngModel)]="q.type" [name]="'sqType' + qi" (ngModelChange)="onQuestionTypeChange(q)">
+                      <label [attr.for]="'jf-type-' + qi">Type de réponse</label>
+                      <select [attr.id]="'jf-type-' + qi" [(ngModel)]="q.type" [name]="'sqType' + qi" (ngModelChange)="onQuestionTypeChange(q)">
                         @for (t of screeningTypes; track t) { <option [value]="t">{{ screeningTypeLabels[t] }}</option> }
                       </select>
                     </div>
                     <div class="form-group">
-                      <label>Réponse attendue</label>
+                      <label [attr.for]="'jf-ideal-' + qi">Réponse attendue</label>
                       @if (q.type === 'boolean' || q.type === 'choice') {
-                        <select [(ngModel)]="q.idealAnswer" [name]="'sqIdeal' + qi">
+                        <select [attr.id]="'jf-ideal-' + qi" [(ngModel)]="q.idealAnswer" [name]="'sqIdeal' + qi">
                           <option value="">Aucune préférence</option>
                           @for (opt of answerOptions(q); track opt) { <option [value]="opt">{{ opt }}</option> }
                         </select>
                       } @else {
-                        <input type="text" placeholder="Laisser vide si aucune" [(ngModel)]="q.idealAnswer" [name]="'sqIdeal' + qi" />
+                        <input [attr.id]="'jf-ideal-' + qi" type="text" placeholder="Laisser vide si aucune" [(ngModel)]="q.idealAnswer" [name]="'sqIdeal' + qi" />
                       }
                     </div>
                     <label class="jf-q-required">
@@ -359,12 +377,18 @@
                   </div>
 
                   @if (q.type === 'choice') {
-                    <div class="jf-q-options">
-                      <label>Réponses proposées</label>
+                    <div class="jf-q-options" role="group" [attr.aria-labelledby]="'jf-options-lbl-' + qi">
+                      <!-- Boucle imbriquée : l'identifiant fixe était
+                           répété autant de fois qu'il y a de réponses,
+                           multiplié par le nombre de questions. -->
+                      <span [attr.id]="'jf-options-lbl-' + qi" class="group-lbl">Réponses proposées</span>
                       @for (opt of q.options; track trackByIndex($index); let oi = $index) {
                         <div class="jf-q-option">
-                          <input type="text" placeholder="ex : Moins de 2 ans" [(ngModel)]="q.options[oi]" [name]="'sqOpt' + qi + '_' + oi" />
-                          <button type="button" class="jf-q-remove" (click)="removeOption(q, oi)"><i class="bi bi-x-lg"></i></button>
+                          <input type="text" placeholder="ex : Moins de 2 ans"
+                                 [attr.aria-label]="'Réponse ' + (oi + 1) + ' de la question ' + (qi + 1)"
+                                 [(ngModel)]="q.options[oi]" [name]="'sqOpt' + qi + '_' + oi" />
+                          <button type="button" class="jf-q-remove" (click)="removeOption(q, oi)"
+                                  [attr.aria-label]="'Supprimer la réponse ' + (oi + 1)"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
                         </div>
                       }
                       <button type="button" class="btn-ghost jf-q-addopt" (click)="addOption(q)"><i class="bi bi-plus-lg"></i> Ajouter une réponse</button>
@@ -380,11 +404,11 @@
             <div class="jf-screening">
               <div class="jf-screening-head">
                 <div>
-                  <label class="jf-screening-title">Réponse automatique</label>
+                  <label for="jf-autoreplymessage" class="jf-screening-title">Réponse automatique</label>
                   <span class="jf-screening-hint">Message envoyé au candidat dès réception de sa candidature (facultatif).</span>
                 </div>
               </div>
-              <textarea class="jf-autoreply" [(ngModel)]="form.autoReplyMessage" name="autoReplyMessage" rows="3" maxlength="500"
+              <textarea id="jf-autoreplymessage" class="jf-autoreply" [(ngModel)]="form.autoReplyMessage" name="autoReplyMessage" rows="3" maxlength="500"
                 placeholder="ex : Merci pour votre candidature ! Nous revenons vers vous sous 5 jours ouvrés."></textarea>
             </div>
           </div>

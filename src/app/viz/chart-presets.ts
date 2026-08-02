@@ -81,6 +81,27 @@ export function applyChartDefaults() {
 }
 
 /**
+ * Poses au chargement de ce module, et non depuis la configuration de
+ * l'application.
+ *
+ * L'appel vivait dans `app.config.ts`, ce qui tirait Chart.js — deux
+ * cent quarante kilo-octets — dans le paquet initial de tout le monde,
+ * y compris de qui vient lire une offre et ne verra jamais un
+ * graphique. Ici, les reglages arrivent avec le premier ecran qui en
+ * demande un, puisque tout ce qui dessine passe forcement par ce
+ * fichier.
+ *
+ * Idempotent, et c'est necessaire : deux ecrans a graphiques charges a
+ * la suite reexecuteraient ces affectations sans consequence, mais
+ * autant ne pas les compter deux fois.
+ */
+let reglagesPoses = false;
+if (!reglagesPoses) {
+  reglagesPoses = true;
+  applyChartDefaults();
+}
+
+/**
  * Infobulle commune.
  *
  * Elle enrichit, elle ne conditionne pas : chaque valeur reste atteignable

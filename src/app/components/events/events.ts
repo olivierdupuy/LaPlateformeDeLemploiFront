@@ -6,10 +6,11 @@ import { ToastrService } from 'ngx-toastr';
 import { EventService, JobEvent } from '../../services/event.service';
 import { FtEvents } from '../ft-events/ft-events';
 import { AuthService } from '../../services/auth.service';
+import { Modale } from '../../utils/modale.directive';
 
 @Component({
   selector: 'app-events',
-  imports: [FormsModule, DatePipe, RouterLink, FtEvents],
+  imports: [FormsModule, DatePipe, RouterLink, FtEvents, Modale],
   templateUrl: './events.html',
   styleUrl: './events.scss',
 })

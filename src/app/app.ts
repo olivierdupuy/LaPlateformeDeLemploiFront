@@ -4,6 +4,7 @@ import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
 import { SiteBanner } from './components/site-banner/site-banner';
 import { CookieConsent } from './components/cookie-consent/cookie-consent';
+import { MesureAudience } from './services/mesure-audience.service';
 import { AdresseAConfirmer } from './components/adresse-a-confirmer/adresse-a-confirmer';
 import { ImpersonationBanner } from './components/impersonation-banner/impersonation-banner';
 import { AuthModal } from './components/auth-modal/auth-modal';
@@ -101,6 +102,7 @@ export class App implements OnInit {
   private router = inject(Router);
   private signalR = inject(SignalRService);
   private seo = inject(SeoService);
+  private mesure = inject(MesureAudience);
 
   get isAdmin(): boolean { return this.auth.isAdmin(); }
 
@@ -217,6 +219,12 @@ export class App implements OnInit {
     this.platform.load();
     this.scrollToTopOnPageChange();
     this.declarerSeoParDefaut();
+
+    // La mesure d'audience ne s'arme que si une instance auto-hébergée
+    // est déclarée dans l'environnement, et ne compte que si le
+    // visiteur a accepté cette finalité-là. Sans l'un ou l'autre, aucun
+    // octet ne quitte le navigateur.
+    this.mesure.demarrer();
 
     // La connexion temps réel appartient à l'application, pas à une barre
     // de navigation : elle était ouverte par la navbar publique, que le

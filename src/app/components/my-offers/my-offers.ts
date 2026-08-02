@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { JobOfferService } from '../../services/job-offer';
 import { RecruiterFeaturesService } from '../../services/recruiter-features.service';
+import { PlateformeProService, DestinationDiffusion, Diffusion } from '../../services/plateforme-pro.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { companyColor, getContractBadgeClass } from '../../utils/job.utils';
 import { ToastrService } from 'ngx-toastr';
@@ -19,6 +20,7 @@ import { ConsoleShell } from '../console-shell/console-shell';
 export class MyOffers implements OnInit {
   private jobService = inject(JobOfferService);
   private recruiterService = inject(RecruiterFeaturesService);
+  private pro = inject(PlateformeProService);
   private router = inject(Router);
   private toastr = inject(ToastrService);
   companyColor = companyColor;
@@ -122,6 +124,25 @@ export class MyOffers implements OnInit {
     return Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   }
 
+  /**
+   * La carte entière est un lien vers l'offre, et elle contient des
+   * boutons. Chacun d'eux arrête déjà la propagation ; ce qui restait
+   * à traiter, ce sont les gouttières — l'espace entre deux boutons,
+   * le fond du panneau de statistiques. Un clic qui tombe là suivait
+   * le lien, et on quittait la page en croyant avoir cliqué à côté.
+   *
+   * C'était le rôle de deux `(click)` posés sur des `div` pour ne rien
+   * faire d'autre que s'annuler. Le lien porte désormais lui-même la
+   * question : « ce clic est-il tombé dans une zone d'action ? »
+   */
+  auClicCarte(evenement: Event) {
+    const cible = evenement.target as HTMLElement | null;
+    if (cible?.closest('.oc-actions, .oc-stats-panel, .oc-diff')) {
+      evenement.preventDefault();
+      evenement.stopPropagation();
+    }
+  }
+
   renew(offer: JobOffer, event: Event) {
     event.stopPropagation();
     event.preventDefault();
@@ -139,15 +160,60 @@ export class MyOffers implements OnInit {
     return { Pending: 'En attente de validation', Approved: 'Approuvee', Rejected: 'Rejetee' }[status || ''] || '';
   }
 
+  /**
+   * Mettre une offre en avant.
+   *
+   * Ce bouton appelait `toggleFeature`, qui met en avant sans rien
+   * décompter et sans date de fin. La mise en avant était donc gratuite,
+   * illimitée et éternelle — le seul levier économique du site, offert.
+   * Et comme tout le monde pouvait s'en servir, il ne distinguait plus
+   * rien : quand toutes les offres sont mises en avant, aucune ne l'est.
+   *
+   * Il passe désormais par la facturation, qui décide :
+   *
+   *   le quota de la formule la couvre → c'est fait, pour quinze jours ;
+   *   le quota est épuisé, un prestataire est branché → on ouvre le
+   *     tunnel de paiement ;
+   *   le quota est épuisé, aucun prestataire → on le dit franchement et
+   *     on renvoie vers la page qui explique les formules.
+   *
+   * Le retrait reste sur l'ancien point d'entrée : cesser une mise en
+   * avant qu'on a payée est un droit, pas un achat.
+   */
   sponsor(offer: JobOffer, event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    this.jobService.toggleFeature(offer.id).subscribe({
+
+    if (offer.isFeatured) {
+      this.jobService.toggleFeature(offer.id).subscribe({
+        next: (r) => {
+          offer.isFeatured = r.isFeatured;
+          this.toastr.info('Mise en avant retirée.');
+        },
+        error: () => this.toastr.error("Le retrait n'a pas abouti."),
+      });
+      return;
+    }
+
+    this.pro.acheterMiseEnAvant(offer.id).subscribe({
       next: (r) => {
-        offer.isFeatured = r.isFeatured;
-        this.toastr.success(r.isFeatured ? 'Offre sponsorisée — mise en avant' : 'Sponsorisation retirée');
+        if (r.redirection) {
+          location.href = r.redirection;
+          return;
+        }
+        offer.isFeatured = true;
+        this.toastr.success(r.message ?? 'Offre mise en avant.');
       },
-      error: () => this.toastr.error('Erreur'),
+      error: (e) => {
+        // 503 : le quota est épuisé et le paiement n'est pas ouvert.
+        // Ce n'est pas une panne, c'est une limite — et le recruteur
+        // doit savoir où aller, pas recevoir « Erreur ».
+        const message = e?.error?.message ?? "La mise en avant n'a pas abouti.";
+        this.toastr.info(message, '', { timeOut: 9000 });
+        if (e?.status === 503 || e?.status === 402) {
+          this.router.navigate(['/recruteur/facturation']);
+        }
+      },
     });
   }
 
@@ -166,6 +232,108 @@ export class MyOffers implements OnInit {
 
   statusLabel(status: string): string {
     return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[status] || status;
+  }
+
+  // ══════════════════════════════════════
+  //  Multidiffusion
+  // ══════════════════════════════════════
+  //
+  // Un recruteur redépose son offre chez France Travail puis chez deux
+  // agrégateurs, à la main, en recopiant le même texte. Puis il pourvoit
+  // le poste et en oublie la moitié : les candidatures continuent
+  // d'arriver pendant des semaines sur un poste fermé, et chacune est
+  // quelqu'un qui attend une réponse.
+  //
+  // Le panneau est replié par défaut et ne charge rien avant d'être
+  // ouvert : la liste d'offres est déjà lourde, et la plupart des
+  // recruteurs ne diffuseront jamais ailleurs.
+
+  destinations = signal<DestinationDiffusion[]>([]);
+  diffusionOpenId = signal<number | null>(null);
+  diffusions = signal<Diffusion[]>([]);
+  diffusionLoading = signal(false);
+  diffusionEnCours = signal<string | null>(null);
+
+  toggleDiffusion(offer: JobOffer, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    if (this.diffusionOpenId() === offer.id) { this.diffusionOpenId.set(null); return; }
+
+    this.diffusionOpenId.set(offer.id);
+    this.diffusions.set([]);
+    this.diffusionLoading.set(true);
+
+    if (!this.destinations().length) {
+      this.pro.destinationsDiffusion().subscribe({
+        next: (r) => this.destinations.set(r.destinations),
+        error: () => this.destinations.set([]),
+      });
+    }
+
+    this.pro.suiviDiffusion(offer.id).subscribe({
+      next: (d) => { this.diffusions.set(d); this.diffusionLoading.set(false); },
+      error: () => { this.diffusionLoading.set(false); this.toastr.error('Suivi de diffusion indisponible.'); },
+    });
+  }
+
+  /** L'état de cette offre chez ce partenaire, s'il y en a un. */
+  etatChez(cle: string): Diffusion | undefined {
+    return this.diffusions().find((d) => d.destination === cle);
+  }
+
+  diffuser(offreId: number, destination: string) {
+    this.diffusionEnCours.set(destination);
+    this.pro.diffuser(offreId, destination).subscribe({
+      next: (d) => {
+        this.diffusionEnCours.set(null);
+        this.remplacerSuivi(d);
+        // L'échec est une réponse, pas une erreur : le serveur rend 200
+        // avec son motif, et c'est ce motif que le recruteur doit lire.
+        // Un « erreur » générique lui apprendrait qu'il s'est passé
+        // quelque chose, sans lui dire quoi faire.
+        if (d.statut === 'diffusee') this.toastr.success('Offre diffusée.');
+        else this.toastr.warning(d.motif || 'La diffusion n’a pas abouti.', 'Non diffusée');
+      },
+      error: () => {
+        this.diffusionEnCours.set(null);
+        this.toastr.error('La demande de diffusion n’est pas passée.');
+      },
+    });
+  }
+
+  retirer(offreId: number, destination: string) {
+    this.diffusionEnCours.set(destination);
+    this.pro.retirerDiffusion(offreId, destination).subscribe({
+      next: (d) => {
+        this.diffusionEnCours.set(null);
+        this.remplacerSuivi(d);
+        if (d.statut === 'retiree') this.toastr.success('Offre retirée du partenaire.');
+        else this.toastr.error(d.motif || 'Le retrait n’a pas abouti.', 'Toujours en ligne');
+      },
+      error: () => {
+        this.diffusionEnCours.set(null);
+        this.toastr.error('La demande de retrait n’est pas passée.');
+      },
+    });
+  }
+
+  private remplacerSuivi(d: Diffusion) {
+    this.diffusions.update((liste) => {
+      const i = liste.findIndex((x) => x.destination === d.destination);
+      if (i < 0) return [...liste, d];
+      const copie = [...liste];
+      copie[i] = d;
+      return copie;
+    });
+  }
+
+  libelleStatutDiffusion(statut: string): string {
+    return {
+      en_attente: 'En attente',
+      diffusee: 'En ligne',
+      echec: 'Échec',
+      retiree: 'Retirée',
+    }[statut] || statut;
   }
 
   duplicate(offer: JobOffer, event: Event) {

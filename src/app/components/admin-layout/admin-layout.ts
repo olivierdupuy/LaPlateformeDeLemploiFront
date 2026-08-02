@@ -106,6 +106,11 @@ export class AdminLayout {
       label: 'Système',
       links: [
         { path: '/admin/activite', label: 'Activité', icon: 'bi-clock-history', alias: ['journal', 'logs', 'historique'] },
+        // L'état des services et ce qui casse chez les visiteurs. La
+        // page existait sans qu'aucun lien n'y mène — donc elle
+        // n'existait pas : on ne consulte pas une console de
+        // surveillance dont on doit taper l'adresse de mémoire.
+        { path: '/admin/exploitation', label: 'Exploitation', icon: 'bi-activity', alias: ['sante', 'erreurs', 'incidents', 'catalogue', 'fraicheur', 'monitoring'] },
         { path: '/admin/parametres', label: 'Paramètres', icon: 'bi-gear', alias: ['reglages', 'configuration'] },
         // Le compte de l'administrateur lui-meme : double authentification,
         // appareils connectes, mot de passe. Il n'y accedait que par le
@@ -250,7 +255,8 @@ export class AdminLayout {
     // sur Chrome, Ctrl+K vise la barre d'adresse.
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
-      this.paletteOuverte() ? this.fermerPalette() : this.ouvrirPalette();
+      if (this.paletteOuverte()) this.fermerPalette();
+      else this.ouvrirPalette();
       return;
     }
 

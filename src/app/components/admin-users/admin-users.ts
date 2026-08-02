@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, computed, signal, effect, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, computed, signal, NgZone } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';

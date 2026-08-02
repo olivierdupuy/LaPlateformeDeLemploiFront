@@ -178,30 +178,34 @@
 
 <!-- ═══ EDIT MODAL ═══ -->
 @if (editOpen()) {
-  <div class="modal-overlay" (click)="editOpen.set(false)">
-    <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :
+         tout est dans la directive appModale. Le voile ne porte plus
+         de gestionnaire de clic, et le panneau n\'a plus rien à
+         annuler par stopPropagation. -->
+    <div class="modal-overlay" appModale (fermeture)="editOpen.set(false)">
+    <div class="modal-content">
       <div class="em-head">
         <div class="em-icon" [style.background]="sectionColor(editForm.sectionType)"><i class="bi" [class]="sectionIcon(editForm.sectionType)"></i></div>
         <div><h2>{{ isNew ? 'Ajouter' : 'Modifier' }}</h2><span class="em-sub">{{ sectionLabel(editForm.sectionType) }}</span></div>
         <button class="em-close" (click)="editOpen.set(false)"><i class="bi bi-x-lg"></i></button>
       </div>
       <form (ngSubmit)="saveSection()" class="em-form">
-        <div class="form-group"><label>Titre *</label><input type="text" [(ngModel)]="editForm.title" name="title" placeholder="ex: Developpeur Full Stack" required /></div>
+        <div class="form-group"><label for="cb-title">Titre *</label><input id="cb-title" type="text" [(ngModel)]="editForm.title" name="title" placeholder="ex: Developpeur Full Stack" required /></div>
         @if (needsOrg(editForm.sectionType)) {
           <div class="form-row">
-            <div class="form-group"><label>{{ editForm.sectionType === 'Formation' ? 'Etablissement' : 'Entreprise' }}</label><input type="text" [(ngModel)]="editForm.organization" name="org" /></div>
-            <div class="form-group"><label>Lieu</label><input type="text" [(ngModel)]="editForm.location" name="loc" /></div>
+            <div class="form-group"><label for="cb-org">{{ editForm.sectionType === 'Formation' ? 'Etablissement' : 'Entreprise' }}</label><input id="cb-org" type="text" [(ngModel)]="editForm.organization" name="org" /></div>
+            <div class="form-group"><label for="cb-loc">Lieu</label><input id="cb-loc" type="text" [(ngModel)]="editForm.location" name="loc" /></div>
           </div>
         }
         @if (needsDates(editForm.sectionType)) {
           <div class="form-row">
-            <div class="form-group"><label>Début</label><input type="date" [(ngModel)]="editForm.startDate" name="start" /></div>
-            <div class="form-group"><label>Fin (vide = en cours)</label><input type="date" [(ngModel)]="editForm.endDate" name="end" /></div>
+            <div class="form-group"><label for="cb-start">Début</label><input id="cb-start" type="date" [(ngModel)]="editForm.startDate" name="start" /></div>
+            <div class="form-group"><label for="cb-end">Fin (vide = en cours)</label><input id="cb-end" type="date" [(ngModel)]="editForm.endDate" name="end" /></div>
           </div>
         }
         @if (needsLevel(editForm.sectionType)) {
-          <div class="form-group"><label>Niveau</label>
-            <select [(ngModel)]="editForm.level" name="level">
+          <div class="form-group"><label for="cb-level">Niveau</label>
+            <select id="cb-level" [(ngModel)]="editForm.level" name="level">
               @if (editForm.sectionType === 'Langue') {
                 <option value="">Sélectionner</option><option>Natif</option><option>Courant</option><option>Avance (C1)</option><option>Intermediaire (B2)</option><option>Debutant (A1-A2)</option>
               } @else {
@@ -210,7 +214,7 @@
             </select>
           </div>
         }
-        <div class="form-group"><label>Description</label><textarea [(ngModel)]="editForm.description" name="desc" rows="4" placeholder="Missions, realisations..."></textarea></div>
+        <div class="form-group"><label for="cb-desc">Description</label><textarea id="cb-desc" [(ngModel)]="editForm.description" name="desc" rows="4" placeholder="Missions, realisations..."></textarea></div>
         <div class="em-actions"><button type="button" class="btn-secondary" (click)="editOpen.set(false)">Annuler</button><button type="submit" class="btn-primary"><i class="bi bi-check-lg"></i> {{ isNew ? 'Ajouter' : 'Enregistrer' }}</button></div>
       </form>
     </div>
@@ -220,7 +224,7 @@
 <!-- ═══ AI REVIEW MODAL ═══ -->
 @if (aiOpen()) {
   <div class="modal-overlay">
-    <div class="modal-content ai-modal" (click)="$event.stopPropagation()">
+    <div class="modal-content ai-modal">
       <div class="em-head">
         <div class="em-icon ai-gradient"><i class="bi bi-stars"></i></div>
         <div><h2>{{ aiModalTitle() }}</h2><span class="em-sub">Sélectionnez les sections à intégrer</span></div>

@@ -12,6 +12,7 @@ import { Regles, erreursDuServeur } from '../../utils/validation';
 import { CATEGORIES } from '../../utils/categories';
 import { NewsletterService } from '../../services/newsletter.service';
 import { CompanyReviewService } from '../../services/company-review.service';
+import { Modale } from '../../utils/modale.directive';
 
 /**
  * Toute l'authentification, en une couche posée sur la page.
@@ -27,7 +28,7 @@ import { CompanyReviewService } from '../../services/company-review.service';
  */
 @Component({
   selector: 'app-auth-modal',
-  imports: [FormsModule, GoogleSignInButton, LinkedinSignInButton],
+  imports: [FormsModule, GoogleSignInButton, LinkedinSignInButton, Modale],
   templateUrl: './auth-modal.html',
   styleUrl: './auth-modal.scss',
 })
@@ -312,37 +313,11 @@ export class AuthModal {
     this.modale.fermer();
   }
 
-  /**
-   * Le clavier ne doit pas s'échapper derrière la modale.
-   *
-   * Sans cette boucle, une tabulation continue dans la page du dessous —
-   * on remplit un formulaire qu'on ne voit pas, et un lecteur d'écran
-   * annonce un contenu recouvert.
-   */
-  auClavier(e: KeyboardEvent) {
-    if (e.key === 'Escape') { this.fermer(); return; }
-    if (e.key !== 'Tab') return;
-
-    const p = this.panneau()?.nativeElement;
-    if (!p) return;
-    // « tabindex="-1" » est exclu explicitement : le champ-piège en porte
-    // un, et il est bien dans le document — hors de vue, mais pas
-    // « display:none ». Sans cette exclusion, la boucle du clavier
-    // déposerait le curseur dans un champ que personne ne voit.
-    const cibles = [...p.querySelectorAll<HTMLElement>(
-      'a[href]:not([tabindex="-1"]), button:not([disabled]):not([tabindex="-1"]), '
-      + 'input:not([disabled]):not([tabindex="-1"]), select:not([tabindex="-1"]), '
-      + 'textarea:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])',
-    )].filter((el) => el.offsetParent !== null && !el.closest('[aria-hidden="true"]'));
-    if (!cibles.length) return;
-
-    const premier = cibles[0];
-    const dernier = cibles[cibles.length - 1];
-    const actif = document.activeElement;
-
-    if (e.shiftKey && actif === premier) { e.preventDefault(); dernier.focus(); }
-    else if (!e.shiftKey && actif === dernier) { e.preventDefault(); premier.focus(); }
-  }
+  // Le piège de focus vivait ici. Il vit maintenant dans la directive
+  // `appModale`, qui le pose sur les sept modales du site au lieu d'une
+  // seule — et qui exclut les mêmes `tabindex="-1"`, pour la même
+  // raison : le champ-piège anti-robot en porte un, il est dans le
+  // document, et la boucle du clavier y déposait le curseur.
 
   // ══════════════════════════════
   //  Habillage

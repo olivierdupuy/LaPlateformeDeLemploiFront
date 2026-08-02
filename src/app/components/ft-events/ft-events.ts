@@ -9,6 +9,7 @@ import {
   EvenementEmploi,
   RechercheEvenements,
 } from '../../services/france-travail.service';
+import { Modale } from '../../utils/modale.directive';
 
 /**
  * Événements emploi de France Travail, en direct de leur API.
@@ -53,7 +54,7 @@ const SECTEURS: { code: string; label: string }[] = [
 
 @Component({
   selector: 'app-ft-events',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, Modale],
   templateUrl: './ft-events.html',
   styleUrl: './ft-events.scss',
 })

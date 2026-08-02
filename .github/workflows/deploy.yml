@@ -23,6 +23,34 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # ── Avant la construction, pas apres ──
+      #
+      # Le workflow enchainait « install », « build », deploiement. Un
+      # « console.log » oublie, un abonnement jamais ferme, une image
+      # sans alternative passaient en production sans que rien ne les
+      # signale : le compilateur ne s'en preoccupe pas.
+      #
+      # Le plafond d'avertissements est un cliquet, pas une cible. Il
+      # vaut le compte du jour ou l'analyse a ete posee ; toute
+      # regression le depasse et casse la construction, toute correction
+      # permet de l'abaisser. 333 → 250 → 223 → 187.
+      #
+      # Les regles d'accessibilite ne sont plus sous ce plafond : elles
+      # sont a zero, et sont passees en « error ». Le seul moyen de
+      # tenir un zero est d'interdire le premier retour en arriere.
+      # Ce qui reste sous le plafond n'est plus que du « no-explicit-any ».
+      - name: Analyse statique
+        run: npm run lint
+
+      # Les tests portent sur ce qui fait mal quand ca casse : les
+      # regles de saisie, l'assainissement du markdown — le seul endroit
+      # ou du texte ecrit par un inconnu ressort en HTML — et le
+      # consentement, dont un defaut ne se voit jamais a l'usage : un
+      # refus mal enregistre se traduit par une mesure qui part quand
+      # meme, et rien a l'ecran ne le signale.
+      - name: Tests
+        run: npm test
+
       - name: Set production API URL
         shell: pwsh
         run: |
@@ -107,8 +135,105 @@ jobs:
                 <mimeMap fileExtension=".json" mimeType="application/json" />
                 <remove fileExtension=".webmanifest" />
                 <mimeMap fileExtension=".webmanifest" mimeType="application/manifest+json" />
+
+                <!-- ── Duree de vie des fichiers ──
+                     Aucune politique n'etait declaree : IIS improvisait,
+                     et le navigateur retelechargeait a chaque visite des
+                     fichiers dont le nom contient deja leur empreinte.
+                     Ceux-la ne changent jamais — un contenu different
+                     produit un autre nom — donc un an, immuable. Les
+                     deux exceptions sont plus bas. -->
+                <clientCache cacheControlMode="UseMaxAge"
+                             cacheControlMaxAge="365.00:00:00"
+                             cacheControlCustom="immutable" />
               </staticContent>
+
+              <httpProtocol>
+                <customHeaders>
+                  <!-- ── HSTS ──
+                       La redirection 301 ci-dessus protege la deuxieme
+                       requete, jamais la premiere : le temps d'un aller
+                       en clair, un jeton de session traverse le reseau
+                       lisible, et le proxy d'un hotel n'a pas besoin de
+                       plus. Cet en-tete dit au navigateur de ne plus
+                       jamais essayer en HTTP.
+
+                       Un an, sous-domaines compris. A savoir avant de le
+                       garder : tant qu'il n'a pas expire, le domaine est
+                       inaccessible en clair — y compris si le certificat
+                       vient a manquer. C'est le prix, il est assume.
+                       « preload » n'est volontairement pas pose : il
+                       inscrirait le domaine dans une liste dont on ne
+                       sort pas en quelques jours. -->
+                  <add name="Strict-Transport-Security"
+                       value="max-age=31536000; includeSubDomains" />
+
+                  <!-- Le navigateur cesse de deviner le type d'un
+                       fichier. Sans cela, un fichier televerse qui
+                       ressemble a du HTML peut etre execute comme tel. -->
+                  <add name="X-Content-Type-Options" value="nosniff" />
+
+                  <!-- Personne ne nous met dans un cadre : c'est ainsi
+                       qu'on fait cliquer quelqu'un sur « supprimer mon
+                       compte » en lui montrant autre chose. La directive
+                       moderne est dans la CSP ci-dessous ; celle-ci
+                       reste pour les navigateurs qui l'ignorent. -->
+                  <add name="X-Frame-Options" value="DENY" />
+
+                  <!-- L'adresse complete d'une page ne part pas vers un
+                       autre site. Une fiche candidat porte un
+                       identifiant dans son URL. -->
+                  <add name="Referrer-Policy" value="strict-origin-when-cross-origin" />
+
+                  <!-- Ce que la page ne demandera jamais. La
+                       geolocalisation reste ouverte : la recherche par
+                       rayon s'en sert, sur clic explicite. -->
+                  <add name="Permissions-Policy"
+                       value="camera=(), microphone=(), payment=(), usb=(), magnetometer=(), geolocation=(self)" />
+
+                  <!-- ── Politique de securite du contenu ──
+                       En observation d'abord (« Report-Only ») : une CSP
+                       trop stricte posee d'un coup casse en silence, et
+                       ce qu'elle casse ne se voit qu'en production.
+                       Passer a « Content-Security-Policy » une fois les
+                       rapports vides.
+
+                       'unsafe-inline' sur les styles est inevitable
+                       aujourd'hui : Angular pose des styles en ligne
+                       pour l'encapsulation des composants. Les scripts,
+                       eux, n'en ont pas besoin — le seul script en ligne
+                       du document est celui du service worker, a
+                       deplacer dans un fichier avant de durcir. -->
+                  <add name="Content-Security-Policy-Report-Only"
+                       value="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.laplateformedelemploi.com wss://api.laplateformedelemploi.com https://nominatim.openstreetmap.org; frame-src https://accounts.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests" />
+                </customHeaders>
+              </httpProtocol>
+
             </system.webServer>
+
+            <!-- « index.html » fait exception et ne doit jamais etre
+                 garde : c'est lui qui designe les fichiers haches. Mis
+                 en cache, il continuerait de reclamer la version
+                 precedente longtemps apres le deploiement, et le site
+                 resterait fige pour les visiteurs deja venus. -->
+            <location path="index.html">
+              <system.webServer>
+                <staticContent>
+                  <clientCache cacheControlMode="DisableCache" />
+                </staticContent>
+              </system.webServer>
+            </location>
+
+            <!-- Le service worker, meme raison, et plus grave encore :
+                 un service worker mis en cache se met a jour avec des
+                 semaines de retard. -->
+            <location path="sw.js">
+              <system.webServer>
+                <staticContent>
+                  <clientCache cacheControlMode="DisableCache" />
+                </staticContent>
+              </system.webServer>
+            </location>
           </configuration>
           "@
           Set-Content -Path "dist/lpdeFront/browser/web.config" -Value $webConfig
@@ -122,3 +247,65 @@ jobs:
             -dest:contentPath="${{ secrets.IIS_SITE_NAME }}",computerName="https://${{ secrets.IIS_SERVER_IP }}:8172/msdeploy.axd",userName="${{ secrets.WEBDEPLOY_USERNAME }}",password="${{ secrets.WEBDEPLOY_PASSWORD }}",authType="Basic" ^
             -enableRule:AppOffline ^
             -allowUntrusted
+
+      # ══════════════════════════════════════════════
+      #  Verification apres deploiement
+      #
+      #  Le workflow se declarait vert des que « msdeploy » rendait la
+      #  main. Il ne rendait compte que du transfert des fichiers :
+      #  jamais de ce que le site repondait ensuite. Un « web.config »
+      #  refuse par IIS, un pool qui ne redemarre pas, une regle de
+      #  reecriture fautive produisaient un deploiement « reussi » et un
+      #  site en erreur 500 — decouvert par un visiteur.
+      #
+      #  Ces verifications ne remplacent pas une recette. Elles
+      #  repondent a une seule question, celle qui compte a cet
+      #  instant : le site rend-il encore service ?
+      # ══════════════════════════════════════════════
+      - name: Test de fumee
+        shell: pwsh
+        run: |
+          $site = "https://www.laplateformedelemploi.com"
+          $api  = "https://api.laplateformedelemploi.com/api/sante"
+
+          # IIS recycle le pool apres un deploiement : les premieres
+          # secondes, la reponse peut etre lente ou absente sans que
+          # rien ne soit casse. On laisse trois essais espaces.
+          function Verifier($nom, $url, $attendu) {
+            for ($i = 1; $i -le 3; $i++) {
+              try {
+                $r = Invoke-WebRequest -Uri $url -TimeoutSec 20 -UseBasicParsing
+                if ($r.StatusCode -eq $attendu) {
+                  Write-Host "OK   $nom ($($r.StatusCode))"
+                  return $r
+                }
+                Write-Host "..   $nom a repondu $($r.StatusCode), essai $i/3"
+              } catch {
+                Write-Host "..   $nom injoignable ($($_.Exception.Message)), essai $i/3"
+              }
+              Start-Sleep -Seconds 10
+            }
+            Write-Error "ECHEC $nom — le deploiement n'a pas abouti a un site qui repond."
+            exit 1
+          }
+
+          $accueil = Verifier "Accueil" $site 200
+
+          # La coquille doit contenir le point d'ancrage de
+          # l'application. Un « index.html » servi mais vide donnerait un
+          # 200 et une page blanche.
+          if ($accueil.Content -notmatch "<app-root") {
+            Write-Error "ECHEC Accueil — la page repond mais ne contient pas l'application."
+            exit 1
+          }
+
+          Verifier "Sante de l'API" $api 200 | Out-Null
+
+          # Une adresse inconnue doit rendre la coquille (l'application
+          # affiche alors sa page 404), pas une erreur d'IIS : c'est la
+          # regle de reecriture Angular qui se verifie ici, et c'est
+          # elle qui casse le plus souvent.
+          Verifier "Reecriture des routes" "$site/offres" 200 | Out-Null
+
+          Write-Host ""
+          Write-Host "Deploiement verifie."

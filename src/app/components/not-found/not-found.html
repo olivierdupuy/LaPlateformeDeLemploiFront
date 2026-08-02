@@ -1,0 +1,42 @@
+<div class="page nf">
+  <div class="container">
+    <div class="nf__head">
+      <p class="eyebrow eyebrow--bare">Erreur 404</p>
+      <h1 class="display-lg">Cette page n'existe pas</h1>
+      <p class="nf__sub">
+        L'adresse <code class="u-mono">{{ adresse() }}</code> ne correspond à rien chez nous.
+        Elle a peut-être changé, ou l'offre qu'elle désignait n'est plus en ligne.
+      </p>
+
+      <div class="nf__actions">
+        <a routerLink="/offres" class="btn-primary btn-lg">
+          <i class="bi bi-search" aria-hidden="true"></i> Voir les offres
+        </a>
+        <a routerLink="/" class="btn-secondary btn-lg">Retour à l'accueil</a>
+      </div>
+    </div>
+
+    @if (recentes().length) {
+      <section class="nf__suggest" aria-labelledby="nf-recentes">
+        <h2 id="nf-recentes" class="display-md">Offres publiées récemment</h2>
+        <ul class="nf__list">
+          @for (o of recentes(); track o.id) {
+            <li class="card nf__card">
+              <a [routerLink]="['/offres', o.id]" class="nf__card-link">
+                <span class="nf__card-title">{{ o.title }}</span>
+                <span class="nf__card-meta">{{ o.company }} · {{ o.location }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <nav class="nf__ailleurs" aria-label="Autres pages">
+      <a routerLink="/parcourir">Parcourir par métier et par ville</a>
+      <a routerLink="/entreprises">Annuaire des entreprises</a>
+      <a routerLink="/salaires">Salaires</a>
+      <a routerLink="/guide">Guide carrières</a>
+    </nav>
+  </div>
+</div>

@@ -185,8 +185,99 @@
                 </button>
               </div>
             </div>
+
+            <!-- ═══ MODÈLES ═══
+                 Quatorze messages partent au nom de la plateforme, et
+                 aucun n'était relisible sans provoquer la situation qui
+                 le déclenche : relire le courriel de suppression de
+                 compte supposait d'en supprimer un. On les relisait donc
+                 après coup, dans la boîte du destinataire. -->
+            <details class="set-modeles" (toggle)="chargerModeles()">
+              <summary>
+                <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+                Relire les modèles de messages
+                <span class="set-modeles__compte u-mono">{{ modeles().length || '' }}</span>
+              </summary>
+
+              <p class="set-modeles__intro">
+                Rendus avec des données d'exemple — « Camille Martin », « TechCorp » —
+                pour qu'un essai reçu ne puisse pas être confondu avec un vrai message.
+              </p>
+
+              <div class="set-modeles__adresse form-group">
+                <label for="set-essai-adresse">Adresse d'essai</label>
+                <input id="set-essai-adresse" type="email" autocomplete="email"
+                       placeholder="La vôtre, si vous laissez vide"
+                       [ngModel]="adresseEssai()" (ngModelChange)="adresseEssai.set($event)"
+                       name="adresseEssai" />
+              </div>
+
+              @for (groupe of modelesParCategorie(); track groupe.categorie) {
+                <div class="set-modeles__cat">
+                  <h4>{{ groupe.categorie }}</h4>
+                  <ul>
+                    @for (m of groupe.items; track m.cle) {
+                      <li>
+                        <div class="set-modeles__txt">
+                          <strong>{{ m.nom }}</strong>
+                          <span>{{ m.quand }}</span>
+                        </div>
+                        <div class="set-modeles__act">
+                          <button type="button" class="btn-ghost" [disabled]="apercuEnCours()"
+                                  (click)="ouvrirApercu(m.cle)">
+                            <i class="bi bi-eye" aria-hidden="true"></i> Aperçu
+                          </button>
+                          <button type="button" class="btn-ghost" [disabled]="essaiEnCours()"
+                                  (click)="essayerCourriel(m.cle)">
+                            <i class="bi bi-send" aria-hidden="true"></i> Envoyer
+                          </button>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            </details>
           </div>
         </section>
+      }
+
+      <!-- ═══ APERÇU D'UN MODÈLE ═══
+           Dans un cadre isolé et non dans la page : un courriel se
+           compose en attributs « style » et en tableaux, il déformerait
+           la console qui l'accueille. Le bac à sable règle du même coup
+           la mise en page et l'injection. -->
+      @if (apercu(); as a) {
+        <div class="set-apercu" appModale (fermeture)="fermerApercu()">
+          <div class="set-apercu__in">
+            <div class="set-apercu__tete">
+              <div>
+                <b>{{ a.sujet }}</b>
+                <small class="u-mono">{{ a.cle }}</small>
+              </div>
+              <button class="btn-ghost" (click)="fermerApercu()" aria-label="Fermer l'aperçu">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <iframe class="set-apercu__cadre" [srcdoc]="apercuSrcdoc()"
+                    sandbox title="Aperçu du message"></iframe>
+
+            <div class="set-apercu__pied">
+              <!-- La version texte part avec le message : c'est elle que
+                   lisent les clients en texte brut, et celle sur
+                   laquelle les filtres anti-indésirables s'appuient. -->
+              <details>
+                <summary>Version texte</summary>
+                <pre>{{ a.texte }}</pre>
+              </details>
+              <button class="btn-secondary" [disabled]="essaiEnCours()"
+                      (click)="essayerCourriel(a.cle)">
+                <i class="bi bi-send" aria-hidden="true"></i> Me l'envoyer
+              </button>
+            </div>
+          </div>
+        </div>
       }
 
       <!-- ═══ CATALOGUE ═══

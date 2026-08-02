@@ -86,7 +86,17 @@
           @for (c of campagnes(); track c.id) {
             <article class="anl-camp card" [class.est-brouillon]="c.status === 'Draft'">
               <div class="anl-camp__tete">
-                <h3 (click)="ouvrir(c)">{{ c.subject || '(sans objet)' }}</h3>
+                <!-- Le titre ouvrait la campagne au clic, en portant le
+                     gestionnaire sur le `h3` lui-même : à la souris on
+                     ne voyait pas la différence, au clavier il n'y avait
+                     rien à atteindre. Le bouton est à l'intérieur du
+                     titre, pas à sa place — le niveau de titre reste
+                     annoncé au lecteur d'écran. -->
+                <h3>
+                  <button type="button" class="anl-camp__ouvrir" (click)="ouvrir(c)">
+                    {{ c.subject || '(sans objet)' }}
+                  </button>
+                </h3>
                 <span class="badge"
                       [class.badge-yellow]="c.status === 'Draft'"
                       [class.badge-blue]="c.status === 'Sending'"
@@ -360,8 +370,11 @@
 
     <!-- ═══ APERÇU ═══ -->
     @if (apercuSur(); as html) {
-      <div class="anl-modale" (click)="fermerApercu()">
-        <div class="anl-modale__in" (click)="$event.stopPropagation()">
+      <!-- Échap, piège de focus, restitution du focus et clic sur le
+           fond : la directive s'en charge. C'était la huitième modale
+           du site, et la seule restée en dehors. -->
+      <div class="anl-modale" appModale (fermeture)="fermerApercu()">
+        <div class="anl-modale__in">
           <div class="anl-modale__tete">
             <div>
               <b>Aperçu</b>

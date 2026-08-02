@@ -228,3 +228,172 @@
 }
 
 a.tag:hover { border-color: var(--ciel); color: var(--bleu-900); }
+
+/* ══════════════════════════════════════════
+   Signalements au titre du règlement européen
+   ══════════════════════════════════════════ */
+
+.dsa-intro {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  max-width: 52rem;
+}
+
+.dsa-filtres {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+
+.dsa-liste {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dsa-dossier {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  background: var(--canvas);
+  padding: 1rem 1.15rem;
+
+  /* Un dossier qui attend depuis trois jours se voit sans être cherché.
+     Le règlement ne fixe pas de délai chiffré, mais « en temps
+     opportun » ne survit pas à trois semaines d'oubli. */
+  &.is-urgent {
+    border-left-color: var(--danger);
+  }
+
+  &__tete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__ref {
+    font-weight: 600;
+    color: var(--ink);
+    margin-right: 0.5rem;
+  }
+
+  &__attente {
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+
+    &.is-urgent {
+      color: var(--danger-600);
+      font-weight: 600;
+    }
+  }
+
+  &__quoi {
+    margin: 0.4rem 0 0;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  &__expose {
+    margin: 0.85rem 0 0;
+    padding: 0.7rem 0.9rem;
+    background: var(--nuage);
+    border-radius: 0.4rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  &__meta {
+    margin: 0.6rem 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  &__rendue {
+    margin-top: 0.85rem;
+    padding: 0.75rem 0.9rem;
+    background: var(--brand-100);
+    border-radius: 0.4rem;
+    font-size: 0.88rem;
+
+    p { margin: 0.3rem 0 0; line-height: 1.55; }
+  }
+
+  &__form {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0.6rem 0 0.3rem;
+
+      em {
+        font-style: normal;
+        font-weight: 400;
+        color: var(--muted);
+      }
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--line-strong);
+      border-radius: 0.4rem;
+      font: inherit;
+      background: #fff;
+    }
+
+    textarea { resize: vertical; }
+  }
+
+  &__ligne {
+    display: grid;
+    gap: 0.5rem 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  }
+
+  &__compte {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+}
+
+.dsa-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+
+  th, td {
+    padding: 0.55rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+
+  th {
+    font-size: 0.76rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+}

@@ -110,8 +110,14 @@
               <div class="ac-body">
                 <div class="ac-top">
                   <div class="ac-candidate">
-                    <label class="ac-checkbox" (click)="$event.stopPropagation()">
+                    <!-- Le `stopPropagation` datait d'une carte cliquable
+                         dans son ensemble ; elle ne l'est plus, et il ne
+                         retenait donc plus rien — sinon l'avertissement
+                         « élément cliquable non focalisable » sur une
+                         étiquette qui n'a jamais eu à l'être. -->
+                    <label class="ac-checkbox">
                       <input type="checkbox" [checked]="isSelected(app.id)" (change)="toggleSelect(app.id)" />
+                      <span class="sr-only">Sélectionner la candidature de {{ app.fullName }}</span>
                     </label>
                     <div class="ac-av" [style.background]="companyColor(app.fullName).bg">
                       <span [style.color]="companyColor(app.fullName).fg">{{ app.fullName.charAt(0) }}</span>
@@ -182,14 +188,14 @@
                   <div class="schedule-form">
                     <h4><i class="bi bi-calendar-event"></i> Planifier un entretien avec {{ app.fullName }}</h4>
                     <div class="sf-grid">
-                      <div class="sf-field"><label>Date et heure *</label><input type="datetime-local" [(ngModel)]="interviewForm.proposedAt" /></div>
-                      <div class="sf-field"><label>Type</label>
-                        <select [(ngModel)]="interviewForm.type"><option value="Visio">Visio</option><option value="Telephonique">Téléphonique</option><option value="Presentiel">Présentiel</option></select>
+                      <div class="sf-field"><label for="a-proposed-at">Date et heure *</label><input id="a-proposed-at" type="datetime-local" [(ngModel)]="interviewForm.proposedAt" /></div>
+                      <div class="sf-field"><label for="a-type">Type</label>
+                        <select id="a-type" [(ngModel)]="interviewForm.type"><option value="Visio">Visio</option><option value="Telephonique">Téléphonique</option><option value="Presentiel">Présentiel</option></select>
                       </div>
-                      <div class="sf-field"><label>Durée (min)</label><input type="number" [(ngModel)]="interviewForm.duration" /></div>
-                      <div class="sf-field"><label>Intervieweur</label><input type="text" [(ngModel)]="interviewForm.interviewerName" placeholder="Nom" /></div>
-                      <div class="sf-field sf-full"><label>Lieu / lien</label><input type="text" [(ngModel)]="interviewForm.location" placeholder="Lien Zoom, adresse..." /></div>
-                      <div class="sf-field sf-full"><label>Notes</label><textarea [(ngModel)]="interviewForm.notes" rows="2" placeholder="Instructions pour le candidat..."></textarea></div>
+                      <div class="sf-field"><label for="a-duration">Durée (min)</label><input id="a-duration" type="number" [(ngModel)]="interviewForm.duration" /></div>
+                      <div class="sf-field"><label for="a-interviewer-name">Intervieweur</label><input id="a-interviewer-name" type="text" [(ngModel)]="interviewForm.interviewerName" placeholder="Nom" /></div>
+                      <div class="sf-field sf-full"><label for="a-location">Lieu / lien</label><input id="a-location" type="text" [(ngModel)]="interviewForm.location" placeholder="Lien Zoom, adresse..." /></div>
+                      <div class="sf-field sf-full"><label for="a-notes">Notes</label><textarea id="a-notes" [(ngModel)]="interviewForm.notes" rows="2" placeholder="Instructions pour le candidat..."></textarea></div>
                     </div>
                     <div class="sf-actions">
                       <button class="btn-primary" (click)="submitInterview(app.id)"><i class="bi bi-check-lg"></i> Planifier</button>
@@ -201,8 +207,8 @@
                 <!-- Notes editor -->
                 @if (editingNotesId() === app.id) {
                   <div class="ac-notes-editor">
-                    <label><i class="bi bi-sticky-fill"></i> Notes privées sur {{ app.fullName }}</label>
-                    <textarea [(ngModel)]="notesText" rows="3" placeholder="Ajoutez vos observations..."></textarea>
+                    <label for="a-notes-text"><i class="bi bi-sticky-fill"></i> Notes privées sur {{ app.fullName }}</label>
+                    <textarea id="a-notes-text" [(ngModel)]="notesText" rows="3" placeholder="Ajoutez vos observations..."></textarea>
                     <div class="ac-notes-actions">
                       <button class="btn-ghost" (click)="cancelNotes()">Annuler</button>
                       <button class="btn-primary" (click)="saveNotes(app)"><i class="bi bi-check-lg"></i> Sauvegarder</button>

@@ -1,5 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
+import { Consentement } from '../../services/consentement.service';
 import { PlatformService } from '../../services/platform.service';
 import { SeoService } from '../../services/seo.service';
 
@@ -20,7 +22,12 @@ import { SeoService } from '../../services/seo.service';
  * qu'aucune mention fausse ne passe pour vraie.
  */
 
-export type DocLegal = 'mentions-legales' | 'confidentialite' | 'cgu' | 'cookies';
+export type DocLegal =
+  | 'mentions-legales'
+  | 'confidentialite'
+  | 'cgu'
+  | 'cookies'
+  | 'accessibilite';
 
 interface Section {
   titre: string;
@@ -32,6 +39,14 @@ interface Section {
    * entrée porte la clé du paramètre et son libellé.
    */
   mentions?: { cle: string; libelle: string }[];
+  /**
+   * Pose le bouton qui rouvre le bandeau de consentement.
+   *
+   * « Il doit être aussi simple de retirer son consentement que de le
+   * donner » : la phrase est dans le RGPD, et un lien renvoyant aux
+   * réglages du navigateur ne la satisfait pas.
+   */
+  rouvrirConsentement?: boolean;
 }
 
 interface Document {
@@ -49,8 +64,7 @@ const STOCKAGE_LOCAL: string[] = [
   '- `lpde_bookmarks` : les offres que vous mettez en favori. Elles ne quittent jamais votre navigateur — nous ne savons pas ce que vous enregistrez.',
   '- `lpde_recent_searches` : vos dernières recherches, pour vous les reproposer.',
   '- `lpde.candidature.*` : le brouillon d’une candidature interrompue, pour la reprendre où vous l’aviez laissée.',
-  '- `cookie_consent` : votre réponse à ce bandeau, pour ne plus vous la redemander.',
-  '- `lang` et `country` : la langue et le pays choisis.',
+  '- `consentement_finalites` : vos réponses au bandeau, finalité par finalité, avec la date. Enregistré même si vous refusez tout — c’est ce qui évite qu’on vous repose la question à chaque page.',
   '- `lpde_token_admin`, `lpde_user_admin`, `lpde_emprunt` : réservés à l’administration, pendant une prise en main de compte à des fins d’assistance.',
 ];
 
@@ -145,7 +159,39 @@ const DOCUMENTS: Document[] = [
           { cle: 'conservation_candidatures', libelle: 'Candidatures et messages' },
           { cle: 'conservation_journal', libelle: 'Journal d’administration' },
         ],
-        corps: ['Vous pouvez à tout moment supprimer votre compte : l’effacement est alors immédiat, sans attendre ces échéances.'],
+        corps: [
+          // Ces durées ne sont pas des intentions : ce sont celles que
+          // `PurgeService` applique réellement, une fois par jour. Elles
+          // sont réglables dans la console — d'où les valeurs affichées
+          // ci-dessus, lues à la source plutôt que recopiées ici. Le
+          // détail par catégorie suit, parce qu'une promesse de
+          // conservation qui ne dit pas *quoi* ne promet rien.
+          'Le détail, par catégorie de donnée :',
+          '- **Compte et profil** — 24 mois après la dernière connexion. Un message d’avertissement part **60 jours avant** l’échéance ; une seule connexion remet le compteur à zéro.',
+          '- **CV, sections de CV et fichiers téléversés** — effacés avec le compte, fichier compris sur le disque du serveur.',
+          '- **Candidatures, lettres et réponses aux questions** — 24 mois après le dernier échange sur le dossier.',
+          '- **Messages et entretiens** — même durée que la candidature à laquelle ils se rattachent.',
+          '- **Alertes, favoris, notes sur une offre, jetons de notification** — effacés avec le compte.',
+          '- **Sessions ouvertes** — effacées avec le compte ; une session inutilisée expire de toute façon au bout de 7 jours.',
+          '- **Journal d’administration** — 12 mois. C’est la seule catégorie conservée indépendamment du compte : elle sert à retrouver l’auteur d’une action sur les annonces ou les comptes, y compris après le départ de cet auteur.',
+          '- **Abonnement à la lettre d’information** — jusqu’au désabonnement, ou effacé avec le compte lorsque l’adresse est la même.',
+          '- **Factures et pièces comptables** — 10 ans, durée imposée par le code de commerce. Elles survivent donc à la suppression du compte, réduites à ce que la comptabilité exige : numéro, date, montant, raison sociale.',
+          '- **Signalements (DSA)** — 12 mois après la décision, pour pouvoir en justifier auprès du déclarant et du régulateur.',
+          'Vous pouvez à tout moment supprimer votre compte : l’effacement est alors immédiat, sans attendre ces échéances — à la seule exception des pièces comptables ci-dessus.',
+        ],
+      },
+      {
+        titre: 'Registre des traitements',
+        corps: [
+          'Les sous-traitants qui interviennent, et ce qu’ils voient exactement :',
+          '- **OVH** (France) — hébergement du site, de l’API et de la base. Voit tout ce qui est stocké, comme tout hébergeur.',
+          '- **Brevo** (France) — expédition des courriels. Reçoit l’adresse du destinataire et le contenu du message envoyé, rien d’autre.',
+          '- **OVH SMS** (France) — envoi des codes de double authentification. Reçoit le numéro de téléphone et le code.',
+          '- **Anthropic** (États-Unis) — analyse des annonces suspectes et aide à la rédaction. Reçoit le **texte de l’offre**, jamais un CV, jamais une candidature, jamais une donnée de compte.',
+          '- **Firebase Cloud Messaging** (Google, États-Unis) — notifications poussées, si vous les activez. Reçoit un jeton d’appareil et le texte de la notification.',
+          '- **France Travail, Adzuna, Jooble, Arbeitnow, Remotive** — sources des offres importées. **Rien ne leur est transmis** : la lecture est à sens unique.',
+          'Les transferts hors de l’Union européenne (Anthropic, Firebase) reposent sur les clauses contractuelles types de la Commission. Aucun d’eux ne reçoit de donnée de candidature.',
+        ],
       },
       {
         titre: 'Vos droits',
@@ -218,9 +264,9 @@ const DOCUMENTS: Document[] = [
     chapeau: 'Ce que le site dépose dans votre navigateur — et ce qu’il n’y dépose pas.',
     sections: [
       {
-        titre: 'Aucun traceur',
+        titre: 'Aucun traceur publicitaire',
         corps: [
-          'Le site ne comporte **aucun outil de mesure d’audience**, aucun traceur publicitaire, aucun pixel de réseau social. Rien de ce qui est déposé dans votre navigateur ne sert à vous suivre d’un site à l’autre.',
+          'Le site ne comporte **aucun traceur publicitaire**, aucun pixel de réseau social, aucun outil qui vous suive d’un site à l’autre. Rien n’est vendu, loué ni recoupé avec quoi que ce soit.',
           'Tout ce qui suit est enregistré en « stockage local », et non en cookies : ces données ne sont jamais envoyées automatiquement au serveur à chaque requête. Elles restent sur votre appareil et s’effacent avec les données de navigation.',
         ],
       },
@@ -229,11 +275,29 @@ const DOCUMENTS: Document[] = [
         corps: STOCKAGE_LOCAL,
       },
       {
-        titre: 'Le bandeau de consentement',
+        titre: 'Trois finalités, trois choix',
         corps: [
-          'Le bandeau affiché à votre première visite enregistre votre réponse pour ne plus vous la poser.',
-          'Aucun traceur n’étant en place, votre choix ne conditionne aujourd’hui le chargement d’aucun service tiers. Il sera respecté le jour où un outil de mesure serait ajouté.',
+          'Le bandeau ne pose pas une question mais trois, parce que ce n’est pas la technique qui se consent — c’est l’usage qu’on en fait.',
+          '- **Strict nécessaire** — votre session, le jeton anti-falsification des formulaires, et le choix que vous faites ici. Ne se refuse pas : sans lui, il n’y a pas de site.',
+          '- **Mesure d’audience** — le comptage des pages vues. Refusée par défaut, et refusée veut dire **rien** : aucune requête ne part.',
+          '- **Confort de navigation** — vos recherches récentes, vos favoris, l’état de vos filtres entre deux visites.',
+          'Refuser coûte un clic, exactement comme accepter : les deux boutons ont le même poids, et aucune case n’est cochée d’avance.',
         ],
+      },
+      {
+        titre: 'La mesure d’audience, si elle est activée',
+        corps: [
+          'Elle ne l’est pas aujourd’hui, et le site le dit plutôt que de laisser croire le contraire. Le jour où elle le sera, ce sera **Matomo ou Plausible, hébergés sur nos propres serveurs** — jamais Google Analytics, qui transfère les données hors de l’Union et alimente un profil publicitaire.',
+          'Ce qui serait compté : l’adresse de la page, **débarrassée de ses paramètres de recherche**. Cette précision n’est pas cosmétique — les filtres passent par ces paramètres, et une recherche en dit souvent plus sur quelqu’un que tout le reste de sa visite.',
+          'Ce qui ne serait jamais compté : votre identité, votre compte, vos candidatures, ni aucun identifiant permettant de vous reconnaître d’une visite à l’autre.',
+        ],
+      },
+      {
+        titre: 'Revenir sur votre choix',
+        corps: [
+          'Retirer un consentement doit être aussi simple que de le donner. Le bouton ci-dessous rouvre le bandeau, avec vos réponses précédentes déjà en place.',
+        ],
+        rouvrirConsentement: true,
       },
       {
         titre: 'Comment les effacer',
@@ -243,11 +307,85 @@ const DOCUMENTS: Document[] = [
       },
     ],
   },
+
+  // ══════════════════════════════════════════════
+  //  Déclaration d'accessibilité
+  //
+  //  Une déclaration n'a de valeur que si elle est exacte. Celle-ci
+  //  annonce donc un état partiel et nomme ce qui ne va pas, plutôt que
+  //  de cocher « totalement conforme » comme le font la plupart des
+  //  sites qui n'ont jamais audité quoi que ce soit.
+  //
+  //  Les chiffres viennent de l'analyse statique du dépôt (règles
+  //  d'accessibilité d'ESLint), pas d'une estimation. Ils bougeront :
+  //  les mettre à jour fait partie du travail de correction.
+  // ══════════════════════════════════════════════
+  {
+    cle: 'accessibilite',
+    titre: 'Déclaration d’accessibilité',
+    chapeau:
+      'Où en est ce site en matière d’accessibilité, ce qui reste non conforme, et comment nous le signaler.',
+    sections: [
+      {
+        titre: 'État de conformité',
+        corps: [
+          `**${MARQUE} est partiellement conforme** au référentiel général d’amélioration de l’accessibilité (RGAA 4.1). « Partiellement conforme » signifie que certains critères ne sont pas respectés : ils sont énumérés plus bas.`,
+          'Cette déclaration porte sur l’ensemble du site public et des espaces candidat et recruteur.',
+        ],
+      },
+      {
+        titre: 'Ce qui a été fait',
+        corps: [
+          '- **Contrastes** : chaque couleur de texte du système graphique est mesurée sur ses deux fonds — blanc et crème — et le rapport est noté à côté de sa définition. Aucune couleur en dessous de 4,5:1 n’est utilisée pour du texte à lire.',
+          '- **Navigation au clavier** : le focus reste visible partout, y compris sur les éléments interactifs personnalisés. Les tunnels de candidature et de dépôt d’offre se parcourent entièrement au clavier.',
+          '- **Animations** : le réglage système « réduire les animations » est respecté sur l’ensemble du site, graphiques compris.',
+          '- **Images** : une alternative textuelle est exigée par l’analyse statique, qui refuse la construction sans elle.',
+          '- **Zoom et adaptation** : la mise en page tient jusqu’à 200 % d’agrandissement ; aucun contenu large ne fait défiler la page horizontalement.',
+          '- **Structure** : titres hiérarchisés, points de repère, libellés de formulaire liés à leur champ sur les écrans les plus récents.',
+        ],
+      },
+      {
+        titre: 'Ce qui n’est pas conforme',
+        corps: [
+          'Un audit automatisé du code, mené le 2 août 2026, relevait 120 manques. **Ils sont tous corrigés.** Les règles correspondantes bloquent désormais la mise en production, ce qui est le seul moyen de tenir ce zéro : une règle qui se contente d’avertir finit par être ignorée.',
+          'Ce que l’outil ne voit pas reste, et c’est l’essentiel de ce qui suit. Un audit automatisé vérifie la présence d’attributs ; il ne dit pas si une page est utilisable.',
+          '- **Absence de rendu serveur** : la page est construite par du JavaScript. Une technologie d’assistance qui ne l’exécute pas ne voit rien. C’est aujourd’hui le manque le plus lourd de cette liste.',
+          '- **Graphiques** : les données sont rendues dans un canevas, non parcourable au clavier. Une vue tableau existe sur les cartes qui en proposent une, pas sur toutes.',
+          '- **Cartes** : le composant cartographique n’expose pas d’alternative textuelle à la localisation. L’adresse figure toutefois en clair à côté.',
+          '- **Aucun audit au moteur de rendu** : les contrastes calculés, l’ordre réel de parcours au clavier et ce qu’annonce effectivement un lecteur d’écran ne sont vérifiés qu’à la main, par sondage. Aucun de ces trois points n’est visible d’une analyse du code source.',
+        ],
+      },
+      {
+        titre: 'Établissement de cette déclaration',
+        corps: [
+          'Déclaration établie le **2 août 2026**.',
+          'Elle s’appuie sur un audit automatisé du code (règles d’accessibilité appliquées à l’ensemble des gabarits) et sur des vérifications manuelles au clavier des parcours de candidature, de dépôt d’offre et de connexion. **Aucun audit RGAA complet par un tiers n’a été réalisé à ce jour** : le taux de conformité exact n’est donc pas connu, et cette déclaration ne l’annonce pas.',
+          'Technologies utilisées : HTML, CSS, JavaScript (Angular). Outils d’évaluation : analyse statique des gabarits, navigation au clavier, vérification des contrastes.',
+        ],
+      },
+      {
+        titre: 'Signaler un problème',
+        corps: [
+          'Si vous rencontrez un contenu inaccessible, écrivez-nous : nous répondons et nous corrigeons. Précisez la page et ce que vous n’avez pas pu faire.',
+        ],
+        mentions: [{ cle: 'email_contact', libelle: 'Adresse de contact' }],
+      },
+      {
+        titre: 'Défense de vos droits',
+        corps: [
+          'Si vous constatez un défaut d’accessibilité vous empêchant d’accéder à un contenu et que vous n’obtenez pas de réponse satisfaisante de notre part, vous pouvez :',
+          '- écrire au **Défenseur des droits** ;',
+          '- contacter le **délégué du Défenseur des droits** de votre département ;',
+          '- adresser un courrier, sans affranchissement, à : Défenseur des droits — Libre réponse 71120 — 75342 Paris CEDEX 07.',
+        ],
+      },
+    ],
+  },
 ];
 
 @Component({
   selector: 'app-legal',
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe],
   templateUrl: './legal.html',
   styleUrl: './legal.scss',
 })
@@ -255,6 +393,22 @@ export class Legal implements OnInit {
   private route = inject(ActivatedRoute);
   private seo = inject(SeoService);
   platform = inject(PlatformService);
+  readonly consentement = inject(Consentement);
+
+  /**
+   * Rouvre le bandeau, avec les réponses précédentes déjà en place.
+   *
+   * « Il doit être aussi simple de retirer son consentement que de le
+   * donner » : la phrase est dans le RGPD, et renvoyer quelqu'un vers
+   * les réglages de son navigateur ne la satisfait pas.
+   */
+  rouvrirLeChoix() {
+    this.consentement.dernierEtat.set({
+      mesure: this.consentement.mesureAutorisee(),
+      confort: this.consentement.confortAutorise(),
+    });
+    this.consentement.revenirSurLeChoix();
+  }
 
   readonly documents = DOCUMENTS;
   doc = signal<Document>(DOCUMENTS[0]);

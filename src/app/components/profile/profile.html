@@ -148,6 +148,9 @@
                    caractère près, et une virgule oubliée fusionnait deux
                    compétences sans que rien ne le signale. -->
               <div class="form-group">
+                <!-- L'éditeur contient des étiquettes retirables et un
+                     champ de saisie : c'est bien ce champ que le libellé
+                     désigne, et cliquer dessus y met le curseur. -->
                 <label for="pf-skills">Compétences</label>
                 <div class="sk-editor" [class.is-empty]="!skillList().length">
                   @for (s of skillList(); track s) {
@@ -322,6 +325,20 @@
                 <h2>Mes données</h2>
                 <p>Ce que la plateforme conserve, et ce que vous pouvez en faire.</p>
               </div>
+            </div>
+
+            <!-- Le centre de préférences était atteignable depuis le
+                 pied de page et depuis les courriels, mais pas depuis
+                 le compte — c'est-à-dire pas là où on le cherche quand
+                 on reçoit trop de messages. -->
+            <div class="dz-row">
+              <span class="dz-row__txt">
+                <strong>Ce que je reçois par courriel</strong>
+                <small>Alertes, suivi de candidatures, messages, entretiens, lettre d'information.</small>
+              </span>
+              <a class="btn-secondary" routerLink="/preferences-courriel">
+                <i class="bi bi-envelope-gear" aria-hidden="true"></i> Gérer
+              </a>
             </div>
 
             <div class="dz-row">

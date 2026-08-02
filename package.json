@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test --no-watch",
+    "test:watch": "ng test",
+    "lint": "eslint src --max-warnings 187"
   },
   "prettier": {
     "printWidth": 100,
@@ -47,6 +49,11 @@
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.0",
     "@types/qrcode": "^1.5.6",
-    "typescript": "~5.9.2"
+    "angular-eslint": "^21.4.0",
+    "eslint": "^9.39.5",
+    "jsdom": "^29.1.1",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.10"
   }
 }

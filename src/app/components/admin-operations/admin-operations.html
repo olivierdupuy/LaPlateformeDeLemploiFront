@@ -1,0 +1,204 @@
+<div class="ops">
+  <div class="page-head">
+    <div class="page-head__text">
+      <h1>Exploitation</h1>
+      <p class="page-head__sub">L'état des services et ce qui casse chez les visiteurs.</p>
+    </div>
+    <div class="page-head__actions">
+      <button type="button" class="btn-sm btn-secondary" (click)="charger()">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Rafraîchir
+      </button>
+    </div>
+  </div>
+
+  <section class="ops__sante" aria-labelledby="ops-sante">
+    <h2 id="ops-sante">État des services</h2>
+
+    @if (!sante()) {
+      <p class="u-muted">État indisponible.</p>
+    } @else {
+      <ul class="ops__etat">
+        @for (l of lignesSante(); track l.cle) {
+          <li>
+            <span class="ops__cle">{{ l.cle }}</span>
+            <span class="badge" [class]="couleurEtat(l.valeur)">{{ l.valeur }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  @if (recettes(); as r) {
+    @if (r.nombreFactures > 0 || r.abonnesActifs > 0) {
+      <section class="ops__recettes" aria-labelledby="ops-recettes">
+        <h2 id="ops-recettes">Recettes</h2>
+        <div class="ops__chiffres">
+          <div class="stat">
+            <span class="stat__label">Ce mois-ci (HT)</span>
+            <span class="stat__value u-num">{{ euros(r.moisHtCentimes) }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">Total (HT)</span>
+            <span class="stat__value u-num">{{ euros(r.totalHtCentimes) }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">Abonnés actifs</span>
+            <span class="stat__value u-num">{{ r.abonnesActifs }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">Factures émises</span>
+            <span class="stat__value u-num">{{ r.nombreFactures }}</span>
+          </div>
+        </div>
+
+        @if (r.parFormule.length) {
+          <p class="u-muted ops__formules">
+            @for (f of r.parFormule; track f.formule) {
+              <span>{{ f.formule }} : {{ f.nombre }}</span>
+            }
+          </p>
+        }
+      </section>
+    }
+  }
+
+  @if (catalogue(); as c) {
+    <section class="ops__catalogue" aria-labelledby="ops-catalogue">
+      <h2 id="ops-catalogue">Fraîcheur du catalogue</h2>
+
+      <div class="ops__chiffres">
+        <div class="stat">
+          <span class="stat__label">Offres en ligne</span>
+          <span class="stat__value u-num">{{ c.total | number }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">Âge médian</span>
+          <span class="stat__value u-num">
+            {{ c.ageMedianJours === null ? '—' : c.ageMedianJours + ' j' }}
+          </span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">Bientôt expirées</span>
+          <span class="stat__value u-num">{{ c.bientotExpirees | number }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">En modération</span>
+          <span class="stat__value u-num">{{ c.enModeration | number }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">Doublons potentiels</span>
+          <span class="stat__value u-num">{{ c.doublonsPotentiels | number }}</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="ops__table">
+          <caption class="sr-only">Offres actives par source</caption>
+          <thead>
+            <tr>
+              <th scope="col">Source</th>
+              <th scope="col" class="ta-r">Offres</th>
+              <th scope="col">Vue le plus récemment</th>
+              <th scope="col" class="ta-r">Retard</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of c.parSource; track s.source) {
+              <tr>
+                <td>{{ s.source }}</td>
+                <td class="ta-r u-num">{{ s.nombre | number }}</td>
+                <td>{{ s.plusRecente | date: 'dd/MM à HH:mm' }}</td>
+                <td class="ta-r u-num" [class.ops__retard]="s.ageMoyenJours > 2">
+                  {{ s.ageMoyenJours }} j
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (c.suspectes.length) {
+        <h3 class="ops__sous-titre">
+          Offres retenues par l'analyse
+          <span class="u-muted">({{ c.suspectes.length }})</span>
+        </h3>
+        <ul class="ops__suspectes">
+          @for (o of c.suspectes; track o.id) {
+            <li>
+              <div>
+                <a [routerLink]="['/admin/offres', o.id]">{{ o.title }}</a>
+                <span class="ops__meta">
+                  {{ o.company }} · {{ o.motifFraude }}
+                </span>
+              </div>
+              <span class="badge" [class.badge-red]="o.moderationStatus === 'Pending'">
+                {{ o.scoreFraude }}
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  <section class="ops__erreurs" aria-labelledby="ops-erreurs">
+    <div class="ops__erreurs-head">
+      <h2 id="ops-erreurs">
+        Erreurs navigateur
+        <span class="u-muted">({{ erreurs().length }})</span>
+      </h2>
+      <button type="button" class="btn-sm btn-ghost" (click)="basculerVue()">
+        {{ classees() ? 'Voir les erreurs ouvertes' : 'Voir les erreurs classées' }}
+      </button>
+    </div>
+
+    @if (chargement()) {
+      <p class="u-muted">Chargement…</p>
+    } @else if (!erreurs().length) {
+      <div class="empty-box">
+        <i class="bi bi-check-circle" aria-hidden="true"></i>
+        <p>
+          {{ classees() ? 'Aucune erreur classée.' : 'Aucune erreur ouverte. Rien ne casse.' }}
+        </p>
+      </div>
+    } @else {
+      <ul class="ops__liste">
+        @for (e of erreurs(); track e.id) {
+          <li class="ops__erreur">
+            <div class="ops__erreur-tete">
+              <div class="ops__erreur-texte">
+                <p class="ops__message">{{ e.message }}</p>
+                <p class="ops__meta">
+                  <span class="badge badge-fill u-num">×{{ e.occurrences }}</span>
+                  <span class="u-mono">{{ e.chemin }}</span>
+                  · vue pour la dernière fois le {{ e.derniereVue | date: 'dd/MM à HH:mm' }}
+                </p>
+              </div>
+              <div class="ops__erreur-actions">
+                <button type="button" class="btn-sm btn-ghost"
+                        (click)="detail.set(detail() === e.id ? null : e.id)">
+                  {{ detail() === e.id ? 'Masquer' : 'Détail' }}
+                </button>
+                <button type="button" class="btn-sm btn-secondary" (click)="classer(e)">
+                  {{ classees() ? 'Réouvrir' : 'Classer' }}
+                </button>
+              </div>
+            </div>
+
+            @if (detail() === e.id) {
+              <div class="ops__detail">
+                <p class="ops__navigateur">{{ e.navigateur }}</p>
+                <pre>{{ e.pile }}</pre>
+                <p class="u-muted">
+                  Première apparition le {{ e.premiereVue | date: 'dd/MM/yyyy à HH:mm' }}.
+                  La pile est minifiée : les noms d'origine demandent les cartes de source,
+                  que nous ne publions pas.
+                </p>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

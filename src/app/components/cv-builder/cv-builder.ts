@@ -9,10 +9,11 @@ import { CvSection, CvSectionCreate, SectionType, SECTION_TYPES, SECTION_CONFIG 
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { Modale } from '../../utils/modale.directive';
 
 @Component({
   selector: 'app-cv-builder',
-  imports: [FormsModule, DatePipe, LowerCasePipe, RouterLink, ConsoleShell],
+  imports: [FormsModule, DatePipe, LowerCasePipe, RouterLink, ConsoleShell, Modale],
   templateUrl: './cv-builder.html',
   styleUrl: './cv-builder.scss',
 })

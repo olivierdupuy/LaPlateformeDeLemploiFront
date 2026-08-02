@@ -1,0 +1,99 @@
+.nf {
+  &__head {
+    max-width: 46rem;
+    margin: 0 auto clamp(2.5rem, 6vw, 4rem);
+    text-align: center;
+  }
+
+  &__sub {
+    margin: 0.9rem 0 0;
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    line-height: 1.6;
+
+    code {
+      background: var(--nuage-2);
+      border: 1px solid var(--line);
+      border-radius: 0.35rem;
+      padding: 0.1rem 0.35rem;
+      font-size: 0.9em;
+      /* Une adresse longue ne doit pas élargir la page sur mobile. */
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    justify-content: center;
+    margin-top: 1.6rem;
+  }
+
+  &__suggest h2 {
+    text-align: center;
+    margin: 0 0 1.3rem;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  }
+
+  &__card {
+    padding: 0;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+      border-color: var(--brand-300);
+      transform: translateY(-2px);
+    }
+  }
+
+  &__card-link {
+    display: block;
+    padding: 1rem 1.1rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__card-title {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  &__card-meta {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  &__ailleurs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.5rem;
+    justify-content: center;
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--line);
+
+    a {
+      color: var(--brand);
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf__card:hover {
+    transform: none;
+  }
+}

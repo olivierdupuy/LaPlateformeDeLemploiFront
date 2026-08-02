@@ -3,6 +3,22 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+/** Un modèle de courriel transactionnel, tel que l'admin le liste. */
+export interface ModeleCourriel {
+  cle: string;
+  nom: string;
+  quand: string;
+  categorie: string;
+}
+
+/** Le rendu d'un modèle avec des données d'exemple. N'a rien envoyé. */
+export interface ApercuCourriel {
+  cle: string;
+  sujet: string;
+  html: string;
+  texte: string;
+}
+
 /** Un contrôle de la sonde de santé. */
 export interface ControleSante {
   quoi: string;
@@ -176,8 +192,17 @@ export class AdminService {
     return this.http.get<{ configure: boolean; etat: string; consequence: string }>(`${this.api}/email/etat`);
   }
 
-  essaiCourriel(email?: string): Observable<{ parti: boolean; message: string }> {
-    return this.http.post<{ parti: boolean; message: string }>(`${this.api}/email/essai`, { email });
+  essaiCourriel(email?: string, modele?: string): Observable<{ parti: boolean; message: string }> {
+    return this.http.post<{ parti: boolean; message: string }>(
+      `${this.api}/email/essai`, { email, modele });
+  }
+
+  modelesCourriel(): Observable<ModeleCourriel[]> {
+    return this.http.get<ModeleCourriel[]>(`${this.api}/email/modeles`);
+  }
+
+  apercuModeleCourriel(cle: string): Observable<ApercuCourriel> {
+    return this.http.get<ApercuCourriel>(`${this.api}/email/modeles/${cle}/apercu`);
   }
 
   // Announcements

@@ -20,8 +20,7 @@ export class Footer {
   year = new Date().getFullYear();
 
   private router = inject(Router);
-
-  constructor(private toastr: ToastrService) {}
+  private toastr = inject(ToastrService);
 
   /**
    * Inscription aux alertes.

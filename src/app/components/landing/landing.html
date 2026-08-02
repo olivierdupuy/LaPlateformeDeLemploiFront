@@ -1,0 +1,132 @@
+<div class="page lp">
+  <div class="container">
+    @if (chargement()) {
+      <p class="u-muted">Chargement…</p>
+    } @else if (page(); as p) {
+      <nav class="crumbs" aria-label="Fil d'Ariane">
+        <a routerLink="/offres">Offres</a>
+        <span class="sep" aria-hidden="true">/</span>
+        @if (p.ville) {
+          <a [routerLink]="['/emploi', p.metier]">{{ p.libelleMetier }}</a>
+          <span class="sep" aria-hidden="true">/</span>
+          <span aria-current="page">{{ p.libelleVille }}</span>
+        } @else {
+          <span aria-current="page">{{ p.libelleMetier }}</span>
+        }
+      </nav>
+
+      <header class="lp__hero">
+        <h1>
+          Emploi {{ p.libelleMetier }}
+          @if (p.libelleVille) { à {{ p.libelleVille }} } @else { en France }
+        </h1>
+        <p class="lp__sub">
+          {{ p.total }} offre{{ p.total > 1 ? 's' : '' }} en ligne aujourd'hui.
+          @if (p.salaireMedian) {
+            Salaire médian&nbsp;: <strong>{{ p.salaireMedian | number }} €</strong>.
+          }
+          @if (p.partTeletravail >= 15) {
+            <strong>{{ p.partTeletravail }} %</strong> proposent du télétravail.
+          }
+        </p>
+
+        @if (p.contrats.length) {
+          <ul class="lp__contrats">
+            @for (c of p.contrats; track c.contrat) {
+              <li class="chip">{{ c.contrat }} <span class="u-num">({{ c.nombre }})</span></li>
+            }
+          </ul>
+        }
+
+        <a
+          [routerLink]="cheminRecherche"
+          [queryParams]="parametresRecherche(p)"
+          class="btn-primary btn-lg"
+        >
+          <i class="bi bi-sliders" aria-hidden="true"></i> Affiner la recherche
+        </a>
+      </header>
+
+      <section class="lp__offres" aria-labelledby="lp-offres">
+        <h2 id="lp-offres">
+          Les offres
+          @if (p.total > p.offres.length) {
+            <span class="u-muted">— {{ p.offres.length }} des {{ p.total }}</span>
+          }
+        </h2>
+
+        <ul class="lp__liste">
+          @for (o of p.offres; track o.id) {
+            <li class="card lp__offre" [class.is-mise-en-avant]="o.isFeatured">
+              <a [routerLink]="['/offres', o.id]" class="lp__offre-lien">
+                <span class="lp__offre-titre">{{ o.title }}</span>
+                <span class="lp__offre-meta">
+                  {{ o.company }} · {{ o.location }}
+                  @if (o.salary) { · {{ o.salary }} }
+                </span>
+                <span class="lp__offre-badges">
+                  <span class="badge">{{ o.contractType }}</span>
+                  @if (o.isRemote) { <span class="badge badge-blue">Télétravail</span> }
+                  @if (o.easyApply) { <span class="badge badge-easy">Candidature simplifiée</span> }
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+
+        @if (p.total > p.offres.length) {
+          <a
+            [routerLink]="cheminRecherche"
+            [queryParams]="parametresRecherche(p)"
+            class="btn-secondary lp__toutes"
+          >
+            Voir les {{ p.total }} offres
+          </a>
+        }
+      </section>
+
+      <!-- Ce qui transforme une page d'atterrissage en point d'entrée
+           plutôt qu'en impasse : quelqu'un qui ne trouve pas ici trouve
+           à côté, et le maillage interne aide les moteurs à découvrir
+           les autres combinaisons. -->
+      @if (p.autresVilles.length) {
+        <section class="lp__ailleurs" aria-labelledby="lp-villes">
+          <h2 id="lp-villes">{{ p.libelleMetier }} dans d'autres villes</h2>
+          <ul class="lp__chips">
+            @for (v of p.autresVilles; track v.ville) {
+              <li>
+                <a [routerLink]="['/emploi', p.metier, v.ville]" class="chip">
+                  {{ v.libelle }} <span class="u-num">({{ v.nombre }})</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (p.autresMetiers.length) {
+        <section class="lp__ailleurs" aria-labelledby="lp-metiers">
+          <h2 id="lp-metiers">Autres métiers à {{ p.libelleVille }}</h2>
+          <ul class="lp__chips">
+            @for (m of p.autresMetiers; track m.metier) {
+              <li>
+                <a [routerLink]="['/emploi', m.metier, p.ville]" class="chip">
+                  {{ m.libelle }} <span class="u-num">({{ m.nombre }})</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <nav class="lp__pivots" aria-label="Élargir">
+        @if (p.ville) {
+          <a [routerLink]="['/emploi', p.metier]">
+            Toutes les offres {{ p.libelleMetier }} en France
+          </a>
+        }
+        <a routerLink="/parcourir">Parcourir tous les métiers et toutes les villes</a>
+      </nav>
+    }
+  </div>
+</div>

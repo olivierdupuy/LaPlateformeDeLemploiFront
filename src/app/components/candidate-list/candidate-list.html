@@ -56,26 +56,26 @@
         @if (showFilters) {
           <div class="cvh-filter-grid animate-in">
             <div class="form-group">
-              <label>Compétences</label>
-              <input type="text" placeholder="ex: Angular, Python" [(ngModel)]="skills" (keyup.enter)="loadCandidates()" />
+              <label for="cl-skills">Compétences</label>
+              <input id="cl-skills" type="text" placeholder="ex: Angular, Python" [(ngModel)]="skills" (keyup.enter)="loadCandidates()" />
             </div>
             <div class="form-group">
-              <label>Ville</label>
-              <input type="text" placeholder="ex: Lyon" [(ngModel)]="city" (keyup.enter)="loadCandidates()" />
+              <label for="cl-city">Ville</label>
+              <input id="cl-city" type="text" placeholder="ex: Lyon" [(ngModel)]="city" (keyup.enter)="loadCandidates()" />
             </div>
             <div class="form-group">
-              <label>Expérience min.</label>
-              <input type="number" placeholder="ans" [(ngModel)]="minExperience" />
+              <label for="cl-min-experience">Expérience min.</label>
+              <input id="cl-min-experience" type="number" placeholder="ans" [(ngModel)]="minExperience" />
             </div>
             <div class="form-group">
-              <label>Expérience max.</label>
-              <input type="number" placeholder="ans" [(ngModel)]="maxExperience" />
+              <label for="cl-max-experience">Expérience max.</label>
+              <input id="cl-max-experience" type="number" placeholder="ans" [(ngModel)]="maxExperience" />
             </div>
             <!-- La formation était acceptée par l'API et absente de
                  l'écran : le filtre existait sans être atteignable. -->
             <div class="form-group">
-              <label>Formation</label>
-              <input type="text" placeholder="ex: Master, Licence, Bac+5"
+              <label for="cl-education">Formation</label>
+              <input id="cl-education" type="text" placeholder="ex: Master, Licence, Bac+5"
                      [(ngModel)]="education" (keyup.enter)="loadCandidates()" />
             </div>
             <div class="cvh-filter-actions">

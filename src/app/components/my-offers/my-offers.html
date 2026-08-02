@@ -111,7 +111,12 @@
 
       <div class="mo-grid">
         @for (o of filtered(); track o.id; let i = $index) {
-          <a [routerLink]="cardLink(o)" class="oc animate-in" [class.oc-expired]="!o.isDraft && !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected'" [class.oc-moderation]="o.moderationStatus === 'Pending' || o.moderationStatus === 'Rejected'" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
+          <!-- Le garde-fou du lien est ici plutôt que sur chaque zone
+               d'action : deux `div` ne portaient un `(click)` que pour
+               annuler celui de la carte, ce qui les faisait passer pour
+               des éléments interactifs sans en être. Le lien sait
+               maintenant reconnaître un clic qui ne le concerne pas. -->
+          <a [routerLink]="cardLink(o)" class="oc animate-in" (click)="auClicCarte($event)" [class.oc-expired]="!o.isDraft && !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected'" [class.oc-moderation]="o.moderationStatus === 'Pending' || o.moderationStatus === 'Rejected'" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
             <div class="oc-stripe" [style.background]="stripeColor(o.contractType)"></div>
 
             <div class="oc-body">
@@ -197,7 +202,7 @@
                     @else { <span class="oc-exp oc-exp-red"><i class="bi bi-clock"></i> Expirée</span> }
                   }
                 </div>
-                <div class="oc-actions" (click)="$event.stopPropagation(); $event.preventDefault()">
+                <div class="oc-actions">
                   @if (o.isDraft) {
                     <a [routerLink]="['/recruteur/offres', o.id, 'modifier']" class="oc-btn oc-btn-resume" (click)="$event.stopPropagation()">
                       <i class="bi bi-pencil-square"></i> Reprendre la rédaction
@@ -211,6 +216,9 @@
                     </button>
                     <a [routerLink]="['/recruteur/offres', o.id, 'modifier']" class="oc-btn" (click)="$event.stopPropagation()"><i class="bi bi-pencil"></i> Modifier</a>
                     <button class="oc-btn" (click)="duplicate(o, $event)"><i class="bi bi-copy"></i> Dupliquer</button>
+                    <button class="oc-btn oc-btn-diff" (click)="toggleDiffusion(o, $event)">
+                      <i class="bi bi-broadcast" aria-hidden="true"></i> Diffuser
+                    </button>
                     @if (!o.isActive && o.moderationStatus !== 'Pending') {
                       <button class="oc-btn oc-btn-renew" (click)="renew(o, $event)"><i class="bi bi-arrow-repeat"></i> Renouveler</button>
                     }
@@ -219,7 +227,7 @@
               </div>
 
               @if (statsOpenId() === o.id) {
-                <div class="oc-stats-panel" (click)="$event.stopPropagation(); $event.preventDefault()">
+                <div class="oc-stats-panel">
                   @if (statsLoading()) {
                     <div class=" osp-loading"><span class="sp sp-brand"></span> Chargement des stats…</div>
                   } @else if (statsData(); as s) {
@@ -233,6 +241,63 @@
                         @for (st of s.byStatus; track st.label) {
                           <span class="osp-chip">{{ statusLabel(st.label) }} · <strong>{{ st.value }}</strong></span>
                         }
+                      </div>
+                    }
+                  }
+                </div>
+              }
+
+              <!-- ═══ MULTIDIFFUSION ═══
+                   Le retrait compte autant que le dépôt. Une offre
+                   pourvue qui reste en ligne chez trois agrégateurs
+                   continue de recevoir des candidatures que personne ne
+                   lira, et chacune est quelqu'un qui attend une
+                   réponse. C'est le reproche le plus courant fait aux
+                   sites d'emploi, et il est mérité. -->
+              @if (diffusionOpenId() === o.id) {
+                <div class="oc-stats-panel oc-diff">
+                  @if (diffusionLoading()) {
+                    <div class="osp-loading"><span class="sp sp-brand"></span> Chargement…</div>
+                  } @else {
+                    @for (d of destinations(); track d.cle) {
+                      <div class="ocd-ligne">
+                        <div class="ocd-txt">
+                          <strong>{{ d.nom }}</strong>
+                          @if (etatChez(d.cle); as e) {
+                            <span class="ocd-etat" [attr.data-statut]="e.statut">
+                              {{ libelleStatutDiffusion(e.statut) }}
+                              @if (e.urlExterne) {
+                                · <a [href]="e.urlExterne" target="_blank" rel="noopener">voir l'annonce</a>
+                              }
+                            </span>
+                            @if (e.motif) { <em class="ocd-motif">{{ e.motif }}</em> }
+                          } @else if (!d.configuree) {
+                            <!-- Le détail plutôt qu'un « indisponible » :
+                                 il dit à l'exploitant quoi faire, et au
+                                 recruteur que ce n'est pas sa faute. -->
+                            <em class="ocd-motif">{{ d.manque }}</em>
+                          } @else {
+                            <span class="ocd-apport">{{ d.apport }}</span>
+                          }
+                        </div>
+
+                        <div class="ocd-act">
+                          @if (etatChez(d.cle)?.statut === 'diffusee') {
+                            <button class="oc-btn" [disabled]="diffusionEnCours() === d.cle"
+                                    (click)="retirer(o.id, d.cle)">
+                              <i class="bi bi-x-circle" aria-hidden="true"></i> Retirer
+                            </button>
+                          } @else {
+                            <button class="oc-btn" [disabled]="!d.configuree || diffusionEnCours() === d.cle"
+                                    (click)="diffuser(o.id, d.cle)">
+                              @if (diffusionEnCours() === d.cle) {
+                                <span class="sp" aria-hidden="true"></span> Envoi…
+                              } @else {
+                                <i class="bi bi-send" aria-hidden="true"></i> Diffuser
+                              }
+                            </button>
+                          }
+                        </div>
                       </div>
                     }
                   }

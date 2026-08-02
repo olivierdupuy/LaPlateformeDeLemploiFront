@@ -1,9 +1,11 @@
-import { Component, OnInit, HostListener, inject, signal } from '@angular/core';
+import { Component, OnInit, HostListener, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AdminService, EtatDuService } from '../../services/admin.service';
+import { AdminService, ApercuCourriel, EtatDuService, ModeleCourriel } from '../../services/admin.service';
 import { ToastrService } from 'ngx-toastr';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import Swal from 'sweetalert2';
+import { Modale } from '../../utils/modale.directive';
 
 /**
  * Réglages de la plateforme.
@@ -152,13 +154,14 @@ const FAMILLES: Famille[] = [
 
 @Component({
   selector: 'app-admin-settings',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Modale],
   templateUrl: './admin-settings.html',
   styleUrl: './admin-settings.scss',
 })
 export class AdminSettings implements OnInit {
   private admin = inject(AdminService);
   private toastr = inject(ToastrService);
+  private assainisseur = inject(DomSanitizer);
 
   readonly familles = FAMILLES;
 
@@ -334,10 +337,10 @@ export class AdminSettings implements OnInit {
     });
   }
 
-  /** Envoie un message de controle a sa propre adresse. */
-  essayerCourriel() {
+  /** Envoie un message de controle, ou le modèle ouvert en aperçu. */
+  essayerCourriel(modele?: string) {
     this.essaiEnCours.set(true);
-    this.admin.essaiCourriel().subscribe({
+    this.admin.essaiCourriel(this.adresseEssai().trim() || undefined, modele).subscribe({
       next: (r) => {
         this.essaiEnCours.set(false);
         if (r.parti) this.toastr.success(r.message, 'Message parti');
@@ -349,6 +352,83 @@ export class AdminSettings implements OnInit {
       },
     });
   }
+
+  // ══════════════════════════════════════
+  //  Modèles de courriel
+  // ══════════════════════════════════════
+  //
+  // Quatorze messages partent au nom de la plateforme, et aucun n'était
+  // relisible sans provoquer la situation qui le déclenche : relire le
+  // courriel de suppression de compte supposait d'en supprimer un, et
+  // relire la décision d'un signalement DSA, d'instruire un signalement
+  // pour de vrai. On les relisait donc après coup, dans la boîte du
+  // destinataire — c'est-à-dire trop tard.
+
+  modeles = signal<ModeleCourriel[]>([]);
+  apercu = signal<ApercuCourriel | null>(null);
+  apercuEnCours = signal(false);
+
+  /** Vide, l'essai part à l'adresse de l'administrateur connecté. */
+  adresseEssai = signal('');
+
+  /** Les modèles groupés par catégorie, dans l'ordre d'apparition. */
+  modelesParCategorie = computed(() => {
+    const groupes = new Map<string, ModeleCourriel[]>();
+    for (const m of this.modeles()) {
+      const liste = groupes.get(m.categorie) ?? [];
+      liste.push(m);
+      groupes.set(m.categorie, liste);
+    }
+    return [...groupes].map(([categorie, items]) => ({ categorie, items }));
+  });
+
+  /**
+   * Le HTML du modèle, prêt pour un `iframe` en bac à sable.
+   *
+   * Un cadre isolé plutôt qu'un `innerHTML` : un courriel se compose en
+   * attributs `style` et en tableaux, et l'insérer dans la page mêlerait
+   * sa mise en forme à celle de la console. Le cadre montre le message
+   * tel qu'il partira, sans rien déformer autour.
+   *
+   * Le `bypassSecurityTrust` mérite sa justification, parce qu'il en
+   * faut toujours une :
+   *
+   *   — l'assainisseur d'Angular retire l'attribut `style`. Or ces
+   *     gabarits ne sont *que* du style en ligne : passer par lui
+   *     rendrait un aperçu sans couleurs, sans marges et sans cadre,
+   *     c'est-à-dire un aperçu qui ment sur ce qui va partir ;
+   *   — la source n'est pas une saisie : le serveur rend ses propres
+   *     modèles avec des données d'exemple écrites dans le code, et
+   *     tout ce qui vient d'ailleurs y passe par `HtmlEncode` ;
+   *   — la vraie barrière est le `sandbox` du cadre, posé sans valeur,
+   *     donc au maximum : ni script, ni formulaire, ni navigation, ni
+   *     accès au document parent. Elle tient quand bien même un gabarit
+   *     serait un jour compromis.
+   */
+  apercuSrcdoc = computed<SafeHtml>(() =>
+    this.assainisseur.bypassSecurityTrustHtml(this.apercu()?.html ?? ''),
+  );
+
+  chargerModeles() {
+    if (this.modeles().length) return;
+    this.admin.modelesCourriel().subscribe({
+      next: (m) => this.modeles.set(m),
+      error: () => this.toastr.error('La liste des modèles n’a pas pu être chargée.'),
+    });
+  }
+
+  ouvrirApercu(cle: string) {
+    this.apercuEnCours.set(true);
+    this.admin.apercuModeleCourriel(cle).subscribe({
+      next: (a) => { this.apercu.set(a); this.apercuEnCours.set(false); },
+      error: () => {
+        this.apercuEnCours.set(false);
+        this.toastr.error('Ce modèle n’a pas pu être rendu.');
+      },
+    });
+  }
+
+  fermerApercu() { this.apercu.set(null); }
 
   // ══ Import du catalogue ══
 

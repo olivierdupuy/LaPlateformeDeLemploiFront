@@ -41,8 +41,16 @@ export class MessageTemplates implements OnInit {
 
   /** Le contenu du modele choisi, jetons non substitues. */
   insert = output<string>();
-  /** Fermeture demandee par le composant. */
-  close = output<void>();
+  /**
+   * Fermeture demandee par le composant.
+   *
+   * Nomme « fermer » et non « close » : « close » est un evenement du
+   * DOM. Un evenement de sortie qui porte le nom d'un evenement natif
+   * finit par etre capte deux fois le jour ou le composant se pose sur
+   * un element qui l'emet aussi — et ce jour-la, personne ne cherche
+   * la faute du bon cote.
+   */
+  fermer = output<void>();
 
   templates = signal<MessageTemplate[]>([]);
   loading = signal(true);

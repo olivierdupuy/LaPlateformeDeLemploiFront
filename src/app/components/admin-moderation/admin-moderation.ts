@@ -6,6 +6,11 @@ import { AdminService } from '../../services/admin.service';
 import { JobOfferService } from '../../services/job-offer';
 import { JobReport } from '../../models/job-offer.model';
 import { CompanyReviewService } from '../../services/company-review.service';
+import {
+  PlateformeProService,
+  SignalementAdmin,
+  RetourCourriel,
+} from '../../services/plateforme-pro.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -18,6 +23,7 @@ export class AdminModeration implements OnInit {
   private admin = inject(AdminService);
   private jobService = inject(JobOfferService);
   private reviewSvc = inject(CompanyReviewService);
+  private pro = inject(PlateformeProService);
   private toastr = inject(ToastrService);
 
   offers = signal<any[]>([]);
@@ -28,6 +34,22 @@ export class AdminModeration implements OnInit {
   rejectNote = '';
   rejectingId = signal<number | null>(null);
 
+  // ── Signalements au titre du règlement européen ──
+  //
+  // Le mécanisme de dépôt existait, avec son accusé de réception et sa
+  // référence de suivi. Rien ne permettait de les **instruire** : les
+  // dossiers s'accumulaient dans une table que personne ne regardait,
+  // alors que le texte impose une décision motivée. Un mécanisme de
+  // signalement dont aucune décision ne sort n'est pas un mécanisme de
+  // signalement — c'est une boîte aux lettres avec un accusé.
+  dsa = signal<SignalementAdmin[]>([]);
+  dsaFiltre = signal<string>('Recu');
+  dsaOuvert = signal<number | null>(null);
+  dsaDecision = { statut: 'Fonde', decision: '', mesurePrise: 'Aucune' };
+
+  /** Les adresses qu'on a cessé de servir, et pourquoi. */
+  retours = signal<RetourCourriel[]>([]);
+
   ngOnInit() { this.load(); }
 
   load() {
@@ -36,6 +58,16 @@ export class AdminModeration implements OnInit {
       this.reviewSvc.getAllReviewsAdmin().subscribe(r => { this.companyReviews.set(r); this.loading.set(false); });
     } else if (this.activeTab() === 'Reports') {
       this.jobService.getReports().subscribe(r => { this.reports.set(r); this.loading.set(false); });
+    } else if (this.activeTab() === 'Dsa') {
+      this.pro.signalements(this.dsaFiltre() || undefined).subscribe({
+        next: (s) => { this.dsa.set(s); this.loading.set(false); },
+        error: () => this.loading.set(false),
+      });
+    } else if (this.activeTab() === 'Retours') {
+      this.pro.retoursCourriel().subscribe({
+        next: (r) => { this.retours.set(r); this.loading.set(false); },
+        error: () => this.loading.set(false),
+      });
     } else {
       this.admin.getModerationQueue(this.activeTab()).subscribe(o => {
         this.offers.set(o);
@@ -45,6 +77,88 @@ export class AdminModeration implements OnInit {
   }
 
   switchTab(tab: string) { this.activeTab.set(tab); this.load(); }
+
+  // ══════════════════════════════════════
+  //  Signalements DSA
+  // ══════════════════════════════════════
+
+  filtrerDsa(statut: string) { this.dsaFiltre.set(statut); this.load(); }
+
+  ouvrirDossier(s: SignalementAdmin) {
+    if (this.dsaOuvert() === s.id) { this.dsaOuvert.set(null); return; }
+    this.dsaOuvert.set(s.id);
+    // Reprend la décision déjà rendue si le dossier est rouvert : la
+    // corriger vaut mieux que la réécrire de mémoire.
+    this.dsaDecision = {
+      statut: s.statut === 'NonFonde' ? 'NonFonde' : 'Fonde',
+      decision: s.decision ?? '',
+      mesurePrise: s.mesurePrise ?? 'Aucune',
+    };
+  }
+
+  /**
+   * Le texte exige une motivation, pas un verdict. Vingt caractères est
+   * le minimum que le serveur accepte ; on le dit ici plutôt que de
+   * laisser partir une requête qui sera refusée.
+   */
+  get decisionValide(): boolean {
+    return this.dsaDecision.decision.trim().length >= 20;
+  }
+
+  deciderDsa(s: SignalementAdmin) {
+    if (!this.decisionValide) return;
+
+    this.pro.deciderSignalement(s.id, { ...this.dsaDecision }).subscribe({
+      next: () => {
+        this.toastr.success(
+          s.emailDeclarant
+            ? 'Décision enregistrée et transmise au déclarant.'
+            : 'Décision enregistrée. Le déclarant n’a pas laissé d’adresse : il la lira par sa référence.',
+        );
+        this.dsaOuvert.set(null);
+        this.load();
+      },
+      error: (e) => this.toastr.error(e?.error?.message ?? "La décision n'a pas été enregistrée."),
+    });
+  }
+
+  /**
+   * Rouvre une adresse bloquée.
+   *
+   * La liste montrait le problème sans offrir le remède : une adresse
+   * bloquée sur un faux signal — panne passagère remontée en rejet dur —
+   * était coupée de tout, y compris de la réinitialisation de mot de
+   * passe, qui est justement ce qu'on utilise quand on n'arrive plus à
+   * entrer. Le compte était perdu pour son titulaire.
+   */
+  debloquer(r: RetourCourriel) {
+    if (!confirm(`Rouvrir ${r.email} ? Les envois reprendront au prochain message.`)) return;
+
+    this.pro.debloquerAdresse(r.id).subscribe({
+      next: (rep) => { this.toastr.success(rep.message); this.load(); },
+      error: (e) => this.toastr.error(e?.error?.message ?? "Le déblocage n'a pas abouti."),
+    });
+  }
+
+  libelleStatutDsa(statut: string): string {
+    return {
+      Recu: 'Reçu',
+      EnCours: 'En cours',
+      Fonde: 'Fondé',
+      NonFonde: 'Non retenu',
+    }[statut] ?? statut;
+  }
+
+  /**
+   * Depuis combien de jours le dossier attend.
+   *
+   * Le règlement ne fixe pas de délai chiffré : il demande un traitement
+   * « en temps opportun ». Afficher l'attente est le seul moyen que
+   * personne ne découvre un dossier de trois semaines.
+   */
+  attenteEnJours(s: SignalementAdmin): number {
+    return Math.floor((Date.now() - new Date(s.creeLe).getTime()) / 86_400_000);
+  }
 
   // ── Signalements ──
   resolveReport(id: number, status: string) {

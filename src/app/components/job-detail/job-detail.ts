@@ -282,7 +282,10 @@ export class JobDetail implements OnInit {
     if (navigator.share) {
       try {
         await navigator.share({ title: text, url });
-      } catch {}
+      } catch {
+        // Le partage natif a ete annule, ou le navigateur l'a refuse.
+        // Une annulation n'est pas une panne : rien a dire.
+      }
     } else {
       await navigator.clipboard.writeText(url);
       this.toastr.success('Lien copie dans le presse-papiers');

@@ -1,0 +1,205 @@
+.ops {
+  h2 {
+    font-size: 1.05rem;
+    margin: 0 0 0.85rem;
+  }
+
+  &__sante {
+    margin-bottom: 2.25rem;
+  }
+
+  &__etat {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 0.9rem;
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      background: var(--canvas);
+    }
+  }
+
+  &__cle {
+    font-size: 0.86rem;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  &__catalogue {
+    margin-bottom: 2.25rem;
+  }
+
+  &__chiffres {
+    display: grid;
+    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    margin-bottom: 1.1rem;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+
+    th,
+    td {
+      padding: 0.55rem 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+  }
+
+  /* Une source vue il y a plus de deux jours n'a pas répondu au dernier
+     passage : c'est le premier signe qu'elle est tombée. */
+  &__retard {
+    color: var(--danger-600);
+    font-weight: 600;
+  }
+
+  &__sous-titre {
+    font-size: 0.95rem;
+    margin: 1.4rem 0 0.6rem;
+  }
+
+  &__suspectes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--canvas);
+    overflow: hidden;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.7rem 1rem;
+
+      & + li {
+        border-top: 1px solid var(--line);
+      }
+    }
+  }
+
+  &__erreurs-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__liste {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  &__erreur {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--canvas);
+    padding: 0.95rem 1.1rem;
+  }
+
+  &__erreur-tete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__erreur-texte {
+    min-width: 0;
+    flex: 1 1 20rem;
+  }
+
+  &__erreur-actions {
+    display: flex;
+    gap: 0.4rem;
+    flex: 0 0 auto;
+  }
+
+  &__message {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  &__meta {
+    margin: 0.35rem 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  &__detail {
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+
+    pre {
+      /* Une pile d'appels est large : elle défile dans son propre
+         cadre, sinon c'est la page entière qui part de travers. */
+      overflow-x: auto;
+      background: var(--nuage);
+      padding: 0.75rem 0.9rem;
+      border-radius: var(--r-md, 0.5rem);
+      font-size: 0.78rem;
+      line-height: 1.5;
+      margin: 0 0 0.75rem;
+    }
+
+    p {
+      font-size: 0.82rem;
+      line-height: 1.55;
+      margin: 0;
+    }
+  }
+
+  &__navigateur {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 0 0 0.5rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.ops__recettes {
+  margin-bottom: 2.25rem;
+}
+
+.ops__formules {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin: 0.9rem 0 0;
+  font-size: 0.86rem;
+}

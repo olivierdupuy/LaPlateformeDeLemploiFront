@@ -36,6 +36,12 @@ const RECRUITER: ConsoleSpace = {
     { path: '/candidats', label: 'Vivier', icon: 'bi-person-lines-fill' },
     { path: '/entretiens', label: 'Entretiens', icon: 'bi-calendar-event' },
     { path: '/messagerie', label: 'Messagerie', icon: 'bi-chat-dots' },
+    // En dernier, et c'est sa place : on y va pour une raison précise —
+    // relever une facture, changer de formule, créer une clé d'API — et
+    // jamais au fil de la journée. Sans cette entrée, la page existait
+    // sans qu'aucun lien n'y mène : un recruteur bloqué par son quota
+    // n'avait aucun moyen de le découvrir.
+    { path: '/recruteur/facturation', label: 'Facturation', icon: 'bi-receipt' },
   ],
 };
 

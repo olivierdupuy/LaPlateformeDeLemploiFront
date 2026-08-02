@@ -99,8 +99,12 @@
 
 <!-- Modale contribution -->
 @if (contribOpen()) {
-  <div class="modal-overlay" (click)="closeContribute()">
-    <div class="modal-content contrib-modal" (click)="$event.stopPropagation()">
+    <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :
+         tout est dans la directive appModale. Le voile ne porte plus
+         de gestionnaire de clic, et le panneau n\'a plus rien à
+         annuler par stopPropagation. -->
+    <div class="modal-overlay" appModale (fermeture)="closeContribute()">
+    <div class="modal-content contrib-modal">
       <div class="cm-head">
         <div>
           <span class="eyebrow">Anonyme</span>
@@ -111,19 +115,19 @@
       <p class="cm-job">{{ title }}</p>
 
       <div class="form-group">
-        <label>Salaire annuel brut (€) <span class="am-req">*</span></label>
-        <input type="number" [(ngModel)]="contribForm.amountAnnual" placeholder="45000" />
+        <label for="sd-amount-annual">Salaire annuel brut (€) <span class="am-req">*</span></label>
+        <input id="sd-amount-annual" type="number" [(ngModel)]="contribForm.amountAnnual" placeholder="45000" />
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Entreprise</label><input type="text" [(ngModel)]="contribForm.company" placeholder="optionnel" /></div>
-        <div class="form-group"><label>Lieu</label><input type="text" [(ngModel)]="contribForm.location" placeholder="ex: Paris" /></div>
+        <div class="form-group"><label for="sd-company">Entreprise</label><input id="sd-company" type="text" [(ngModel)]="contribForm.company" placeholder="optionnel" /></div>
+        <div class="form-group"><label for="sd-location">Lieu</label><input id="sd-location" type="text" [(ngModel)]="contribForm.location" placeholder="ex: Paris" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Contrat</label>
-          <select [(ngModel)]="contribForm.contractType"><option value="">—</option>@for (c of contractTypes; track c) { <option [value]="c">{{ c }}</option> }</select>
+        <div class="form-group"><label for="sd-contract-type">Contrat</label>
+          <select id="sd-contract-type" [(ngModel)]="contribForm.contractType"><option value="">—</option>@for (c of contractTypes; track c) { <option [value]="c">{{ c }}</option> }</select>
         </div>
-        <div class="form-group"><label>Expérience</label>
-          <select [(ngModel)]="contribForm.experienceLevel"><option value="">—</option>@for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }</select>
+        <div class="form-group"><label for="sd-experience-level">Expérience</label>
+          <select id="sd-experience-level" [(ngModel)]="contribForm.experienceLevel"><option value="">—</option>@for (l of experienceLevels; track l) { <option [value]="l">{{ l }}</option> }</select>
         </div>
       </div>
 

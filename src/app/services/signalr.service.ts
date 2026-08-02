@@ -51,7 +51,8 @@ export class SignalRService {
     this.presents.update((actuels) => {
       if (actuels.has(userId) === present) return actuels;
       const suivant = new Set(actuels);
-      present ? suivant.add(userId) : suivant.delete(userId);
+      if (present) suivant.add(userId);
+      else suivant.delete(userId);
       return suivant;
     });
   }

@@ -1,0 +1,185 @@
+.dsa {
+  .container {
+    max-width: 48rem;
+  }
+
+  /* Invisible à l'œil, hors du parcours au clavier, mais présent dans
+     le document : c'est ce qui en fait un piège. `display: none` le
+     ferait ignorer par une partie des robots. */
+  &__piege {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  &__form {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  &__bloc {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--canvas);
+    padding: 1.25rem;
+    margin: 0;
+
+    legend {
+      font-weight: 600;
+      color: var(--ink);
+      padding: 0 0.4rem;
+    }
+  }
+
+  &__champ {
+    display: block;
+
+    & + & {
+      margin-top: 1rem;
+    }
+
+    > span {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 0.35rem;
+
+      em {
+        font-style: normal;
+        font-weight: 400;
+        color: var(--muted);
+      }
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-md, 0.5rem);
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 8rem;
+    }
+  }
+
+  &__requis {
+    color: var(--danger);
+  }
+
+  &__aide {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  &__case {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    cursor: pointer;
+
+    input {
+      margin-top: 0.2rem;
+      flex: 0 0 auto;
+    }
+  }
+
+  &__erreur {
+    color: var(--danger-600);
+    background: var(--danger-100);
+    border-radius: var(--r-md, 0.5rem);
+    padding: 0.7rem 0.9rem;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__recu {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    background: var(--canvas);
+
+    i {
+      font-size: 2.4rem;
+      color: var(--brand);
+    }
+
+    h2 {
+      margin: 0.6rem 0 0.4rem;
+    }
+  }
+
+  &__ref {
+    font-size: 1.05rem;
+  }
+
+  &__suivi,
+  &__recours {
+    margin-top: 2.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+
+    h2 {
+      font-size: 1.15rem;
+      margin: 0 0 0.5rem;
+    }
+
+    p {
+      color: var(--ink-soft);
+      line-height: 1.65;
+      margin: 0 0 0.7rem;
+    }
+  }
+
+  &__suivi-ligne {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    input {
+      flex: 1 1 12rem;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-md, 0.5rem);
+      font: inherit;
+    }
+  }
+
+  &__dossier {
+    margin-top: 1rem;
+    padding: 1rem 1.15rem;
+    background: var(--nuage);
+    border-radius: var(--r-lg);
+
+    p {
+      margin: 0 0 0.35rem;
+    }
+  }
+
+  &__decision {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--line);
+  }
+}

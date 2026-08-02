@@ -1,0 +1,80 @@
+<div class="page prefs">
+  <div class="container">
+    <div class="page-head">
+      <div class="page-head__text">
+        <h1>Préférences de courriel</h1>
+        <p class="page-head__sub">
+          Choisissez ce que vous souhaitez recevoir. Vos réglages prennent effet immédiatement.
+        </p>
+      </div>
+    </div>
+
+    @if (chargement()) {
+      <p class="u-muted">Chargement…</p>
+    } @else if (erreur()) {
+      <div class="empty-box">
+        <i class="bi bi-envelope-slash" aria-hidden="true"></i>
+        <p>{{ erreur() }}</p>
+        <a routerLink="/login" class="btn-primary">Se connecter</a>
+      </div>
+    } @else if (prefs(); as p) {
+      <p class="prefs__adresse">
+        Réglages de <strong>{{ p.email }}</strong>
+      </p>
+
+      <ul class="prefs__list">
+        @for (c of categories; track c.cle) {
+          <li class="prefs__item">
+            <div class="prefs__texte">
+              <span class="prefs__titre">{{ c.titre }}</span>
+              <span class="prefs__detail">{{ c.detail }}</span>
+            </div>
+            <label class="prefs__switch">
+              <input
+                type="checkbox"
+                [checked]="$any(p)[c.cle]"
+                (change)="basculer(c.cle)"
+                [attr.aria-label]="c.titre"
+              />
+              <span class="prefs__slider" aria-hidden="true"></span>
+            </label>
+          </li>
+        }
+      </ul>
+
+      <div class="prefs__tout">
+        <label class="prefs__tout-label">
+          <input type="checkbox" [checked]="p.toutRefuse" (change)="basculer('toutRefuse')" />
+          <span>Ne plus rien recevoir de facultatif</span>
+        </label>
+        <p class="prefs__tout-detail">
+          Coupe les six catégories ci-dessus d'un seul geste.
+        </p>
+      </div>
+
+      <section class="prefs__incontournables" aria-labelledby="prefs-toujours">
+        <h2 id="prefs-toujours">Ce qui vous sera toujours envoyé</h2>
+        <p>
+          Ces messages répondent à une action de votre part ou protègent votre compte. Ils ne
+          peuvent pas être désactivés.
+        </p>
+        <ul>
+          @for (i of p.incontournables; track i) {
+            <li>{{ i }}</li>
+          }
+        </ul>
+      </section>
+
+      <div class="prefs__actions">
+        <button
+          type="button"
+          class="btn-primary btn-lg"
+          (click)="enregistrer()"
+          [disabled]="enregistrement()"
+        >
+          {{ enregistrement() ? 'Enregistrement…' : 'Enregistrer mes préférences' }}
+        </button>
+      </div>
+    }
+  </div>
+</div>
