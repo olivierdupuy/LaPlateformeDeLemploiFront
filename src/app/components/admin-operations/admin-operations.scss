@@ -14,6 +14,18 @@
    est partout, il ne veut plus rien dire.
    ═══════════════════════════════════════════════════════════ */
 .ops {
+  /* ── Une largeur de lecture ──
+     Le « .container » du panneau est volontairement pleine largeur : un
+     tableau d'administration se lit sur toute la place disponible, et il
+     y gagne. Mais une jauge de 6 px qui traverse 1 640 px ne se lit
+     plus, un libellé de 12 px perdu à l'autre bout non plus, et une
+     phrase de deux cents caractères sur une seule ligne se relit deux
+     fois.
+
+     Le contenu mesuré est donc borné. Le tableau des sources, lui,
+     garde toute la largeur : c'est le seul élément qui en profite. */
+  --ops-mesure: 68rem;
+
   /* Les libellés de section étaient à 11,5 px en « --muted », qui tient
      exactement 4,50:1 sur le crème — le plancher de la norme, atteint au
      centième près. Passer la norme de justesse à 11 px n'est pas être
