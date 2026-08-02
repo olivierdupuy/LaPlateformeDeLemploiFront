@@ -83,6 +83,10 @@ export class AdminLayout {
       links: [
         { path: '/admin/tableau-de-bord', label: 'Tableau de bord', icon: 'bi-grid-1x2', alias: ['accueil', 'kpi'] },
         { path: '/admin/statistiques', label: 'Statistiques', icon: 'bi-bar-chart-line', alias: ['graphiques', 'chiffres', 'carte'] },
+        // Ce que le site encaisse. La facturation repondait au recruteur
+        // sur son propre compte ; la console n'en montrait qu'un total,
+        // glisse dans la page d'exploitation.
+        { path: '/admin/finances', label: 'Finances', icon: 'bi-cash-coin', alias: ['facturation', 'factures', 'abonnements', 'impayes', 'recettes', 'argent'] },
       ],
     },
     {
@@ -90,6 +94,10 @@ export class AdminLayout {
       links: [
         { path: '/admin/offres', label: 'Offres', icon: 'bi-briefcase', alias: ['emplois', 'annonces d\'emploi'] },
         { path: '/admin/moderation', label: 'Modération', icon: 'bi-check2-square', alias: ['valider', 'approuver', 'rejeter'], compteur: 'moderation' },
+        // D'ou viennent les offres, et dans quel etat elles sont. Les
+        // points d'entree d'import etaient reserves aux admins depuis le
+        // debut et n'etaient appeles par rien.
+        { path: '/admin/catalogue', label: 'Catalogue', icon: 'bi-hdd-network', alias: ['import', 'sources', 'doublons', 'france travail', 'adzuna', 'jooble'] },
         { path: '/admin/annonces', label: 'Annonces', icon: 'bi-megaphone', alias: ['bandeau', 'message'] },
         { path: '/admin/newsletter', label: 'Newsletter', icon: 'bi-envelope-paper', alias: ['lettre', 'campagne', 'abonnes', 'brevo'] },
       ],
@@ -111,6 +119,9 @@ export class AdminLayout {
         // n'existait pas : on ne consulte pas une console de
         // surveillance dont on doit taper l'adresse de mémoire.
         { path: '/admin/exploitation', label: 'Exploitation', icon: 'bi-activity', alias: ['sante', 'erreurs', 'incidents', 'catalogue', 'fraicheur', 'monitoring'] },
+        // Les acces techniques de toute la plateforme : une cle qui fuit
+        // ne pouvait etre coupee que par son porteur.
+        { path: '/admin/integrations', label: 'Intégrations', icon: 'bi-key', alias: ['api', 'cles', 'webhooks', 'multidiffusion', 'partenaires'] },
         { path: '/admin/parametres', label: 'Paramètres', icon: 'bi-gear', alias: ['reglages', 'configuration'] },
         // Le compte de l'administrateur lui-meme : double authentification,
         // appareils connectes, mot de passe. Il n'y accedait que par le

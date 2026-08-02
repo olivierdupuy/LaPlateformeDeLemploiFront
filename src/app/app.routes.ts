@@ -355,6 +355,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./components/admin-stats/admin-stats').then((m) => m.AdminStats),
       },
+      // Ce que le site encaisse. La facturation existait, mais elle
+      // repondait au recruteur sur son propre compte : la console n'en
+      // montrait qu'un total.
+      {
+        path: 'finances',
+        loadComponent: () =>
+          import('./components/admin-finances/admin-finances').then((m) => m.AdminFinances),
+      },
       {
         path: 'offres',
         loadComponent: () =>
@@ -383,6 +391,14 @@ export const routes: Routes = [
         path: 'moderation',
         loadComponent: () =>
           import('./components/admin-moderation/admin-moderation').then((m) => m.AdminModeration),
+      },
+      // Le catalogue : d'ou viennent les offres et dans quel etat elles
+      // sont. Les points d'entree d'import existaient depuis le debut,
+      // reserves aux administrateurs, et n'etaient appeles par rien.
+      {
+        path: 'catalogue',
+        loadComponent: () =>
+          import('./components/admin-catalogue/admin-catalogue').then((m) => m.AdminCatalogue),
       },
       {
         path: 'utilisateurs',
@@ -416,6 +432,17 @@ export const routes: Routes = [
         path: 'exploitation',
         loadComponent: () =>
           import('./components/admin-operations/admin-operations').then((m) => m.AdminOperations),
+      },
+      // Les acces techniques de toute la plateforme. Le controleur
+      // existant repond aux administrateurs, mais sur leur propre
+      // compte : une cle qui fuit ne pouvait etre revoquee que par son
+      // porteur.
+      {
+        path: 'integrations',
+        loadComponent: () =>
+          import('./components/admin-integrations/admin-integrations').then(
+            (m) => m.AdminIntegrations,
+          ),
       },
       {
         path: 'parametres',

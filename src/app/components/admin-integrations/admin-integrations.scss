@@ -1,0 +1,122 @@
+/* ═══════════════════════════════════════════════════════════
+   Intégrations.
+
+   Bâtie sur le kit `ad-` du panneau. Ce fichier ne porte que ce que le
+   kit n'a pas : le dépliant des livraisons, et les nuances d'état.
+   ═══════════════════════════════════════════════════════════ */
+
+.intg-tabs { margin-bottom: 1.1rem; }
+
+/* Le préfixe d'une clé : huit caractères en clair, qui ne permettent
+   rien et servent à reconnaître la bonne parmi cinq. Sans eux, révoquer
+   relève du tirage au sort. */
+.intg-prefixe {
+  margin-left: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.intg-quand {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── Les états ──
+   Le normal ne porte pas de couleur : une clé en service est le cas
+   attendu. Le crimson est rationné à ce qui demande une décision. */
+.intg-gris { color: var(--muted); }
+
+.intg-alerte {
+  color: var(--danger-600);
+  i { font-size: 0.76rem; }
+}
+
+.intg-danger:hover { color: var(--danger-600); }
+
+/* Une clé révoquée reste lisible mais s'efface : elle est là pour
+   l'historique, pas pour l'action. */
+.intg .est-eteinte {
+  .ad-item__txt strong { color: var(--muted); text-decoration: line-through; }
+  .ad-item__txt span { color: var(--faint); }
+}
+
+/* ── Un abonnement et ses livraisons ── */
+.intg-hook {
+  border-bottom: 1px solid var(--nuage-2);
+  &:last-child { border-bottom: none; }
+  > .ad-item { border-bottom: none; }
+  &.est-tombe { background: var(--nuage-2); }
+}
+
+.intg-erreur {
+  margin: 0 1rem 0.6rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  line-height: 1.5;
+  color: var(--danger-600);
+  overflow-wrap: anywhere;
+}
+
+.intg-livraisons {
+  padding: 0.2rem 1rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.intg-livraison {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  font-size: 0.78rem;
+}
+
+/* Le code HTTP porte le verdict : c'est la première chose qu'on lit
+   quand un partenaire dit « je n'ai rien reçu ». */
+.intg-code {
+  min-width: 2.4rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  &.est-mauvais { color: var(--danger-600); }
+}
+
+.intg-ev { font-weight: 500; color: var(--ink-soft); }
+
+.intg-err-ligne {
+  flex-basis: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.71rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.intg-vide {
+  margin: 0;
+  padding: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+/* Une note qui dit ce que la page ne montre pas, et pourquoi. Mieux vaut
+   l'écrire que laisser chercher une colonne absente. */
+.intg-note {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--muted);
+  i { flex-shrink: 0; margin-top: 0.15rem; }
+}

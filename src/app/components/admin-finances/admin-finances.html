@@ -1,0 +1,280 @@
+<section class="ad-page fin">
+  <div class="container">
+
+    <header class="ad-head">
+      <div class="ad-head__text">
+        <h1>Finances</h1>
+        <p class="ad-head__sub">
+          Qui paie, qui n'a pas payé, et ce qui tourne encore. La console n'en montrait
+          qu'un total : ces trois questions se posent le jour où un client appelle, et il
+          fallait ouvrir la base pour y répondre.
+        </p>
+      </div>
+      <div class="ad-head__actions">
+        <button class="btn-ghost" (click)="rafraichir()" [disabled]="chargement()">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Relever
+        </button>
+      </div>
+    </header>
+
+    @if (chargement()) {
+      <div class="ad-void"><div class="spinner"></div></div>
+    } @else if (resume(); as r) {
+
+      <div class="ad-facets">
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ euros(r.recurrentMensuelCentimes) }}</b>
+          <i class="ad-facet__lbl">par mois, récurrent</i>
+        </div>
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ r.abonnementsActifs }}</b>
+          <i class="ad-facet__lbl">abonnements actifs</i>
+        </div>
+        @if (r.facturesImpayees) {
+          <div class="ad-facet ad-facet--alert">
+            <b class="ad-facet__val">{{ r.facturesImpayees }}</b>
+            <i class="ad-facet__lbl"><span class="ad-facet__dot"></span>factures impayées</i>
+          </div>
+        }
+        @if (r.echeancesProches) {
+          <div class="ad-facet">
+            <b class="ad-facet__val">{{ r.echeancesProches }}</b>
+            <i class="ad-facet__lbl">échéances sous 30 j</i>
+          </div>
+        }
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ r.misesEnAvantActives }}</b>
+          <i class="ad-facet__lbl">mises en avant</i>
+        </div>
+      </div>
+
+      <div class="ad-grid">
+
+        <!-- ═══ LES RECETTES ═══
+             Sur les factures réglées et non sur les factures émises :
+             une facture émise n'est pas une recette, c'est une espérance,
+             et les confondre donne un chiffre d'affaires qui n'existe pas. -->
+        <section class="ad-panel ad-span-all">
+          <div class="ad-panel__head">
+            <i class="ad-panel__ico bi bi-graph-up" aria-hidden="true"></i>
+            <h3>Recettes encaissées</h3>
+            <span class="ad-count">douze derniers mois</span>
+          </div>
+          <div class="ad-panel__body">
+            <div class="fin-barres">
+              @for (m of r.recettes; track m.mois) {
+                <div class="fin-barre">
+                  <span class="fin-barre__val" [class.est-nul]="m.ttcCentimes === 0">
+                    {{ m.ttcCentimes ? euros(m.ttcCentimes) : '—' }}
+                  </span>
+                  <span class="fin-barre__piste">
+                    <span class="fin-barre__part" [style.height.%]="hauteur(m.ttcCentimes)"></span>
+                  </span>
+                  <span class="fin-barre__mois">{{ moisCourt(m.mois) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ LES FORMULES ═══ -->
+        <section class="ad-panel">
+          <div class="ad-panel__head">
+            <i class="ad-panel__ico bi bi-layers" aria-hidden="true"></i>
+            <h3>Par formule</h3>
+          </div>
+          <div class="ad-panel__body ad-panel__body--flush">
+            <div class="ad-list">
+              @for (f of r.parFormule; track f.cle) {
+                <div class="ad-item">
+                  <div class="ad-item__txt">
+                    <strong>{{ f.nom }}</strong>
+                    <span>
+                      @if (f.prixMensuelCentimes) { {{ euros(f.prixMensuelCentimes) }} par mois }
+                      @else { sans frais }
+                    </span>
+                  </div>
+                  <span class="ad-state">{{ f.nombre }} compte{{ f.nombre > 1 ? 's' : '' }}</span>
+                  @if (f.prixMensuelCentimes && f.nombre) {
+                    <span class="fin-sous u-mono">{{ euros(f.nombre * f.prixMensuelCentimes) }}/mois</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ CE QUI DEMANDE UN GESTE ═══ -->
+        <section class="ad-panel">
+          <div class="ad-panel__head">
+            <i class="ad-panel__ico bi bi-exclamation-circle" aria-hidden="true"></i>
+            <h3>Ce qui attend</h3>
+          </div>
+          <div class="ad-panel__body">
+            @if (!r.facturesImpayees && !r.abonnementsImpayes && !r.echeancesProches) {
+              <p class="fin-calme">
+                <i class="bi bi-check2" aria-hidden="true"></i>
+                Rien en attente : aucune facture impayée, aucune échéance proche.
+              </p>
+            } @else {
+              <ul class="fin-attente">
+                @if (r.facturesImpayees) {
+                  <li>
+                    <b>{{ r.facturesImpayees }}</b> facture(s) sans règlement —
+                    <button type="button" class="fin-lien" (click)="onglet.set('impayes')">les voir</button>
+                  </li>
+                }
+                @if (r.abonnementsImpayes) {
+                  <li>
+                    <b>{{ r.abonnementsImpayes }}</b> abonnement(s) suspendus pour impayé
+                  </li>
+                }
+                @if (r.echeancesProches) {
+                  <li>
+                    <b>{{ r.echeancesProches }}</b> abonnement(s) arrivent à échéance sous 30 jours —
+                    <button type="button" class="fin-lien" (click)="onglet.set('abonnements')">les voir</button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        </section>
+      </div>
+
+      <!-- ═══ LES LISTES ═══ -->
+      <div class="tabs fin-tabs" role="tablist">
+        <button class="tab" role="tab" [class.is-active]="onglet() === 'impayes'" (click)="onglet.set('impayes')">
+          <i class="bi bi-receipt" aria-hidden="true"></i> Impayés
+          <span class="tab-n u-mono">{{ impayes().length }}</span>
+        </button>
+        <button class="tab" role="tab" [class.is-active]="onglet() === 'abonnements'" (click)="onglet.set('abonnements')">
+          <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Abonnements
+          <span class="tab-n u-mono">{{ abonnements().length }}</span>
+        </button>
+        <button class="tab" role="tab" [class.is-active]="onglet() === 'mises-en-avant'" (click)="onglet.set('mises-en-avant')">
+          <i class="bi bi-star" aria-hidden="true"></i> Mises en avant
+          <span class="tab-n u-mono">{{ misesEnAvant().length }}</span>
+        </button>
+      </div>
+
+      @if (onglet() === 'impayes') {
+        <section class="ad-panel animate-in">
+          <div class="ad-panel__body ad-panel__body--flush">
+            <div class="ad-list">
+              @for (f of impayes(); track f.id) {
+                <div class="ad-item">
+                  <div class="ad-item__txt">
+                    <strong>{{ f.numero }} — {{ euros(f.montantTtcCentimes) }} TTC</strong>
+                    <span>
+                      {{ f.raisonSociale || f.nom || f.compte }} · {{ f.libelle }}
+                      · émise le {{ f.emiseLe | date:'dd/MM/yy' }}
+                      @if (f.referenceExterne) { · {{ f.referenceExterne }} }
+                    </span>
+                  </div>
+
+                  <!-- Trente jours : au-delà, ce n'est plus un retard de
+                       traitement, c'est un dossier à reprendre. -->
+                  <span class="ad-state" [class.fin-alerte]="f.joursDepuisEmission > 30">
+                    {{ f.joursDepuisEmission }} j
+                  </span>
+
+                  <div class="ad-acts">
+                    <button class="ad-act" (click)="relancer(f)" [disabled]="occupe()"
+                            title="Relancer par courriel" aria-label="Relancer par courriel">
+                      <i class="bi bi-envelope" aria-hidden="true"></i>
+                    </button>
+                    <button class="ad-act" (click)="marquerPayee(f)" [disabled]="occupe()"
+                            title="Enregistrer un règlement reçu" aria-label="Enregistrer un règlement reçu">
+                      <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+              } @empty {
+                <div class="ad-void">
+                  <i class="bi bi-receipt" aria-hidden="true"></i>
+                  <p>Aucune facture en attente de règlement.</p>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <p class="fin-note">
+          <i class="bi bi-shield-check" aria-hidden="true"></i>
+          Aucun prélèvement ne part d'ici. La relance est un courriel ; « enregistrer un
+          règlement » note un virement déjà reçu. Les deux gestes sont tracés au journal
+          avec votre nom.
+        </p>
+      }
+
+      @if (onglet() === 'abonnements') {
+        <section class="ad-panel animate-in">
+          <div class="ad-panel__body ad-panel__body--flush">
+            <div class="ad-list">
+              @for (a of abonnements(); track a.id) {
+                <div class="ad-item">
+                  <div class="ad-item__txt">
+                    <strong>{{ a.entreprise || a.nom || a.compte }}</strong>
+                    <span>
+                      {{ a.formuleNom }}
+                      @if (a.prixMensuelCentimes) { · {{ euros(a.prixMensuelCentimes) }}/mois }
+                      · depuis le {{ a.debutLe | date:'dd/MM/yy' }}
+                      @if (a.finLe) { · jusqu'au {{ a.finLe | date:'dd/MM/yy' }} }
+                    </span>
+                  </div>
+                  @if (a.statut === 'impaye') {
+                    <span class="ad-state fin-alerte">
+                      <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> impayé
+                    </span>
+                  } @else if (a.expire) {
+                    <span class="ad-state fin-gris">échu</span>
+                  } @else if (a.expireBientot) {
+                    <span class="ad-state fin-proche">échéance proche</span>
+                  } @else {
+                    <span class="ad-state">actif</span>
+                  }
+                </div>
+              } @empty {
+                <div class="ad-void">
+                  <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                  <p>Aucun abonnement payant.</p>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+
+      @if (onglet() === 'mises-en-avant') {
+        <section class="ad-panel animate-in">
+          <div class="ad-panel__body ad-panel__body--flush">
+            <div class="ad-list">
+              @for (m of misesEnAvant(); track m.id) {
+                <div class="ad-item">
+                  <div class="ad-item__txt">
+                    <strong>{{ m.offre }}</strong>
+                    <span>
+                      {{ m.entreprise }} · {{ m.origine }}
+                      @if (m.montantCentimes) { · {{ euros(m.montantCentimes) }} }
+                      · du {{ m.debutLe | date:'dd/MM' }} au {{ m.finLe | date:'dd/MM/yy' }}
+                    </span>
+                  </div>
+                  @if (m.encours) {
+                    <span class="ad-state">en cours</span>
+                  } @else {
+                    <span class="ad-state fin-gris">terminée</span>
+                  }
+                </div>
+              } @empty {
+                <div class="ad-void">
+                  <i class="bi bi-star" aria-hidden="true"></i>
+                  <p>Aucune mise en avant sur les trente derniers jours.</p>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+    }
+  </div>
+</section>

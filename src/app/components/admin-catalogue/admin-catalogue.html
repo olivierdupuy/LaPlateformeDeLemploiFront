@@ -1,0 +1,244 @@
+<section class="ad-page cat">
+  <div class="container">
+
+    <header class="ad-head">
+      <div class="ad-head__text">
+        <h1>Catalogue</h1>
+        <p class="ad-head__sub">
+          D'où viennent les offres, et dans quel état elles sont. Un catalogue se dégrade
+          sans bruit : une source qui se tait, des doublons qui s'accumulent, des annonces
+          que leur source a retirées depuis longtemps.
+        </p>
+      </div>
+      <div class="ad-head__actions">
+        <button class="btn-ghost" (click)="rafraichir()" [disabled]="chargement()">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Relever
+        </button>
+        <button class="btn-primary" (click)="lancerImport()" [disabled]="importEnCours()">
+          @if (importEnCours()) { <span class="sp"></span> Import en cours… }
+          @else { <i class="bi bi-cloud-download" aria-hidden="true"></i> Lancer un import }
+        </button>
+      </div>
+    </header>
+
+    @if (chargement()) {
+      <div class="ad-void"><div class="spinner"></div></div>
+    } @else {
+
+      <!-- ═══ CE QUI SE VOIT D'UN COUP D'ŒIL ═══ -->
+      <div class="ad-facets">
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ (doublons()?.totalOffers ?? fraicheur()?.total ?? 0) | number }}</b>
+          <i class="ad-facet__lbl">offres en ligne</i>
+        </div>
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ configurees() }}</b>
+          <i class="ad-facet__lbl">sources configurées</i>
+        </div>
+        @if (enPanne().length) {
+          <div class="ad-facet ad-facet--alert">
+            <b class="ad-facet__val">{{ enPanne().length }}</b>
+            <i class="ad-facet__lbl"><span class="ad-facet__dot"></span>sources muettes</i>
+          </div>
+        }
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ fraicheur()?.ageMedianJours ?? '—' }}</b>
+          <i class="ad-facet__lbl">âge médian (jours)</i>
+        </div>
+        @if (fraicheur()?.bientotExpirees) {
+          <div class="ad-facet">
+            <b class="ad-facet__val">{{ fraicheur()!.bientotExpirees | number }}</b>
+            <i class="ad-facet__lbl">bientôt périmées</i>
+          </div>
+        }
+        @if (doublons()?.duplicatedGroups) {
+          <div class="ad-facet ad-facet--alert">
+            <b class="ad-facet__val">{{ doublons()!.duplicatedGroups | number }}</b>
+            <i class="ad-facet__lbl"><span class="ad-facet__dot"></span>groupes en double</i>
+          </div>
+        }
+      </div>
+
+      <div class="ad-grid">
+
+        <!-- ═══ LES SOURCES ═══ -->
+        <section class="ad-panel">
+          <div class="ad-panel__head">
+            <i class="ad-panel__ico bi bi-hdd-network" aria-hidden="true"></i>
+            <h3>Les sources</h3>
+            <span class="ad-count">{{ sources().length }}</span>
+          </div>
+          <div class="ad-panel__body ad-panel__body--flush">
+            <div class="ad-list">
+              @for (s of sources(); track s.cle) {
+                <div class="ad-item" [class.est-muette]="s.etat.configured && (s.etat.error || s.etat.results === 0)">
+                  <div class="ad-item__txt">
+                    <strong>{{ nomSource(s.cle) }}</strong>
+                    <span>
+                      {{ etatSource(s.etat) }}
+                      @if (s.etat.status) { · HTTP {{ s.etat.status }} }
+                      @if (s.etat.error) { · {{ s.etat.error }} }
+                    </span>
+                  </div>
+                  <!-- Pas de pastille verte : une source configurée qui
+                       répond est le cas normal, et le normal ne mérite
+                       pas une couleur. Seul l'anormal se signale. -->
+                  @if (!s.etat.configured) {
+                    <span class="ad-state cat-gris">non configurée</span>
+                  } @else if (s.etat.error || s.etat.results === 0) {
+                    <span class="ad-state cat-alerte">
+                      <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i> muette
+                    </span>
+                  } @else {
+                    <span class="ad-state">répond</span>
+                  }
+                </div>
+              } @empty {
+                <div class="ad-void">
+                  <i class="bi bi-hdd-network" aria-hidden="true"></i>
+                  <p>Aucune source n'est configurée sur ce serveur.</p>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ CE QUE CHAQUE SOURCE A APPORTÉ ═══ -->
+        <section class="ad-panel">
+          <div class="ad-panel__head">
+            <i class="ad-panel__ico bi bi-clock-history" aria-hidden="true"></i>
+            <h3>Fraîcheur par source</h3>
+          </div>
+          <div class="ad-panel__body ad-panel__body--flush">
+            @if (fraicheur()?.parSource?.length) {
+              <div class="ad-list">
+                @for (p of fraicheur()!.parSource; track p.source) {
+                  <div class="ad-item">
+                    <div class="ad-item__txt">
+                      <strong>{{ p.source || 'dépôt direct' }}</strong>
+                      <span>
+                        {{ p.nombre | number }} offres · âge moyen {{ p.ageMoyenJours }} j ·
+                        dernière le {{ p.plusRecente | date:'dd/MM/yy' }}
+                      </span>
+                    </div>
+                    <!-- La sévérité se lit au remplissage, comme partout
+                         dans la console : plus la barre est pleine, plus
+                         le lot a vieilli. -->
+                    <span class="cat-age" [attr.aria-label]="'âge moyen ' + p.ageMoyenJours + ' jours'">
+                      <span class="cat-age__part" [style.width.%]="p.ageMoyenJours > 30 ? 100 : (p.ageMoyenJours * 100 / 30)"></span>
+                    </span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="ad-void">
+                <i class="bi bi-inbox" aria-hidden="true"></i>
+                <p>Aucune offre au catalogue.</p>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- ═══ LES DOUBLONS ═══ -->
+        <section class="ad-panel ad-span-all">
+          <div class="ad-panel__head">
+            <i class="ad-panel__ico bi bi-files" aria-hidden="true"></i>
+            <h3>Doublons</h3>
+            <div class="ad-acts">
+              <button class="btn-ghost" (click)="reanalyserSalaires()" [disabled]="occupe()">
+                <i class="bi bi-currency-euro" aria-hidden="true"></i> Ré-analyser les salaires
+              </button>
+              @if (doublons()?.duplicatedGroups) {
+                <button class="btn-ghost cat-danger" (click)="purger()" [disabled]="occupe()">
+                  <i class="bi bi-trash3" aria-hidden="true"></i> Purger
+                </button>
+              }
+            </div>
+          </div>
+          <div class="ad-panel__body">
+            @if (doublons(); as d) {
+              @if (d.duplicatedGroups === 0) {
+                <p class="cat-calme">
+                  <i class="bi bi-check2" aria-hidden="true"></i>
+                  Aucun doublon : {{ d.distinctExternalIds | number }} identifiants distincts
+                  pour {{ d.importedOffers | number }} offres importées.
+                </p>
+              } @else {
+                <p class="cat-txt">
+                  <b>{{ d.duplicatedGroups | number }} groupes</b> contiennent plusieurs exemplaires
+                  de la même annonce, soit <b>{{ d.surplusRows | number }} lignes en trop</b>.
+                  La purge garde le plus ancien de chaque groupe.
+                </p>
+
+                <!-- Ce que la purge emporterait avec elle. Ces tables sont
+                     en suppression en cascade : le dire avant vaut mieux
+                     que de le découvrir après. -->
+                @if (d.atRisk.applications || d.atRisk.favourites || d.atRisk.reports) {
+                  <p class="cat-risque">
+                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                    Rattachés aux exemplaires en trop :
+                    <b>{{ d.atRisk.applications }}</b> candidature(s),
+                    {{ d.atRisk.favourites }} favori(s), {{ d.atRisk.reports }} signalement(s).
+                    Ils partiraient avec eux.
+                  </p>
+                }
+
+                @if (d.sample?.length) {
+                  <div class="table-wrap">
+                    <table class="data cat-table">
+                      <thead>
+                        <tr>
+                          <th>Identifiant externe</th>
+                          <th class="ta-r">Exemplaires</th>
+                          <th class="ta-r">Conservé</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (e of d.sample; track e.externalId) {
+                          <tr>
+                            <td class="u-mono">{{ e.externalId }}</td>
+                            <td class="ta-r u-mono">{{ e.copies }}</td>
+                            <td class="ta-r u-mono">#{{ e.keepId }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              }
+            } @else {
+              <p class="cat-txt">Le comptage des doublons n'a pas pu être établi.</p>
+            }
+          </div>
+        </section>
+
+        <!-- ═══ CE QUE LA MODÉRATION ATTEND ═══ -->
+        @if (fraicheur()?.suspectes?.length) {
+          <section class="ad-panel ad-span-all">
+            <div class="ad-panel__head">
+              <i class="ad-panel__ico bi bi-shield-exclamation" aria-hidden="true"></i>
+              <h3>Annonces retenues par l'analyse</h3>
+              <span class="ad-count">{{ fraicheur()!.enModeration }}</span>
+            </div>
+            <div class="ad-panel__body ad-panel__body--flush">
+              <div class="ad-list">
+                @for (o of fraicheur()!.suspectes; track o.id) {
+                  <a class="ad-item" [routerLink]="['/admin/offres', o.id]">
+                    <div class="ad-item__txt">
+                      <strong>{{ o.title }}</strong>
+                      <span>{{ o.company }} · {{ o.motifFraude }}</span>
+                    </div>
+                    <span class="ad-state" [class.cat-alerte]="o.scoreFraude >= 60">
+                      risque {{ o.scoreFraude }}/100
+                    </span>
+                  </a>
+                }
+              </div>
+            </div>
+          </section>
+        }
+
+      </div>
+    }
+  </div>
+</section>

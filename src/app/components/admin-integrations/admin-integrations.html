@@ -1,0 +1,264 @@
+<section class="ad-page intg">
+  <div class="container">
+
+    <header class="ad-head">
+      <div class="ad-head__text">
+        <h1>Intégrations</h1>
+        <p class="ad-head__sub">
+          Les accès techniques de toute la plateforme. Les clés et les webhooks se créent
+          en self-service : cette page ne les fabrique pas, elle les montre — et permet de
+          couper ce qui doit l'être, ce qui n'était possible pour personne d'autre que
+          leur porteur.
+        </p>
+      </div>
+      <div class="ad-head__actions">
+        <button class="btn-ghost" (click)="rafraichir()" [disabled]="chargement()">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Relever
+        </button>
+      </div>
+    </header>
+
+    @if (chargement()) {
+      <div class="ad-void"><div class="spinner"></div></div>
+    } @else {
+
+      <div class="ad-facets">
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ clesActives() }}</b>
+          <i class="ad-facet__lbl">clés en service</i>
+        </div>
+        @if (clesDormantes()) {
+          <div class="ad-facet ad-facet--alert">
+            <b class="ad-facet__val">{{ clesDormantes() }}</b>
+            <i class="ad-facet__lbl"><span class="ad-facet__dot"></span>clés dormantes</i>
+          </div>
+        }
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ webhooksActifs() }}</b>
+          <i class="ad-facet__lbl">abonnements actifs</i>
+        </div>
+        @if (webhooksTombes()) {
+          <div class="ad-facet ad-facet--alert">
+            <b class="ad-facet__val">{{ webhooksTombes() }}</b>
+            <i class="ad-facet__lbl"><span class="ad-facet__dot"></span>abonnements tombés</i>
+          </div>
+        }
+        <div class="ad-facet">
+          <b class="ad-facet__val">{{ clesRevoquees() }}</b>
+          <i class="ad-facet__lbl">clés révoquées</i>
+        </div>
+      </div>
+
+      <div class="tabs intg-tabs" role="tablist">
+        <button class="tab" role="tab" [class.is-active]="onglet() === 'cles'" (click)="onglet.set('cles')">
+          <i class="bi bi-key" aria-hidden="true"></i> Clés d'API
+          <span class="tab-n u-mono">{{ cles().length }}</span>
+        </button>
+        <button class="tab" role="tab" [class.is-active]="onglet() === 'webhooks'" (click)="onglet.set('webhooks')">
+          <i class="bi bi-broadcast" aria-hidden="true"></i> Webhooks
+          <span class="tab-n u-mono">{{ webhooks().length }}</span>
+        </button>
+        <button class="tab" role="tab" [class.is-active]="onglet() === 'diffusions'" (click)="onglet.set('diffusions')">
+          <i class="bi bi-send-exclamation" aria-hidden="true"></i> Multidiffusion
+          <span class="tab-n u-mono">{{ diffusions().length }}</span>
+        </button>
+      </div>
+
+      <!-- ═══════════ CLÉS ═══════════ -->
+      @if (onglet() === 'cles') {
+        <section class="ad-panel animate-in">
+          <div class="ad-panel__body ad-panel__body--flush">
+            <div class="ad-list">
+              @for (c of cles(); track c.id) {
+                <div class="ad-item" [class.est-eteinte]="c.revoquee">
+                  <div class="ad-item__txt">
+                    <strong>
+                      {{ c.nom }}
+                      <span class="intg-prefixe u-mono">{{ c.prefixe }}…</span>
+                    </strong>
+                    <span>
+                      {{ c.proprietaire }}@if (c.entreprise) { · {{ c.entreprise }} }
+                      · {{ c.portees.join(', ') }}
+                    </span>
+                  </div>
+
+                  <span class="intg-quand">
+                    @if (c.revoquee) {
+                      révoquée le {{ c.revoqueLe | date:'dd/MM/yy' }}
+                    } @else if (c.derniereUtilisation) {
+                      vue le {{ c.derniereUtilisation | date:'dd/MM/yy' }}
+                    } @else {
+                      jamais appelée · créée le {{ c.creeLe | date:'dd/MM/yy' }}
+                    }
+                  </span>
+
+                  <!-- Le normal ne porte pas de couleur. Seul ce qui
+                       demande une décision se signale. -->
+                  @if (c.revoquee) {
+                    <span class="ad-state intg-gris">révoquée</span>
+                  } @else if (c.dormante) {
+                    <span class="ad-state intg-alerte"
+                          title="Plus appelée depuis 90 jours : personne ne surveille sa fuite.">
+                      <i class="bi bi-moon" aria-hidden="true"></i> dormante
+                    </span>
+                  } @else {
+                    <span class="ad-state">en service</span>
+                  }
+
+                  <div class="ad-acts">
+                    @if (!c.revoquee) {
+                      <button class="ad-act intg-danger" (click)="revoquer(c)"
+                              [attr.aria-label]="'Révoquer la clé ' + c.nom" title="Révoquer">
+                        <i class="bi bi-slash-circle" aria-hidden="true"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+              } @empty {
+                <div class="ad-void">
+                  <i class="bi bi-key" aria-hidden="true"></i>
+                  <p>Aucune clé d'API n'a été créée sur la plateforme.</p>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+
+        <p class="intg-note">
+          <i class="bi bi-info-circle" aria-hidden="true"></i>
+          Le volume d'appels n'est pas affiché : rien ne le compte aujourd'hui. La date de
+          dernier appel dit ce qui sert et ce qui dort — inventer un chiffre serait pire
+          que de n'en donner aucun.
+        </p>
+      }
+
+      <!-- ═══════════ WEBHOOKS ═══════════ -->
+      @if (onglet() === 'webhooks') {
+        <section class="ad-panel animate-in">
+          <div class="ad-panel__body ad-panel__body--flush">
+            <div class="ad-list">
+              @for (w of webhooks(); track w.id) {
+                <div class="intg-hook" [class.est-tombe]="w.tombe">
+                  <div class="ad-item">
+                    <div class="ad-item__txt">
+                      <strong>{{ urlCourte(w.url) }}</strong>
+                      <span>
+                        {{ w.proprietaire }} · {{ w.evenements.join(', ') }}
+                        @if (w.derniereLivraison) { · dernière livraison le {{ w.derniereLivraison | date:'dd/MM à HH:mm' }} }
+                      </span>
+                    </div>
+
+                    @if (w.tombe) {
+                      <span class="ad-state intg-alerte"
+                            title="Éteint par la machine après trop d'échecs consécutifs.">
+                        <i class="bi bi-plug" aria-hidden="true"></i>
+                        tombé · {{ w.echecsConsecutifs }} échecs
+                      </span>
+                    } @else if (!w.actif) {
+                      <span class="ad-state intg-gris">désactivé</span>
+                    } @else {
+                      <span class="ad-state">actif</span>
+                    }
+
+                    <div class="ad-acts">
+                      @if (w.tombe) {
+                        <button class="ad-act" (click)="reactiver(w)"
+                                title="Remettre en service" aria-label="Remettre en service">
+                          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                        </button>
+                      }
+                      <button class="ad-act" (click)="basculerLivraisons(w)"
+                              [attr.aria-expanded]="deplie() === w.id"
+                              title="Voir les livraisons" aria-label="Voir les livraisons">
+                        <i class="bi" [class.bi-chevron-down]="deplie() !== w.id"
+                           [class.bi-chevron-up]="deplie() === w.id" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  @if (w.derniereErreur && w.tombe) {
+                    <p class="intg-erreur">{{ w.derniereErreur }}</p>
+                  }
+
+                  <!-- La charge utile n'est pas rendue : elle contient les
+                       données de la candidature. Diagnostiquer une panne
+                       de livraison n'exige pas de les lire. -->
+                  @if (deplie() === w.id) {
+                    <div class="intg-livraisons">
+                      @for (l of livraisonsDe(w.id); track l.id) {
+                        <div class="intg-livraison">
+                          <span class="u-mono intg-code" [class.est-mauvais]="!l.livree">
+                            {{ l.codeReponse ?? '—' }}
+                          </span>
+                          <span class="intg-ev">{{ l.evenement }}</span>
+                          <span class="intg-quand">{{ l.creeLe | date:'dd/MM à HH:mm' }}</span>
+                          @if (l.tentatives > 1) { <span class="intg-quand">{{ l.tentatives }} tentatives</span> }
+                          @if (l.erreur) { <span class="intg-err-ligne">{{ l.erreur }}</span> }
+                        </div>
+                      } @empty {
+                        <p class="intg-vide">Aucune livraison enregistrée pour cet abonnement.</p>
+                      }
+                    </div>
+                  }
+                </div>
+              } @empty {
+                <div class="ad-void">
+                  <i class="bi bi-broadcast" aria-hidden="true"></i>
+                  <p>Aucun abonnement aux événements.</p>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- ═══════════ MULTIDIFFUSION ═══════════ -->
+      @if (onglet() === 'diffusions') {
+        @if (parDestination().length) {
+          <div class="ad-facets">
+            @for (d of parDestination(); track d.destination) {
+              <div class="ad-facet" [class.ad-facet--alert]="d.enEchec > 0">
+                <b class="ad-facet__val">{{ d.enEchec }}</b>
+                <i class="ad-facet__lbl">
+                  @if (d.enEchec) { <span class="ad-facet__dot"></span> }
+                  {{ d.destination }}
+                </i>
+              </div>
+            }
+          </div>
+        }
+
+        <section class="ad-panel animate-in">
+          <div class="ad-panel__body ad-panel__body--flush">
+            <div class="ad-list">
+              @for (d of diffusions(); track d.id) {
+                <div class="ad-item">
+                  <div class="ad-item__txt">
+                    <strong>{{ d.offre || ('Offre ' + d.jobOfferId) }}</strong>
+                    <span>
+                      {{ d.destination }} · demandée le {{ d.demandeeLe | date:'dd/MM/yy' }}
+                      @if (d.tentatives > 1) { · {{ d.tentatives }} tentatives }
+                      @if (d.motif) { · {{ d.motif }} }
+                    </span>
+                  </div>
+                  @if (d.statut === 'echec') {
+                    <span class="ad-state intg-alerte">
+                      <i class="bi bi-x-circle" aria-hidden="true"></i> en échec
+                    </span>
+                  } @else {
+                    <span class="ad-state intg-gris">en attente</span>
+                  }
+                </div>
+              } @empty {
+                <div class="ad-void">
+                  <i class="bi bi-send-check" aria-hidden="true"></i>
+                  <p>Aucune diffusion en échec ni en attente.</p>
+                </div>
+              }
+            </div>
+          </div>
+        </section>
+      }
+    }
+  </div>
+</section>

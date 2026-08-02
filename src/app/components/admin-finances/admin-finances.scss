@@ -1,0 +1,159 @@
+/* ═══════════════════════════════════════════════════════════
+   Finances.
+
+   Bâtie sur le kit `ad-` du panneau. Ce fichier ne porte que ce que le
+   kit n'a pas : l'histogramme des recettes et trois nuances d'état.
+   ═══════════════════════════════════════════════════════════ */
+
+.fin .ad-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .fin .ad-grid { grid-template-columns: 1fr; }
+}
+
+.fin-tabs { margin: 1.1rem 0; }
+
+/* ── Les recettes, mois par mois ──
+   Un histogramme et non une courbe : les recettes d'un mois sont un
+   total, pas un point sur un continuum. Une courbe suggérerait qu'il
+   s'est passé quelque chose entre deux mois. */
+.fin-barres {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: end;
+  gap: 0.35rem;
+  min-height: 11rem;
+}
+
+.fin-barre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.fin-barre__val {
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  /* Un mois sans recette porte un tiret, pas un zéro : « 0 € » se lit
+     comme une mesure, le tiret comme une absence. */
+  &.est-nul { color: var(--faint); font-weight: 400; }
+}
+
+.fin-barre__piste {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 7rem;
+  border-radius: var(--r-xs);
+  background: var(--nuage-2);
+  overflow: hidden;
+}
+
+.fin-barre__part {
+  width: 100%;
+  min-height: 2px;
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+  background: var(--bleu-600);
+  transition: height 0.4s var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fin-barre__part { transition: none; }
+}
+
+.fin-barre__mois {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .fin-barre__val { display: none; }
+  .fin-barre__mois { font-size: 0.52rem; }
+}
+
+/* ── Ce qui attend ── */
+.fin-attente {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+
+  li { position: relative; padding-left: 0.9rem; }
+  li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0.68em;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--danger);
+  }
+  b { color: var(--ink); }
+}
+
+.fin-lien {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--bleu-600);
+  text-decoration: underline;
+  cursor: pointer;
+  &:hover { color: var(--bleu-700); }
+}
+
+.fin-calme {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  i { color: var(--bleu-600); }
+}
+
+/* ── Les états ──
+   Le normal ne porte pas de couleur. Le crimson est rationné aux
+   impayés — ce sont les seuls à demander une décision. */
+.fin-gris { color: var(--muted); }
+
+.fin-alerte {
+  color: var(--danger-600);
+  i { font-size: 0.76rem; }
+}
+
+/* Une échéance proche n'est pas une alerte : elle est simplement plus
+   sombre que le reste, ce qui suffit à la faire lire. */
+.fin-proche { color: var(--ink); font-weight: 700; }
+
+.fin-sous {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fin-note {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--muted);
+  i { flex-shrink: 0; margin-top: 0.15rem; }
+}
