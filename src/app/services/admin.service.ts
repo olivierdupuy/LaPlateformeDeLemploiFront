@@ -29,9 +29,12 @@ export interface ControleSante {
 /** Une tâche de fond, et son dernier passage. */
 export interface TacheSante {
   service: string;
+  /** « sain », « en attente », « en retard », « en échec », « jamais passé ». */
   etat: string;
   dernierPassage: string | null;
   detail: string | null;
+  /** Calculé par le serveur : cette tâche demande-t-elle de l'attention ? */
+  inquiete: boolean;
 }
 
 export interface EtatDuService {

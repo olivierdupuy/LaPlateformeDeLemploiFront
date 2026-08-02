@@ -16,12 +16,42 @@
 
     @if (!sante()) {
       <p class="u-muted">État indisponible.</p>
-    } @else {
-      <ul class="ops__etat">
-        @for (l of lignesSante(); track l.cle) {
+    } @else if (sante(); as s) {
+      <!-- Le verdict d'abord, en une ligne : c'est la seule chose qu'on
+           vient lire quand on ouvre cette page à trois heures du matin.
+           Le détail se lit ensuite, et seulement si le verdict le
+           justifie. -->
+      <p class="ops__verdict" [class]="'ops__verdict--' + classeEtat(s.etat)">
+        <span class="badge" [class]="badgeEtat(s.etat)">{{ s.etat }}</span>
+        <span>{{ resumeSante() }}</span>
+        <span class="u-muted">· en service depuis {{ depuis() }}</span>
+      </p>
+
+      <h3 class="ops__sous-titre">Contrôles</h3>
+      <ul class="ops__controles">
+        @for (c of s.controles; track c.quoi) {
           <li>
-            <span class="ops__cle">{{ l.cle }}</span>
-            <span class="badge" [class]="couleurEtat(l.valeur)">{{ l.valeur }}</span>
+            <span class="badge" [class]="badgeEtat(c.etat)">{{ c.etat }}</span>
+            <span class="ops__quoi">{{ c.quoi }}</span>
+            <span class="ops__detail-court">{{ c.detail }}</span>
+          </li>
+        }
+      </ul>
+
+      <h3 class="ops__sous-titre">Tâches de fond</h3>
+      <ul class="ops__taches">
+        @for (t of s.taches; track t.service) {
+          <li [class.ops__tache--inquiete]="t.inquiete">
+            <span class="badge" [class]="badgeTache(t)">{{ t.etat }}</span>
+            <span class="ops__quoi u-mono">{{ t.service }}</span>
+            <span class="ops__detail-court">
+              @if (t.dernierPassage) {
+                dernier passage le {{ t.dernierPassage | date: 'dd/MM à HH:mm' }}
+              } @else {
+                aucun passage depuis le démarrage
+              }
+              @if (t.detail) { · {{ t.detail }} }
+            </span>
           </li>
         }
       </ul>

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { EtatDuService } from './admin.service';
 
 /**
  * Les services ajoutes par la professionnalisation : exploitation,
@@ -221,8 +222,16 @@ export class PlateformeProService {
     return this.http.patch<void>(`${this.api}/journal/erreurs-navigateur/${id}`, { traitee });
   }
 
-  sante(): Observable<unknown> {
-    return this.http.get(`${this.api}/sante/detail`);
+  /**
+   * L'état détaillé du service.
+   *
+   * Typé. Il rendait « unknown », et l'écran d'exploitation en était
+   * réduit à parcourir la réponse à l'aveugle et à sérialiser en JSON
+   * ce qu'il ne savait pas afficher — c'est-à-dire les contrôles et les
+   * tâches, soit tout ce qui a de l'intérêt.
+   */
+  sante(): Observable<EtatDuService> {
+    return this.http.get<EtatDuService>(`${this.api}/sante/detail`);
   }
 
   catalogue(): Observable<FraicheurCatalogue> {

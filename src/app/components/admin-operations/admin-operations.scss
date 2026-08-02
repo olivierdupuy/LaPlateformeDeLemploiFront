@@ -8,30 +8,88 @@
     margin-bottom: 2.25rem;
   }
 
-  &__etat {
+  /* ── Le verdict ──
+     Une seule ligne, en tête : c'est ce qu'on vient lire, et souvent
+     la seule chose qu'on lira. Le liseré de gauche porte la couleur,
+     ce qui la rend visible du coin de l'œil sans repeindre le bloc. */
+  &__verdict {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1.4rem;
+    padding: 0.75rem 0.95rem;
+    font-size: 0.9rem;
+    border: 1px solid var(--line);
+    border-left-width: 3px;
+    border-radius: var(--r-lg);
+    background: var(--canvas);
+
+    &--sain    { border-left-color: var(--spring-600); }
+    &--degrade { border-left-color: var(--amber, #b5651d); }
+    &--panne   { border-left-color: var(--red); }
+  }
+
+  /* ── Contrôles et tâches ──
+     Trois colonnes : l'état, ce dont il s'agit, puis le détail. L'état
+     vient en premier parce qu'on parcourt cette liste en cherchant ce
+     qui ne va pas, pas en lisant les noms un par un.
+
+     « minmax(0, 1fr) » sur la dernière colonne : sans le minimum à
+     zéro, une chaîne longue et sans espace refuse de se réduire et
+     pousse les colonnes précédentes hors du cadre. C'est ce qui
+     arrivait quand cette section affichait du JSON — l'étiquette se
+     retrouvait sur une colonne d'un caractère de large, à lire
+     verticalement. */
+  &__controles,
+  &__taches {
     list-style: none;
-    margin: 0;
+    margin: 0 0 1.6rem;
     padding: 0;
     display: grid;
-    gap: 0.5rem;
-    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: 0.35rem;
 
     li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 7.5rem minmax(6rem, auto) minmax(0, 1fr);
+      align-items: baseline;
       gap: 0.75rem;
-      padding: 0.65rem 0.9rem;
+      padding: 0.55rem 0.9rem;
       border: 1px solid var(--line);
       border-radius: var(--r-lg);
       background: var(--canvas);
     }
+
+    .badge {
+      justify-self: start;
+      white-space: nowrap;
+    }
   }
 
-  &__cle {
-    font-size: 0.86rem;
-    color: var(--muted);
+  /* Une tâche en peine se repère avant d'être lue. */
+  &__tache--inquiete {
+    border-color: var(--amber, #b5651d) !important;
+  }
+
+  &__quoi {
+    font-size: 0.88rem;
+    font-weight: 600;
     overflow-wrap: anywhere;
+  }
+
+  &__detail-court {
+    font-size: 0.83rem;
+    color: var(--muted);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 720px) {
+    &__controles li,
+    &__taches li {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
   }
 
   &__catalogue {
