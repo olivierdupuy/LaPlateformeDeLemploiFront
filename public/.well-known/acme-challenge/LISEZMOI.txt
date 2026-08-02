@@ -1,0 +1,32 @@
+Ce dossier sert aux jetons de validation des certificats (ACME HTTP-01).
+
+« verification-chaine » est un temoin, pas un jeton. Il est sans
+extension, comme un vrai jeton, et il permet de verifier la chaine
+entiere sans rien emettre :
+
+    curl http://laplateformedelemploi.com/.well-known/acme-challenge/verification-chaine -L
+
+Cette adresse traverse exactement le trajet d'une validation reelle :
+la redirection du nom nu vers « www » — qui preserve le chemin, c'est
+ce qui rend la chose possible — puis IIS, qui doit rendre le contenu du
+fichier en texte brut. La reponse attendue est une seule ligne :
+
+    chaine-de-validation-acme-operationnelle
+
+Si elle rend du HTML, une regle de reecriture a repris la main. Si elle
+rend 404.3, la correspondance de type pour les fichiers sans extension
+a disparu du « web.config » de CE dossier — c'est le defaut qui
+empechait toute validation avant aout 2026.
+
+Ce reglage tient dans le « web.config » place ici, et pas dans celui du
+site. La premiere tentative le posait dans un bloc « location » du
+fichier racine : IIS l'a refuse et le site entier a rendu 500 pendant
+trois minutes, le 2 aout 2026. Le reglage etait le bon, sa portee ne
+l'etait pas. Ici, s'il est refuse, ce dossier seul repond en erreur.
+
+Le test de fumee du deploiement lit ce temoin a chaque mise en ligne :
+une chaine cassee se voit le jour meme, et non quatre-vingt-dix jours
+plus tard quand un renouvellement echoue.
+
+Le temoin ne contient aucun secret : c'est une phrase fixe, publique,
+et un jeton reel ne vaut de toute facon que quelques secondes.

@@ -314,5 +314,32 @@ jobs:
           # elle qui casse le plus souvent.
           Verifier "Reecriture des routes" "$site/offres" 200 | Out-Null
 
+          # ── Le chemin de validation des certificats ──
+          #
+          # Un jeton ACME est un fichier sans extension, et IIS refuse de
+          # servir ce qu'il ne sait pas nommer. Sans la correspondance de
+          # type posee dans « .well-known/acme-challenge/web.config »,
+          # toute emission et tout renouvellement echouent — en silence, et
+          # seulement le jour ou le certificat expire.
+          #
+          # « verification-chaine » a la forme exacte d'un jeton : meme
+          # dossier, pas d'extension. Le lire ici eprouve la chaine a
+          # chaque deploiement au lieu de la decouvrir cassee dans
+          # quatre-vingt-dix jours.
+          $temoin = Verifier "Chemin de validation ACME" `
+                    "$site/.well-known/acme-challenge/verification-chaine" 200
+
+          if ($temoin.Content -notmatch "chaine-de-validation-acme-operationnelle") {
+            # Pas de chaine multiligne ici : « @" » impose son « "@ » en
+            # colonne zero, et une ligne en colonne zero mettrait fin au
+            # bloc YAML qui porte ce script.
+            Write-Host "Le site fonctionne : les verifications precedentes sont passees."
+            Write-Host "Seule l'emission des certificats est en cause. Deux causes possibles :"
+            Write-Host "  du HTML — une regle de reecriture a repris la main sur ce chemin ;"
+            Write-Host "  une 404.3 — la correspondance de type a disparu du web.config du dossier."
+            Write-Error "ECHEC Chemin de validation ACME — le temoin ne rend pas son contenu."
+            exit 1
+          }
+
           Write-Host ""
           Write-Host "Deploiement verifie."
