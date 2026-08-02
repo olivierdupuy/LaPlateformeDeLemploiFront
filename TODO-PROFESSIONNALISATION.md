@@ -514,9 +514,61 @@ Il n'y a donc rien à développer, seulement une clé à renseigner.
 | SPF, DKIM, DMARC | Trois enregistrements DNS. Rien à écrire dans le dépôt |
 | IndexNow | Poser le fichier `<clé>.txt` à la racine du site et renseigner `Seo:IndexNowKey`. Le service est écrit et ne fait rien sans |
 | Google Search Console | Raccorder le domaine et suivre l'indexation |
+| **Apex en HTTPS** | `laplateformedelemploi.com` pointe sur un service de redirection tiers qui ne répond qu'en HTTP : `https://` sans `www` ne se connecte pas du tout. La règle de réécriture `Apex vers www` est déjà déployée et attend que l'enregistrement A pointe sur le serveur. Détail de la manœuvre ci-dessous |
 | **Mesure d'audience** | Installer une instance **Matomo ou Plausible** (auto-hébergée — jamais Google Analytics, sanctionné par la CNIL), puis renseigner `mesureUrl` et `mesureSiteId` (Matomo) ou `mesureDomaine` (Plausible) dans l'environnement. Le consentement par finalité est déjà en place et sera respecté |
 | **Multidiffusion France Travail** | Demander l'habilitation « **dépôt d'offres** » — distincte de celle qui sert déjà à lire le catalogue — puis renseigner `FranceTravail:DepotClientId` et `DepotClientSecret`. La mise en forme de l'offre au format attendu est écrite |
 | **Multidiffusion partenaire** | Renseigner `Multidiffusion:PartenaireUrl` et `Multidiffusion:PartenaireJeton`. Dépôt et retrait sont écrits et testés |
+
+### L'apex en HTTPS, en détail
+
+Constaté le 2026-08-02, après le déploiement :
+
+| | `laplateformedelemploi.com` | `www.laplateformedelemploi.com` |
+|---|---|---|
+| Enregistrement A | `217.70.184.38` — service de redirection tiers | `162.19.96.47` — le serveur OVH |
+| `http://` | 301 vers `https://www…`, chemin et paramètres conservés | sert |
+| `https://` | **aucune connexion** — rien n'écoute sur 443 | sert |
+
+Le trafic de l'apex n'atteint donc jamais IIS, et aucune règle de
+réécriture ne peut s'y appliquer. Ce n'est pas un défaut du dépôt :
+c'est un enregistrement DNS qui désigne quelqu'un d'autre.
+
+L'ennui grandit tout seul. Les navigateurs tentent HTTPS d'abord — mode
+« HTTPS-First » de Chrome, barre d'adresse de Safari — de sorte qu'une
+part croissante des gens qui tapent le domaine sans `www` n'obtiennent
+pas une redirection mais une erreur de connexion.
+
+**Ce qui est déjà fait :** la règle `Apex vers www` est dans le
+`web.config` généré au déploiement. Elle rend un 301 vers `https://www`
+en conservant le chemin, et laisse passer `/.well-known/acme-challenge/`
+— sans quoi le certificat ne pourrait jamais être validé, la validation
+étant justement ce qui se fait en clair.
+
+**Ce qui reste, dans cet ordre — l'ordre compte :**
+
+1. **DNS** : l'enregistrement A de l'apex passe de `217.70.184.38` à
+   `162.19.96.47`. C'est ce qui amène enfin le trafic sur le serveur.
+2. **Liaison IIS** : ajouter le nom d'hôte `laplateformedelemploi.com`
+   sur le port 80 du site front. Sans elle, la validation du certificat
+   à l'étape suivante n'a nulle part où répondre.
+3. **Certificat** : le certificat actuel est mutualisé entre plusieurs
+   domaines du serveur et couvre `www.` et `api.`, **pas l'apex**.
+   Ajouter `laplateformedelemploi.com` à la liste du renouvellement
+   win-acme et relancer ; la liaison 443 se crée avec.
+4. **Vérifier** : `curl -I https://laplateformedelemploi.com/offres`
+   doit rendre un 301 vers `https://www.laplateformedelemploi.com/offres`.
+
+Entre l'étape 1 et l'étape 3 il existe une courte fenêtre où
+`https://` sur l'apex présente un certificat qui ne le couvre pas —
+un avertissement de navigateur plutôt qu'une absence de réponse. Elle
+est inévitable : Let's Encrypt ne délivre pas de certificat pour un nom
+qui ne pointe pas encore sur le serveur qu'il doit valider.
+
+*Variante sans travail serveur : activer la redirection HTTPS chez le
+fournisseur du service de redirection, qui la propose généralement. Cela
+règle le symptôme en une case à cocher, mais laisse la redirection hors
+du dépôt — là où personne ne la relit, et où le prochain qui cherchera
+pourquoi l'apex se comporte ainsi ne la trouvera pas.*
 
 ## 3. Attend que la production tourne
 
