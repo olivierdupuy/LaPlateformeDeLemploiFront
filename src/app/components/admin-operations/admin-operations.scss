@@ -1,590 +1,172 @@
 /* ═══════════════════════════════════════════════════════════
-   Exploitation — un tableau de bord sans feux tricolores.
+   Exploitation.
 
-   Le système de couleurs du site pose « --green: var(--bleu-700) » et
-   « --amber: var(--rouge-700) » : le vert et l'ambre sont du pétrole.
-   Sa règle est écrite à côté — « trois teintes seulement : l'échelle se
-   lit au remplissage ». Un tableau de bord à pastilles vert/orange/rouge
-   est donc impossible ici, et c'est tant mieux : l'œil s'habitue aux
-   feux, il ne s'habitue pas à une jauge qui déborde.
+   Cette feuille faisait cinq cents lignes : en-tête, tuiles, panneaux,
+   listes, états, vides — tout était réécrit ici. C'était l'erreur que
+   le kit `ad-` du panneau existe précisément pour éviter, et son propre
+   commentaire la nomme : « les douze pages du panneau réécrivaient
+   chacune leur en-tête et leurs tuiles sous un préfixe différent. »
 
-   La sévérité se lit donc au remplissage et à la densité d'encre. Le
-   crimson — la seule couleur hors palette, réservée au danger — est
-   rationné : il ne paraît que sur ce qui est réellement en défaut. S'il
-   est partout, il ne veut plus rien dire.
+   Il ne reste donc que ce que le kit n'a pas : la jauge d'échéance, et
+   trois retouches sur ses primitives.
    ═══════════════════════════════════════════════════════════ */
-.ops {
-  /* ── Une largeur de lecture ──
-     Le « .container » du panneau est volontairement pleine largeur : un
-     tableau d'administration se lit sur toute la place disponible, et il
-     y gagne. Mais une jauge de 6 px qui traverse 1 640 px ne se lit
-     plus, un libellé de 12 px perdu à l'autre bout non plus, et une
-     phrase de deux cents caractères sur une seule ligne se relit deux
-     fois.
 
-     Le contenu mesuré est donc borné. Le tableau des sources, lui,
-     garde toute la largeur : c'est le seul élément qui en profite. */
-  --ops-mesure: 68rem;
+/* ── La jauge d'échéance ──
+   Où en est une tâche dans l'intervalle qu'on lui accorde. Le kit a bien
+   une `.ad-ramp`, mais c'est une légende de carte de chaleur : elle
+   montre une échelle, pas une valeur.
 
-  /* Les libellés de section étaient à 11,5 px en « --muted », qui tient
-     exactement 4,50:1 sur le crème — le plancher de la norme, atteint au
-     centième près. Passer la norme de justesse à 11 px n'est pas être
-     lisible. Un cran plus grand, une encre deux fois plus contrastée. */
-  h2 {
-    font-family: var(--font-display);
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--ink-soft);
-    margin: 0 0 1rem;
+   Le rail vide était d'abord un aplat crème sur fond crème — 1,11:1,
+   autrement dit invisible, et une jauge dont on ne voit pas la longueur
+   totale ne dit plus rien. Aucun ton chaud de la palette n'atteint 3:1
+   sur ce sol, ils sont de la même famille : le contraste vient donc du
+   cerne, à 4,50:1. */
+.ops-jauge {
+  position: relative;
+  display: block;
+  flex: 0 1 9rem;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--nuage-2);
+  box-shadow: inset 0 0 0 1px var(--muted);
+  overflow: hidden;
+}
+
+.ops-jauge__part {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--r-full);
+  background: var(--bleu-600);
+  transition: width 0.5s var(--ease-out);
+}
+
+/* Le dépassement se remplit entièrement : une jauge à moitié pleine
+   dirait « à moitié en retard », ce qui n'existe pas. Le crimson ne
+   paraît qu'ici et sur un contrôle réellement tombé — s'il est partout,
+   il ne veut plus rien dire. */
+.est-depasse {
+  .ops-jauge__part {
+    width: 100% !important;
+    background: var(--danger);
   }
+  .ops-ratio { color: var(--danger-600); }
+  .ad-item__txt strong { color: var(--danger-600); }
+}
 
-  &__bloc {
-    margin-bottom: 2.6rem;
-    max-width: var(--ops-mesure);
-  }
+/* Le rapport tient la place d'un `.ad-item__when`, mais il se lit : ce
+   n'est pas un horodatage de coin d'écran, c'est la mesure. */
+.ops-ratio {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.2rem;
+  text-align: right;
+}
 
-  &__chapeau {
-    margin: -0.5rem 0 1.1rem;
-    font-size: 0.88rem;
-    line-height: 1.55;
-    color: var(--muted);
-    max-width: 62ch;
-  }
+/* ── Trois retouches sur les primitives du kit ── */
 
-  /* ── LE VERDICT ──
-     La seule chose que beaucoup de visites liront. Fond pétrole
-     profond : c'est le chrome de l'administration, la bande s'y
-     rattache plutôt que de flotter sur le crème.
-
-     La marge haute reprend celle de « .ad-head », que cette page
-     n'utilise pas : son titre est dans la bande, il n'y a pas d'en-tête
-     séparé à espacer. */
-  &__verdict {
-    max-width: var(--ops-mesure);
-    margin-top: clamp(1.15rem, 2.4vw, 1.7rem);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    padding: 1.6rem 1.75rem;
-    margin-bottom: 2.4rem;
-    border-radius: var(--r-lg);
-    background: var(--bleu-950);
-    color: var(--on-dark);
-
-    /* Le liseré est la seule chose qui change de couleur. Trois états,
-       trois épaisseurs d'attention. */
-    border-left: 4px solid var(--bleu-500);
-    &[data-etat='degrade'] { border-left-color: var(--nuage-3); }
-    &[data-etat='panne']   { border-left-color: var(--danger); }
-    &[data-etat='muet']    { border-left-color: var(--faint); }
-  }
-
-  &__verdict-corps {
-    min-width: 0;
-    flex: 1 1 30rem;
-  }
-
-  &__etiquette {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    margin: 0 0 0.55rem;
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--on-dark-muted);
-  }
-
-  &__horloge {
-    text-transform: none;
-    letter-spacing: 0.04em;
-  }
-
-  /* La phrase. Grande, parce que c'est le produit de cette page. */
-  &__phrase {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.35rem, 2.6vw, 1.85rem);
-    font-weight: 600;
-    line-height: 1.22;
-    letter-spacing: -0.015em;
-    color: var(--on-dark);
-    text-wrap: balance;
-  }
-
-  &__appui {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    margin: 0.7rem 0 0;
-    font-size: 0.84rem;
-    color: var(--on-dark-muted);
-  }
-
-  &__etat-mot {
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.7rem;
-    align-self: center;
-    padding: 0.15rem 0.5rem;
-    border: 1px solid var(--line-dark);
-    border-radius: var(--r-sm);
-    color: var(--on-dark);
-  }
-
-  &__relever {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.55rem 1rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--on-dark);
-    background: transparent;
-    border: 1px solid var(--line-dark);
-    border-radius: var(--r-sm);
-    transition: background var(--t), border-color var(--t);
-
-    &:hover {
-      background: rgba(255, 236, 209, 0.1);
-      border-color: var(--on-dark-muted);
-    }
-    &:focus-visible {
-      outline: 2px solid var(--nuage);
-      outline-offset: 2px;
-    }
-  }
-
-  /* ── LES JAUGES D'ÉCHÉANCE ── la signature de la page.
-     Où en est chaque tâche dans l'intervalle qu'on lui accorde. Le
-     retard de six jours sur l'import était bien affiché — « 6.3 j », en
-     rouge, dans une colonne de tableau, sous trois autres sections — et
-     personne ne l'a vu. À « ×12 » sur une jauge pleine, il ne pouvait
-     pas passer inaperçu. */
-  &__jauges {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    li {
-      display: grid;
-      grid-template-columns: minmax(9rem, 13rem) minmax(6rem, 1fr) 4.5rem;
-      grid-template-areas:
-        'nom rail ratio'
-        'nom legende legende';
-      align-items: center;
-      gap: 0.25rem 1rem;
-      padding: 0.85rem 0;
-      border-top: 1px solid var(--line);
-
-      &:last-child { border-bottom: 1px solid var(--line); }
-    }
-  }
-
-  &__tache-nom {
-    grid-area: nom;
-    font-size: 0.88rem;
-    font-weight: 500;
-    color: var(--ink);
-    overflow-wrap: anywhere;
-  }
-
-  /* Le rail garde toujours la même longueur : c'est la comparaison
-     entre les lignes qui informe, pas la largeur absolue. */
-  /* Le rail vide était « --nuage-2 » sur le crème : 1,11:1. Autant dire
-     invisible — on voyait le remplissage flotter sans savoir sur quelle
-     longueur il se rapporte, ce qui retire à la jauge tout son sens.
-     Aucun ton chaud de la palette n'atteint 3:1 sur ce sol, ils sont de
-     la même famille : le contraste vient donc du cerne, à 4,50:1. */
-  &__rail {
-    grid-area: rail;
-    position: relative;
-    display: block;
-    height: 9px;
-    border-radius: 999px;
-    background: var(--nuage-2);
-    box-shadow: inset 0 0 0 1px var(--muted);
-    overflow: hidden;
-  }
-
-  &__remplissage {
-    position: absolute;
-    inset: 0 auto 0 0;
-    border-radius: 999px;
-    background: var(--bleu-600);
-    transition: width 0.5s var(--ease-out, ease-out);
-  }
-
-  &__ratio {
-    grid-area: ratio;
-    text-align: right;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--ink-soft);
-    font-variant-numeric: tabular-nums;
-  }
-
-  &__legende {
-    grid-area: legende;
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: var(--muted);
-    overflow-wrap: anywhere;
-  }
-
-  /* Le dépassement est le seul endroit de la page où le crimson paraît
-     — hors d'un contrôle réellement tombé. Le rail se remplit
-     entièrement : une jauge à moitié pleine dirait « à moitié en
-     retard », ce qui n'existe pas. */
-  .est-depasse {
-    .ops__remplissage {
-      width: 100% !important;
-      background: var(--danger);
-    }
-    .ops__ratio {
-      color: var(--danger-600);
-    }
-    .ops__tache-nom {
-      font-weight: 700;
-    }
-  }
-
-  @media (max-width: 640px) {
-    &__jauges li {
-      grid-template-columns: 1fr 4.5rem;
-      grid-template-areas:
-        'nom     ratio'
-        'rail    rail'
-        'legende legende';
-      gap: 0.4rem 1rem;
-    }
-  }
-
-  /* ── LA RÉGLETTE ──
-     Des mesures alignées sur une ligne, pas des cartes de même poids.
-     Un zéro n'a rien à réclamer : il s'efface, et reprend de l'encre le
-     jour où il cesse d'être nul — le seul moment où il dit quelque
-     chose. */
-  &__reglette {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-    gap: 0.8rem 2rem;
-    margin: 0 0 1.4rem;
-    padding: 0 0 1.2rem;
-    border-bottom: 1px solid var(--line);
-  }
-
-  &__mesure {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    padding: 0.3rem 0;
-
-    dt {
-      font-family: var(--font-mono);
-      font-size: 0.58rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-    }
-
-    dd {
-      margin: 0;
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--ink);
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* La mesure cardinale porte le sens de la section : elle est plus
-       grande, et elle est la seule à l'être. */
-    &.est-cardinale dd {
-      font-size: 1.7rem;
-      letter-spacing: -0.02em;
-    }
-
-    /* « --faint » est annoté dans les jetons : « decor, jamais du texte
-       a lire » — 2,60:1. Je l'avais pris pour effacer un zéro, ce qui
-       est exactement l'usage que la note interdit. Un zéro doit être
-       discret, pas illisible : c'est la graisse qui le met en retrait,
-       pas l'encre. */
-    &.est-nul dd {
-      color: var(--muted);
-      font-weight: 400;
-    }
-  }
-
-  /* ── Le verdict ──
-     Une seule ligne, en tête : c'est ce qu'on vient lire, et souvent
-     la seule chose qu'on lira. Le liseré de gauche porte la couleur,
-     ce qui la rend visible du coin de l'œil sans repeindre le bloc. */
-  &__verdict {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 0 0 1.4rem;
-    padding: 0.75rem 0.95rem;
-    font-size: 0.9rem;
-    border: 1px solid var(--line);
-    border-left-width: 3px;
-    border-radius: var(--r-lg);
-    background: var(--canvas);
-
-    &--sain    { border-left-color: var(--spring-600); }
-    &--degrade { border-left-color: var(--amber, #b5651d); }
-    &--panne   { border-left-color: var(--red); }
-  }
-
-  /* ── Contrôles et tâches ──
-     Trois colonnes : l'état, ce dont il s'agit, puis le détail. L'état
-     vient en premier parce qu'on parcourt cette liste en cherchant ce
-     qui ne va pas, pas en lisant les noms un par un.
-
-     « minmax(0, 1fr) » sur la dernière colonne : sans le minimum à
-     zéro, une chaîne longue et sans espace refuse de se réduire et
-     pousse les colonnes précédentes hors du cadre. C'est ce qui
-     arrivait quand cette section affichait du JSON — l'étiquette se
-     retrouvait sur une colonne d'un caractère de large, à lire
-     verticalement. */
-  /* ── LES CONTRÔLES ──
-     Binaires : ils répondent ou ils ne répondent pas. Pas de jauge donc,
-     mais une pastille — pleine quand tout va, creuse quand le service
-     traîne, crimson quand il est tombé. La forme porte l'information
-     autant que la couleur, ce qui la rend lisible sans distinguer les
-     teintes. */
-  &__controles {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    li {
-      display: grid;
-      grid-template-columns: auto minmax(7rem, 12rem) minmax(0, 1fr);
-      align-items: baseline;
-      gap: 0.85rem;
-      padding: 0.7rem 0;
-      border-top: 1px solid var(--line);
-
-      &:last-child { border-bottom: 1px solid var(--line); }
-    }
-  }
-
-  &__pastille {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    align-self: center;
-    background: var(--bleu-500);
-    border: 1px solid var(--bleu-500);
-
-    [data-etat='degrade'] & {
-      background: transparent;
-      border-color: var(--ink-soft);
-    }
-    [data-etat='panne'] & {
-      background: var(--danger);
-      border-color: var(--danger);
-      box-shadow: 0 0 0 3px var(--danger-100);
-    }
-  }
-
-  &__quoi {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--ink);
-    overflow-wrap: anywhere;
-  }
-
-  &__detail-court {
-    font-size: 0.84rem;
-    color: var(--muted);
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  @media (max-width: 640px) {
-    &__controles li {
-      grid-template-columns: auto minmax(0, 1fr);
-      gap: 0.3rem 0.7rem;
-
-      .ops__detail-court { grid-column: 2; }
-    }
-  }
-
-  &__catalogue {
-    margin-bottom: 2.25rem;
-  }
-
-  &__chiffres {
-    display: grid;
-    gap: 0.6rem;
-    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
-    margin-bottom: 1.1rem;
-  }
-
-  &__table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.88rem;
-
-    th,
-    td {
-      padding: 0.55rem 0.8rem;
-      text-align: left;
-      border-bottom: 1px solid var(--line);
-    }
-
-    th {
-      font-size: 0.76rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-    }
-  }
-
-  /* Une source vue il y a plus de deux jours n'a pas répondu au dernier
-     passage : c'est le premier signe qu'elle est tombée. */
-  &__retard {
-    color: var(--danger-600);
-    font-weight: 600;
-  }
-
-  &__sous-titre {
-    font-size: 0.95rem;
-    margin: 1.4rem 0 0.6rem;
-  }
-
-  &__suspectes {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--canvas);
-    overflow: hidden;
-
-    li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 0.7rem 1rem;
-
-      & + li {
-        border-top: 1px solid var(--line);
-      }
-    }
-  }
-
-  &__erreurs-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  &__liste {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 0.6rem;
-  }
-
-  &__erreur {
-    border: 1px solid var(--line);
-    border-radius: var(--r-lg);
-    background: var(--canvas);
-    padding: 0.95rem 1.1rem;
-  }
-
-  &__erreur-tete {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  &__erreur-texte {
-    min-width: 0;
-    flex: 1 1 20rem;
-  }
-
-  &__erreur-actions {
-    display: flex;
-    gap: 0.4rem;
-    flex: 0 0 auto;
-  }
-
-  &__message {
-    margin: 0;
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1.4;
-    overflow-wrap: anywhere;
-  }
-
-  &__meta {
-    margin: 0.35rem 0 0;
-    font-size: 0.82rem;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-  }
-
-  &__detail {
-    margin-top: 0.9rem;
-    padding-top: 0.9rem;
-    border-top: 1px solid var(--line);
-
-    pre {
-      /* Une pile d'appels est large : elle défile dans son propre
-         cadre, sinon c'est la page entière qui part de travers. */
-      overflow-x: auto;
-      background: var(--nuage);
-      padding: 0.75rem 0.9rem;
-      border-radius: var(--r-md, 0.5rem);
-      font-size: 0.78rem;
-      line-height: 1.5;
-      margin: 0 0 0.75rem;
-    }
-
-    p {
-      font-size: 0.82rem;
-      line-height: 1.55;
-      margin: 0;
-    }
-  }
-
-  &__navigateur {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin: 0 0 0.5rem;
+/* Un message d'erreur n'est pas un nom propre : il fait deux lignes, et
+   `.ad-item__txt strong` le coupe à une seule avec des points de
+   suspension. Ici on veut le lire. */
+.ops-erreur .ad-item__txt {
+  strong,
+  span {
+    white-space: normal;
+    overflow: visible;
     overflow-wrap: anywhere;
   }
 }
 
-/* L'espacement des sections vient de « .ops__bloc » : cette règle-ci
-   faisait double emploi depuis que toutes les sections le portent. */
-.ops__formules {
-  display: flex;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-  margin: 0.9rem 0 0;
+.ops-pile {
+  padding: 0.2rem 1rem 1rem;
+  border-bottom: 1px solid var(--nuage-2);
+
+  &__nav {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  pre {
+    margin: 0;
+    padding: 0.7rem 0.85rem;
+    max-height: 18rem;
+    overflow: auto;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    background: var(--nuage);
+    border-radius: var(--r-sm);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Le tableau des sources, dans un panneau à bords francs. */
+.ops__table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.86rem;
+
+  th,
+  td {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--nuage-2);
+  }
+
+  th {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  .ta-r { text-align: right; }
+}
+
+/* Une source vue il y a plus de deux jours n'a pas répondu au dernier
+   passage : c'est le premier signe qu'elle est tombée. */
+.ops__retard {
+  color: var(--danger-600);
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .ops-jauge { flex-basis: 5rem; }
+}
+
+/* ── La grille, en deux colonnes fixes ──
+   Le kit pose « repeat(auto-fit, minmax(340px, 1fr)) », ce qui convient
+   à une page faite de cartes de même nature. Ici deux panneaux
+   cohabitent avec des blocs en pleine largeur (`ad-span-all`), et ces
+   derniers occupent toutes les pistes : `auto-fit` n'a donc plus de
+   piste vide à replier, et il en crée cinq à cette largeur d'écran. Les
+   deux panneaux se retrouvaient chacun sur un cinquième de l'écran,
+   jauges comprises, pendant que le reste de la rangée restait vide.
+
+   Deux colonnes déclarées, et le compte est bon. */
+.ops .ad-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1100px) {
+  .ops .ad-grid { grid-template-columns: 1fr; }
+}
+
+/* Dans un panneau de moitié de largeur, le détail d'un contrôle —
+   « du 01/08 22:18, mais aucune copie hors du serveur » — n'entre pas
+   sur une ligne. Le kit le coupe aux points de suspension, ce qui
+   convient à un nom propre et jamais à une phrase. */
+.ops .ad-item__txt span {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
 }

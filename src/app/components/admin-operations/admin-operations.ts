@@ -116,6 +116,33 @@ export class AdminOperations implements OnInit {
   // Il ne l'est pas : « EtatDuService » le décrit champ par champ
   // depuis le début, et les types étaient là, inutilisés.
 
+
+  /** Combien de tâches demandent de l'attention. */
+  tachesEnPeine(): number {
+    return this.sante()?.taches.filter((t) => t.inquiete).length ?? 0;
+  }
+
+  /** Combien de contrôles ne répondent pas normalement. */
+  controlesEnPeine(): number {
+    return this.sante()?.controles.filter((c) => c.etat !== 'sain').length ?? 0;
+  }
+
+  /**
+   * La pastille du kit prend une couleur en ligne, pas une classe.
+   *
+   * Trois teintes seulement, et elles se lisent au remplissage : le
+   * pétrole pour ce qui va, l'encre pour ce qui traîne, le crimson pour
+   * ce qui est tombé. Le libellé à côté nomme l'état — la couleur seule
+   * ne dit jamais rien.
+   */
+  couleurEtat(etat: string): string {
+    switch (etat) {
+      case 'en panne': return 'var(--danger)';
+      case 'dégradé': return 'var(--ink-soft)';
+      default: return 'var(--bleu-500)';
+    }
+  }
+
   /**
    * Le verdict, en une phrase qui nomme le coupable.
    *
@@ -154,20 +181,6 @@ export class AdminOperations implements OnInit {
     return 'Tout répond. Toutes les tâches sont passées dans les temps.';
   }
 
-  /** Ce qu'il reste à dire quand le verdict a nommé le premier problème. */
-  resteSante(): string {
-    const s = this.sante();
-    if (!s) return '';
-
-    const restants = s.taches.filter((t) => t.inquiete).length - 1;
-    const genes = s.controles.filter((c) => c.etat === 'dégradé').length;
-
-    const bouts: string[] = [];
-    if (restants > 0) bouts.push(`${restants} autre${restants > 1 ? 's' : ''} tâche${restants > 1 ? 's' : ''} en retard`);
-    if (genes > 0) bouts.push(`${genes} contrôle${genes > 1 ? 's' : ''} au ralenti`);
-
-    return bouts.join(' · ');
-  }
 
   // ══════════════════════════════════════
   //  La jauge d'échéance
@@ -220,53 +233,13 @@ export class AdminOperations implements OnInit {
     return `tous les ${Math.round(h / 24)} jours`;
   }
 
-  /** Depuis combien de temps le service tourne, en clair. */
-  depuis(): string {
-    const s = this.sante();
-    if (!s?.depuis) return '—';
-
-    const minutes = Math.floor((Date.now() - new Date(s.depuis).getTime()) / 60000);
-    if (minutes < 1) return 'moins d’une minute';
-    if (minutes < 60) return `${minutes} min`;
-
-    const heures = Math.floor(minutes / 60);
-    if (heures < 48) return `${heures} h`;
-    return `${Math.floor(heures / 24)} jours`;
-  }
 
   euros(centimes: number): string {
     return (centimes / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
   }
 
-  /**
-   * La couleur d'un état.
-   *
-   * Sur la valeur exacte, et non par « includes » sur une chaîne
-   * quelconque : l'ancienne version cherchait « false » n'importe où,
-   * de sorte qu'un « inquiete: false » — c'est-à-dire une tâche qui va
-   * bien — passait la ligne en rouge.
-   */
-  badgeEtat(etat: string): string {
-    switch (etat) {
-      case 'en panne': return 'badge-red';
-      case 'dégradé': return 'badge-yellow';
-      default: return 'badge-green';
-    }
-  }
 
-  badgeTache(t: TacheSante): string {
-    if (!t.inquiete) return t.etat === 'en attente' ? 'badge-blue' : 'badge-green';
-    return t.etat === 'en échec' ? 'badge-red' : 'badge-yellow';
-  }
 
-  /** Sert à composer une classe CSS depuis un état accentué. */
-  classeEtat(etat: string): string {
-    switch (etat) {
-      case 'en panne': return 'panne';
-      case 'dégradé': return 'degrade';
-      default: return 'sain';
-    }
-  }
 
   /** « a », « a et b », « a, b et c » — on écrit en français. */
   private enumerer(noms: string[]): string {
