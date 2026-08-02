@@ -38,13 +38,64 @@ export class SignalRService {
   onlineCount = computed(() => this.presents().size);
 
   /**
+   * Qui je suis, lu dans le jeton que porte cette connexion.
+   *
+   * C'est la bonne source : la présence suit l'identité du tuyau, pas
+   * celle qu'un composant croit avoir sous la main. Un emprunt d'identité
+   * change de jeton, donc de personne présente, sans que personne ait à y
+   * penser.
+   */
+  private moi: string | null = null;
+
+  /**
    * Le hub n'annonce que les changements : celui qui se connecte
    * n'apprend jamais qui était déjà là. L'état de départ vient donc de
    * l'API, et se réamorce après une coupure — les événements survenus
    * pendant la reconnexion sont perdus pour toujours.
+   *
+   * Soi-même en est toujours : « Clients.Others » exclut celui qui arrive,
+   * personne ne nous annoncera donc jamais. L'instantané du serveur le
+   * disait, mais il pouvait le dire trop tôt — le client tient sa promesse
+   * de connexion dès la poignée de main, quand l'enregistrement de la
+   * présence, lui, se termine côté serveur. Cette course perdue laissait
+   * l'administrateur hors du compte jusqu'au rechargement suivant.
+   *
+   * Aucun aller-retour ne peut mieux savoir que nous si notre propre
+   * tuyau est ouvert.
    */
   seedPresence(userIds: Iterable<string>) {
-    this.presents.set(new Set(userIds));
+    const suivant = new Set(userIds);
+    if (this.moi && this.state() === 'online') suivant.add(this.moi);
+    this.presents.set(suivant);
+  }
+
+  /** Se compter, dès que la connexion est ouverte. */
+  private meCompter() {
+    if (this.moi) this.setPresence(this.moi, true);
+  }
+
+  /**
+   * L'identifiant porté par le jeton.
+   *
+   * Le serveur signe la revendication sous son nom long ; les deux formes
+   * courtes sont acceptées au cas où l'émetteur change de convention. La
+   * lecture n'est pas une vérification — le jeton est vérifié par le
+   * serveur, et ce qu'on en tire ici ne sert qu'à s'afficher soi-même.
+   */
+  private static sujet(token: string): string | null {
+    try {
+      const charge = token.split('.')[1];
+      if (!charge) return null;
+      const revendications = JSON.parse(atob(charge.replace(/-/g, '+').replace(/_/g, '/')));
+      return (
+        revendications['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ??
+        revendications['nameid'] ??
+        revendications['sub'] ??
+        null
+      );
+    } catch {
+      return null;
+    }
   }
 
   private setPresence(userId: string, present: boolean) {
@@ -72,6 +123,8 @@ export class SignalRService {
 
   start(token: string): void {
     if (this.hubConnection) return;
+
+    this.moi = SignalRService.sujet(token);
 
     const hubUrl = environment.apiUrl.replace(/\/api\/?$/, '') + '/hubs/chat';
     this.hubConnection = new signalR.HubConnectionBuilder()
@@ -115,6 +168,7 @@ export class SignalRService {
     this.hubConnection.onreconnected(() => {
       this.state.set('online');
       this.presents.set(new Set());
+      this.meCompter();
       this.reconnected$.next();
     });
 
@@ -125,7 +179,7 @@ export class SignalRService {
 
     this.state.set('connecting');
     this.hubConnection.start()
-      .then(() => this.state.set('online'))
+      .then(() => { this.state.set('online'); this.meCompter(); })
       .catch((err) => {
         this.state.set('offline');
         console.error('[SignalR] Connection failed:', err);
@@ -135,6 +189,7 @@ export class SignalRService {
   stop(): void {
     this.hubConnection?.stop();
     this.hubConnection = null;
+    this.moi = null;
     this.state.set('offline');
     this.presents.set(new Set());
   }

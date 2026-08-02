@@ -300,6 +300,24 @@ export class AuthService {
     localStorage.setItem(TOKEN_KEY, res.token);
     localStorage.setItem(USER_KEY, JSON.stringify(res.user));
     this.currentUser.set(res.user);
+
+    // Le tuyau temps réel s'ouvre ici, et c'est nouveau.
+    //
+    // Il n'était ouvert qu'au démarrage de l'application — « app.ts » et
+    // la barre de navigation le lancent depuis le jeton trouvé en
+    // mémoire locale — c'est-à-dire avant toute connexion. Se connecter
+    // n'ouvrait donc rien : pendant toute la session qui suivait, aucun
+    // message, aucune notification, aucune alerte de candidature
+    // n'arrivait, et le compteur « en ligne » du panneau restait à zéro.
+    // Il fallait recharger la page pour que le jeton soit relu au
+    // démarrage. Cela valait pour les cinq façons d'ouvrir une session,
+    // puisqu'elles passent toutes ici.
+    //
+    // On arrête avant de démarrer : le service ignore un « start » quand
+    // une connexion existe déjà, et celle d'avant porterait le jeton
+    // d'avant.
+    this.signalR.stop();
+    this.signalR.start(res.token);
   }
 
   private loadUser(): UserDto | null {
