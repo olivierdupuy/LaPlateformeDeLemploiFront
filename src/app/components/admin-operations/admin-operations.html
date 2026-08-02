@@ -1,279 +1,285 @@
-<div class="ops">
-  <!-- ═══════════════ LE VERDICT ═══════════════
-       La page répond à une seule question, et elle y répond avant
-       qu'on ait fini de s'asseoir : est-ce que quelque chose ne va
-       pas, et quoi. Le reste de l'écran n'est que la pièce
-       justificative, rangée par urgence.
+<!-- « .ad-page > .container » : le gabarit des pages du panneau. Il
+     porte les marges latérales et la réserve de bas de page. Cette
+     page-ci ne l'avait pas — elle ouvrait sur un simple « div » — et
+     son contenu venait donc buter contre les deux bords. -->
+<section class="ad-page ops">
+  <div class="container">
+    <!-- ═══════════════ LE VERDICT ═══════════════
+         La page répond à une seule question, et elle y répond avant
+         qu'on ait fini de s'asseoir : est-ce que quelque chose ne va
+         pas, et quoi. Le reste de l'écran n'est que la pièce
+         justificative, rangée par urgence.
 
-       Une phrase, donc, et non un chiffre : « dégradé » ne dit rien,
-       « import-offres n'est pas passé depuis 6 jours » dit tout. -->
-  <header class="ops__verdict" [attr.data-etat]="sante() ? classeEtat(sante()!.etat) : 'muet'">
-    <div class="ops__verdict-corps">
-      <p class="ops__etiquette">
-        Exploitation
-        <span aria-hidden="true">·</span>
-        <span class="ops__horloge">relevé à {{ releve() | date: 'HH:mm:ss' }}</span>
-      </p>
-
-      @if (!sante()) {
-        <p class="ops__phrase">La sonde ne répond pas.</p>
-        <p class="ops__appui">
-          L'API est injoignable, ou elle refuse le détail. Le reste de cette page
-          peut être en retard d'autant.
+         Une phrase, donc, et non un chiffre : « dégradé » ne dit rien,
+         « import-offres n'est pas passé depuis 6 jours » dit tout. -->
+    <header class="ops__verdict" [attr.data-etat]="sante() ? classeEtat(sante()!.etat) : 'muet'">
+      <div class="ops__verdict-corps">
+        <p class="ops__etiquette">
+          Exploitation
+          <span aria-hidden="true">·</span>
+          <span class="ops__horloge">relevé à {{ releve() | date: 'HH:mm:ss' }}</span>
         </p>
-      } @else if (sante(); as s) {
-        <p class="ops__phrase">{{ resumeSante() }}</p>
-        <p class="ops__appui">
-          <span class="ops__etat-mot">{{ s.etat }}</span>
-          @if (resteSante()) { <span>· {{ resteSante() }}</span> }
-          <span>· en service depuis {{ depuis() }}</span>
+
+        @if (!sante()) {
+          <p class="ops__phrase">La sonde ne répond pas.</p>
+          <p class="ops__appui">
+            L'API est injoignable, ou elle refuse le détail. Le reste de cette page
+            peut être en retard d'autant.
+          </p>
+        } @else if (sante(); as s) {
+          <p class="ops__phrase">{{ resumeSante() }}</p>
+          <p class="ops__appui">
+            <span class="ops__etat-mot">{{ s.etat }}</span>
+            @if (resteSante()) { <span>· {{ resteSante() }}</span> }
+            <span>· en service depuis {{ depuis() }}</span>
+          </p>
+        }
+      </div>
+
+      <button type="button" class="ops__relever" (click)="charger()">
+        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+        <span>Relever</span>
+      </button>
+    </header>
+
+    @if (sante(); as s) {
+      <!-- ═══════════════ LES ÉCHÉANCES ═══════════════
+           Chaque tâche montre où elle en est dans l'intervalle qu'on lui
+           accorde. C'est le seul chiffre qui rende « dernier passage il y
+           a 6 jours » interprétable : reposant pour une purge
+           quotidienne, alarmant pour un import qui tourne toutes les six
+           heures.
+
+           La barre ne dépasse jamais son rail ; au-delà de l'échéance
+           c'est le rapport qui parle — « ×12 » se lit d'un mètre. -->
+      <section class="ops__bloc" aria-labelledby="ops-taches">
+        <h2 id="ops-taches">Échéances</h2>
+        <p class="ops__chapeau">
+          Les tâches de fond et le temps écoulé depuis leur dernier passage,
+          rapporté à l'intervalle qui leur est accordé.
         </p>
-      }
-    </div>
 
-    <button type="button" class="ops__relever" (click)="charger()">
-      <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-      <span>Relever</span>
-    </button>
-  </header>
+        <ul class="ops__jauges">
+          @for (t of s.taches; track t.service) {
+            <li [class.est-depasse]="t.inquiete">
+              <span class="ops__tache-nom u-mono">{{ t.service }}</span>
 
-  @if (sante(); as s) {
-    <!-- ═══════════════ LES ÉCHÉANCES ═══════════════
-         Chaque tâche montre où elle en est dans l'intervalle qu'on lui
-         accorde. C'est le seul chiffre qui rende « dernier passage il y
-         a 6 jours » interprétable : reposant pour une purge
-         quotidienne, alarmant pour un import qui tourne toutes les six
-         heures.
+              <span class="ops__rail"
+                    role="img"
+                    [attr.aria-label]="t.service + ' : ' + ratio(t) + ' de l’intervalle accordé'">
+                <span class="ops__remplissage" [style.width.%]="remplissage(t)"></span>
+              </span>
 
-         La barre ne dépasse jamais son rail ; au-delà de l'échéance
-         c'est le rapport qui parle — « ×12 » se lit d'un mètre. -->
-    <section class="ops__bloc" aria-labelledby="ops-taches">
-      <h2 id="ops-taches">Échéances</h2>
-      <p class="ops__chapeau">
-        Les tâches de fond et le temps écoulé depuis leur dernier passage,
-        rapporté à l'intervalle qui leur est accordé.
-      </p>
+              <span class="ops__ratio u-mono">{{ ratio(t) }}</span>
 
-      <ul class="ops__jauges">
-        @for (t of s.taches; track t.service) {
-          <li [class.est-depasse]="t.inquiete">
-            <span class="ops__tache-nom u-mono">{{ t.service }}</span>
+              <span class="ops__legende">
+                {{ cadence(t) }}
+                @if (t.dernierPassage) {
+                  · vu il y a {{ ecoule(t.dernierPassage) }}
+                } @else {
+                  · jamais vu
+                }
+                @if (t.detail) { · {{ t.detail }} }
+              </span>
+            </li>
+          }
+        </ul>
+      </section>
 
-            <span class="ops__rail"
-                  role="img"
-                  [attr.aria-label]="t.service + ' : ' + ratio(t) + ' de l’intervalle accordé'">
-              <span class="ops__remplissage" [style.width.%]="remplissage(t)"></span>
-            </span>
+      <!-- ═══════════════ LES CONTRÔLES ═══════════════
+           Binaires : ils répondent ou ils ne répondent pas. Pas de jauge,
+           donc — une pastille pleine ou creuse, et le détail à côté. -->
+      <section class="ops__bloc" aria-labelledby="ops-controles">
+        <h2 id="ops-controles">Contrôles</h2>
 
-            <span class="ops__ratio u-mono">{{ ratio(t) }}</span>
+        <ul class="ops__controles">
+          @for (c of s.controles; track c.quoi) {
+            <li [attr.data-etat]="classeEtat(c.etat)">
+              <span class="ops__pastille" aria-hidden="true"></span>
+              <span class="ops__quoi">{{ c.quoi }}</span>
+              <span class="ops__detail-court">{{ c.detail }}</span>
+              <span class="sr-only">{{ c.etat }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
 
-            <span class="ops__legende">
-              {{ cadence(t) }}
-              @if (t.dernierPassage) {
-                · vu il y a {{ ecoule(t.dernierPassage) }}
-              } @else {
-                · jamais vu
+    @if (recettes(); as r) {
+      @if (r.nombreFactures > 0 || r.abonnesActifs > 0) {
+        <section class="ops__bloc" aria-labelledby="ops-recettes">
+          <h2 id="ops-recettes">Recettes</h2>
+          <dl class="ops__reglette">
+            <div class="ops__mesure est-cardinale">
+              <dt>Ce mois-ci (HT)</dt>
+              <dd class="u-mono">{{ euros(r.moisHtCentimes) }}</dd>
+            </div>
+            <div class="ops__mesure">
+              <dt>Total (HT)</dt>
+              <dd class="u-mono">{{ euros(r.totalHtCentimes) }}</dd>
+            </div>
+            <div class="ops__mesure">
+              <dt>Abonnés actifs</dt>
+              <dd class="u-mono">{{ r.abonnesActifs }}</dd>
+            </div>
+            <div class="ops__mesure">
+              <dt>Factures émises</dt>
+              <dd class="u-mono">{{ r.nombreFactures }}</dd>
+            </div>
+          </dl>
+
+          @if (r.parFormule.length) {
+            <p class="u-muted ops__formules">
+              @for (f of r.parFormule; track f.formule) {
+                <span>{{ f.formule }} : {{ f.nombre }}</span>
               }
-              @if (t.detail) { · {{ t.detail }} }
-            </span>
-          </li>
-        }
-      </ul>
-    </section>
+            </p>
+          }
+        </section>
+      }
+    }
 
-    <!-- ═══════════════ LES CONTRÔLES ═══════════════
-         Binaires : ils répondent ou ils ne répondent pas. Pas de jauge,
-         donc — une pastille pleine ou creuse, et le détail à côté. -->
-    <section class="ops__bloc" aria-labelledby="ops-controles">
-      <h2 id="ops-controles">Contrôles</h2>
+    @if (catalogue(); as c) {
+      <section class="ops__bloc" aria-labelledby="ops-catalogue">
+        <h2 id="ops-catalogue">Catalogue</h2>
 
-      <ul class="ops__controles">
-        @for (c of s.controles; track c.quoi) {
-          <li [attr.data-etat]="classeEtat(c.etat)">
-            <span class="ops__pastille" aria-hidden="true"></span>
-            <span class="ops__quoi">{{ c.quoi }}</span>
-            <span class="ops__detail-court">{{ c.detail }}</span>
-            <span class="sr-only">{{ c.etat }}</span>
-          </li>
-        }
-      </ul>
-    </section>
-  }
-
-  @if (recettes(); as r) {
-    @if (r.nombreFactures > 0 || r.abonnesActifs > 0) {
-      <section class="ops__bloc" aria-labelledby="ops-recettes">
-        <h2 id="ops-recettes">Recettes</h2>
+        <!-- Une réglette, et non cinq cartes de même poids : trois de ces
+             chiffres valent zéro la plupart du temps, et un zéro n'a rien
+             à réclamer. Il s'efface, et reprend de l'encre le jour où il
+             cesse d'être nul. C'est le seul moment où il veut dire
+             quelque chose. -->
         <dl class="ops__reglette">
           <div class="ops__mesure est-cardinale">
-            <dt>Ce mois-ci (HT)</dt>
-            <dd class="u-mono">{{ euros(r.moisHtCentimes) }}</dd>
+            <dt>Offres en ligne</dt>
+            <dd class="u-mono">{{ c.total | number }}</dd>
           </div>
           <div class="ops__mesure">
-            <dt>Total (HT)</dt>
-            <dd class="u-mono">{{ euros(r.totalHtCentimes) }}</dd>
+            <dt>Âge médian</dt>
+            <dd class="u-mono">{{ c.ageMedianJours === null ? '—' : c.ageMedianJours + ' j' }}</dd>
           </div>
-          <div class="ops__mesure">
-            <dt>Abonnés actifs</dt>
-            <dd class="u-mono">{{ r.abonnesActifs }}</dd>
+          <div class="ops__mesure" [class.est-nul]="!c.bientotExpirees">
+            <dt>Bientôt expirées</dt>
+            <dd class="u-mono">{{ c.bientotExpirees | number }}</dd>
           </div>
-          <div class="ops__mesure">
-            <dt>Factures émises</dt>
-            <dd class="u-mono">{{ r.nombreFactures }}</dd>
+          <div class="ops__mesure" [class.est-nul]="!c.enModeration">
+            <dt>En modération</dt>
+            <dd class="u-mono">{{ c.enModeration | number }}</dd>
+          </div>
+          <div class="ops__mesure" [class.est-nul]="!c.doublonsPotentiels">
+            <dt>Doublons potentiels</dt>
+            <dd class="u-mono">{{ c.doublonsPotentiels | number }}</dd>
           </div>
         </dl>
 
-        @if (r.parFormule.length) {
-          <p class="u-muted ops__formules">
-            @for (f of r.parFormule; track f.formule) {
-              <span>{{ f.formule }} : {{ f.nombre }}</span>
+        <div class="table-wrap">
+          <table class="ops__table">
+            <caption class="sr-only">Offres actives par source</caption>
+            <thead>
+              <tr>
+                <th scope="col">Source</th>
+                <th scope="col" class="ta-r">Offres</th>
+                <th scope="col">Vue le plus récemment</th>
+                <th scope="col" class="ta-r">Retard</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of c.parSource; track s.source) {
+                <tr>
+                  <td class="u-mono">{{ s.source }}</td>
+                  <td class="ta-r u-mono">{{ s.nombre | number }}</td>
+                  <td>{{ s.plusRecente | date: 'dd/MM à HH:mm' }}</td>
+                  <td class="ta-r u-mono" [class.ops__retard]="s.ageMoyenJours > 2">
+                    {{ s.ageMoyenJours }} j
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (c.suspectes.length) {
+          <h3 class="ops__sous-titre">
+            Offres retenues par l'analyse
+            <span class="u-muted">({{ c.suspectes.length }})</span>
+          </h3>
+          <ul class="ops__suspectes">
+            @for (o of c.suspectes; track o.id) {
+              <li>
+                <div>
+                  <a [routerLink]="['/admin/offres', o.id]">{{ o.title }}</a>
+                  <span class="ops__meta">
+                    {{ o.company }} · {{ o.motifFraude }}
+                  </span>
+                </div>
+                <span class="badge" [class.badge-red]="o.moderationStatus === 'Pending'">
+                  {{ o.scoreFraude }}
+                </span>
+              </li>
             }
-          </p>
+          </ul>
         }
       </section>
     }
-  }
 
-  @if (catalogue(); as c) {
-    <section class="ops__bloc" aria-labelledby="ops-catalogue">
-      <h2 id="ops-catalogue">Catalogue</h2>
-
-      <!-- Une réglette, et non cinq cartes de même poids : trois de ces
-           chiffres valent zéro la plupart du temps, et un zéro n'a rien
-           à réclamer. Il s'efface, et reprend de l'encre le jour où il
-           cesse d'être nul. C'est le seul moment où il veut dire
-           quelque chose. -->
-      <dl class="ops__reglette">
-        <div class="ops__mesure est-cardinale">
-          <dt>Offres en ligne</dt>
-          <dd class="u-mono">{{ c.total | number }}</dd>
-        </div>
-        <div class="ops__mesure">
-          <dt>Âge médian</dt>
-          <dd class="u-mono">{{ c.ageMedianJours === null ? '—' : c.ageMedianJours + ' j' }}</dd>
-        </div>
-        <div class="ops__mesure" [class.est-nul]="!c.bientotExpirees">
-          <dt>Bientôt expirées</dt>
-          <dd class="u-mono">{{ c.bientotExpirees | number }}</dd>
-        </div>
-        <div class="ops__mesure" [class.est-nul]="!c.enModeration">
-          <dt>En modération</dt>
-          <dd class="u-mono">{{ c.enModeration | number }}</dd>
-        </div>
-        <div class="ops__mesure" [class.est-nul]="!c.doublonsPotentiels">
-          <dt>Doublons potentiels</dt>
-          <dd class="u-mono">{{ c.doublonsPotentiels | number }}</dd>
-        </div>
-      </dl>
-
-      <div class="table-wrap">
-        <table class="ops__table">
-          <caption class="sr-only">Offres actives par source</caption>
-          <thead>
-            <tr>
-              <th scope="col">Source</th>
-              <th scope="col" class="ta-r">Offres</th>
-              <th scope="col">Vue le plus récemment</th>
-              <th scope="col" class="ta-r">Retard</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (s of c.parSource; track s.source) {
-              <tr>
-                <td class="u-mono">{{ s.source }}</td>
-                <td class="ta-r u-mono">{{ s.nombre | number }}</td>
-                <td>{{ s.plusRecente | date: 'dd/MM à HH:mm' }}</td>
-                <td class="ta-r u-mono" [class.ops__retard]="s.ageMoyenJours > 2">
-                  {{ s.ageMoyenJours }} j
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+    <section class="ops__bloc ops__erreurs" aria-labelledby="ops-erreurs">
+      <div class="ops__erreurs-head">
+        <h2 id="ops-erreurs">
+          Erreurs navigateur
+          <span class="u-muted">({{ erreurs().length }})</span>
+        </h2>
+        <button type="button" class="btn-sm btn-ghost" (click)="basculerVue()">
+          {{ classees() ? 'Voir les erreurs ouvertes' : 'Voir les erreurs classées' }}
+        </button>
       </div>
 
-      @if (c.suspectes.length) {
-        <h3 class="ops__sous-titre">
-          Offres retenues par l'analyse
-          <span class="u-muted">({{ c.suspectes.length }})</span>
-        </h3>
-        <ul class="ops__suspectes">
-          @for (o of c.suspectes; track o.id) {
-            <li>
-              <div>
-                <a [routerLink]="['/admin/offres', o.id]">{{ o.title }}</a>
-                <span class="ops__meta">
-                  {{ o.company }} · {{ o.motifFraude }}
-                </span>
+      @if (chargement()) {
+        <p class="u-muted">Chargement…</p>
+      } @else if (!erreurs().length) {
+        <div class="empty-box">
+          <i class="bi bi-check-circle" aria-hidden="true"></i>
+          <p>
+            {{ classees() ? 'Aucune erreur classée.' : 'Aucune erreur ouverte. Rien ne casse.' }}
+          </p>
+        </div>
+      } @else {
+        <ul class="ops__liste">
+          @for (e of erreurs(); track e.id) {
+            <li class="ops__erreur">
+              <div class="ops__erreur-tete">
+                <div class="ops__erreur-texte">
+                  <p class="ops__message">{{ e.message }}</p>
+                  <p class="ops__meta">
+                    <span class="badge badge-fill u-num">×{{ e.occurrences }}</span>
+                    <span class="u-mono">{{ e.chemin }}</span>
+                    · vue pour la dernière fois le {{ e.derniereVue | date: 'dd/MM à HH:mm' }}
+                  </p>
+                </div>
+                <div class="ops__erreur-actions">
+                  <button type="button" class="btn-sm btn-ghost"
+                          (click)="detail.set(detail() === e.id ? null : e.id)">
+                    {{ detail() === e.id ? 'Masquer' : 'Détail' }}
+                  </button>
+                  <button type="button" class="btn-sm btn-secondary" (click)="classer(e)">
+                    {{ classees() ? 'Réouvrir' : 'Classer' }}
+                  </button>
+                </div>
               </div>
-              <span class="badge" [class.badge-red]="o.moderationStatus === 'Pending'">
-                {{ o.scoreFraude }}
-              </span>
+
+              @if (detail() === e.id) {
+                <div class="ops__detail">
+                  <p class="ops__navigateur">{{ e.navigateur }}</p>
+                  <pre>{{ e.pile }}</pre>
+                  <p class="u-muted">
+                    Première apparition le {{ e.premiereVue | date: 'dd/MM/yyyy à HH:mm' }}.
+                    La pile est minifiée : les noms d'origine demandent les cartes de source,
+                    que nous ne publions pas.
+                  </p>
+                </div>
+              }
             </li>
           }
         </ul>
       }
     </section>
-  }
-
-  <section class="ops__bloc ops__erreurs" aria-labelledby="ops-erreurs">
-    <div class="ops__erreurs-head">
-      <h2 id="ops-erreurs">
-        Erreurs navigateur
-        <span class="u-muted">({{ erreurs().length }})</span>
-      </h2>
-      <button type="button" class="btn-sm btn-ghost" (click)="basculerVue()">
-        {{ classees() ? 'Voir les erreurs ouvertes' : 'Voir les erreurs classées' }}
-      </button>
-    </div>
-
-    @if (chargement()) {
-      <p class="u-muted">Chargement…</p>
-    } @else if (!erreurs().length) {
-      <div class="empty-box">
-        <i class="bi bi-check-circle" aria-hidden="true"></i>
-        <p>
-          {{ classees() ? 'Aucune erreur classée.' : 'Aucune erreur ouverte. Rien ne casse.' }}
-        </p>
-      </div>
-    } @else {
-      <ul class="ops__liste">
-        @for (e of erreurs(); track e.id) {
-          <li class="ops__erreur">
-            <div class="ops__erreur-tete">
-              <div class="ops__erreur-texte">
-                <p class="ops__message">{{ e.message }}</p>
-                <p class="ops__meta">
-                  <span class="badge badge-fill u-num">×{{ e.occurrences }}</span>
-                  <span class="u-mono">{{ e.chemin }}</span>
-                  · vue pour la dernière fois le {{ e.derniereVue | date: 'dd/MM à HH:mm' }}
-                </p>
-              </div>
-              <div class="ops__erreur-actions">
-                <button type="button" class="btn-sm btn-ghost"
-                        (click)="detail.set(detail() === e.id ? null : e.id)">
-                  {{ detail() === e.id ? 'Masquer' : 'Détail' }}
-                </button>
-                <button type="button" class="btn-sm btn-secondary" (click)="classer(e)">
-                  {{ classees() ? 'Réouvrir' : 'Classer' }}
-                </button>
-              </div>
-            </div>
-
-            @if (detail() === e.id) {
-              <div class="ops__detail">
-                <p class="ops__navigateur">{{ e.navigateur }}</p>
-                <pre>{{ e.pile }}</pre>
-                <p class="u-muted">
-                  Première apparition le {{ e.premiereVue | date: 'dd/MM/yyyy à HH:mm' }}.
-                  La pile est minifiée : les noms d'origine demandent les cartes de source,
-                  que nous ne publions pas.
-                </p>
-              </div>
-            }
-          </li>
-        }
-      </ul>
-    }
-  </section>
-</div>
+  </div>
+</section>

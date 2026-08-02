@@ -39,8 +39,13 @@
   /* ── LE VERDICT ──
      La seule chose que beaucoup de visites liront. Fond pétrole
      profond : c'est le chrome de l'administration, la bande s'y
-     rattache plutôt que de flotter sur le crème. */
+     rattache plutôt que de flotter sur le crème.
+
+     La marge haute reprend celle de « .ad-head », que cette page
+     n'utilise pas : son titre est dans la bande, il n'y a pas d'en-tête
+     séparé à espacer. */
   &__verdict {
+    margin-top: clamp(1.15rem, 2.4vw, 1.7rem);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;

@@ -69,14 +69,52 @@ export function applyChartDefaults() {
   Chart.defaults.font.family = SANS;
   Chart.defaults.font.size = 12;
   Chart.defaults.color = CHROME.muted;
-  Chart.defaults.animation = { duration: 420, easing: 'easeOutQuart' };
   Chart.defaults.maintainAspectRatio = false;
   Chart.defaults.responsive = true;
 
+  // ── On complete « animation », on ne le remplace pas ──
+  //
+  // Ce fut « Chart.defaults.animation = { duration, easing } », et cela
+  // cassait tous les graphiques qui redessinent, avec une erreur
+  // illisible : « this._fn is not a function ».
+  //
+  // Chart.js lit la liste de ses propres options d'animation ainsi :
+  //
+  //     const animationOptions = Object.keys(defaults.animation);
+  //     for (const option of animationOptions) resolved[option] = cfg[option];
+  //
+  // Les clefs par defaut sont delay, duration, easing, fn, from, loop,
+  // to et **type**. En remplacant l'objet par « {duration, easing} », il
+  // ne restait que deux clefs : « type » disparaissait de la liste, donc
+  // n'etait plus recopie depuis la specification des couleurs
+  // (« animations.colors = { type: 'color', … } »).
+  //
+  // Chart.js choisit ensuite son interpolateur ainsi :
+  //
+  //     this._fn = cfg.fn || interpolators[cfg.type || typeof from];
+  //
+  // Sans « type », il retombe sur « typeof from ». Une couleur est une
+  // chaine, et il n'existe pas d'interpolateur « string » — seulement
+  // boolean, color et number. D'ou la fonction absente, au premier
+  // changement de couleur : survol, mise a jour des donnees, descente
+  // dans un graphique. C'est ce qui cassait le tableau de bord.
+  // Le type est « false | AnimationSpec » : poser « false » est
+  // precisement ce qu'on veut eviter, mais rien dans le type ne
+  // l'interdit. On resserre une fois, et l'on travaille sur l'objet.
+  const animation = Chart.defaults.animation;
+  if (animation) {
+    Object.assign(animation, { duration: 420, easing: 'easeOutQuart' });
+  }
+
   // Une animation d'entree qui ne demande rien a personne reste une
   // animation : le systeme peut la refuser.
+  //
+  // Une duree nulle plutot que « animation = false », pour la meme
+  // raison : « Object.keys(false) » rend un tableau vide, et l'on
+  // retombe exactement dans le defaut ci-dessus.
   if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    Chart.defaults.animation = false;
+    if (animation) animation.duration = 0;
+    Chart.defaults.animations = {};
   }
 }
 
