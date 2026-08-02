@@ -828,9 +828,14 @@
 // quitter la page sans un mot.
 .pf-savebar {
   position: fixed;
-  left: 0;
+  // Hors du panneau d'administration ces deux réserves valent zéro, et
+  // la barre se pose bien au bas de la fenêtre. Elles sont là pour que
+  // le jour où un bandeau fixe s'installe sous cette page, il n'y ait
+  // pas à revenir ici : c'est en oubliant ce réglage que le bouton
+  // « Enregistrer » de l'administration s'est retrouvé coupé en deux.
+  left: var(--sol-gauche);
   right: 0;
-  bottom: 0;
+  bottom: var(--sol-reserve);
   z-index: 40;
   background: var(--bleu-950);
   border-top: 1px solid var(--line-dark);

@@ -739,9 +739,12 @@ a.aud-sub:hover { color: var(--bleu-600); text-decoration: underline; }
 // champs, changer de section, et perdre la saisie sans un mot.
 .aud-savebar {
   position: fixed;
-  left: 0;
+  // Adossee au chrome plutot que collee au bas de la fenetre : la barre
+  // d'etat de l'administration y est deja, avec un z-index plus haut,
+  // et coupait le bouton « Enregistrer » en deux.
+  left: var(--sol-gauche);
   right: 0;
-  bottom: 0;
+  bottom: var(--sol-reserve);
   z-index: 40;
   background: var(--bleu-950);
   border-top: 1px solid var(--line-dark);

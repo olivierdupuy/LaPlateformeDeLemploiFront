@@ -7,6 +7,13 @@
   --adm-side: 264px;
   --adm-top-h: 56px;
   --adm-status-h: 30px;
+
+  // Ce que le chrome du panneau occupe deja. Les barres d'enregistrement
+  // des pages s'y adossent plutot que de se poser a « bottom: 0 », ou
+  // la barre d'etat les recouvrait.
+  --sol-reserve: var(--adm-status-h);
+  --sol-gauche: var(--adm-side);
+
   display: block;
 }
 
@@ -599,6 +606,10 @@ app-admin-statusbar {
   .adm-main { margin-left: 0; }
   .adm-burger { display: flex; }
   app-admin-statusbar { left: 0; }
+
+  // La barre laterale est hors ecran : elle n'occupe plus rien, et ce
+  // qui s'appuyait dessus reprend toute la largeur.
+  :host { --sol-gauche: 0px; }
 
   .adm.nav-open .adm-scrim {
     display: block;

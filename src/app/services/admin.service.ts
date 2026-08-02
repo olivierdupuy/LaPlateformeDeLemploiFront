@@ -35,6 +35,13 @@ export interface TacheSante {
   detail: string | null;
   /** Calculé par le serveur : cette tâche demande-t-elle de l'attention ? */
   inquiete: boolean;
+  /**
+   * L'intervalle qu'on accorde à cette tâche, en heures.
+   *
+   * Sans elle, « dernier passage il y a 6 jours » ne veut rien dire :
+   * c'est reposant pour la purge, alarmant pour l'import.
+   */
+  cadenceHeures: number;
 }
 
 export interface EtatDuService {

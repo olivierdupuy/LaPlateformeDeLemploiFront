@@ -228,6 +228,20 @@
      resserrer (8/12/16 au lieu de 14/18/24) durcirait encore le ton si
      on le souhaite. */
   --r-xs: 6px;
+  /* ── Ce que le chrome fixe occupe déjà ──
+     Une barre d'enregistrement, un bandeau de consentement, tout ce qui
+     se colle au bas de la fenêtre doit savoir ce qui s'y trouve déjà.
+     Sans cette réserve, chacun se pose à « bottom: 0 » et le dernier
+     arrivé recouvre les autres — c'est ce qui masquait le bouton
+     « Enregistrer » derrière la barre d'état de l'administration, dont
+     le z-index est plus haut.
+
+     Zéro partout par défaut : sur le site public, rien n'est réservé.
+     Le panneau d'administration les redéfinit pour lui-même, et les
+     remet à zéro quand sa barre latérale passe hors écran. */
+  --sol-reserve: 0px;   /* hauteur occupée en bas de la fenêtre */
+  --sol-gauche: 0px;    /* largeur occupée sur la gauche */
+
   --r-sm: 10px;
   --r-md: 14px;
   --r-lg: 18px;

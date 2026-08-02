@@ -1,11 +1,292 @@
+/* ═══════════════════════════════════════════════════════════
+   Exploitation — un tableau de bord sans feux tricolores.
+
+   Le système de couleurs du site pose « --green: var(--bleu-700) » et
+   « --amber: var(--rouge-700) » : le vert et l'ambre sont du pétrole.
+   Sa règle est écrite à côté — « trois teintes seulement : l'échelle se
+   lit au remplissage ». Un tableau de bord à pastilles vert/orange/rouge
+   est donc impossible ici, et c'est tant mieux : l'œil s'habitue aux
+   feux, il ne s'habitue pas à une jauge qui déborde.
+
+   La sévérité se lit donc au remplissage et à la densité d'encre. Le
+   crimson — la seule couleur hors palette, réservée au danger — est
+   rationné : il ne paraît que sur ce qui est réellement en défaut. S'il
+   est partout, il ne veut plus rien dire.
+   ═══════════════════════════════════════════════════════════ */
 .ops {
   h2 {
-    font-size: 1.05rem;
-    margin: 0 0 0.85rem;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    margin: 0 0 0.9rem;
   }
 
-  &__sante {
-    margin-bottom: 2.25rem;
+  &__bloc {
+    margin-bottom: 2.4rem;
+  }
+
+  &__chapeau {
+    margin: -0.4rem 0 1rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 62ch;
+  }
+
+  /* ── LE VERDICT ──
+     La seule chose que beaucoup de visites liront. Fond pétrole
+     profond : c'est le chrome de l'administration, la bande s'y
+     rattache plutôt que de flotter sur le crème. */
+  &__verdict {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding: 1.6rem 1.75rem;
+    margin-bottom: 2.4rem;
+    border-radius: var(--r-lg);
+    background: var(--bleu-950);
+    color: var(--on-dark);
+
+    /* Le liseré est la seule chose qui change de couleur. Trois états,
+       trois épaisseurs d'attention. */
+    border-left: 4px solid var(--bleu-500);
+    &[data-etat='degrade'] { border-left-color: var(--nuage-3); }
+    &[data-etat='panne']   { border-left-color: var(--danger); }
+    &[data-etat='muet']    { border-left-color: var(--faint); }
+  }
+
+  &__verdict-corps {
+    min-width: 0;
+    flex: 1 1 30rem;
+  }
+
+  &__etiquette {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0 0 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--on-dark-muted);
+  }
+
+  &__horloge {
+    text-transform: none;
+    letter-spacing: 0.04em;
+  }
+
+  /* La phrase. Grande, parce que c'est le produit de cette page. */
+  &__phrase {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+    font-weight: 600;
+    line-height: 1.22;
+    letter-spacing: -0.015em;
+    color: var(--on-dark);
+    text-wrap: balance;
+  }
+
+  &__appui {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.7rem 0 0;
+    font-size: 0.84rem;
+    color: var(--on-dark-muted);
+  }
+
+  &__etat-mot {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.7rem;
+    align-self: center;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid var(--line-dark);
+    border-radius: var(--r-sm);
+    color: var(--on-dark);
+  }
+
+  &__relever {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--on-dark);
+    background: transparent;
+    border: 1px solid var(--line-dark);
+    border-radius: var(--r-sm);
+    transition: background var(--t), border-color var(--t);
+
+    &:hover {
+      background: rgba(255, 236, 209, 0.1);
+      border-color: var(--on-dark-muted);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--nuage);
+      outline-offset: 2px;
+    }
+  }
+
+  /* ── LES JAUGES D'ÉCHÉANCE ── la signature de la page.
+     Où en est chaque tâche dans l'intervalle qu'on lui accorde. Le
+     retard de six jours sur l'import était bien affiché — « 6.3 j », en
+     rouge, dans une colonne de tableau, sous trois autres sections — et
+     personne ne l'a vu. À « ×12 » sur une jauge pleine, il ne pouvait
+     pas passer inaperçu. */
+  &__jauges {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      display: grid;
+      grid-template-columns: minmax(9rem, 13rem) minmax(6rem, 1fr) 4.5rem;
+      grid-template-areas:
+        'nom rail ratio'
+        'nom legende legende';
+      align-items: center;
+      gap: 0.25rem 1rem;
+      padding: 0.85rem 0;
+      border-top: 1px solid var(--line);
+
+      &:last-child { border-bottom: 1px solid var(--line); }
+    }
+  }
+
+  &__tache-nom {
+    grid-area: nom;
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  /* Le rail garde toujours la même longueur : c'est la comparaison
+     entre les lignes qui informe, pas la largeur absolue. */
+  &__rail {
+    grid-area: rail;
+    position: relative;
+    display: block;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--nuage-2);
+    overflow: hidden;
+  }
+
+  &__remplissage {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 999px;
+    background: var(--bleu-500);
+    transition: width 0.5s var(--ease-out, ease-out);
+  }
+
+  &__ratio {
+    grid-area: ratio;
+    text-align: right;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__legende {
+    grid-area: legende;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  /* Le dépassement est le seul endroit de la page où le crimson paraît
+     — hors d'un contrôle réellement tombé. Le rail se remplit
+     entièrement : une jauge à moitié pleine dirait « à moitié en
+     retard », ce qui n'existe pas. */
+  .est-depasse {
+    .ops__remplissage {
+      width: 100% !important;
+      background: var(--danger);
+    }
+    .ops__ratio {
+      color: var(--danger-600);
+    }
+    .ops__tache-nom {
+      font-weight: 700;
+    }
+  }
+
+  @media (max-width: 640px) {
+    &__jauges li {
+      grid-template-columns: 1fr 4.5rem;
+      grid-template-areas:
+        'nom     ratio'
+        'rail    rail'
+        'legende legende';
+      gap: 0.4rem 1rem;
+    }
+  }
+
+  /* ── LA RÉGLETTE ──
+     Des mesures alignées sur une ligne, pas des cartes de même poids.
+     Un zéro n'a rien à réclamer : il s'efface, et reprend de l'encre le
+     jour où il cesse d'être nul — le seul moment où il dit quelque
+     chose. */
+  &__reglette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 2.5rem;
+    margin: 0 0 1.4rem;
+    padding: 0 0 1.2rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  &__mesure {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.3rem 0;
+
+    dt {
+      font-family: var(--font-mono);
+      font-size: 0.58rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    dd {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* La mesure cardinale porte le sens de la section : elle est plus
+       grande, et elle est la seule à l'être. */
+    &.est-cardinale dd {
+      font-size: 1.7rem;
+      letter-spacing: -0.02em;
+    }
+
+    &.est-nul dd {
+      color: var(--faint);
+      font-weight: 400;
+    }
   }
 
   /* ── Le verdict ──
@@ -41,54 +322,68 @@
      arrivait quand cette section affichait du JSON — l'étiquette se
      retrouvait sur une colonne d'un caractère de large, à lire
      verticalement. */
-  &__controles,
-  &__taches {
+  /* ── LES CONTRÔLES ──
+     Binaires : ils répondent ou ils ne répondent pas. Pas de jauge donc,
+     mais une pastille — pleine quand tout va, creuse quand le service
+     traîne, crimson quand il est tombé. La forme porte l'information
+     autant que la couleur, ce qui la rend lisible sans distinguer les
+     teintes. */
+  &__controles {
     list-style: none;
-    margin: 0 0 1.6rem;
+    margin: 0;
     padding: 0;
-    display: grid;
-    gap: 0.35rem;
 
     li {
       display: grid;
-      grid-template-columns: 7.5rem minmax(6rem, auto) minmax(0, 1fr);
+      grid-template-columns: auto minmax(7rem, 12rem) minmax(0, 1fr);
       align-items: baseline;
-      gap: 0.75rem;
-      padding: 0.55rem 0.9rem;
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      background: var(--canvas);
-    }
+      gap: 0.85rem;
+      padding: 0.7rem 0;
+      border-top: 1px solid var(--line);
 
-    .badge {
-      justify-self: start;
-      white-space: nowrap;
+      &:last-child { border-bottom: 1px solid var(--line); }
     }
   }
 
-  /* Une tâche en peine se repère avant d'être lue. */
-  &__tache--inquiete {
-    border-color: var(--amber, #b5651d) !important;
+  &__pastille {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    align-self: center;
+    background: var(--bleu-500);
+    border: 1px solid var(--bleu-500);
+
+    [data-etat='degrade'] & {
+      background: transparent;
+      border-color: var(--ink-soft);
+    }
+    [data-etat='panne'] & {
+      background: var(--danger);
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px var(--danger-100);
+    }
   }
 
   &__quoi {
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     font-weight: 600;
+    color: var(--ink);
     overflow-wrap: anywhere;
   }
 
   &__detail-court {
-    font-size: 0.83rem;
+    font-size: 0.82rem;
     color: var(--muted);
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
-  @media (max-width: 720px) {
-    &__controles li,
-    &__taches li {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
+  @media (max-width: 640px) {
+    &__controles li {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.3rem 0.7rem;
+
+      .ops__detail-court { grid-column: 2; }
     }
   }
 
@@ -250,10 +545,8 @@
   }
 }
 
-.ops__recettes {
-  margin-bottom: 2.25rem;
-}
-
+/* L'espacement des sections vient de « .ops__bloc » : cette règle-ci
+   faisait double emploi depuis que toutes les sections le portent. */
 .ops__formules {
   display: flex;
   gap: 1.25rem;

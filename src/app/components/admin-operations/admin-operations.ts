@@ -60,6 +60,7 @@ export class AdminOperations implements OnInit {
 
   charger(): void {
     this.chargement.set(true);
+    this.releve.set(new Date());
 
     this.service.sante().subscribe({
       next: (s) => this.sante.set(s),
@@ -115,28 +116,108 @@ export class AdminOperations implements OnInit {
   // Il ne l'est pas : « EtatDuService » le décrit champ par champ
   // depuis le début, et les types étaient là, inutilisés.
 
-  /** Ce que le verdict veut dire, en une phrase. */
+  /**
+   * Le verdict, en une phrase qui nomme le coupable.
+   *
+   * « Dégradé » sans dire quoi n'apprend rien — c'est le nom du service
+   * en peine qu'on vient chercher, et c'est la seule phrase que
+   * beaucoup de visites liront.
+   */
   resumeSante(): string {
     const s = this.sante();
     if (!s) return '';
 
     const enPanne = s.controles.filter((c) => c.etat === 'en panne');
-    const genes = s.controles.filter((c) => c.etat === 'dégradé');
-    const taches = s.taches.filter((t) => t.inquiete);
-
     if (enPanne.length) {
-      return `${this.enumerer(enPanne.map((c) => c.quoi))} hors service.`;
+      return `${this.majuscule(this.enumerer(enPanne.map((c) => c.quoi)))} ne répond plus.`;
     }
 
-    const morceaux: string[] = [];
-    if (genes.length) morceaux.push(this.enumerer(genes.map((c) => c.quoi)));
-    if (taches.length) morceaux.push(this.enumerer(taches.map((t) => t.service)));
+    // La tâche la plus en retard passe devant : c'est celle qu'on doit
+    // regarder en premier, et le pluriel dilue l'urgence.
+    const retard = [...s.taches]
+      .filter((t) => t.inquiete)
+      .sort((a, b) => this.echeance(b) - this.echeance(a))[0];
 
-    if (!morceaux.length) return 'Tout répond, toutes les tâches sont passées à l’heure.';
+    const genes = s.controles.filter((c) => c.etat === 'dégradé');
 
-    // « dégradé » sans dire quoi n'apprend rien : c'est le nom du
-    // service en peine qu'on vient chercher.
-    return `${morceaux.join(', ')} — le reste répond normalement.`;
+    if (retard) {
+      const depuis = retard.dernierPassage
+        ? `n’est pas passé depuis ${this.ecoule(retard.dernierPassage)}`
+        : 'n’est jamais passé depuis le démarrage';
+      return `${retard.service} ${depuis}.`;
+    }
+
+    if (genes.length) {
+      return `${this.majuscule(this.enumerer(genes.map((c) => c.quoi)))} fonctionne au ralenti.`;
+    }
+
+    return 'Tout répond. Toutes les tâches sont passées dans les temps.';
+  }
+
+  /** Ce qu'il reste à dire quand le verdict a nommé le premier problème. */
+  resteSante(): string {
+    const s = this.sante();
+    if (!s) return '';
+
+    const restants = s.taches.filter((t) => t.inquiete).length - 1;
+    const genes = s.controles.filter((c) => c.etat === 'dégradé').length;
+
+    const bouts: string[] = [];
+    if (restants > 0) bouts.push(`${restants} autre${restants > 1 ? 's' : ''} tâche${restants > 1 ? 's' : ''} en retard`);
+    if (genes > 0) bouts.push(`${genes} contrôle${genes > 1 ? 's' : ''} au ralenti`);
+
+    return bouts.join(' · ');
+  }
+
+  // ══════════════════════════════════════
+  //  La jauge d'échéance
+  // ══════════════════════════════════════
+  //
+  // Où en est une tâche dans l'intervalle qu'on lui accorde. C'est le
+  // seul chiffre qui rende « dernier passage il y a 6 jours »
+  // interprétable : reposant pour une purge quotidienne, alarmant pour
+  // un import qui tourne toutes les six heures.
+  //
+  // Le retard de six jours sur l'import était affiché — « 6.3 j », en
+  // rouge, dans une colonne de tableau, sous trois autres sections. Il
+  // n'a été vu par personne. À ×12 sur une jauge qui déborde, il ne
+  // pouvait pas l'être.
+
+  /** Part de l'intervalle consommée. 1 = pile à l'échéance. */
+  echeance(t: TacheSante): number {
+    if (!t.dernierPassage || !t.cadenceHeures) return t.inquiete ? 99 : 0;
+    const heures = (Date.now() - new Date(t.dernierPassage).getTime()) / 3_600_000;
+    return heures / t.cadenceHeures;
+  }
+
+  /** La largeur du remplissage, plafonnée : au-delà, c'est le chiffre qui parle. */
+  remplissage(t: TacheSante): number {
+    return Math.min(100, Math.round(this.echeance(t) * 100));
+  }
+
+  /** « 38 % » tant qu'on est dans les temps, « ×12 » quand on déborde. */
+  ratio(t: TacheSante): string {
+    if (!t.dernierPassage) return '—';
+    const e = this.echeance(t);
+    return e > 1 ? `×${e < 10 ? e.toFixed(1) : Math.round(e)}` : `${Math.round(e * 100)} %`;
+  }
+
+  /** Depuis combien de temps, en clair : « 6 jours », « 40 min ». */
+  ecoule(quand: string): string {
+    const minutes = Math.floor((Date.now() - new Date(quand).getTime()) / 60000);
+    if (minutes < 60) return `${Math.max(1, minutes)} min`;
+    const heures = Math.floor(minutes / 60);
+    if (heures < 48) return `${heures} h`;
+    return `${Math.floor(heures / 24)} jours`;
+  }
+
+  /** La cadence, dite comme on la dirait à voix haute. */
+  cadence(t: TacheSante): string {
+    const h = t.cadenceHeures;
+    if (!h) return '';
+    if (h < 1) return `toutes les ${Math.round(h * 60)} min`;
+    if (h < 48) return `toutes les ${h % 1 === 0 ? h : h.toFixed(1)} h`;
+    return `tous les ${Math.round(h / 24)} jours`;
   }
 
   /** Depuis combien de temps le service tourne, en clair. */
@@ -192,4 +273,11 @@ export class AdminOperations implements OnInit {
     if (noms.length <= 1) return noms[0] ?? '';
     return `${noms.slice(0, -1).join(', ')} et ${noms[noms.length - 1]}`;
   }
+
+  private majuscule(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  /** L'heure du relevé : une page d'exploitation doit dire sa fraîcheur. */
+  readonly releve = signal<Date>(new Date());
 }
