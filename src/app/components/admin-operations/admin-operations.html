@@ -252,6 +252,106 @@
       }
 
       <!-- ═══════════════ ERREURS NAVIGATEUR ═══════════════ -->
+      <!-- ═══ L'ASSISTANCE, ET CE QU'ELLE COÛTE ═══
+           Le compteur vivait en mémoire et personne ne le voyait : la
+           dépense restait invisible jusqu'à la facture. Pire, un plafond
+           atteint ressemblait trait pour trait à un modèle non configuré
+           — le site se tait dans les deux cas, et c'est voulu. -->
+      @if (assistance(); as a) {
+        <div class="ad-panel">
+          <div class="ad-panel__head">
+            <span class="ad-panel__ico"><i class="bi bi-stars" aria-hidden="true"></i></span>
+            <h3>Assistance</h3>
+            @if (a.configure) {
+              <span class="ad-count">{{ a.consommes }} / {{ a.plafond }}</span>
+            }
+          </div>
+          <div class="ad-panel__body">
+            @if (!a.configure) {
+              <p class="ops-repos">
+                Aucun modèle n'est configuré : la relecture des recherches, les synthèses
+                de correspondance et les seconds avis de modération sont éteints. Le site
+                fonctionne sur ses règles, à l'identique.
+              </p>
+            } @else {
+              <!-- La sévérité se lit au remplissage, comme partout. -->
+              <div class="ops-jauge" [class.est-depasse]="a.restant === 0"
+                   [attr.aria-label]="a.consommes + ' appels sur ' + a.plafond">
+                <span class="ops-jauge__part"
+                      [style.width.%]="a.plafond ? (a.consommes * 100 / a.plafond) : 0"></span>
+              </div>
+              <p class="ops-repos">
+                @if (a.restant === 0) {
+                  <b>Plafond atteint.</b> Le site continue sur ses règles jusqu'à la remise
+                  à zéro, à minuit&nbsp;UTC. Rien n'est cassé — c'est le repli prévu.
+                } @else {
+                  Il reste <b>{{ a.restant }}</b> appel{{ a.restant > 1 ? 's' : '' }} aujourd'hui.
+                  Le compteur repart seul à minuit&nbsp;UTC.
+                }
+                @if (a.modele) { <span class="ops-modele u-mono">{{ a.modele }}</span> }
+              </p>
+
+              @if (a.parUsage.length) {
+                <div class="ad-list ops-usages">
+                  @for (u of a.parUsage; track u.usage) {
+                    <div class="ad-item">
+                      <div class="ad-item__txt"><strong>{{ u.usage }}</strong></div>
+                      <span class="ops-ratio">{{ u.appels }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ═══ LES REQUÊTES QUI TRAÎNENT ═══
+           L'intercepteur les journalise depuis le début, mais dans
+           Serilog : il fallait un accès au serveur pour savoir pourquoi
+           une page est lente. On soupçonne le réseau pendant qu'un index
+           manque sur une colonne ajoutée six mois plus tôt. -->
+      @if (lentes(); as l) {
+        <div class="ad-panel">
+          <div class="ad-panel__head">
+            <span class="ad-panel__ico"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span>
+            <h3>Requêtes lentes</h3>
+            <span class="ad-count">au-delà de {{ l.seuilMs }} ms</span>
+            @if (l.formes.length) {
+              <button type="button" class="btn-sm btn-ghost" (click)="oublierLentes()">
+                Remettre à zéro
+              </button>
+            }
+          </div>
+          <div class="ad-panel__body ad-panel__body--flush">
+            @if (!l.formes.length) {
+              <div class="ad-void">
+                <i class="bi bi-check2" aria-hidden="true"></i>
+                <p>Aucune requête n'a dépassé le seuil depuis le démarrage.</p>
+              </div>
+            } @else {
+              <div class="ad-list">
+                @for (f of l.formes; track f.sql) {
+                  <div class="ad-item ops-erreur">
+                    <div class="ad-item__txt">
+                      <!-- Le texte sert à reconnaître la requête, pas à la
+                           rejouer. Les paramètres n'y sont jamais : ils
+                           portent des adresses et des noms. -->
+                      <strong class="ops-sql u-mono">{{ sqlCourt(f.sql) }}</strong>
+                      <span>
+                        {{ f.occurrences }} fois · pire {{ f.pireMs }} ms ·
+                        dernière {{ f.dernierMs }} ms
+                      </span>
+                    </div>
+                    <span class="ops-ratio" [class.est-lourd]="f.pireMs >= 2000">{{ f.pireMs }} ms</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <div class="ad-panel ad-span-all">
         <div class="ad-panel__head">
           <span class="ad-panel__ico"><i class="bi bi-bug" aria-hidden="true"></i></span>

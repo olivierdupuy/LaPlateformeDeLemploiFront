@@ -28,6 +28,42 @@ export interface ErreurNavigateur {
   traitee: boolean;
 }
 
+/**
+ * Le quota d'assistance du jour.
+ *
+ * `configure` et `disponible` disent deux choses différentes : le premier
+ * qu'un modèle est joignable, le second qu'il reste du quota. Les
+ * confondre ferait passer un plafond atteint pour une panne de
+ * configuration.
+ */
+export interface BilanAssistance {
+  configure: boolean;
+  disponible: boolean;
+  plafond: number;
+  consommes: number;
+  restant: number;
+  modele?: string | null;
+  parUsage: { usage: string; appels: number }[];
+  /** Le compteur disparaît de lui-même : il n'y a pas de bouton. */
+  remiseAZero: string;
+}
+
+/** Une forme de requête lente. Sans ses paramètres : ils portent des noms et des adresses. */
+export interface FormeLente {
+  sql: string;
+  occurrences: number;
+  pireMs: number;
+  dernierMs: number;
+  derniere: string;
+}
+
+export interface RapportRequetesLentes {
+  seuilMs: number;
+  depuis: string;
+  formes: FormeLente[];
+  total: number;
+}
+
 export interface FraicheurCatalogue {
   total: number;
   parSource: {
@@ -232,6 +268,33 @@ export class PlateformeProService {
    */
   sante(): Observable<EtatDuService> {
     return this.http.get<EtatDuService>(`${this.api}/sante/detail`);
+  }
+
+  /**
+   * Où en est le quota d'assistance, et à cause de quoi.
+   *
+   * Sans lui, « plafond atteint » et « aucun modèle configuré » sont
+   * indiscernables : dans les deux cas le site se tait et retombe sur ses
+   * règles — le comportement voulu, mais sans explication.
+   */
+  assistance(): Observable<BilanAssistance> {
+    return this.http.get<BilanAssistance>(`${this.api}/sante/assistance`);
+  }
+
+  /**
+   * Les requêtes qui traînent.
+   *
+   * L'intercepteur les journalise depuis le début, dans Serilog : il faut
+   * un accès au serveur et savoir quoi y chercher. Or une page lente se
+   * constate depuis un navigateur.
+   */
+  requetesLentes(): Observable<RapportRequetesLentes> {
+    return this.http.get<RapportRequetesLentes>(`${this.api}/sante/requetes-lentes`);
+  }
+
+  /** Repartir de zéro après avoir posé l'index qui manquait. */
+  oublierRequetesLentes(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.api}/sante/requetes-lentes`);
   }
 
   catalogue(): Observable<FraicheurCatalogue> {

@@ -143,6 +143,50 @@
   .ops-jauge { flex-basis: 5rem; }
 }
 
+/* ── Les deux panneaux ajoutés : assistance et requêtes lentes ── */
+
+/* Un paragraphe d'explication dans un panneau, quand le chiffre seul ne
+   dit pas ce qu'il faut en faire. « Plafond atteint » se lit comme une
+   panne tant qu'on n'a pas écrit que c'est le repli prévu. */
+.ops-repos {
+  margin: 0.7rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  b { color: var(--ink); }
+}
+
+.ops-modele {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+/* La répartition par usage : quand le quota part avant midi, c'est la
+   première chose qu'on veut savoir. */
+.ops-usages {
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--nuage-2);
+  .ad-item { padding-left: 0; padding-right: 0; }
+}
+
+/* Le texte d'une requête sert à la reconnaître, pas à la rejouer : il
+   se coupe, et il ne déborde jamais du panneau. */
+.ops-sql {
+  font-size: 0.74rem !important;
+  font-weight: 500 !important;
+  line-height: 1.45;
+  white-space: normal !important;
+  overflow: visible !important;
+  overflow-wrap: anywhere;
+  color: var(--ink-soft) !important;
+}
+
+/* Deux secondes : au-delà, ce n'est plus de la lenteur, c'est un blocage
+   que quelqu'un a vu passer à l'écran. */
+.est-lourd { color: var(--danger-600); }
+
 /* ── La grille, en deux colonnes fixes ──
    Le kit pose « repeat(auto-fit, minmax(340px, 1fr)) », ce qui convient
    à une page faite de cartes de même nature. Ici deux panneaux

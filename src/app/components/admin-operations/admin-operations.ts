@@ -7,6 +7,8 @@ import {
   ErreurNavigateur,
   FraicheurCatalogue,
   Recettes,
+  BilanAssistance,
+  RapportRequetesLentes,
 } from '../../services/plateforme-pro.service';
 import { EtatDuService, TacheSante } from '../../services/admin.service';
 
@@ -49,6 +51,24 @@ export class AdminOperations implements OnInit {
    * été émise — il n'y a alors rien à montrer.
    */
   readonly recettes = signal<Recettes | null>(null);
+
+  /**
+   * Le quota d'assistance du jour.
+   *
+   * Il vivait en mémoire et personne ne le voyait : la dépense restait
+   * invisible jusqu'à la facture. Pire, un plafond atteint ressemblait
+   * trait pour trait à un modèle non configuré — le site se tait dans les
+   * deux cas, et c'est le comportement voulu.
+   */
+  readonly assistance = signal<BilanAssistance | null>(null);
+
+  /**
+   * Ce qui traîne dans la base.
+   *
+   * L'intercepteur journalise depuis le début, mais dans Serilog : il
+   * fallait un accès au serveur pour savoir pourquoi une page est lente.
+   */
+  readonly lentes = signal<RapportRequetesLentes | null>(null);
   readonly erreurs = signal<ErreurNavigateur[]>([]);
   readonly classees = signal(false);
   readonly chargement = signal(true);
@@ -75,6 +95,16 @@ export class AdminOperations implements OnInit {
     this.service.recettes().subscribe({
       next: (r) => this.recettes.set(r),
       error: () => this.recettes.set(null),
+    });
+
+    this.service.assistance().subscribe({
+      next: (a) => this.assistance.set(a),
+      error: () => this.assistance.set(null),
+    });
+
+    this.service.requetesLentes().subscribe({
+      next: (l) => this.lentes.set(l),
+      error: () => this.lentes.set(null),
     });
 
     this.service.erreursNavigateur(this.classees()).subscribe({
@@ -249,6 +279,33 @@ export class AdminOperations implements OnInit {
 
   private majuscule(s: string): string {
     return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  /**
+   * Repartir de zéro sur les requêtes lentes.
+   *
+   * Après avoir posé l'index qui manquait, on veut savoir si la requête
+   * est encore lente — pas relire un cumul qui date d'avant le correctif.
+   */
+  oublierLentes(): void {
+    this.service.oublierRequetesLentes().subscribe({
+      next: () => {
+        this.toast.success('Relevé remis à zéro.');
+        this.service.requetesLentes().subscribe({ next: (l) => this.lentes.set(l) });
+      },
+      error: () => this.toast.error('La remise à zéro a échoué.'),
+    });
+  }
+
+  /**
+   * Une requête écourtée, pour la lire dans une liste.
+   *
+   * Le texte complet fait jusqu'à huit cents caractères : il sert à
+   * reconnaître la requête, pas à la rejouer.
+   */
+  sqlCourt(sql: string): string {
+    const t = sql.replace(/\s+/g, ' ').trim();
+    return t.length > 160 ? t.slice(0, 160) + ' […]' : t;
   }
 
   /** L'heure du relevé : une page d'exploitation doit dire sa fraîcheur. */
