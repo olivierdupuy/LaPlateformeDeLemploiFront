@@ -266,19 +266,249 @@
 
             <label class="anl-fld">
               <span>Objet</span>
-              <input type="text" [(ngModel)]="sujet" placeholder="Les offres du mois près de chez vous" />
+              <input type="text" [(ngModel)]="sujet" (ngModelChange)="majApercu()"
+                     placeholder="Les offres du mois près de chez vous" />
             </label>
 
             <label class="anl-fld">
               <span>Ligne d'aperçu <small>affichée par les messageries à côté de l'objet</small></span>
-              <input type="text" [(ngModel)]="apercuTexte" placeholder="Ce qui recrute dans votre région" />
+              <input type="text" [(ngModel)]="apercuTexte" (ngModelChange)="majApercu()"
+                     placeholder="Ce qui recrute dans votre région" />
             </label>
 
-            <label class="anl-fld">
-              <span>Contenu <small>HTML accepté</small></span>
-              <textarea rows="14" [(ngModel)]="corps"
-                        placeholder="<p>Bonjour {{ '{{' }}prenom{{ '}}' }},</p>&#10;<p>Voici les offres qui bougent…</p>"></textarea>
-            </label>
+            <!-- ═══ MODE HTML : les campagnes écrites avant l'éditeur ═══
+                 Leur mise en page a été réglée à la main. La découper
+                 automatiquement en blocs l'abîmerait : on les laisse
+                 telles quelles, et on propose de basculer en le disant. -->
+            @if (modeHtml()) {
+              <div class="anl-ancien">
+                <i class="bi bi-clock-history" aria-hidden="true"></i>
+                <div>
+                  <b>Cette lettre est écrite en HTML</b>
+                  <p>Elle a été composée avant l'éditeur en blocs. Vous pouvez continuer
+                     à la modifier ici, ou repartir sur des blocs.</p>
+                  <button type="button" class="btn-ghost" (click)="passerAuxBlocs()">
+                    <i class="bi bi-grid-1x2"></i> Passer à l'éditeur en blocs
+                  </button>
+                </div>
+              </div>
+
+              <label class="anl-fld">
+                <span>Contenu <small>HTML accepté</small></span>
+                <textarea rows="14" [(ngModel)]="corps" (ngModelChange)="majApercu()"
+                          placeholder="<p>Bonjour {{ '{{' }}prenom{{ '}}' }},</p>"></textarea>
+              </label>
+            } @else {
+
+              <!-- ═══ LA PILE DE BLOCS ═══ -->
+              <div class="blocs">
+                @for (b of blocs(); track $index) {
+                  <div class="bloc" [class.is-actif]="blocActif() === $index">
+                    <button type="button" class="bloc__ouvrir" (click)="choisirBloc($index)"
+                            [attr.aria-expanded]="blocActif() === $index">
+                      <i class="bi" [class]="iconeBloc(b.type)" aria-hidden="true"></i>
+                      <span class="bloc__nom">{{ libelleBloc(b.type) }}</span>
+                      <span class="bloc__resume">{{ resumeBloc(b) }}</span>
+                    </button>
+                    <!-- Par boutons et non par glisser-déposer : un ordre
+                         qu'on ne peut changer qu'à la souris est un ordre
+                         qu'on ne peut pas changer au clavier. -->
+                    <div class="bloc__act">
+                      <button type="button" (click)="deplacerBloc($index, -1)"
+                              [disabled]="$first" [attr.aria-label]="'Monter le bloc ' + libelleBloc(b.type)">
+                        <i class="bi bi-chevron-up" aria-hidden="true"></i>
+                      </button>
+                      <button type="button" (click)="deplacerBloc($index, 1)"
+                              [disabled]="$last" [attr.aria-label]="'Descendre le bloc ' + libelleBloc(b.type)">
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                      </button>
+                      <button type="button" class="anl-danger" (click)="supprimerBloc($index)"
+                              [attr.aria-label]="'Supprimer le bloc ' + libelleBloc(b.type)">
+                        <i class="bi bi-trash3" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </div>
+                } @empty {
+                  <p class="blocs__vide">Aucun bloc. Ajoutez-en un ci-dessous.</p>
+                }
+              </div>
+
+              <div class="blocs__ajout">
+                <span class="blocs__ajout-t">Ajouter</span>
+                @for (t of typesDeBloc; track t.type) {
+                  <button type="button" class="blocs__type" [title]="t.aide" (click)="ajouterBloc(t.type)">
+                    <i class="bi" [class]="t.icone" aria-hidden="true"></i> {{ t.libelle }}
+                  </button>
+                }
+              </div>
+
+              <!-- ═══ RÉGLAGES DU BLOC CHOISI ═══ -->
+              @if (blocCourant(); as b) {
+                <div class="reglages">
+                  <span class="reglages__t">
+                    <i class="bi" [class]="iconeBloc(b.type)" aria-hidden="true"></i>
+                    {{ libelleBloc(b.type) }}
+                  </span>
+
+                  @switch (b.type) {
+                    @case ('separateur') {
+                      <p class="reglages__aide">Un filet horizontal. Rien à régler.</p>
+                    }
+
+                    @case ('image') {
+                      <label class="anl-fld anl-fld--mince">
+                        <span>Adresse de l'image</span>
+                        <input type="url" [(ngModel)]="b.url" (ngModelChange)="majApercu()"
+                               placeholder="https://…/visuel.jpg" />
+                      </label>
+                      <label class="anl-fld anl-fld--mince">
+                        <span>Texte de remplacement
+                          <small>une messagerie sur deux bloque les images : c'est tout ce qui restera</small></span>
+                        <input type="text" [(ngModel)]="b.alt" (ngModelChange)="majApercu()"
+                               placeholder="Trois personnes sur un chantier" />
+                      </label>
+                    }
+
+                    @case ('bouton') {
+                      <label class="anl-fld anl-fld--mince">
+                        <span>Libellé</span>
+                        <input type="text" [(ngModel)]="b.texte" (ngModelChange)="majApercu()"
+                               placeholder="Voir toutes les offres" />
+                      </label>
+                      <label class="anl-fld anl-fld--mince">
+                        <span>Adresse</span>
+                        <input type="url" [(ngModel)]="b.url" (ngModelChange)="majApercu()"
+                               placeholder="https://…/offres" />
+                      </label>
+                    }
+
+                    @case ('offres') {
+                      @if (b.offres; as o) {
+                        <label class="anl-fld anl-fld--mince">
+                          <span>Intertitre <small>facultatif</small></span>
+                          <input type="text" [(ngModel)]="o.titre" (ngModelChange)="majApercu()"
+                                 placeholder="Les offres près de chez vous" />
+                        </label>
+
+                        <div class="anl-groupe">
+                          <small>D'où viennent les offres</small>
+                          <div class="reglages__sources">
+                            @for (s of sourcesOffres; track s.cle) {
+                              <button type="button" class="source" [class.is-on]="o.source === s.cle"
+                                      (click)="o.source = s.cle; majApercu()">
+                                <b>{{ s.libelle }}</b>
+                                <span>{{ s.aide }}</span>
+                              </button>
+                            }
+                          </div>
+                        </div>
+
+                        @if (o.source === 'recherche') {
+                          <div class="reglages__grille">
+                            <label class="anl-fld anl-fld--mince">
+                              <span>Métier</span>
+                              <select [(ngModel)]="o.metier" (ngModelChange)="majApercu()">
+                                <option [ngValue]="undefined">Tous</option>
+                                @for (m of metiers(); track m) { <option [ngValue]="m">{{ m }}</option> }
+                              </select>
+                            </label>
+                            <label class="anl-fld anl-fld--mince">
+                              <span>Contrat</span>
+                              <select [(ngModel)]="o.contrat" (ngModelChange)="majApercu()">
+                                <option [ngValue]="undefined">Tous</option>
+                                <option value="CDI">CDI</option>
+                                <option value="CDD">CDD</option>
+                                <option value="Alternance">Alternance</option>
+                                <option value="Stage">Stage</option>
+                                <option value="Interim">Intérim</option>
+                              </select>
+                            </label>
+                            <label class="anl-fld anl-fld--mince">
+                              <span>Ville</span>
+                              <input type="text" [(ngModel)]="o.lieu" (ngModelChange)="majApercu()" placeholder="Perpignan" />
+                            </label>
+                            <label class="anl-fld anl-fld--mince">
+                              <span>Rayon <small>km</small></span>
+                              <input type="number" min="1" max="300" [(ngModel)]="o.rayonKm" (ngModelChange)="majApercu()" placeholder="50" />
+                            </label>
+                          </div>
+                        }
+
+                        @if (o.source === 'choisies') {
+                          <div class="choisies">
+                            @for (offre of offresChoisies(); track offre.id) {
+                              <div class="choisie">
+                                <div class="choisie__txt">
+                                  <b>{{ offre.title }}</b>
+                                  <span>{{ offre.company }} · {{ offre.location }}</span>
+                                </div>
+                                <div class="bloc__act">
+                                  <button type="button" (click)="deplacerOffre($index, -1)" [disabled]="$first"
+                                          aria-label="Monter cette offre"><i class="bi bi-chevron-up"></i></button>
+                                  <button type="button" (click)="deplacerOffre($index, 1)" [disabled]="$last"
+                                          aria-label="Descendre cette offre"><i class="bi bi-chevron-down"></i></button>
+                                  <button type="button" class="anl-danger" (click)="retirerOffre(offre.id)"
+                                          aria-label="Retirer cette offre"><i class="bi bi-x-lg"></i></button>
+                                </div>
+                              </div>
+                            } @empty {
+                              <p class="reglages__aide">Aucune offre choisie pour l'instant.</p>
+                            }
+                            <button type="button" class="btn-ghost" (click)="ouvrirSelecteur()">
+                              <i class="bi bi-plus-lg"></i> Choisir une offre
+                            </button>
+                          </div>
+                        }
+
+                        <div class="reglages__grille">
+                          <label class="anl-fld anl-fld--mince">
+                            <span>Nombre maximum</span>
+                            <input type="number" min="1" max="12" [(ngModel)]="o.nombre" (ngModelChange)="majApercu()" />
+                          </label>
+                          @if (o.source !== 'choisies') {
+                            <label class="anl-fld anl-fld--mince">
+                              <span>Si la sélection est vide</span>
+                              <select [(ngModel)]="o.repli" (ngModelChange)="majApercu()">
+                                @for (r of replis; track r.cle) {
+                                  <option [value]="r.cle">{{ r.libelle }}</option>
+                                }
+                              </select>
+                            </label>
+                          }
+                        </div>
+
+                        @if (o.source === 'abonne') {
+                          <p class="reglages__aide reglages__aide--fort">
+                            <i class="bi bi-people" aria-hidden="true"></i>
+                            Deux abonnés ne recevront pas la même lettre. Changez d'abonné
+                            dans l'aperçu, à droite, pour le vérifier.
+                          </p>
+                        }
+                      }
+                    }
+
+                    @default {
+                      <label class="anl-fld anl-fld--mince">
+                        <span>Texte
+                          <small>une ligne vide sépare deux paragraphes</small></span>
+                        <textarea [rows]="b.type === 'titre' ? 2 : 8" [(ngModel)]="b.texte"
+                                  (ngModelChange)="majApercu()"
+                                  placeholder="Bonjour {{ '{{' }}prenom{{ '}}' }},"></textarea>
+                      </label>
+                      <div class="anl-groupe">
+                        <small>Alignement</small>
+                        <div class="anl-puces">
+                          <button type="button" class="anl-puce" [class.is-on]="b.alignement !== 'centre'"
+                                  (click)="b.alignement = 'gauche'; majApercu()">À gauche</button>
+                          <button type="button" class="anl-puce" [class.is-on]="b.alignement === 'centre'"
+                                  (click)="b.alignement = 'centre'; majApercu()">Centré</button>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            }
 
             @if (etat(); as e) {
               <div class="anl-champs">
@@ -294,6 +524,59 @@
         </div>
 
         <aside class="anl-red__rail">
+
+          <!-- ═══ L'APERÇU, PENDANT QU'ON ÉCRIT ═══
+               Le rendu réel, pas une approximation : c'est le serveur qui
+               le compose, avec la même enveloppe et le même code que
+               l'envoi. Ce qu'on voit est ce qui partira.
+
+               En réduction, parce que la place est comptée : le bouton
+               « Voir l'aperçu » plus bas l'ouvre en grand. Ce qu'on
+               surveille ici, c'est la structure — un bloc de trop, un
+               intertitre orphelin, une lettre trouée. -->
+          <div class="apercu">
+            <div class="apercu__tete">
+              <span class="apercu__t">
+                Aperçu
+                @if (apercuEnCours()) { <span class="apercu__sp" aria-label="Actualisation"></span> }
+              </span>
+
+              <!-- Un bloc « pour chaque abonné » ne montre rien sur un
+                   destinataire fictif : c'est la ville et les centres
+                   d'intérêt de quelqu'un de réel qui font la sélection.
+                   En changer est le seul moyen de vérifier qu'une lettre
+                   personnalisée tient debout pour plusieurs personnes. -->
+              @if (incarnations().length) {
+                <label class="apercu__qui">
+                  <span>Vu par</span>
+                  <select [ngModel]="incarnation()?.id" (ngModelChange)="incarnerParId($event)"
+                          aria-label="Choisir l'abonné dans la peau duquel se met l'aperçu">
+                    @for (a of incarnations(); track a.id) {
+                      <option [ngValue]="a.id">{{ a.firstName || a.email }}@if (a.city) { · {{ a.city }} }</option>
+                    }
+                  </select>
+                </label>
+              }
+            </div>
+
+            @if (apercuDirectSur(); as html) {
+              <div class="apercu__cadre">
+                <iframe class="apercu__vue" [srcdoc]="html" sandbox="" title="Aperçu réduit du message"
+                        aria-hidden="true" tabindex="-1"></iframe>
+                <!-- Le cadre est inerte : c'est ce bouton qui porte
+                     l'action et le nom accessible, pas l'iframe. -->
+                <button type="button" class="apercu__loupe" (click)="voirApercu()">
+                  <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i> Voir en grand
+                </button>
+              </div>
+            } @else {
+              <div class="apercu__vide">
+                <i class="bi bi-envelope" aria-hidden="true"></i>
+                <p>L'aperçu apparaîtra dès que la lettre aura un contenu.</p>
+              </div>
+            }
+          </div>
+
           <!-- ═══ À QUI ═══ -->
           <div class="anl-bloc">
             <span class="anl-bloc__t">À qui</span>
@@ -365,6 +648,56 @@
             <button class="anl-retour" (click)="onglet.set('campagnes')">Revenir aux campagnes</button>
           </div>
         </aside>
+      </div>
+    }
+
+    <!-- ═══ SÉLECTEUR D'OFFRES ═══
+         La recherche est celle du site : on tape « alternance développeur
+         perpignan » et l'on obtient ce qu'un candidat obtiendrait. Rien à
+         réapprendre pour qui a déjà cherché une offre ici. -->
+    @if (selecteurOuvert()) {
+      <div class="anl-modale" appModale (fermeture)="fermerSelecteur()">
+        <div class="anl-modale__in">
+          <div class="anl-modale__tete">
+            <div>
+              <b>Choisir une offre</b>
+              <small>elle sera reprise dans la lettre, avec son lien</small>
+            </div>
+            <button class="anl-act" (click)="fermerSelecteur()" aria-label="Fermer">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+
+          <div class="anl-barre">
+            <input type="search" [(ngModel)]="selecteurRecherche" (keyup.enter)="chercherOffres()"
+                   placeholder="alternance développeur perpignan…" aria-label="Chercher une offre" />
+            <button class="btn-ghost" (click)="chercherOffres()" [disabled]="selecteurEnCours()">
+              <i class="bi bi-search"></i> Chercher
+            </button>
+          </div>
+
+          <div class="selecteur">
+            @for (o of selecteurResultats(); track o.id) {
+              <div class="selecteur__ligne" [class.est-prise]="dejaChoisie(o.id)">
+                <div class="selecteur__txt">
+                  <b>{{ o.title }}</b>
+                  <span>{{ o.company }} · {{ o.location }} · {{ o.contractType }}</span>
+                </div>
+                @if (dejaChoisie(o.id)) {
+                  <span class="selecteur__deja"><i class="bi bi-check-lg"></i> dans la lettre</span>
+                } @else {
+                  <button class="btn-ghost" (click)="ajouterOffre(o)">
+                    <i class="bi bi-plus-lg"></i> Ajouter
+                  </button>
+                }
+              </div>
+            } @empty {
+              <p class="reglages__aide">
+                {{ selecteurEnCours() ? 'Recherche…' : 'Tapez une recherche pour voir des offres.' }}
+              </p>
+            }
+          </div>
+        </div>
       </div>
     }
 

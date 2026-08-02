@@ -69,6 +69,13 @@ export interface Campagne {
   subject: string;
   previewText?: string;
   bodyHtml?: string;
+  /**
+   * La lettre en blocs, sérialisée. Absente sur les campagnes écrites
+   * avant l'éditeur : celles-là s'ouvrent dans leur HTML, sans conversion
+   * automatique — la découper à la machine abîmerait une mise en page
+   * réglée à la main.
+   */
+  blocs?: string;
   status: string;
   createdAt: string;
   sentAt?: string;
@@ -86,10 +93,73 @@ export interface Campagne {
   echecs?: { email: string; error?: string }[];
 }
 
+/**
+ * Un bloc de la lettre.
+ *
+ * Le corps se saisissait en HTML brut dans un `textarea` : il fallait
+ * écrire des tableaux et des styles en ligne de mémoire, le soir, et rien
+ * ne permettait de mettre une offre dans la lettre d'un site d'emploi
+ * autrement qu'en recopiant un intitulé et un lien.
+ */
+export interface BlocLettre {
+  type: 'titre' | 'texte' | 'offres' | 'bouton' | 'separateur' | 'image';
+  texte?: string;
+  url?: string;
+  alignement?: 'gauche' | 'centre';
+  /** Une messagerie sur deux bloque les images : sans lui il ne reste rien. */
+  alt?: string;
+  offres?: BlocOffres;
+}
+
+/**
+ * Le réglage d'un bloc d'offres.
+ *
+ * `abonne` est le mode qui distingue une lettre d'un site d'emploi d'un
+ * publipostage : chaque destinataire reçoit les offres qui lui
+ * correspondent, calculées à l'envoi depuis sa ville et ses centres
+ * d'intérêt.
+ */
+export interface BlocOffres {
+  source: 'choisies' | 'recherche' | 'abonne';
+  /** Mode « choisies » : les offres piochées, dans l'ordre voulu. */
+  ids?: number[];
+  /** Mode « recherche » : la sélection décrite plutôt qu'énumérée. */
+  metier?: string;
+  lieu?: string;
+  contrat?: string;
+  rayonKm?: number;
+  nombre: number;
+  /** Ce qu'on fait quand la sélection ne ramène rien. */
+  repli: 'region' | 'recentes' | 'masquer';
+  titre?: string;
+}
+
+/** Une offre, telle que le sélecteur la montre. */
+export interface OffreBreve {
+  id: number;
+  title: string;
+  company: string;
+  location: string;
+  contractType: string;
+  salary?: string;
+  createdAt: string;
+}
+
+/** Un abonné dans la peau duquel l'aperçu peut se rendre. */
+export interface Incarnation {
+  id: number;
+  email: string;
+  firstName?: string;
+  city?: string;
+  categories?: string;
+}
+
 export interface BrouillonCampagne {
   subject: string;
   previewText?: string;
   bodyHtml: string;
+  /** La lettre en blocs, sérialisée. Prend le pas sur `bodyHtml`. */
+  blocs?: string;
   roles?: string[];
   categories?: string[];
   cities?: string[];
@@ -170,11 +240,45 @@ export class NewsletterService {
       `${this.admin}/campagnes/destinataires`, b);
   }
 
-  apercu(b: BrouillonCampagne): Observable<{
+  /**
+   * L'aperçu, rendu dans la peau d'un abonné.
+   *
+   * `abonneId` n'est pas un détail : un bloc d'offres « pour chaque
+   * abonné » ne montre rien sur un destinataire fictif, puisque c'est la
+   * ville et les centres d'intérêt de quelqu'un de réel qui font la
+   * sélection. Pouvoir changer d'abonné est le seul moyen de vérifier
+   * qu'une lettre personnalisée tient debout pour plusieurs personnes.
+   */
+  apercu(b: BrouillonCampagne, abonneId?: number | null): Observable<{
     sujet: string; html: string; texte: string; rendu: string;
     lacunes: { champ: string; manquant: number; total: number }[];
+    abonne: Incarnation;
+    incarnations: Incarnation[];
   }> {
-    return this.http.post<any>(`${this.admin}/campagnes/apercu`, b);
+    const q = abonneId ? `?abonneId=${abonneId}` : '';
+    return this.http.post<any>(`${this.admin}/campagnes/apercu${q}`, b);
+  }
+
+  /** Chercher des offres à mettre dans la lettre. */
+  chercherOffres(q: string): Observable<OffreBreve[]> {
+    return this.http.get<OffreBreve[]>(
+      `${this.admin}/offres?q=${encodeURIComponent(q)}`);
+  }
+
+  /**
+   * Relire une sélection déjà faite.
+   *
+   * Sans cet appel l'éditeur afficherait des identifiants nus, et une
+   * offre retirée du catalogue depuis resterait dans la lettre sans que
+   * personne le voie.
+   */
+  offresChoisies(ids: number[]): Observable<OffreBreve[]> {
+    return this.http.get<OffreBreve[]>(`${this.admin}/offres?ids=${ids.join(',')}`);
+  }
+
+  /** Les familles de métiers, pour le bloc d'offres en mode « recherche ». */
+  metiers(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.admin}/metiers`);
   }
 
   essai(id: number, email?: string): Observable<{ parti: boolean; message: string }> {

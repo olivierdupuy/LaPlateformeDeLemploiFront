@@ -219,11 +219,433 @@
 }
 
 // ── Rédaction ──
+/* Le rail s'élargit d'un pouce : il porte désormais l'aperçu en plus du
+   ciblage et des actions, et l'aperçu d'un courriel de 600 px réduit trop
+   fort ne montre plus rien. */
 .anl-redaction {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 21rem;
+  grid-template-columns: minmax(0, 1fr) 23rem;
   gap: 1rem;
   align-items: start;
+}
+
+@media (max-width: 1080px) {
+  .anl-redaction { grid-template-columns: 1fr; }
+  .anl-red__rail { position: static; }
+}
+
+// ══════════════════════════════════════
+//  La pile de blocs
+// ══════════════════════════════════════
+//
+// Le corps se saisissait dans un « textarea » de HTML brut. On y écrivait
+// des tableaux et des styles en ligne de mémoire, et rien ne permettait
+// d'y mettre une offre autrement qu'en recopiant un intitulé et un lien.
+
+.blocs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.9rem;
+}
+
+.blocs__vide {
+  margin: 0;
+  padding: 1.1rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.bloc {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+  transition: border-color var(--t), background var(--t);
+
+  &:hover { border-color: var(--line-strong); }
+
+  /* Le bloc ouvert se distingue par un filet à gauche, pas seulement par
+     une teinte : la nuance seule ne se voit pas sur tous les écrans. */
+  &.is-actif {
+    border-color: var(--bleu-500);
+    background: var(--brand-tint);
+    box-shadow: inset 3px 0 0 0 var(--bleu-600);
+  }
+}
+
+.bloc__ouvrir {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.6rem 0.7rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+
+  > i { font-size: 0.95rem; color: var(--bleu-600); flex-shrink: 0; }
+}
+
+.bloc__nom {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.bloc__resume {
+  min-width: 0;
+  font-size: 0.76rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bloc__act {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding-right: 0.35rem;
+
+  button {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background var(--t), color var(--t);
+
+    &:hover:not(:disabled) { background: var(--paper-2); color: var(--ink); }
+    &:disabled { opacity: 0.3; cursor: default; }
+    &.anl-danger:hover:not(:disabled) { color: var(--danger-600); }
+  }
+}
+
+.blocs__ajout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.7rem;
+}
+
+.blocs__ajout-t {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--muted);
+  margin-right: 0.2rem;
+}
+
+.blocs__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--canvas);
+  font-size: 0.77rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+
+  &:hover { border-color: var(--bleu-500); color: var(--bleu-700); }
+}
+
+// ══════════════════════════════════════
+//  Les réglages du bloc choisi
+// ══════════════════════════════════════
+
+.reglages {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--bleu-600);
+  border-radius: var(--r-md);
+  background: var(--paper-2);
+}
+
+.reglages__t {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--muted);
+}
+
+.reglages__aide {
+  margin: 0.6rem 0 0;
+  font-size: 0.79rem;
+  line-height: 1.55;
+  color: var(--muted);
+
+  &--fort {
+    display: flex;
+    gap: 0.45rem;
+    padding: 0.6rem 0.7rem;
+    border-radius: var(--r-sm);
+    background: var(--brand-tint);
+    color: var(--bleu-700);
+    i { flex-shrink: 0; margin-top: 0.12rem; }
+  }
+}
+
+.reglages__grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0 0.8rem;
+}
+
+/* Les trois provenances, décrites plutôt que nommées : « pour chaque
+   abonné » ne dit pas de lui-même que deux personnes recevront deux
+   lettres différentes, et c'est pourtant tout l'intérêt. */
+.reglages__sources {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.source {
+  display: block;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+
+  b { display: block; font-size: 0.81rem; font-weight: 600; color: var(--ink); }
+  span { display: block; margin-top: 0.15rem; font-size: 0.74rem; line-height: 1.45; color: var(--muted); }
+
+  &:hover { border-color: var(--bleu-500); }
+  &.is-on {
+    border-color: var(--bleu-600);
+    background: var(--brand-tint);
+    b { color: var(--bleu-700); }
+  }
+}
+
+.choisies {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.7rem;
+}
+
+.choisie {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.2rem 0.4rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--canvas);
+}
+
+.choisie__txt {
+  flex: 1;
+  min-width: 0;
+  b { display: block; font-size: 0.79rem; font-weight: 600; color: var(--ink); }
+  span { display: block; font-size: 0.72rem; color: var(--muted); }
+  b, span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+// ══════════════════════════════════════
+//  L'aperçu du rail
+// ══════════════════════════════════════
+
+.apercu {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--canvas);
+  overflow: hidden;
+}
+
+.apercu__tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.apercu__t {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--muted);
+}
+
+/* Un rond qui tourne pendant que le serveur recompose. Discret : le rendu
+   se rafraîchit à chaque frappe, un indicateur bruyant clignoterait sans
+   arrêt. */
+.apercu__sp {
+  width: 0.6rem;
+  height: 0.6rem;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--bleu-600);
+  border-radius: 50%;
+  animation: anl-tourne 0.7s linear infinite;
+}
+
+@keyframes anl-tourne { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .apercu__sp { animation: none; border-top-color: var(--line-strong); }
+}
+
+.apercu__qui {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+
+  > span {
+    font-size: 0.68rem;
+    color: var(--faint);
+    flex-shrink: 0;
+  }
+
+  select {
+    min-width: 0;
+    max-width: 9.5rem;
+    padding: 0.15rem 0.3rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-sm);
+    background: var(--canvas);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+  }
+}
+
+/* Le courriel fait 600 px de large ; le rail en fait moins de 400. On le
+   montre donc en réduction — c'est la structure qu'on surveille ici, et
+   « Voir en grand » ouvre le rendu à sa taille réelle. */
+.apercu__cadre {
+  position: relative;
+  height: 22rem;
+  overflow: hidden;
+  background: var(--nuage);
+}
+
+.apercu__vue {
+  width: 640px;
+  height: 36rem;
+  border: 0;
+  transform: scale(0.55);
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.apercu__loupe {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--canvas);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  box-shadow: var(--shadow-xs);
+
+  &:hover { border-color: var(--bleu-500); color: var(--bleu-700); }
+}
+
+.apercu__vide {
+  display: grid;
+  place-items: center;
+  gap: 0.4rem;
+  padding: 2.2rem 1rem;
+  text-align: center;
+  color: var(--faint);
+
+  i { font-size: 1.4rem; }
+  p { margin: 0; font-size: 0.78rem; line-height: 1.5; }
+}
+
+// ══════════════════════════════════════
+//  Le HTML d'avant, et le sélecteur d'offres
+// ══════════════════════════════════════
+
+.anl-ancien {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--paper-2);
+
+  > i { color: var(--muted); margin-top: 0.15rem; }
+  b { display: block; font-size: 0.82rem; color: var(--ink); }
+  p { margin: 0.2rem 0 0.55rem; font-size: 0.78rem; line-height: 1.55; color: var(--muted); }
+}
+
+.selecteur {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  padding: 0.2rem 0.1rem;
+}
+
+.selecteur__ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+
+  &.est-prise { background: var(--paper-2); }
+}
+
+.selecteur__txt {
+  flex: 1;
+  min-width: 0;
+  b { display: block; font-size: 0.83rem; font-weight: 600; color: var(--ink); }
+  span { display: block; font-size: 0.74rem; color: var(--muted); }
+}
+
+.selecteur__deja {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.73rem;
+  color: var(--bleu-700);
+  flex-shrink: 0;
 }
 
 .anl-set {
