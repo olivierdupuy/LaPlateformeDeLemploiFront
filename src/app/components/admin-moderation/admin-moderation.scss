@@ -121,6 +121,78 @@
   i { font-size: 0.85rem; color: var(--faint); }
 }
 
+/* ── Risque de fraude, et second avis ──
+   Le score des règles était calculé à l'entrée de chaque offre et
+   n'apparaissait nulle part. Il ordonne maintenant la file et se lit sur
+   la fiche, avec le motif qui l'a produit — un modérateur juge sur
+   pièces, pas sur un chiffre. */
+.oc-fraude {
+  margin-top: 0.85rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--paper-2);
+}
+
+.oc-fraude__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.oc-fraude__score {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.45rem;
+  border-radius: var(--r-full);
+  background: var(--canvas);
+  color: var(--muted);
+
+  /* Le seuil de mise en modération. Le mot « risque » reste écrit en
+     toutes lettres : la couleur ne porte jamais l'information seule. */
+  &.est-haut { color: var(--danger-600); }
+}
+
+.oc-fraude__motif {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.oc-fraude__demander {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+}
+
+.oc-fraude__avis {
+  margin: 0.6rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* Une phrase générée s'annonce comme telle : à côté d'une décision de
+   modération, la distinction entre une règle et une lecture automatique
+   n'est pas un détail. */
+.oc-fraude__ia {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.oc-fraude__absent {
+  margin: 0.6rem 0 0;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
 .oc-note {
   display: flex;
   align-items: flex-start;

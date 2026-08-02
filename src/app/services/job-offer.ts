@@ -9,6 +9,29 @@ export type BrowseSection = 'categories' | 'locations' | 'contractTypes';
 export interface BrowseFacet { label: string; count: number; }
 export interface BrowsePage { items: BrowseFacet[]; total: number; page: number; pageSize: number; }
 
+/**
+ * Ce que le serveur a tiré d'une recherche écrite en clair.
+ *
+ * `compris` est la version lisible, faite pour l'affichage ; les champs
+ * qui suivent sont la même chose sous forme exploitable, pour que
+ * l'interface puisse relancer la recherche sans une étiquette.
+ *
+ * `assiste` distingue une phrase relue par le modèle d'un filtre tiré
+ * d'une règle : les deux n'engagent pas de la même façon, et le candidat
+ * a le droit de savoir lequel il regarde.
+ */
+export interface RequeteComprise {
+  compris: string[];
+  metier: string | null;
+  contrat: string | null;
+  lieu: string | null;
+  rayonKm: number | null;
+  distanciel: boolean | null;
+  salaireAnnuelMinimum: number | null;
+  motsClefs: string[];
+  assiste: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class JobOfferService {
   private http = inject(HttpClient);
@@ -50,6 +73,21 @@ export class JobOfferService {
         items: resp.body ?? [],
         total: Number(resp.headers.get('X-Total-Count')) || (resp.body?.length ?? 0),
       })));
+  }
+
+  /**
+   * Ce que le serveur a compris de la recherche.
+   *
+   * La liste d'offres reste un tableau : y glisser un objet
+   * d'explication aurait cassé toutes les pages déjà servies le temps
+   * d'un déploiement. On interroge donc ce point d'entrée en parallèle,
+   * pour afficher les étiquettes — « alternance », « à moins de 25 km de
+   * Perpignan » — et laisser le candidat en retirer une. Un filtre
+   * appliqué sans être montré est un filtre qu'on ne peut pas contester.
+   */
+  comprendre(q: string): Observable<RequeteComprise> {
+    const params = new HttpParams().set('q', q);
+    return this.http.get<RequeteComprise>(`${this.apiUrl}/comprendre`, { params });
   }
 
   /** Autocompletion : suggestions de mots-cles ou de lieux. */

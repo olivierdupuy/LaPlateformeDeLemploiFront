@@ -211,6 +211,51 @@
               <div class="oc-note"><i class="bi bi-chat-left-text"></i><span>{{ o.moderationNote }}</span></div>
             }
 
+            <!-- ═══ Ce que les règles ont relevé, et un second avis ═══
+                 Le score de fraude était calculé à l'entrée de chaque
+                 offre et n'était affiché nulle part : la file se lisait
+                 dans l'ordre d'arrivée, ce qui revient à traiter en
+                 dernier le plus urgent dès qu'elle s'allonge. Elle est
+                 maintenant rangée par ce score, et le score se voit.
+
+                 L'avis du modèle se demande à la pièce. Il n'écrit rien,
+                 ne change aucun statut : approuver et rejeter restent des
+                 gestes humains, et c'est le score des règles qui fait
+                 foi. -->
+            @if (o.scoreFraude) {
+              <div class="oc-fraude">
+                <div class="oc-fraude__tete">
+                  <span class="oc-fraude__score" [class.est-haut]="o.scoreFraude >= 60">
+                    risque {{ o.scoreFraude }}/100
+                  </span>
+                  @if (o.motifFraude) { <span class="oc-fraude__motif">{{ o.motifFraude }}</span> }
+                </div>
+
+                @if (avisDe(o.id); as a) {
+                  @if (a.disponible && a.avis) {
+                    <p class="oc-fraude__avis">
+                      <span class="oc-fraude__ia">
+                        <i class="bi bi-stars" aria-hidden="true"></i>
+                        second avis — risque estimé {{ a.risque }}/100
+                      </span>
+                      {{ a.avis }}
+                    </p>
+                  } @else {
+                    <p class="oc-fraude__absent">
+                      Second avis indisponible : aucun modèle configuré, ou quota du jour atteint.
+                    </p>
+                  }
+                } @else {
+                  <button type="button" class="btn-ghost oc-fraude__demander"
+                          [disabled]="avisEnCours() === o.id"
+                          (click)="demanderAvis(o.id)">
+                    @if (avisEnCours() === o.id) { <span class="sp"></span> Lecture… }
+                    @else { <i class="bi bi-stars" aria-hidden="true"></i> Demander un second avis }
+                  </button>
+                }
+              </div>
+            }
+
             @if (rejectingId() === o.id) {
               <div class="reject-form form-group">
                 <label for="am-reject-note">Motif du rejet</label>

@@ -113,6 +113,25 @@
                 <div class="reco-info">
                   <strong>{{ r.title }}</strong>
                   <span>{{ r.company }} — {{ r.location }}</span>
+                  <!-- Le score n'a porté que sur une partie des critères :
+                       l'annonce ne dit ni son salaire, ni l'expérience
+                       attendue, ni le niveau de formation. Écrit en clair
+                       plutôt qu'en infobulle — une infobulle n'existe pas
+                       sur un écran tactile. -->
+                  @if (r.estimation) { <span class="reco-estim">estimation : l'annonce en dit peu</span> }
+                  <!-- Un score nu n'apprend rien. Ce sont les raisons qui
+                       portent l'information, et les réserves qui évitent
+                       la mauvaise surprise. -->
+                  @if (r.raisons?.length) {
+                    <ul class="reco-pour">
+                      @for (raison of r.raisons.slice(0, 3); track raison) { <li>{{ raison }}</li> }
+                    </ul>
+                  }
+                  @if (r.reserves?.length) {
+                    <ul class="reco-contre">
+                      @for (reserve of r.reserves.slice(0, 2); track reserve) { <li>{{ reserve }}</li> }
+                    </ul>
+                  }
                 </div>
                 <div class="reco-tags">
                   <span class="reco-contract">{{ r.contractType }}</span>

@@ -191,6 +191,39 @@
 <!-- ═══ RÉSULTATS — VUE SPLIT ═══ -->
 <section class="offers-page">
   <div class="container">
+
+    <!-- ═══ Ce qui a été compris de la phrase ═══
+         « développeur react alternance perpignan » ne part plus entier
+         dans un LIKE : le serveur en tire un métier, un contrat, un lieu,
+         et ne cherche en plein texte que ce qui reste. Ces filtres, le
+         candidat ne les a pas cochés — les appliquer sans les montrer
+         serait lui cacher pourquoi sa liste est ce qu'elle est.
+
+         Placé avant le branchement chargement/vide/résultats, et donc
+         visible aussi quand il n'y a aucun résultat : c'est justement là
+         qu'une déduction fautive doit pouvoir être défaite. -->
+    @if (comprise(); as c) {
+      <div class="compris animate-in">
+        <span class="compris__lbl">Compris&nbsp;:</span>
+        @for (etiquette of c.compris; track etiquette) {
+          <span class="compris__tag">{{ etiquette }}</span>
+        }
+        @if (c.assiste) {
+          <!-- Une phrase relue par le modèle n'a pas le même statut qu'un
+               filtre tiré d'une règle. Le dire, plutôt que de laisser
+               croire que le site « sait ». -->
+          <span class="compris__ia">
+            <i class="bi bi-stars" aria-hidden="true"></i> lecture assistée
+          </span>
+        }
+        @if (c.motsClefs.length) {
+          <button type="button" class="compris__brut" (click)="chercherLesMotsSeuls()">
+            Chercher les mots seulement
+          </button>
+        }
+      </div>
+    }
+
     @if (loading()) {
       <!-- Squelettes plutôt qu'un rond qui tourne : la page garde sa forme,
            et les vraies cartes se posent sans faire sauter la mise en page. -->

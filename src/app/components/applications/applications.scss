@@ -240,6 +240,54 @@
   i { font-size: 0.68rem; }
 }
 
+/* ── Correspondance au poste ──
+   Une rangée d'étiquettes sous le candidat, visible seulement quand une
+   offre est sélectionnée. Le pourcentage n'est jamais seul : les deux ou
+   trois critères qui le fondent l'accompagnent, parce que c'est sur eux
+   qu'une décision se prend et qu'ils sont ce qu'un candidat pourrait
+   légitimement demander à voir. */
+.ac-corr {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+}
+
+.ac-corr__pct {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--r-full);
+  background: var(--paper-2);
+  color: var(--muted);
+
+  /* La teinte double l'information, elle ne la porte pas : le chiffre
+     reste lisible sans elle. */
+  &.est-moyen { background: var(--amber-bg); color: var(--amber); }
+  &.est-fort { background: var(--green-bg); color: var(--green); }
+}
+
+.ac-corr__est,
+.ac-corr__nul {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.ac-corr__pour,
+.ac-corr__contre {
+  font-size: 0.68rem;
+  line-height: 1.3;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--r-full);
+}
+
+.ac-corr__pour { background: var(--brand-tint); color: var(--brand-700); }
+.ac-corr__contre { background: var(--paper-2); color: var(--muted); }
+
 .ac-status {
   font-family: var(--font-mono);
   font-size: 0.66rem;

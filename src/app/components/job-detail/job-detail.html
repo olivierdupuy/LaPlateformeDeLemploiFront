@@ -75,6 +75,64 @@
       <!-- ═══ BODY ═══ -->
       <div class="jd-body">
         <main class="jd-content">
+
+          <!-- ═══ Ce que cette offre vaut pour vous ═══
+               Placé avant les détails du poste : c'est la question que le
+               candidat se pose en arrivant, et y répondre par un chiffre
+               seul ne l'aiderait pas. Le score vient donc avec ce qui le
+               fonde et ce qui le nuance — un critère qu'on peut lire est
+               un critère qu'on peut contester.
+
+               Absent pour un visiteur non connecté, un recruteur, ou un
+               profil qui ne dit rien d'exploitable. -->
+          @if (correspondance(); as c) {
+            <section class="jd-card jd-corr animate-in" style="animation-delay:.06s">
+              <div class="corr-head">
+                <div class="corr-score" [class.est-fort]="c.score >= 70" [class.est-moyen]="c.score >= 45 && c.score < 70">
+                  {{ c.score }}<small>%</small>
+                </div>
+                <div class="corr-titre">
+                  <h2 class="jd-card-title">Correspondance avec votre profil</h2>
+                  @if (c.estimation) {
+                    <p class="corr-nuance">
+                      Estimation : cette annonce ne dit pas tout (salaire, expérience, formation),
+                      le calcul n'a porté que sur {{ c.fiabilite }} % des critères.
+                    </p>
+                  }
+                </div>
+              </div>
+
+              <!-- La phrase rédigée, quand le modèle a pu la produire.
+                   Signalée comme telle : elle ne dit rien de plus que les
+                   listes ci-dessous, et elle n'engage pas pareil. -->
+              @if (c.resume) {
+                <p class="corr-resume">
+                  {{ c.resume }}
+                  <span class="corr-ia"><i class="bi bi-stars" aria-hidden="true"></i> synthèse automatique</span>
+                </p>
+              }
+
+              <div class="corr-listes">
+                @if (c.raisons.length) {
+                  <div>
+                    <h3>Ce qui correspond</h3>
+                    <ul class="corr-pour">
+                      @for (raison of c.raisons; track raison) { <li>{{ raison }}</li> }
+                    </ul>
+                  </div>
+                }
+                @if (c.reserves.length) {
+                  <div>
+                    <h3>À savoir</h3>
+                    <ul class="corr-contre">
+                      @for (reserve of c.reserves; track reserve) { <li>{{ reserve }}</li> }
+                    </ul>
+                  </div>
+                }
+              </div>
+            </section>
+          }
+
           <!-- Détails de l'emploi -->
           <section class="jd-card animate-in" style="animation-delay:.1s">
             <h2 class="jd-card-title">Détails de l'emploi</h2>

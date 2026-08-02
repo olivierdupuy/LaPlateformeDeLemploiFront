@@ -113,6 +113,121 @@
   letter-spacing: -0.02em; margin-bottom: 1.35rem;
 }
 
+// ══════════════════════════════════════
+//  Correspondance avec le profil
+// ══════════════════════════════════════
+//
+// Le chiffre est gros parce que c'est la question qu'on se pose en
+// arrivant, et il est immediatement suivi de ce qui le fonde parce
+// qu'un chiffre seul n'aide personne a decider. Les deux colonnes
+// « ce qui correspond » / « a savoir » se lisent d'un coup d'oeil et
+// nomment chacune un critere que le candidat peut contester.
+
+.jd-corr {
+  .jd-card-title { margin-bottom: 0.2rem; }
+}
+
+.corr-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.1rem;
+}
+
+.corr-score {
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  min-width: 78px;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--r-md);
+  background: var(--paper-2);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 1.7rem;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1;
+
+  small { font-size: 0.85rem; font-weight: 500; margin-left: 0.1rem; }
+
+  // Trois paliers, mais jamais la couleur seule : le chiffre lui-meme
+  // porte l'information, la teinte ne fait que la doubler.
+  &.est-moyen { background: var(--amber-bg); color: var(--amber); }
+  &.est-fort { background: var(--green-bg); color: var(--green); }
+}
+
+.corr-titre { min-width: 0; }
+
+.corr-nuance {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.corr-resume {
+  margin: 1.1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-left: 2px solid var(--brand);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  background: var(--brand-tint);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+// Une phrase generee n'a pas le statut d'un critere calcule. On le dit,
+// avec une icone et un mot : la couleur seule ne suffirait pas.
+.corr-ia {
+  display: block;
+  margin-top: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.corr-listes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.1rem 1.75rem;
+  margin-top: 1.25rem;
+
+  h3 {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--muted);
+    margin: 0 0 0.5rem;
+  }
+
+  ul { list-style: none; margin: 0; padding: 0; font-size: 0.85rem; line-height: 1.55; }
+
+  li {
+    position: relative;
+    padding-left: 1rem;
+    &::before { position: absolute; left: 0; font-weight: 700; }
+  }
+}
+
+.corr-pour li {
+  color: var(--ink-soft);
+  &::before { content: '+'; color: var(--brand); }
+}
+
+.corr-contre li {
+  color: var(--muted);
+  &::before { content: '−'; color: var(--amber); }
+}
+
+@media (max-width: 520px) {
+  .corr-head { flex-direction: column; gap: 0.7rem; }
+}
+
 // ── Facts grid ──
 // `auto-fit` plutot que trois colonnes fixes : sur un gabarit large, huit
 // faits tenaient sur trois rangees dont la derniere a moitie vide.

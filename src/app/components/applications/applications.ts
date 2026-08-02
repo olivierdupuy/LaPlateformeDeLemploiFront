@@ -45,7 +45,7 @@ export class Applications implements OnInit {
      trie « les candidatures en attente pour ce poste ». */
   query = signal('');
   offerFilter = signal<number | ''>('');
-  sort = signal<'recent' | 'old' | 'name' | 'status'>('recent');
+  sort = signal<'recent' | 'old' | 'name' | 'status' | 'correspondance'>('recent');
 
   /** Les offres reellement representees dans les candidatures recues. */
   offers = computed(() => {
@@ -57,6 +57,43 @@ export class Applications implements OnInit {
     }
     return [...seen].map(([id, title]) => ({ id, title }));
   });
+
+  /* ═══ Correspondance avec le poste ═══
+     Un score de correspondance n'a de sens que face à une offre précise :
+     comparer un candidat d'une annonce de plombier à un candidat d'une
+     annonce de comptable ne veut rien dire. On ne le charge donc que
+     lorsque le recruteur a choisi une offre, et le tri « correspondance »
+     n'apparaît qu'à ce moment-là.
+
+     Le serveur ne trie ni n'écarte : il rend un score, ses raisons et ses
+     réserves pour chaque candidature. Le classement reste un geste du
+     recruteur — une liste rangée d'office par un score caché est une
+     liste dont les derniers ne sont jamais lus. */
+  correspondances = signal<Map<number, { score: number | null; fiabilite: number; estimation: boolean; raisons: string[]; reserves: string[] }>>(new Map());
+
+  correspondance(id: number) {
+    return this.correspondances().get(id) ?? null;
+  }
+
+  private chargerCorrespondances(offreId: number | '') {
+    if (offreId === '') {
+      this.correspondances.set(new Map());
+      if (this.sort() === 'correspondance') this.sort.set('recent');
+      return;
+    }
+
+    this.appService.getCorrespondances(offreId).subscribe({
+      next: (lignes) => this.correspondances.set(
+        new Map(lignes.map((l) => [l.candidatureId, l]))),
+      // Sans correspondances, la page reste exactement ce qu'elle était.
+      error: () => this.correspondances.set(new Map()),
+    });
+  }
+
+  choisirOffre(valeur: number | '') {
+    this.offerFilter.set(valeur);
+    this.chargerCorrespondances(valeur);
+  }
 
   /** Ordre des statuts dans le parcours, pour le tri « par avancement ». */
   private readonly ORDRE: Record<string, number> = { Pending: 0, Reviewed: 1, Accepted: 2, Rejected: 3 };
@@ -83,6 +120,12 @@ export class Applications implements OnInit {
         case 'old': return +new Date(a.appliedAt) - +new Date(b.appliedAt);
         case 'name': return (a.fullName ?? '').localeCompare(b.fullName ?? '', 'fr');
         case 'status': return (this.ORDRE[a.status] ?? 9) - (this.ORDRE[b.status] ?? 9);
+        // Une candidature sans score — profil non renseigné, dépôt sans
+        // compte — passe en fin de liste plutôt que d'être traitée comme
+        // un zéro : c'est une absence d'information, pas un mauvais
+        // dossier, et elle reste visible.
+        case 'correspondance':
+          return (this.correspondance(b.id)?.score ?? -1) - (this.correspondance(a.id)?.score ?? -1);
         default: return +new Date(b.appliedAt) - +new Date(a.appliedAt);
       }
     });
@@ -93,7 +136,7 @@ export class Applications implements OnInit {
 
   clearFilters() {
     this.filterStatus = '';
-    this.offerFilter.set('');
+    this.choisirOffre('');
     this.query.set('');
   }
 

@@ -4,6 +4,22 @@ import { Observable } from 'rxjs';
 import { Application } from '../models/job-offer.model';
 import { environment } from '../../environments/environment';
 
+/**
+ * Ce qu'une candidature vaut face à l'offre à laquelle elle répond.
+ *
+ * `score` est nul pour une candidature déposée sans compte : il n'y a ni
+ * compétences ni parcours à comparer, et c'est une absence d'information,
+ * pas un mauvais dossier.
+ */
+export interface CorrespondanceCandidature {
+  candidatureId: number;
+  score: number | null;
+  fiabilite: number;
+  estimation: boolean;
+  raisons: string[];
+  reserves: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApplicationService {
   private http = inject(HttpClient);
@@ -15,6 +31,20 @@ export class ApplicationService {
 
   getByJobOffer(jobOfferId: number): Observable<Application[]> {
     return this.http.get<Application[]>(`${this.apiUrl}/job/${jobOfferId}`);
+  }
+
+  /**
+   * Ce que chaque candidature vaut face à cette offre, et pourquoi.
+   *
+   * Rendu à part de la liste, qui reste un tableau d'`Application` : le
+   * serveur peut ainsi être déployé avant le front sans casser la page.
+   * Le serveur ne trie pas et n'écarte personne — il rend un score, ses
+   * raisons et ses réserves, et le classement reste un geste du
+   * recruteur.
+   */
+  getCorrespondances(jobOfferId: number): Observable<CorrespondanceCandidature[]> {
+    return this.http.get<CorrespondanceCandidature[]>(
+      `${this.apiUrl}/job/${jobOfferId}/correspondances`);
   }
 
   trackMy(): Observable<Application[]> {

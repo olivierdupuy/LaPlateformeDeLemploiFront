@@ -50,7 +50,7 @@
             <span class="ffield__lbl">Offre</span>
             <select aria-label="Filtrer par offre"
                     [ngModel]="offerFilter()"
-                    (ngModelChange)="offerFilter.set($event === '' ? '' : +$event)">
+                    (ngModelChange)="choisirOffre($event === '' ? '' : +$event)">
               <option value="">Toutes</option>
               @for (o of offers(); track o.id) { <option [value]="o.id">{{ o.title }}</option> }
             </select>
@@ -64,6 +64,9 @@
             <option value="old">Plus anciennes</option>
             <option value="name">Nom du candidat</option>
             <option value="status">Avancement</option>
+            <!-- Un score n'a de sens que face à une offre précise :
+                 l'option n'existe qu'une fois l'offre choisie. -->
+            @if (offerFilter() !== '') { <option value="correspondance">Correspondance au poste</option> }
           </select>
         </label>
 
@@ -126,6 +129,33 @@
                       <strong>{{ app.fullName }}</strong>
                       <span class="ac-email">{{ app.email }}</span>
                       @if (app.phone) { <span class="ac-phone"><i class="bi bi-telephone"></i> {{ app.phone }}</span> }
+
+                      <!-- ═══ Correspondance au poste ═══
+                           Le score vient avec ce qui le fonde : personne
+                           n'écarte quelqu'un sur un chiffre dont il ignore
+                           l'origine, et le candidat aurait le droit de
+                           demander sur quoi il a été jugé.
+
+                           Rien n'est masqué ni relégué automatiquement :
+                           un score bas s'affiche comme les autres. -->
+                      @if (correspondance(app.id); as c) {
+                        <span class="ac-corr">
+                          @if (c.score === null) {
+                            <span class="ac-corr__nul">profil non renseigné</span>
+                          } @else {
+                            <span class="ac-corr__pct"
+                                  [class.est-fort]="c.score >= 70"
+                                  [class.est-moyen]="c.score >= 45 && c.score < 70">{{ c.score }}%</span>
+                            @if (c.estimation) { <span class="ac-corr__est">estim.</span> }
+                            @for (raison of c.raisons.slice(0, 2); track raison) {
+                              <span class="ac-corr__pour">{{ raison }}</span>
+                            }
+                            @for (reserve of c.reserves.slice(0, 1); track reserve) {
+                              <span class="ac-corr__contre">{{ reserve }}</span>
+                            }
+                          }
+                        </span>
+                      }
                     </div>
                   </div>
                   <div class="ac-status-col">

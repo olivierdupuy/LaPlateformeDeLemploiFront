@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { Subject, debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { JobOfferService } from '../../services/job-offer';
+import { JobOfferService, RequeteComprise } from '../../services/job-offer';
 import { BookmarkService } from '../../services/bookmark.service';
 import { SearchHistoryService } from '../../services/search-history.service';
 import { ApplicationService } from '../../services/application';
@@ -171,12 +171,59 @@ export class JobList implements OnInit {
     return filters;
   }
 
+  /**
+   * Ce que le serveur a compris de la phrase tapée.
+   *
+   * « développeur react alternance perpignan » n'est plus envoyé tel quel
+   * à un `LIKE` : le serveur en tire un métier, un contrat, un lieu, et
+   * ne cherche en plein texte que ce qui reste. Ces filtres-là, le
+   * candidat ne les a pas cochés — il faut donc les lui montrer, et lui
+   * permettre de les retirer.
+   */
+  comprise = signal<RequeteComprise | null>(null);
+
+  /**
+   * Ne chercher que les mots, sans les déductions.
+   *
+   * Le serveur ne déduit un filtre que si le paramètre explicite est
+   * absent : neutraliser une déduction revient donc à retirer son mot de
+   * la phrase. On remplace la recherche par les seuls mots-clés, ce qui
+   * a l'avantage de rendre la barre de recherche exacte — elle montre
+   * alors précisément ce qui est cherché.
+   *
+   * Volontairement global, et pas une croix par étiquette : les
+   * étiquettes viennent du serveur sous forme de phrases, sans lien vers
+   * le mot qui les a produites. Une croix par étiquette laisserait croire
+   * à un retrait ciblé qu'elle ne sait pas faire. Pour n'en retirer
+   * qu'une, la barre de recherche est juste au-dessus.
+   */
+  chercherLesMotsSeuls() {
+    const c = this.comprise();
+    if (!c) return;
+
+    this.search = c.motsClefs.join(' ');
+    this.comprise.set(null);
+    this.loadJobs();
+  }
+
   loadJobs() {
     this.loading.set(true);
     this.page = 1;
     if (this.search) this.searchHistory.add(this.search);
     const filters = this.buildFilters();
     filters.page = 1;
+
+    // En parallèle de la recherche, pas avant : la liste ne doit pas
+    // attendre l'explication pour s'afficher, et l'explication n'est pas
+    // indispensable à la liste.
+    if (this.search) {
+      this.jobService.comprendre(this.search).subscribe({
+        next: (c) => this.comprise.set(c.compris?.length ? c : null),
+        error: () => this.comprise.set(null),
+      });
+    } else {
+      this.comprise.set(null);
+    }
 
     this.relevanceFeedback.set(null);
     this.alertSaved.set(false);

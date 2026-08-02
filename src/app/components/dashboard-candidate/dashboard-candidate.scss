@@ -210,8 +210,13 @@
 
 .reco-grid { display: flex; flex-direction: column; gap: 0.35rem; }
 
+/* La ligne portait un titre et une entreprise ; elle porte maintenant
+   aussi ce qui fonde le score. Un score nu n'apprend rien au candidat et
+   n'autorise personne à décider quoi que ce soit : ce sont les raisons
+   qui portent l'information. D'où l'alignement en haut — la pastille
+   reste à hauteur du titre pendant que le corps s'allonge. */
 .reco-item {
-  display: flex; align-items: center; gap: 0.95rem; padding: 0.7rem 0.85rem;
+  display: flex; align-items: flex-start; gap: 0.95rem; padding: 0.7rem 0.85rem;
   border-radius: var(--r-md); color: inherit;
   transition: background var(--t);
   &:hover {
@@ -231,6 +236,45 @@
   flex: 1; min-width: 0;
   strong { font-size: 0.9rem; display: block; font-weight: 600; transition: color var(--t); }
   span { font-size: 0.76rem; color: var(--muted); }
+}
+
+/* La nuance du chiffre, en clair. */
+.reco-estim {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+/* Ce qui plaide pour, ce qui plaide contre.
+   Deux listes plutôt qu'une phrase : chaque élément est un critère
+   distinct, et le candidat doit pouvoir contester celui qui le concerne.
+   Pas de puce ronde — la marque tient lieu de puce et distingue les deux
+   registres sans recourir à la seule couleur. */
+.reco-pour,
+.reco-contre {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+
+  li {
+    position: relative;
+    padding-left: 0.85rem;
+    &::before { position: absolute; left: 0; font-weight: 700; }
+  }
+}
+
+.reco-pour li {
+  color: var(--ink-soft);
+  &::before { content: '+'; color: var(--brand); }
+}
+
+.reco-contre li {
+  color: var(--muted);
+  &::before { content: '−'; color: var(--amber); }
 }
 .reco-tags { display: flex; gap: 0.35rem; flex-shrink: 0; }
 .reco-contract {

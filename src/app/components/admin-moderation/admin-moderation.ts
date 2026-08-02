@@ -180,6 +180,42 @@ export class AdminModeration implements OnInit {
   }
   reviewStars(n: number): number[] { return Array.from({ length: n }, (_, i) => i); }
 
+  /* ═══ Second avis sur une offre douteuse ═══
+     Les règles de `QualiteCatalogue` reconnaissent des motifs : demande
+     d'argent, coordonnées bancaires, messagerie privée. Elles ne savent
+     pas lire une annonce dont chaque phrase est anodine et dont
+     l'ensemble ne tient pas debout.
+
+     À la demande, une offre à la fois, quand le modérateur ouvre la
+     fiche. Pas au chargement de la file : elle peut compter cent entrées,
+     et cent appels par ouverture d'écran videraient le quota du jour
+     avant midi.
+
+     L'avis n'écrit rien et ne décide rien. Approuver et rejeter restent
+     des gestes humains. */
+  avis = signal<Map<number, { risque: number | null; avis: string | null; disponible: boolean }>>(new Map());
+  avisEnCours = signal<number | null>(null);
+
+  avisDe(id: number) { return this.avis().get(id) ?? null; }
+
+  demanderAvis(id: number) {
+    if (this.avisEnCours() !== null || this.avis().has(id)) return;
+    this.avisEnCours.set(id);
+
+    this.admin.avisModeration(id).subscribe({
+      next: (a) => {
+        this.avis.update((m) => new Map(m).set(id, a));
+        this.avisEnCours.set(null);
+      },
+      // Modèle non configuré, quota atteint, API tombée : l'écran se
+      // passe de lui et le dit, plutôt que de laisser un bouton tourner.
+      error: () => {
+        this.avis.update((m) => new Map(m).set(id, { risque: null, avis: null, disponible: false }));
+        this.avisEnCours.set(null);
+      },
+    });
+  }
+
   approve(id: number) {
     this.admin.approveOffer(id).subscribe(() => {
       this.toastr.success('Offre approuvée');

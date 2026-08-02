@@ -8,7 +8,7 @@ import { CompanyReviewService } from '../../services/company-review.service';
 import { SalaryService } from '../../services/salary.service';
 import * as L from 'leaflet';
 import { BookmarkService } from '../../services/bookmark.service';
-import { CandidateFeaturesService } from '../../services/candidate-features.service';
+import { CandidateFeaturesService, CorrespondanceEtablie } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
 import { PlatformService } from '../../services/platform.service';
 import { SeoService } from '../../services/seo.service';
@@ -60,6 +60,16 @@ export class JobDetail implements OnInit {
    * refera pas.
    */
   candidaturesDeposees = signal<number | null>(null);
+
+  /**
+   * Ce que vaut cette offre pour le candidat connecté, et pourquoi.
+   *
+   * Reste nul pour un visiteur non connecté, un recruteur, ou un profil
+   * qui ne dit rien d'exploitable : afficher « 0 % » à quelqu'un dont on
+   * ne sait rien ressemblerait à un verdict alors que c'est une absence
+   * de données.
+   */
+  correspondance = signal<CorrespondanceEtablie | null>(null);
 
   /** Le recruteur exige un CV, et le profil n'en porte aucun. */
   get cvManquant(): boolean {
@@ -180,6 +190,15 @@ export class JobDetail implements OnInit {
         }
         if (this.auth.isLoggedIn() && this.auth.currentUser()?.role === 'Candidate') {
           this.candidateService.getNote(job.id).subscribe(n => { if (n.content) { this.noteContent = n.content; this.showNote.set(true); } });
+
+          // La correspondance arrive après la page, jamais avant : le
+          // serveur peut y ajouter une synthèse rédigée, et une page
+          // d'offre ne doit pas attendre un modèle de langage pour
+          // s'afficher. Une erreur laisse simplement le bloc absent.
+          this.candidateService.getCorrespondance(job.id).subscribe({
+            next: (c) => this.correspondance.set(c?.applicable ? c : null),
+            error: () => this.correspondance.set(null),
+          });
         }
       },
       error: () => {

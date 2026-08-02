@@ -3,6 +3,22 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+/**
+ * Le second avis du modèle sur une offre en modération.
+ *
+ * `disponible` vaut faux quand aucun modèle n'est configuré, que le quota
+ * du jour est atteint, ou que l'appel a échoué : l'écran s'en passe alors,
+ * sans erreur. `scoreRegles` et `motifRegles` sont rappelés à côté parce
+ * que ce sont eux qui ont mis l'offre dans la file, et eux qui font foi.
+ */
+export interface AvisModeration {
+  disponible: boolean;
+  risque: number | null;
+  avis: string | null;
+  scoreRegles: number;
+  motifRegles: string | null;
+}
+
 /** Un modèle de courriel transactionnel, tel que l'admin le liste. */
 export interface ModeleCourriel {
   cle: string;
@@ -92,6 +108,18 @@ export class AdminService {
     let p = new HttpParams();
     if (status) p = p.set('status', status);
     return this.http.get<any[]>(`${this.api}/moderation`, { params: p });
+  }
+
+  /**
+   * Le second avis du modèle sur une offre douteuse.
+   *
+   * N'écrit rien et ne décide rien : il argumente à côté du score des
+   * règles, qui reste ce qui fait foi. Renvoie `disponible: false` quand
+   * aucun modèle n'est configuré ou que le quota du jour est atteint —
+   * l'écran s'en passe alors, sans erreur.
+   */
+  avisModeration(id: number): Observable<AvisModeration> {
+    return this.http.get<AvisModeration>(`${this.api}/moderation/${id}/avis`);
   }
 
   approveOffer(id: number): Observable<any> {
