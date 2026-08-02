@@ -211,26 +211,6 @@ jobs:
 
             </system.webServer>
 
-            <!-- ── Les jetons de validation du certificat ──
-                 Les trois regles de reecriture epargnent deja ce chemin,
-                 mais cela ne suffisait pas : un jeton ACME est un fichier
-                 SANS EXTENSION, et IIS refuse de servir ce qu'il ne sait
-                 pas nommer. Le fichier existait, la reecriture le laissait
-                 passer, et le module statique rendait 404.3 — l'autorite
-                 de certification lisait donc une erreur la ou elle
-                 attendait le jeton.
-                 « fileExtension="." » designe precisement les fichiers
-                 sans extension. Le « clear » ne vaut que dans ce dossier,
-                 qui ne contient jamais autre chose que des jetons. -->
-            <location path=".well-known/acme-challenge">
-              <system.webServer>
-                <staticContent>
-                  <clear />
-                  <mimeMap fileExtension="." mimeType="text/plain" />
-                </staticContent>
-              </system.webServer>
-            </location>
-
             <!-- « index.html » fait exception et ne doit jamais etre
                  garde : c'est lui qui designe les fichiers haches. Mis
                  en cache, il continuerait de reclamer la version
