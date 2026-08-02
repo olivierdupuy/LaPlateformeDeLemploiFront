@@ -544,25 +544,44 @@ en conservant le chemin, et laisse passer `/.well-known/acme-challenge/`
 — sans quoi le certificat ne pourrait jamais être validé, la validation
 étant justement ce qui se fait en clair.
 
-**Ce qui reste, dans cet ordre — l'ordre compte :**
+**Révisé le 2026-08-02.** Ce qui suit corrige trois erreurs de la version
+précédente : l'ordre des étapes, la façon d'obtenir le certificat, et un
+obstacle qui n'avait pas été vu.
 
-1. **DNS** : l'enregistrement A de l'apex passe de `217.70.184.38` à
-   `162.19.96.47`. C'est ce qui amène enfin le trafic sur le serveur.
-2. **Liaison IIS** : ajouter le nom d'hôte `laplateformedelemploi.com`
-   sur le port 80 du site front. Sans elle, la validation du certificat
-   à l'étape suivante n'a nulle part où répondre.
-3. **Certificat** : le certificat actuel est mutualisé entre plusieurs
-   domaines du serveur et couvre `www.` et `api.`, **pas l'apex**.
-   Ajouter `laplateformedelemploi.com` à la liste du renouvellement
-   win-acme et relancer ; la liaison 443 se crée avec.
+**L'obstacle, d'abord.** Un jeton ACME est un fichier *sans extension*, et
+IIS refuse de servir ce qu'il ne sait pas nommer : le module statique
+rendait 404.3 alors même que les règles de réécriture épargnaient le
+chemin. Aucune émission ni aucun renouvellement n'aurait pu aboutir.
+Corrigé par `public/.well-known/acme-challenge/web.config`, et le test de
+fumée du déploiement lit désormais un témoin à chaque mise en ligne.
+
+*Une première correction posait ce réglage dans un bloc `location` du
+`web.config` racine : IIS l'a refusé et le site entier a rendu 500
+pendant 3 min 12 s. Le réglage était bon, sa portée ne l'était pas.*
+
+**L'ordre s'inverse.** La redirection de l'apex **préserve le chemin** —
+vérifié, avec et sans chaîne de requête — et une validation HTTP-01 suit
+les redirections. Le jeton déposé dans la racine de `www` répond donc
+pour le nom nu, **sans toucher au DNS**. Le certificat s'obtient en
+premier, et la fenêtre d'avertissement décrite ici auparavant n'existe
+pas : elle n'était pas inévitable, elle était le produit du mauvais ordre.
+
+1. **Certificat** : `outils/certificat-apex.ps1` sur le serveur. Il émet
+   un certificat **séparé** ne portant que le nom nu, et refuse d'agir
+   tant que le témoin ne répond pas. *Ne pas étendre le certificat
+   mutualisé comme le recommandait la version précédente : il couvre huit
+   sites de la machine, et le réémettre ferait courir un risque à sept
+   sites qui n'ont rien demandé. Le SNI permet un certificat par nom.*
+2. **DNS** : l'enregistrement A de l'apex passe de `217.70.184.38` à
+   `162.19.96.47`.
+3. **Liaisons IIS** : le nom d'hôte `laplateformedelemploi.com` sur les
+   ports 80 et 443 du site front, avec le certificat de l'étape 1.
 4. **Vérifier** : `curl -I https://laplateformedelemploi.com/offres`
    doit rendre un 301 vers `https://www.laplateformedelemploi.com/offres`.
 
-Entre l'étape 1 et l'étape 3 il existe une courte fenêtre où
-`https://` sur l'apex présente un certificat qui ne le couvre pas —
-un avertissement de navigateur plutôt qu'une absence de réponse. Elle
-est inévitable : Let's Encrypt ne délivre pas de certificat pour un nom
-qui ne pointe pas encore sur le serveur qu'il doit valider.
+À aucun moment le site n'est plus dégradé qu'aujourd'hui : entre les
+étapes 2 et 3, `https://` sur l'apex ne répond pas — l'état actuel — et
+`http://` garde sa redirection.
 
 *Variante sans travail serveur : activer la redirection HTTPS chez le
 fournisseur du service de redirection, qui la propose généralement. Cela
@@ -572,14 +591,39 @@ pourquoi l'apex se comporte ainsi ne la trouvera pas.*
 
 ## 3. Attend que la production tourne
 
-- [ ] **Index SQL** révélés par le journal des requêtes lentes, une fois
-      qu'il aura tourné quelques jours en production. Poser des index
-      avant d'avoir mesuré, c'est deviner — et un index inutile coûte à
-      chaque écriture.
+- [x] ✅ **Premier index posé après mesure** — le relevé des requêtes
+      lentes, mis en service le 2026-08-02, a immédiatement attrapé une
+      recherche d'offres à 1 554 ms. `IX_JobOffers_Recherche` et la
+      recherche en deux temps ramènent « developpeur » de 5 031 ms à
+      460 ms. En cherchant pourquoi, on a aussi découvert que la base
+      était collationnée sensible aux accents : le même mot tapé sans
+      accent rendait 9 offres au lieu de 71.
+- [ ] **Les suivants**, quand le relevé aura tourné quelques jours en
+      production. Poser un index avant d'avoir mesuré, c'est deviner — et
+      un index inutile coûte à chaque écriture.
 
 ## 4. Attend du travail
 
-Rien.
+**Ce document seul ne le dit pas.** Il couvre l'industrialisation — mise
+en production, sécurité, performance, conformité — et pour ce périmètre
+la phrase reste vraie.
+
+Les fonctionnalités, elles, vivent dans `TODO-ESPACES.md`, qui compte
+**dix-huit points ouverts** au 2026-08-02 : sept dans l'espace candidat,
+neuf dans l'espace recruteur, deux transverses. Jusqu'à cette date ce
+document annonçait « Rien » sans renvoyer nulle part, ce qui laissait
+croire qu'il ne restait plus rien à écrire dans toute l'application.
+
+Les trois points **P0 de l'espace candidat sont clos** : « Mes
+candidatures » à onglets comptés, archivage, compteurs. Vérifiés de bout
+en bout le 2026-08-02.
+
+Le prochain lot fonctionnel, par ordre de ce qu'il rapporte au candidat :
+la **date de consultation** (l'étape existe, la date manque, l'API la
+renvoie déjà), « **cette offre n'est plus disponible** », puis les
+**préférences d'emploi** et leur restitution sur la fiche offre — c'est
+la paire qui rend les préférences utiles, l'une sans l'autre ne sert à
+rien.
 
 *Deux points d'accessibilité restent hors de portée d'un outil, et le
 resteront : la **vérification manuelle au clavier** des trois tunnels

@@ -58,20 +58,33 @@ lui dit où il en est. Le recruteur, lui, a désormais sa console.
       recherches, CV, profil, messagerie). `ConsoleShell` choisit l'espace
       selon le rôle : les pages partagées (Entretiens, Messagerie, Profil)
       n'ont rien à déclarer.
-- [ ] **Regrouper en une page « Mes candidatures »** à onglets comptés :
-      *Enregistrées · Envoyées · Entretiens · Archivées*. Aujourd'hui
-      `/favoris`, `/suivi` et `/entretiens` sont trois pages sans lien entre
-      elles.
-- [ ] **Onglet Archivées + action « Archiver »** — n'existe pas. Sans lui, une
-      candidature refusée pollue la liste pour toujours.
-- [ ] **Compteurs dans les onglets** (« 3 Envoyées ») : l'état se lit sans
-      cliquer.
+- [x] ✅ **Regrouper en une page « Mes candidatures »** à onglets comptés :
+      *Enregistrées · Envoyées · Entretiens · Archivées*. `/favoris` et
+      `/suivi` ouvrent la même page sur l'onglet voulu ; l'onglet actif vit
+      dans `?onglet=`, pour qu'un lien soit partageable et que le retour
+      arrière fonctionne. `/entretiens` garde sa page propre en plus de
+      l'onglet — c'est la seule des trois qui a du contenu à elle.
+- [x] ✅ **Onglet Archivées + action « Archiver »** — `PATCH
+      /applications/{id}/archive`, ouvert au candidat sur ses seules
+      candidatures (`ApplicationsController`), bouton sur chaque ligne.
+- [x] ✅ **Compteurs dans les onglets** — `tabCounts`, recalculés à chaque
+      archivage sans rechargement.
+
+*Livré le 2026-08-01 (`40a7cd2`). Vérifié de bout en bout le 2026-08-02 :
+archivage appelé sous l'identité d'un candidat, compteurs mis à jour.*
+
+La page va plus loin que le point demandé : filtres par statut, recherche
+par poste ou employeur, chemin de progression par candidature
+(Envoyée → Consultée → Entretien → Réponse), signalement des candidatures
+sans réponse depuis plus de deux semaines, et relance.
 
 ### P1 — signaux au candidat
 
-- [ ] **« Votre candidature a été consultée »** : le statut `Reviewed` existe
-      côté recruteur mais n'est pas restitué comme un signal daté côté
-      candidat.
+- [ ] **« Votre candidature a été consultée »** — *à moitié fait.* L'étape
+      « Consultée » du chemin de progression s'allume bien à partir de
+      `reviewedAt`, mais **sans la date**. Or c'est la date qui informe :
+      « consultée il y a deux jours » et « consultée il y a six semaines »
+      ne se vivent pas de la même façon, et l'API renvoie déjà le champ.
 - [ ] **« Cette offre n'est plus disponible »** sur une candidature dont
       l'offre a été fermée ou a expiré.
 - [ ] **Invitations reçues** : quand un recruteur invite un profil du vivier à
@@ -106,8 +119,9 @@ Entretiens). Restent des écarts de **profondeur**, pas de navigation.
 
 - [x] ✅ **Messagerie dans la sous-navigation** du recruteur — onglet de
       premier rang, comme chez Indeed.
-- [ ] **Pipeline à six statuts**. Nous en avons quatre (`Pending`, `Reviewed`,
-      `Accepted`, `Rejected`). Manquent :
+- [ ] **Pipeline à six statuts**. Nous en avons cinq — `Pending`, `Reviewed`,
+      `Interview`, `Accepted`, `Rejected` — et non quatre comme l'annonçait
+      ce document jusqu'au 2026-08-02. Manquent :
       - **Contactée** — entre « examinée » et « acceptée », l'état réel de la
         plupart des candidatures ;
       - **Embauchée** — ferme la boucle et alimente le délai d'embauche.
