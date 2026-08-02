@@ -14,23 +14,28 @@
    est partout, il ne veut plus rien dire.
    ═══════════════════════════════════════════════════════════ */
 .ops {
+  /* Les libellés de section étaient à 11,5 px en « --muted », qui tient
+     exactement 4,50:1 sur le crème — le plancher de la norme, atteint au
+     centième près. Passer la norme de justesse à 11 px n'est pas être
+     lisible. Un cran plus grand, une encre deux fois plus contrastée. */
   h2 {
     font-family: var(--font-display);
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: var(--muted);
-    margin: 0 0 0.9rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+    margin: 0 0 1rem;
   }
 
   &__bloc {
-    margin-bottom: 2.4rem;
+    margin-bottom: 2.6rem;
+    max-width: var(--ops-mesure);
   }
 
   &__chapeau {
-    margin: -0.4rem 0 1rem;
-    font-size: 0.85rem;
+    margin: -0.5rem 0 1.1rem;
+    font-size: 0.88rem;
     line-height: 1.55;
     color: var(--muted);
     max-width: 62ch;
@@ -45,6 +50,7 @@
      n'utilise pas : son titre est dans la bande, il n'y a pas d'en-tête
      séparé à espacer. */
   &__verdict {
+    max-width: var(--ops-mesure);
     margin-top: clamp(1.15rem, 2.4vw, 1.7rem);
     display: flex;
     align-items: flex-start;
@@ -76,10 +82,10 @@
     gap: 0.5rem;
     margin: 0 0 0.55rem;
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: 0.68rem;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
     color: var(--on-dark-muted);
   }
 
@@ -173,7 +179,7 @@
 
   &__tache-nom {
     grid-area: nom;
-    font-size: 0.84rem;
+    font-size: 0.88rem;
     font-weight: 500;
     color: var(--ink);
     overflow-wrap: anywhere;
@@ -181,13 +187,19 @@
 
   /* Le rail garde toujours la même longueur : c'est la comparaison
      entre les lignes qui informe, pas la largeur absolue. */
+  /* Le rail vide était « --nuage-2 » sur le crème : 1,11:1. Autant dire
+     invisible — on voyait le remplissage flotter sans savoir sur quelle
+     longueur il se rapporte, ce qui retire à la jauge tout son sens.
+     Aucun ton chaud de la palette n'atteint 3:1 sur ce sol, ils sont de
+     la même famille : le contraste vient donc du cerne, à 4,50:1. */
   &__rail {
     grid-area: rail;
     position: relative;
     display: block;
-    height: 6px;
+    height: 9px;
     border-radius: 999px;
     background: var(--nuage-2);
+    box-shadow: inset 0 0 0 1px var(--muted);
     overflow: hidden;
   }
 
@@ -195,14 +207,14 @@
     position: absolute;
     inset: 0 auto 0 0;
     border-radius: 999px;
-    background: var(--bleu-500);
+    background: var(--bleu-600);
     transition: width 0.5s var(--ease-out, ease-out);
   }
 
   &__ratio {
     grid-area: ratio;
     text-align: right;
-    font-size: 0.82rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--ink-soft);
     font-variant-numeric: tabular-nums;
@@ -210,7 +222,7 @@
 
   &__legende {
     grid-area: legende;
-    font-size: 0.76rem;
+    font-size: 0.8rem;
     line-height: 1.5;
     color: var(--muted);
     overflow-wrap: anywhere;
@@ -250,9 +262,9 @@
      jour où il cesse d'être nul — le seul moment où il dit quelque
      chose. */
   &__reglette {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 2.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.8rem 2rem;
     margin: 0 0 1.4rem;
     padding: 0 0 1.2rem;
     border-bottom: 1px solid var(--line);
@@ -288,8 +300,13 @@
       letter-spacing: -0.02em;
     }
 
+    /* « --faint » est annoté dans les jetons : « decor, jamais du texte
+       a lire » — 2,60:1. Je l'avais pris pour effacer un zéro, ce qui
+       est exactement l'usage que la note interdit. Un zéro doit être
+       discret, pas illisible : c'est la graisse qui le met en retrait,
+       pas l'encre. */
     &.est-nul dd {
-      color: var(--faint);
+      color: var(--muted);
       font-weight: 400;
     }
   }
@@ -370,14 +387,14 @@
   }
 
   &__quoi {
-    font-size: 0.86rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--ink);
     overflow-wrap: anywhere;
   }
 
   &__detail-court {
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     color: var(--muted);
     min-width: 0;
     overflow-wrap: anywhere;

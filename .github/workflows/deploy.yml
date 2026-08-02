@@ -219,7 +219,14 @@ jobs:
             <location path="index.html">
               <system.webServer>
                 <staticContent>
-                  <clientCache cacheControlMode="DisableCache" />
+                  <!-- « cacheControlCustom » vide, et ce n'est pas
+                       decoratif : l'attribut du bloc parent est HERITE
+                       dans un « location ». Sans cette remise a zero,
+                       IIS emettait « Cache-Control: immutable,no-cache »
+                       — deux directives contradictoires sur le meme
+                       document, dont la premiere dit « ne revalide
+                       jamais ». -->
+                  <clientCache cacheControlMode="DisableCache" cacheControlCustom="" />
                 </staticContent>
               </system.webServer>
             </location>
@@ -230,7 +237,7 @@ jobs:
             <location path="sw.js">
               <system.webServer>
                 <staticContent>
-                  <clientCache cacheControlMode="DisableCache" />
+                  <clientCache cacheControlMode="DisableCache" cacheControlCustom="" />
                 </staticContent>
               </system.webServer>
             </location>
