@@ -75,6 +75,59 @@
         }
       </div>
 
+      <!-- ── Les filtres fins ──
+           Le statut et la recherche libre suffisent à dix candidatures.
+           À deux cents, ce qu'on cherche est « les Parisiens qui ont le
+           permis » — et les réponses de présélection, qu'on demandait
+           déjà sans jamais pouvoir s'en servir, sont le seul endroit où
+           cette information existe. -->
+      <div class="filter-fin">
+        @if (villes().length > 1) {
+          <label class="ffield" [class.is-set]="filtreVille() !== ''">
+            <span class="ffield__lbl">Ville</span>
+            <select aria-label="Filtrer par ville" [ngModel]="filtreVille()" (ngModelChange)="filtreVille.set($event)">
+              <option value="">Toutes</option>
+              @for (v of villes(); track v) { <option [value]="v">{{ v }}</option> }
+            </select>
+          </label>
+        }
+
+        <label class="ffield" [class.is-set]="filtreQualification() !== ''">
+          <span class="ffield__lbl">Qualification</span>
+          <select aria-label="Filtrer par qualification" [ngModel]="filtreQualification()" (ngModelChange)="filtreQualification.set($event)">
+            <option value="">Indifférente</option>
+            <option value="100">Toutes les réponses attendues</option>
+            <option value="50">Au moins la moitié</option>
+          </select>
+        </label>
+
+        @if (questionsPreselection().length) {
+          <label class="ffield" [class.is-set]="filtreQuestion() !== ''">
+            <span class="ffield__lbl">Présélection</span>
+            <select aria-label="Filtrer par question de présélection"
+                    [ngModel]="filtreQuestion()"
+                    (ngModelChange)="filtreQuestion.set($event); filtreReponse.set('')">
+              <option value="">Aucune</option>
+              @for (q of questionsPreselection(); track q) { <option [value]="q">{{ q }}</option> }
+            </select>
+          </label>
+
+          @if (filtreQuestion()) {
+            <label class="ffield" [class.is-set]="filtreReponse() !== ''">
+              <span class="ffield__lbl">Réponse</span>
+              <select aria-label="Filtrer par réponse" [ngModel]="filtreReponse()" (ngModelChange)="filtreReponse.set($event)">
+                <option value="">Toutes</option>
+                @for (r of reponsesPossibles(); track r) { <option [value]="r">{{ r }}</option> }
+              </select>
+            </label>
+          }
+        }
+
+        @if (aUnFiltreFin()) {
+          <button class="filter-bar__clear" (click)="viderFiltresFins()">Effacer</button>
+        }
+      </div>
+
       <!-- Toolbar: view toggle + bulk actions -->
       <div class="app-toolbar animate-in" style="animation-delay:.06s">
         <div class="toolbar-left">

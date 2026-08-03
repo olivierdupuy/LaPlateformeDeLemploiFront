@@ -668,3 +668,16 @@
   &.st-hired     { border-top-color: var(--bleu-950); }
   &.st-rejected  { border-top-color: var(--danger); }
 }
+
+/* Les filtres fins, sur leur propre rang : posés à la suite des trois
+   premiers ils débordaient, et un filtre qu'on ne voit pas ne sert à
+   personne. */
+.filter-fin {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+}

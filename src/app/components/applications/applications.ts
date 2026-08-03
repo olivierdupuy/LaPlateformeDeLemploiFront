@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { ConsoleShell } from '../console-shell/console-shell';
 import { ETATS_CANDIDATURE, ORDRE_CANDIDATURE, pastilleStatut, libelleStatut, iconeStatut } from '../../utils/statut-candidature';
+import { reponsesDe, vocabulairePreselection, Reponse } from '../../utils/preselection';
 
 @Component({
   selector: 'app-applications',
@@ -102,15 +103,85 @@ export class Applications implements OnInit {
   /** Les six états, pour le sélecteur de chaque ligne et le tableau. */
   readonly etats = ETATS_CANDIDATURE;
 
+  /* ── Filtres de tri du volume ──
+     Le filtre par statut et la recherche libre suffisent à dix
+     candidatures. À deux cents, ce qu'on cherche est « les Parisiens qui
+     ont le permis » — et les réponses de présélection, qu'on demandait
+     déjà sans pouvoir s'en servir, étaient le seul endroit où cette
+     information existe. */
+  filtreVille = signal('');
+  /** Seuil de qualification : '' | '100' (toutes) | '50' (la moitié). */
+  filtreQualification = signal('');
+  filtreQuestion = signal('');
+  filtreReponse = signal('');
+
+  /** Les villes déclarées, dédoublonnées sans la casse. */
+  villes = computed(() => {
+    const par = new Map<string, string>();
+    for (const a of this.applications()) {
+      const v = (a.city ?? '').trim();
+      if (v) par.set(v.toLowerCase(), v);
+    }
+    return [...par.values()].sort((x, y) => x.localeCompare(y, 'fr'));
+  });
+
+  /** Question → réponses effectivement données. */
+  preselection = computed(() =>
+    vocabulairePreselection(
+      this.applications().map((a) => ({
+        questions: a.jobOffer?.screeningQuestions,
+        reponses: a.screeningAnswers,
+      })),
+    ),
+  );
+
+  questionsPreselection = computed(() => [...this.preselection().keys()]);
+  reponsesPossibles = computed(() => this.preselection().get(this.filtreQuestion()) ?? []);
+
+  /** Les réponses d'une candidature, pour les montrer sur sa ligne. */
+  reponsesDe = (a: Application): Reponse[] =>
+    reponsesDe(a.jobOffer?.screeningQuestions, a.screeningAnswers);
+
+  aUnFiltreFin = computed(
+    () => !!(this.filtreVille() || this.filtreQualification() || this.filtreQuestion()),
+  );
+
+  viderFiltresFins() {
+    this.filtreVille.set('');
+    this.filtreQualification.set('');
+    this.filtreQuestion.set('');
+    this.filtreReponse.set('');
+  }
+
   filtered = computed(() => {
     const f = this.filterStatus;
     const off = this.offerFilter();
     const q = this.query().trim().toLowerCase();
     const s = this.sort();
 
+    const ville = this.filtreVille().toLowerCase();
+    const seuil = this.filtreQualification() ? Number(this.filtreQualification()) : null;
+    const question = this.filtreQuestion();
+    const reponse = this.filtreReponse();
+
     const out = this.applications().filter((a) => {
       if (f && a.status !== f) return false;
       if (off !== '' && a.jobOfferId !== off) return false;
+      if (ville && (a.city ?? '').toLowerCase() !== ville) return false;
+
+      // Une candidature sans score est écartée dès qu'un seuil est posé.
+      // Ce n'est pas un mauvais dossier — c'est une offre sans réponse
+      // idéale, ou un dépôt d'avant les questions — mais demander « au
+      // moins la moitié » et recevoir des dossiers non notés ne répond
+      // pas à la question posée.
+      if (seuil !== null && (a.qualificationScore ?? -1) < seuil) return false;
+
+      if (question) {
+        const trouvee = this.reponsesDe(a).find((r) => r.question === question);
+        if (!trouvee) return false;
+        if (reponse && trouvee.reponse !== reponse) return false;
+      }
+
       if (!q) return true;
       const hay = `${a.fullName ?? ''} ${a.email ?? ''} ${a.jobOffer?.title ?? ''}`.toLowerCase();
       return hay.includes(q);
