@@ -101,12 +101,17 @@
             <option value="apps">Candidatures reçues</option>
             <option value="views">Vues</option>
             <option value="title">Intitulé</option>
+            <option value="location">Lieu</option>
           </select>
         </label>
       </div>
 
       <div class="mo-info animate-in" style="animation-delay:.06s">
         <span class="u-mono">{{ filtered().length }} offre{{ filtered().length > 1 ? 's' : '' }}</span>
+        <button type="button" class="mo-masse__on" (click)="enMasse.set(!enMasse()); toutDeselectionner()">
+          <i class="bi" [class.bi-check2-square]="!enMasse()" [class.bi-x-lg]="enMasse()" aria-hidden="true"></i>
+          {{ enMasse() ? 'Quitter la sélection' : 'Sélectionner' }}
+        </button>
       </div>
 
       <div class="mo-grid">
@@ -118,6 +123,17 @@
                maintenant reconnaître un clic qui ne le concerne pas. -->
           <a [routerLink]="cardLink(o)" class="oc animate-in" (click)="auClicCarte($event)" [class.oc-expired]="!o.isDraft && !o.isActive && o.moderationStatus !== 'Pending' && o.moderationStatus !== 'Rejected'" [class.oc-moderation]="o.moderationStatus === 'Pending' || o.moderationStatus === 'Rejected'" [style.animation-delay]="(i * 0.04 + 0.1) + 's'">
             <div class="oc-stripe" [style.background]="stripeColor(o.contractType)"></div>
+
+            @if (enMasse()) {
+              <!-- Le bouton avale le clic : la carte entière est un lien,
+                   et cocher une case ne doit pas ouvrir l'offre. -->
+              <button type="button" class="oc-choix" [class.est-choisie]="estChoisie(o.id)"
+                      (click)="basculerChoix(o.id, $event)"
+                      [attr.aria-pressed]="estChoisie(o.id)"
+                      [attr.aria-label]="'Sélectionner ' + o.title">
+                <i class="bi" [class.bi-square]="!estChoisie(o.id)" [class.bi-check-square-fill]="estChoisie(o.id)"></i>
+              </button>
+            }
 
             <div class="oc-body">
               <!-- Header -->
@@ -322,3 +338,27 @@
     }
   </div>
 </section>
+
+<!-- ── La barre d'action groupée ──
+     Elle ne paraît qu'avec une sélection : une barre vide qui flotte en
+     bas d'écran occupe la place sans rien proposer. -->
+@if (enMasse() && selection().size) {
+  <div class="mo-masse" role="region" aria-label="Action sur la sélection">
+    <span class="mo-masse__n">
+      {{ selection().size }} offre{{ selection().size > 1 ? 's' : '' }} sélectionnée{{ selection().size > 1 ? 's' : '' }}
+    </span>
+    <span class="mo-masse__acts">
+      <button type="button" class="btn-ghost" (click)="toutChoisir()">Tout sélectionner</button>
+      <button type="button" class="btn-ghost" (click)="toutDeselectionner()">Vider</button>
+      <button type="button" class="oc-btn" (click)="appliquerEnMasse('ouverte')">
+        <i class="bi bi-play-circle" aria-hidden="true"></i> Rouvrir
+      </button>
+      <button type="button" class="oc-btn" (click)="appliquerEnMasse('suspendue')">
+        <i class="bi bi-pause-circle" aria-hidden="true"></i> Suspendre
+      </button>
+      <button type="button" class="oc-btn oc-btn-danger" (click)="appliquerEnMasse('fermee')">
+        <i class="bi bi-x-circle" aria-hidden="true"></i> Fermer
+      </button>
+    </span>
+  </div>
+}

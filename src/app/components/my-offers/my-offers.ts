@@ -48,7 +48,14 @@ export class MyOffers implements OnInit {
      qui en a quarante cherche « le poste de comptable » ou veut voir
      lesquelles ne recoivent rien : ni l'un ni l'autre n'etait possible. */
   query = signal('');
-  sort = signal<'recent' | 'apps' | 'views' | 'title'>('recent');
+  sort = signal<'recent' | 'apps' | 'views' | 'title' | 'location'>('recent');
+
+  /* ── Sélection multiple ──
+     Elle existait sur les candidatures et pas sur les offres, alors que
+     c'est là qu'on en a le plus besoin : une campagne se suspend en une
+     fois, pas annonce par annonce. */
+  selection = signal<Set<number>>(new Set());
+  enMasse = signal(false);
 
   private byStatus(f: string): JobOffer[] {
     if (f === 'active') return this.offers().filter(o => o.isActive && o.moderationStatus === 'Approved');
@@ -74,6 +81,11 @@ export class MyOffers implements OnInit {
         case 'apps': return (b.applications?.length || 0) - (a.applications?.length || 0);
         case 'views': return (b.viewCount || 0) - (a.viewCount || 0);
         case 'title': return a.title.localeCompare(b.title, 'fr');
+        // « localeCompare » en français : sans lui, « Épinal » se range
+        // après « Zurich ». Les offres sans lieu ferment la liste plutôt
+        // que de l'ouvrir — une valeur vide n'est pas un lieu qui commence
+        // par rien.
+        case 'location': return (a.location || '￿').localeCompare(b.location || '￿', 'fr');
         default: return +new Date(b.createdAt) - +new Date(a.createdAt);
       }
     });
@@ -143,6 +155,49 @@ export class MyOffers implements OnInit {
       evenement.preventDefault();
       evenement.stopPropagation();
     }
+  }
+
+  basculerChoix(id: number, e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.selection.update((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }
+
+  estChoisie = (id: number) => this.selection().has(id);
+  toutChoisir() { this.selection.set(new Set(this.filtered().map((o) => o.id))); }
+  toutDeselectionner() { this.selection.set(new Set()); }
+
+  /**
+   * Le même état posé sur toute la sélection.
+   *
+   * Le serveur rend trois nombres : ce qu'il a traité, ce qu'il a écarté
+   * — brouillons et offres en modération, qui n'ont pas d'état de
+   * publication — et ce qu'on lui a demandé. On les dit tous les trois :
+   * annoncer « 12 offres suspendues » quand trois l'ont été et neuf
+   * ignorées est précisément ce qu'on vient de corriger côté serveur.
+   */
+  appliquerEnMasse(etat: 'ouverte' | 'suspendue' | 'fermee') {
+    const ids = Array.from(this.selection());
+    if (!ids.length) return;
+    this.jobService.changerEtatEnMasse(ids, etat).subscribe({
+      next: (r) => {
+        const mot = etat === 'ouverte' ? 'rouverte' : etat === 'suspendue' ? 'suspendue' : 'fermée';
+        this.toastr.success(
+          r.ignorees
+            ? `${r.updated} offre${r.updated > 1 ? 's' : ''} ${mot}${r.updated > 1 ? 's' : ''}, ${r.ignorees} écartée${r.ignorees > 1 ? 's' : ''} (brouillon ou modération)`
+            : `${r.updated} offre${r.updated > 1 ? 's' : ''} ${mot}${r.updated > 1 ? 's' : ''}`,
+        );
+        this.selection.set(new Set());
+        this.enMasse.set(false);
+        this.loadOffers();
+      },
+      error: (e) => this.toastr.error(e?.error?.message ?? "L'action groupée a échoué"),
+    });
   }
 
   /**

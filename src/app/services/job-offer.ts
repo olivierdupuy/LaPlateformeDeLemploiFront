@@ -191,6 +191,12 @@ export class JobOfferService {
     return this.http.get<any>(`${this.apiUrl}/team-members`);
   }
 
+  /** Le même geste sur plusieurs offres : une campagne se suspend rarement une par une. */
+  changerEtatEnMasse(ids: number[], etat: 'ouverte' | 'suspendue' | 'fermee') {
+    return this.http.patch<{ updated: number; ignorees: number; demandees: number }>(
+      `${environment.apiUrl}/recruiter/offers/bulk-etat`, { ids, etat });
+  }
+
   /**
    * Ouvrir, suspendre ou fermer une offre.
    *

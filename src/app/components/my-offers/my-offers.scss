@@ -453,3 +453,71 @@
 @media (max-width: 620px) {
   .ocd-ligne { flex-direction: column; align-items: stretch; }
 }
+
+/* ── Sélection multiple ── */
+.mo-masse__on {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  padding: 0.3rem 0.5rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brand);
+  cursor: pointer;
+  border-radius: var(--r-xs);
+  &:hover { background: var(--bleu-tint); }
+}
+
+/* La case se pose sur la carte, qui est un lien : elle doit être au-dessus
+   et avaler le clic, sans quoi cocher ouvrirait l'offre. */
+.oc-choix {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.7rem;
+  z-index: 2;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: var(--canvas);
+  box-shadow: 0 0 0 1px var(--line-strong);
+  color: var(--muted);
+  cursor: pointer;
+  &.est-choisie { color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+}
+
+/* Une barre qui flotte au-dessus du contenu : elle ne paraît qu'avec une
+   sélection, et laisse la place au reste le reste du temps. */
+.mo-masse {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: min(56rem, calc(100vw - 2rem));
+  padding: 0.7rem 1rem;
+  border-radius: var(--r-lg);
+  background: var(--bleu-950);
+  color: var(--on-dark);
+  box-shadow: var(--shadow-xl);
+
+  &__n { font-size: 0.86rem; font-weight: 600; }
+  &__acts { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+
+  .btn-ghost { color: var(--on-dark-muted); }
+  .oc-btn { background: rgba(255, 255, 255, 0.1); color: var(--on-dark); border-color: transparent; }
+  .oc-btn:hover { background: rgba(255, 255, 255, 0.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-masse { transition: none; }
+}
