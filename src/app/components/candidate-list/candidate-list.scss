@@ -429,3 +429,16 @@
 // Les jetons se posent sous la barre, pas dans le hero sombre : ils
 // portent leurs propres couleurs claires.
 .cvh-filters .acrit { padding-top: 0.75rem; padding-bottom: 0; }
+
+/* Une case parmi des listes déroulantes : elle prend la même hauteur et
+   le même cadre, sans quoi la barre de filtres perd son alignement. */
+.ffield--case {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+
+  input { width: 1rem; height: 1rem; accent-color: var(--brand); cursor: pointer; }
+  span { font-size: 0.85rem; color: var(--ink-soft); }
+}

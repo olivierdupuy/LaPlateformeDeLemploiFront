@@ -25,6 +25,13 @@
 
           <!-- Le tri sort du repli : c'est un réglage qu'on change en
                regardant les résultats, pas un critère qu'on pose une fois. -->
+          <!-- Un candidat qui n'a rien déclaré n'est pas indisponible :
+               il n'a rien dit. Le filtre l'écarte sans le juger. -->
+          <label class="ffield ffield--case" [class.is-set]="disponible">
+            <input type="checkbox" [(ngModel)]="disponible" (change)="loadCandidates()" />
+            <span>Disponible maintenant</span>
+          </label>
+
           <label class="ffield" [class.is-set]="sort">
             <span class="ffield__lbl">Trier</span>
             <select aria-label="Trier les candidats" [(ngModel)]="sort" (change)="loadCandidates()">
@@ -32,6 +39,7 @@
               <option value="experience_desc">Expérience décroissante</option>
               <option value="experience_asc">Expérience croissante</option>
               <option value="name">Nom A-Z</option>
+              <option value="disponibilite">Disponibilité</option>
             </select>
           </label>
         </div>

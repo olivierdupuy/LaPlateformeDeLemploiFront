@@ -16,6 +16,8 @@ export interface UserDto {
   linkedInUrl?: string;
   portfolioUrl?: string;
   isSearchable?: boolean;
+  /** À partir de quand le candidat peut prendre un poste. */
+  disponibleLe?: string | null;
   createdAt: string;
   isOnline?: boolean;
 
@@ -121,6 +123,9 @@ export interface UpdateProfileRequest {
   linkedInUrl?: string;
   portfolioUrl?: string;
   isSearchable?: boolean;
+  disponibleLe?: string | null;
+  /** Distingue « je n'y touche pas » de « je l'efface ». */
+  disponibleLeFourni?: boolean;
 }
 
 export interface ChangePasswordRequest {

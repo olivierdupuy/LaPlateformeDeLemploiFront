@@ -12,7 +12,7 @@ export class RecruiterFeaturesService {
     return this.http.post(`${this.api}/offers/${id}/duplicate`, {});
   }
 
-  searchCandidates(filters?: { search?: string; skills?: string; city?: string; minExperience?: number; maxExperience?: number; education?: string; sort?: string }): Observable<any[]> {
+  searchCandidates(filters?: { search?: string; skills?: string; city?: string; minExperience?: number; maxExperience?: number; education?: string; disponible?: string; sort?: string }): Observable<any[]> {
     let p = new HttpParams();
     if (filters) {
       if (filters.search) p = p.set('search', filters.search);

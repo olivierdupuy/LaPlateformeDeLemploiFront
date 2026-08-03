@@ -162,6 +162,34 @@ export class Profile implements OnInit {
   metiersExclus = signal<string[]>([]);
   metiersConnus = signal<string[]>([]);
 
+  /**
+   * À partir de quand je peux prendre un poste.
+   *
+   * Une date et non une case à cocher : « disponible immédiatement » se
+   * périme tout seul, et une case cochée il y a huit mois ment sans que
+   * personne ne s'en aperçoive. Une date reste vraie.
+   */
+  disponibleLe = '';
+  savingDispo = signal(false);
+
+  enregistrerDisponibilite() {
+    this.savingDispo.set(true);
+    this.auth
+      .updateProfile({ disponibleLe: this.disponibleLe || null, disponibleLeFourni: true })
+      .subscribe({
+        next: () => {
+          this.savingDispo.set(false);
+          this.toastr.success(
+            this.disponibleLe ? 'Votre disponibilité est enregistrée' : 'Disponibilité effacée',
+          );
+        },
+        error: () => {
+          this.savingDispo.set(false);
+          this.toastr.error("La disponibilité n'a pas pu être enregistrée");
+        },
+      });
+  }
+
   basculerMetierExclu(m: string) {
     this.metiersExclus.update((l) => (l.includes(m) ? l.filter((x) => x !== m) : [...l, m]));
   }
@@ -231,6 +259,7 @@ export class Profile implements OnInit {
   }
 
   private hydrate() {
+    this.disponibleLe = (this.auth.currentUser()?.disponibleLe ?? '').slice(0, 10);
     const u = this.auth.currentUser();
     if (!u) return;
     const etat: ProfileForm = {

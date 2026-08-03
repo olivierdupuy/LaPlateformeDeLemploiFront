@@ -306,6 +306,27 @@
               </div>
             </div>
 
+            <!-- ── Ma disponibilité ──
+                 Une date et non une case : « disponible immédiatement »
+                 se périme tout seul, et une case cochée il y a huit mois
+                 ment sans que personne ne s'en aperçoive. -->
+            <div class="rech-dispo">
+              <div class="form-group">
+                <label for="pref-dispo">Je peux prendre un poste à partir du</label>
+                <div class="rech-unite">
+                  <input id="pref-dispo" type="date" [(ngModel)]="disponibleLe" name="prefDispo" />
+                  <button type="button" class="btn-ghost" (click)="enregistrerDisponibilite()"
+                          [disabled]="savingDispo()">
+                    @if (savingDispo()) { <span class="sp" aria-hidden="true"></span> } @else { Enregistrer }
+                  </button>
+                </div>
+                <small>
+                  Les recruteurs voient cette date dans le vivier et peuvent trier dessus.
+                  Laissez vide pour ne rien déclarer — ce n'est pas la même chose que « pas disponible ».
+                </small>
+              </div>
+            </div>
+
             <!-- ── Ce que je ne veux pas voir ──
                  L'inverse des quatre critères ci-dessus, et tout aussi
                  utile : un catalogue de cent vingt mille annonces ramène

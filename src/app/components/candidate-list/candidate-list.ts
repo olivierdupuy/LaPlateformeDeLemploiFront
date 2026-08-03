@@ -27,6 +27,8 @@ export class CandidateList implements OnInit {
   maxExperience: number | undefined;
   education = '';
   sort = '';
+  /** Ne montrer que les candidats qui se sont declares disponibles. */
+  disponible = false;
   showFilters = false;
 
   /**
@@ -43,6 +45,7 @@ export class CandidateList implements OnInit {
     this.city = p.get('city') ?? '';
     this.education = p.get('education') ?? '';
     this.sort = p.get('sort') ?? '';
+    this.disponible = p.get('disponible') === 'true';
     const min = p.get('minExperience');
     const max = p.get('maxExperience');
     if (min) this.minExperience = +min;
@@ -64,6 +67,7 @@ export class CandidateList implements OnInit {
       maxExperience: this.maxExperience,
       education: this.education || undefined,
       sort: this.sort || undefined,
+      disponible: this.disponible ? 'true' : undefined,
     }).subscribe({
       next: (data) => { this.candidates.set(data); this.loading.set(false); },
       error: () => { this.loading.set(false); },
@@ -73,7 +77,7 @@ export class CandidateList implements OnInit {
   clearFilters() {
     this.search = ''; this.skills = ''; this.city = '';
     this.minExperience = undefined; this.maxExperience = undefined;
-    this.education = ''; this.sort = '';
+    this.education = ''; this.sort = ''; this.disponible = false;
     this.loadCandidates();
   }
 
