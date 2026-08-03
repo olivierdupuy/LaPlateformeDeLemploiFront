@@ -18,6 +18,37 @@
           <button [class.active]="scope() === 'mine'" (click)="setScope('mine')">Mes offres</button>
           <button [class.active]="scope() === 'team'" (click)="setScope('team')"><i class="bi bi-people-fill"></i> Toute l'équipe</button>
         </div>
+        <button type="button" class="moh-roles__on" (click)="rolesOuverts.set(!rolesOuverts())">
+          <i class="bi bi-person-gear" aria-hidden="true"></i>
+          {{ rolesOuverts() ? 'Masquer les rôles' : 'Rôles' }}
+        </button>
+
+        <!-- Qui peut toucher au travail de qui. Visible de tous : savoir à
+             qui s'adresser pour faire modifier une offre qu'on ne peut pas
+             toucher soi-même fait partie du réglage, et le cacher
+             transformerait une restriction compréhensible en mur. -->
+        @if (rolesOuverts()) {
+          <ul class="moh-roles">
+            @for (m of equipeRoles(); track m.id) {
+              <li>
+                <span class="moh-roles__n">{{ m.nom }}@if (m.moi) { <small>vous</small> }</span>
+                <span class="moh-roles__r" [class.est-proprio]="m.role === 'proprietaire'">
+                  {{ m.role === 'proprietaire' ? 'propriétaire' : 'membre' }}
+                </span>
+                @if (jeSuisProprietaire() && !m.moi) {
+                  <button type="button" (click)="basculerRole(m)">
+                    {{ m.role === 'proprietaire' ? 'Rétrograder' : 'Promouvoir' }}
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+          <p class="moh-roles__note">
+            Un <b>propriétaire</b> gère les offres de toute l'équipe. Un <b>membre</b> les voit
+            toutes et ne modifie que les siennes.
+          </p>
+        }
+
         <div class="team-members">
           <span class="tm-label"><i class="bi bi-building"></i> {{ team().company }}</span>
           @for (m of team().members; track m.name) {

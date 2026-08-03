@@ -60,6 +60,36 @@ export class MyOffers implements OnInit {
      Du vocabulaire interne, pour s'y retrouver à quarante offres. Elles
      viennent d'un appel séparé : le catalogue public rend l'offre
      entière, et une étiquette n'a rien à y faire. */
+  /* ── Rôles de l'équipe ──
+     Le partage était binaire : déclarer la même entreprise suffisait à
+     pouvoir modifier et supprimer les offres de tout le monde. Un membre
+     voit désormais tout et n'écrit que sur le sien ; savoir à qui
+     s'adresser fait partie du réglage. */
+  equipeRoles = signal<{ id: string; nom: string; role: string; moi: boolean }[]>([]);
+  jeSuisProprietaire = signal(false);
+  rolesOuverts = signal(false);
+
+  chargerEquipe() {
+    this.recruiterService.equipe().subscribe({
+      next: (e) => {
+        this.equipeRoles.set(e.membres);
+        this.jeSuisProprietaire.set(e.jeSuisProprietaire);
+      },
+      error: () => {},
+    });
+  }
+
+  basculerRole(m: { id: string; role: string }) {
+    const vers = m.role === 'proprietaire' ? 'membre' : 'proprietaire';
+    this.recruiterService.changerRoleEquipe(m.id, vers).subscribe({
+      next: () => {
+        this.equipeRoles.update((l) => l.map((x) => (x.id === m.id ? { ...x, role: vers } : x)));
+        this.toastr.success(vers === 'proprietaire' ? 'Promu propriétaire' : 'Redevenu membre');
+      },
+      error: (e) => this.toastr.error(e?.error?.message ?? "Le rôle n'a pas pu être changé"),
+    });
+  }
+
   etiquettes = signal<Record<string, string[]>>({});
   vocabulaire = signal<string[]>([]);
   etiquetteFiltre = signal('');
@@ -138,6 +168,7 @@ export class MyOffers implements OnInit {
   ngOnInit() {
     this.loadOffers();
     this.chargerEtiquettes();
+    this.chargerEquipe();
     this.jobService.getTeamMembers().subscribe((t) => this.team.set(t));
   }
 

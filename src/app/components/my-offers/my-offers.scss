@@ -632,3 +632,77 @@
     &:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-ring); }
   }
 }
+
+/* ── Rôles de l'équipe ── */
+.moh-roles__on {
+  border: 0;
+  background: none;
+  padding: 0.25rem 0.45rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--brand);
+  cursor: pointer;
+  border-radius: var(--r-xs);
+  &:hover { background: var(--bleu-tint); }
+}
+
+.moh-roles {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  width: 100%;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--r-sm);
+    background: var(--nuage);
+    font-size: 0.83rem;
+  }
+
+  &__n {
+    flex: 1;
+    color: var(--ink);
+    small {
+      margin-left: 0.35rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+  }
+
+  /* Le rôle se lit au remplissage, pas à la teinte : le propriétaire
+     porte un aplat, le membre un simple mot. */
+  &__r {
+    padding: 0.12rem 0.5rem;
+    border-radius: var(--r-full);
+    font-size: 0.72rem;
+    color: var(--muted);
+    &.est-proprio { background: var(--bleu-700); color: var(--nuage); }
+  }
+
+  button {
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-xs);
+    background: var(--canvas);
+    padding: 0.2rem 0.5rem;
+    font: inherit;
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    &:hover { border-color: var(--brand); color: var(--brand); }
+  }
+
+  &__note {
+    margin: 0.5rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--muted);
+    b { color: var(--ink-soft); }
+  }
+}

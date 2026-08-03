@@ -12,6 +12,20 @@ export class RecruiterFeaturesService {
     return this.http.post(`${this.api}/offers/${id}/duplicate`, {});
   }
 
+  /** Qui compose l'équipe, et avec quel rôle. */
+  equipe() {
+    return this.http.get<{
+      societe: string | null;
+      jeSuisProprietaire: boolean;
+      membres: { id: string; nom: string; email: string; role: string; moi: boolean }[];
+    }>(`${this.api}/equipe`);
+  }
+
+  /** Réservé aux propriétaires. */
+  changerRoleEquipe(membreId: string, role: 'proprietaire' | 'membre') {
+    return this.http.patch<void>(`${this.api}/equipe/${membreId}/role`, { role });
+  }
+
   /**
    * Les notes d'équipe sur une candidature.
    *
