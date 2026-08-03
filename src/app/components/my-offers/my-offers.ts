@@ -52,6 +52,7 @@ export class MyOffers implements OnInit {
 
   private byStatus(f: string): JobOffer[] {
     if (f === 'active') return this.offers().filter(o => o.isActive && o.moderationStatus === 'Approved');
+    if (f === 'suspendue') return this.offers().filter(o => o.etatPublication === 'suspendue');
     if (f === 'expired') return this.offers().filter(this.isExpired);
     if (f === 'pending') return this.offers().filter(o => !o.isDraft && o.moderationStatus === 'Pending');
     if (f === 'rejected') return this.offers().filter(o => o.moderationStatus === 'Rejected');
@@ -142,6 +143,27 @@ export class MyOffers implements OnInit {
       evenement.preventDefault();
       evenement.stopPropagation();
     }
+  }
+
+  /**
+   * Suspendre une offre, ou la rouvrir.
+   *
+   * Le seul geste disponible pour retirer une annonce etait la
+   * suppression, qui emporte les candidatures deja recues. Un arbitrage
+   * qui dure une semaine ne doit pas couter les dossiers du mois.
+   */
+  basculerSuspension(offer: JobOffer, event: Event) {
+    event.stopPropagation();
+    const versSuspendue = offer.etatPublication !== 'suspendue';
+    this.jobService.changerEtat(offer.id, versSuspendue ? 'suspendue' : 'ouverte').subscribe({
+      next: (r) => {
+        this.offers.update((list) =>
+          list.map((o) => (o.id === offer.id ? { ...o, etatPublication: r.etatPublication, isActive: r.isActive } : o)),
+        );
+        this.toastr.success(versSuspendue ? 'Offre suspendue' : 'Offre rouverte');
+      },
+      error: (e) => this.toastr.error(e?.error?.message ?? "L'état n'a pas pu être changé"),
+    });
   }
 
   renew(offer: JobOffer, event: Event) {

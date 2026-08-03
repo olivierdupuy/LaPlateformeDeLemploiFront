@@ -191,6 +191,18 @@ export class JobOfferService {
     return this.http.get<any>(`${this.apiUrl}/team-members`);
   }
 
+  /**
+   * Ouvrir, suspendre ou fermer une offre.
+   *
+   * Distinct de la suppression, qui emporte les candidatures reçues : un
+   * recruteur qui met une annonce en pause le temps d'un arbitrage ne
+   * doit pas payer ce prix-là.
+   */
+  changerEtat(id: number, etat: 'ouverte' | 'suspendue' | 'fermee'): Observable<{ id: number; etatPublication: string; isActive: boolean }> {
+    return this.http.patch<{ id: number; etatPublication: string; isActive: boolean }>(
+      `${this.apiUrl}/${id}/etat`, { etat });
+  }
+
   renewOffer(id: number): Observable<JobOffer> {
     return this.http.patch<JobOffer>(`${this.apiUrl}/${id}/renew`, {});
   }

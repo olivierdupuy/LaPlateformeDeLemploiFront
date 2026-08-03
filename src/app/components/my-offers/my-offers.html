@@ -219,7 +219,19 @@
                     <button class="oc-btn oc-btn-diff" (click)="toggleDiffusion(o, $event)">
                       <i class="bi bi-broadcast" aria-hidden="true"></i> Diffuser
                     </button>
-                    @if (!o.isActive && o.moderationStatus !== 'Pending') {
+                    <!-- Suspendre plutôt que supprimer : la suppression
+                         emporte les candidatures déjà reçues, et un
+                         arbitrage qui dure une semaine ne doit pas coûter
+                         les dossiers du mois. -->
+                    @if (o.moderationStatus === 'Approved') {
+                      <button class="oc-btn" [class.oc-btn-repris]="o.etatPublication === 'suspendue'"
+                              (click)="basculerSuspension(o, $event)">
+                        <i class="bi" [class.bi-pause-circle]="o.etatPublication !== 'suspendue'"
+                           [class.bi-play-circle]="o.etatPublication === 'suspendue'"></i>
+                        {{ o.etatPublication === 'suspendue' ? 'Rouvrir' : 'Suspendre' }}
+                      </button>
+                    }
+                    @if (!o.isActive && o.etatPublication !== 'suspendue' && o.moderationStatus !== 'Pending') {
                       <button class="oc-btn oc-btn-renew" (click)="renew(o, $event)"><i class="bi bi-arrow-repeat"></i> Renouveler</button>
                     }
                   }

@@ -11,6 +11,8 @@ export interface JobOffer {
   createdAt: string;
   expiresAt?: string;
   isActive: boolean;
+  /** « ouverte » | « suspendue » | « fermee » — pourquoi l'offre n'est plus visible. */
+  etatPublication?: string;
   companyLogoUrl?: string;
   tags?: string;
   minSalary?: number;
