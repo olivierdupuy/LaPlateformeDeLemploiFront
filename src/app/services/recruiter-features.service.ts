@@ -12,6 +12,18 @@ export class RecruiterFeaturesService {
     return this.http.post(`${this.api}/offers/${id}/duplicate`, {});
   }
 
+  /** Inviter un profil du vivier à postuler sur une offre. */
+  inviter(jobOfferId: number, candidatId: string, message?: string) {
+    return this.http.post<{ id: number; envoyeeLe: string }>(
+      `${this.api}/invitations`, { jobOfferId, candidatId, message });
+  }
+
+  /** Les invitations de l'équipe, et ce qu'elles sont devenues. */
+  invitationsEnvoyees() {
+    return this.http.get<{ id: number; jobOfferId: number; poste: string; candidat: string; candidatId: string; envoyeeLe: string; vueLe: string | null; reponse: string | null }[]>(
+      `${this.api}/invitations`);
+  }
+
   searchCandidates(filters?: { search?: string; skills?: string; city?: string; minExperience?: number; maxExperience?: number; education?: string; disponible?: string; sort?: string }): Observable<any[]> {
     let p = new HttpParams();
     if (filters) {

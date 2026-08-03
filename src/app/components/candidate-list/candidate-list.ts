@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { RecruiterFeaturesService } from '../../services/recruiter-features.service';
+import { JobOfferService } from '../../services/job-offer';
+import { ToastrService } from 'ngx-toastr';
 import { companyColor } from '../../utils/job.utils';
 import { ConsoleShell } from '../console-shell/console-shell';
 
@@ -13,6 +15,8 @@ import { ConsoleShell } from '../console-shell/console-shell';
 })
 export class CandidateList implements OnInit {
   private recruiterService = inject(RecruiterFeaturesService);
+  private jobService = inject(JobOfferService);
+  private toastr = inject(ToastrService);
   private route = inject(ActivatedRoute);
 
   candidates = signal<any[]>([]);
@@ -27,6 +31,37 @@ export class CandidateList implements OnInit {
   maxExperience: number | undefined;
   education = '';
   sort = '';
+
+  /* ── Inviter à postuler ──
+     Le vivier permettait de trouver quelqu'un et de le regarder. Pour lui
+     parler, il fallait passer par la messagerie, hors de toute offre : le
+     candidat recevait « votre profil m'intéresse » sans savoir pour quel
+     poste. */
+  mesOffres = signal<{ id: number; title: string }[]>([]);
+  invitationOuverte = signal<string | null>(null);
+  offreChoisie = 0;
+  motInvitation = '';
+  invitesDejaEnvoyees = signal<Set<string>>(new Set());
+
+  ouvrirInvitation(id: string, e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.offreChoisie = this.mesOffres()[0]?.id ?? 0;
+    this.motInvitation = '';
+    this.invitationOuverte.update((v) => (v === id ? null : id));
+  }
+
+  envoyerInvitation(candidatId: string) {
+    if (!this.offreChoisie) return;
+    this.recruiterService.inviter(this.offreChoisie, candidatId, this.motInvitation || undefined).subscribe({
+      next: () => {
+        this.invitesDejaEnvoyees.update((s) => new Set(s).add(candidatId));
+        this.invitationOuverte.set(null);
+        this.toastr.success('Invitation envoyée');
+      },
+      error: (e) => this.toastr.error(e?.error?.message ?? "L'invitation n'a pas pu être envoyée"),
+    });
+  }
   /** Ne montrer que les candidats qui se sont declares disponibles. */
   disponible = false;
   showFilters = false;
@@ -39,6 +74,17 @@ export class CandidateList implements OnInit {
    * n'etait ni partageable ni retrouvable par le retour arriere.
    */
   ngOnInit() {
+    // Les offres en ligne de l'équipe : on n'invite que sur une annonce
+    // que le candidat pourra effectivement ouvrir.
+    this.jobService.getMyOffers('team').subscribe({
+      next: (o) =>
+        this.mesOffres.set(
+          o.filter((x) => x.isActive && !x.isDraft && x.moderationStatus === 'Approved')
+           .map((x) => ({ id: x.id, title: x.title })),
+        ),
+      error: () => {},
+    });
+
     const p = this.route.snapshot.queryParamMap;
     this.search = p.get('q') ?? '';
     this.skills = p.get('skills') ?? '';

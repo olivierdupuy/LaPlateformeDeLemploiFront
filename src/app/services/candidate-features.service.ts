@@ -41,6 +41,17 @@ export type Correspondance =
   | { applicable: false }
   | ({ applicable: true } & CorrespondanceEtablie);
 
+/** Une offre sur laquelle un recruteur invite le candidat à postuler. */
+export interface InvitationRecue {
+  id: number;
+  jobOfferId: number;
+  message: string | null;
+  envoyeeLe: string;
+  reponse: string | null;
+  reponduLe: string | null;
+  offre: { id: number; title: string; company: string; location: string; contractType: string; isActive: boolean } | null;
+}
+
 /** Les quatre critères que le moteur sait peser. */
 export interface SouhaitsEmploi {
   salaireAnnuelMinimum: number | null;
@@ -76,6 +87,18 @@ export interface PreferencesEmploi extends SouhaitsEmploi {
 export class CandidateFeaturesService {
   private http = inject(HttpClient);
   private api = `${environment.apiUrl}/candidate`;
+
+  // ── Invitations reçues ──
+  //
+  // Une proposition, pas une convocation : le candidat garde la main, et
+  // ne rien faire reste une réponse valable.
+  invitations(): Observable<InvitationRecue[]> {
+    return this.http.get<InvitationRecue[]>(`${this.api}/invitations`);
+  }
+
+  declinerInvitation(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.api}/invitations/${id}/decliner`, {});
+  }
 
   // ── Offres écartées ──
   //

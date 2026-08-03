@@ -123,6 +123,34 @@
             <!-- Top band -->
             <span class="card-stripe cc-stripe"></span>
 
+            <!-- Inviter à postuler. Le bouton avale le clic : la carte
+                 entière mène au profil, et inviter n'est pas consulter. -->
+            @if (mesOffres().length) {
+              <button type="button" class="cc-inviter"
+                      [class.est-envoyee]="invitesDejaEnvoyees().has(c.id)"
+                      [disabled]="invitesDejaEnvoyees().has(c.id)"
+                      (click)="ouvrirInvitation(c.id, $event)"
+                      [attr.aria-label]="'Inviter ' + c.firstName + ' à postuler'">
+                <i class="bi" [class.bi-envelope-plus]="!invitesDejaEnvoyees().has(c.id)"
+                   [class.bi-envelope-check-fill]="invitesDejaEnvoyees().has(c.id)" aria-hidden="true"></i>
+                {{ invitesDejaEnvoyees().has(c.id) ? 'Invité' : 'Inviter' }}
+              </button>
+            }
+
+            @if (invitationOuverte() === c.id) {
+              <div class="cc-invit">
+                <label class="sr-only" [attr.for]="'off-' + c.id">Offre</label>
+                <select [id]="'off-' + c.id" [(ngModel)]="offreChoisie" [ngModelOptions]="{ standalone: true }">
+                  @for (o of mesOffres(); track o.id) { <option [value]="o.id">{{ o.title }}</option> }
+                </select>
+                <label class="sr-only" [attr.for]="'mot-' + c.id">Message</label>
+                <textarea [id]="'mot-' + c.id" rows="2" maxlength="1000"
+                          placeholder="Un mot, facultatif…"
+                          [(ngModel)]="motInvitation" [ngModelOptions]="{ standalone: true }"></textarea>
+                <button type="button" class="btn-primary btn-sm" (click)="envoyerInvitation(c.id)">Envoyer</button>
+              </div>
+            }
+
             <div class="cc-body">
               <!-- Avatar + identity -->
               <div class="cc-identity">

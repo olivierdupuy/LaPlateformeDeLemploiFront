@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApplicationService } from '../../services/application';
-import { CandidateFeaturesService } from '../../services/candidate-features.service';
+import { CandidateFeaturesService, InvitationRecue } from '../../services/candidate-features.service';
 import { AuthService } from '../../services/auth.service';
 import { BookmarkService } from '../../services/bookmark.service';
 import { JobOfferService } from '../../services/job-offer';
@@ -14,7 +14,7 @@ import { companyColor } from '../../utils/job.utils';
 import { ConsoleShell } from '../console-shell/console-shell';
 import { pastilleStatut, libelleStatut, iconeStatut } from '../../utils/statut-candidature';
 
-type Tab = 'saved' | 'sent' | 'interviews' | 'archived';
+type Tab = 'saved' | 'sent' | 'interviews' | 'invitations' | 'archived';
 
 /**
  * « Mes candidatures » — le point unique de l'espace candidat.
@@ -50,6 +50,12 @@ export class TrackApplications implements OnInit {
   savedJobs = signal<JobOffer[]>([]);
   interviews = signal<InterviewItem[]>([]);
 
+  /* ── Invitations reçues ──
+     Un recruteur peut proposer une offre à un profil du vivier. Sans cet
+     onglet, la proposition n'arrivait que par une notification, qui se
+     perd dans la liste des autres. */
+  invitations = signal<InvitationRecue[]>([]);
+
   loading = signal(true);
   loadingSaved = signal(true);
   remindingId = signal<number | null>(null);
@@ -62,10 +68,15 @@ export class TrackApplications implements OnInit {
   active = computed(() => this.applications().filter((a) => !a.isArchived));
   archived = computed(() => this.applications().filter((a) => a.isArchived));
 
+  /** Celles qui attendent encore une décision : le compteur n'appelle
+      pas à agir sur ce qui est déjà soldé. */
+  invitationsOuvertes = computed(() => this.invitations().filter((i) => !i.reponse));
+
   tabCounts = computed(() => ({
     saved: this.savedJobs().length,
     sent: this.active().length,
     interviews: this.interviews().length,
+    invitations: this.invitationsOuvertes().length,
     archived: this.archived().length,
   }));
 
@@ -168,6 +179,11 @@ export class TrackApplications implements OnInit {
       next: (list) => this.interviews.set(list),
       error: () => {},
     });
+
+    this.candidateService.invitations().subscribe({
+      next: (list) => this.invitations.set(list),
+      error: () => {},
+    });
   }
 
   setTab(tab: Tab) {
@@ -196,6 +212,18 @@ export class TrackApplications implements OnInit {
         this.archivingId.set(null);
         this.toastr.error("L'archivage n'a pas pu être enregistré");
       },
+    });
+  }
+
+  declinerInvitation(i: InvitationRecue) {
+    this.candidateService.declinerInvitation(i.id).subscribe({
+      next: () => {
+        this.invitations.update((l) =>
+          l.map((x) => (x.id === i.id ? { ...x, reponse: 'declinee' } : x)),
+        );
+        this.toastr.success('Invitation déclinée');
+      },
+      error: () => this.toastr.error("L'invitation n'a pas pu être déclinée"),
     });
   }
 

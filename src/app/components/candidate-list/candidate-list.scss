@@ -442,3 +442,52 @@
   input { width: 1rem; height: 1rem; accent-color: var(--brand); cursor: pointer; }
   span { font-size: 0.85rem; color: var(--ink-soft); }
 }
+
+/* Inviter à postuler. La carte entière mène au profil : ce bouton et le
+   panneau qui s'ouvre doivent se poser au-dessus et avaler le clic, sans
+   quoi inviter ouvrirait la fiche. */
+.cc-inviter {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  background: var(--canvas);
+  font: inherit;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+
+  &:hover { border-color: var(--brand); color: var(--brand); }
+  &.est-envoyee { color: var(--muted); border-style: dashed; cursor: default; }
+}
+
+.cc-invit {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0 1rem 0.8rem;
+  padding: 0.7rem;
+  border-radius: var(--r-sm);
+  background: var(--nuage);
+
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.4rem 0.55rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-xs);
+    background: var(--canvas);
+    font: inherit;
+    font-size: 0.8rem;
+    color: var(--ink);
+    resize: vertical;
+  }
+}

@@ -29,6 +29,11 @@
         <i class="bi bi-calendar-event" aria-hidden="true"></i> Entretiens
         <span class="tab-count">{{ tabCounts().interviews }}</span>
       </button>
+      <button class="tab" role="tab" [class.is-active]="tab() === 'invitations'"
+              [attr.aria-selected]="tab() === 'invitations'" (click)="setTab('invitations')">
+        <i class="bi bi-envelope-paper" aria-hidden="true"></i> Invitations
+        <span class="tab-count">{{ tabCounts().invitations }}</span>
+      </button>
       <button class="tab" role="tab" [class.is-active]="tab() === 'archived'"
               [attr.aria-selected]="tab() === 'archived'" (click)="setTab('archived')">
         <i class="bi bi-archive" aria-hidden="true"></i> Archivées
@@ -240,6 +245,60 @@
     }
 
     <!-- ═══ ARCHIVÉES ═══ -->
+    <!-- ── Invitations reçues ──
+         Une entreprise propose une offre à ce profil. C'est une
+         proposition, pas une convocation : ne rien faire reste une
+         réponse valable, et rien ici ne presse. -->
+    @if (tab() === 'invitations') {
+      @if (invitations().length === 0) {
+        <div class="empty-box">
+          <i class="bi bi-envelope-paper" aria-hidden="true"></i>
+          <h3>Aucune invitation</h3>
+          <p>
+            Les recruteurs peuvent vous proposer une offre depuis votre profil.
+            Pour qu'ils vous trouvent, gardez votre profil visible dans
+            <a routerLink="/profil" [queryParams]="{ section: 'visibilite' }">vos réglages</a>.
+          </p>
+        </div>
+      } @else {
+        <ul class="trk-list">
+          @for (i of invitations(); track i.id) {
+            <li class="trk-card" [class.est-soldee]="i.reponse">
+              <div class="trk-card__top">
+                <div class="trk-info">
+                  <strong>{{ i.offre?.title ?? 'Offre retirée' }}</strong>
+                  <span>{{ i.offre?.company }} · {{ i.offre?.location }}</span>
+                </div>
+                <div class="trk-side">
+                  @if (i.reponse === 'declinee') {
+                    <span class="trk-badge st-rejected">Déclinée</span>
+                  } @else if (i.reponse === 'postule') {
+                    <span class="trk-badge st-accepted">Vous avez postulé</span>
+                  } @else if (i.offre?.isActive) {
+                    <a [routerLink]="['/offres', i.jobOfferId]" class="btn-primary btn-sm">Voir l'offre</a>
+                    <button class="trk-act" (click)="declinerInvitation(i)">Décliner</button>
+                  } @else {
+                    <span class="trk-badge">Offre retirée</span>
+                  }
+                </div>
+              </div>
+
+              @if (i.message) {
+                <p class="trk-mot">« {{ i.message }} »</p>
+              }
+
+              <div class="trk-card__foot">
+                <span class="trk-when">
+                  <i class="bi bi-clock" aria-hidden="true"></i>
+                  Reçue {{ sinceLabel(i.envoyeeLe) }}
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    }
+
     @if (tab() === 'archived') {
       @if (archived().length === 0) {
         <div class="empty-box">
