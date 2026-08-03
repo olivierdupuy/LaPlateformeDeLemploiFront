@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Application, JobOffer, InterviewItem } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { pastilleStatut, libelleStatut, iconeStatut } from '../../utils/statut-candidature';
 
 type Tab = 'saved' | 'sent' | 'interviews' | 'archived';
 
@@ -206,15 +207,15 @@ export class TrackApplications implements OnInit {
 
   // ── Libellés ──
   getStatusClass(status: string): string {
-    return { Pending: 'st-pending', Reviewed: 'st-reviewed', Accepted: 'st-accepted', Rejected: 'st-rejected' }[status] || '';
+    return pastilleStatut(status);
   }
 
   getStatusLabel(status: string): string {
-    return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[status] || status;
+    return libelleStatut(status);
   }
 
   getStatusIcon(status: string): string {
-    return { Pending: 'bi-clock', Reviewed: 'bi-eye-fill', Accepted: 'bi-check-circle-fill', Rejected: 'bi-x-circle-fill' }[status] || 'bi-circle';
+    return iconeStatut(status);
   }
 
   interviewStatusLabel(status: string): string {

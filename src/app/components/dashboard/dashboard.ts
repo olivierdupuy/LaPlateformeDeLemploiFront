@@ -10,6 +10,7 @@ import { VizCard, VizRow } from '../../viz/viz-card/viz-card';
 import { StatTile } from '../../viz/stat-tile/stat-tile';
 import { barsH, columns, donut, lines, nf } from '../../viz/chart-presets';
 import { APPLICATION_STATUS, ORDINAL, SERIES, STATUS } from '../../viz/palette';
+import { STATUTS_CANDIDATURE } from '../../utils/statut-candidature';
 
 /** Une etape de l'entonnoir, avec son taux de passage depuis la precedente. */
 interface Etape {
@@ -297,7 +298,7 @@ export class Dashboard implements OnInit {
    */
   private statutsTries = computed(() => {
     const brut: any[] = this.candidatures()?.appsByStatus ?? [];
-    const ordre = ['Pending', 'Reviewed', 'Accepted', 'Rejected'];
+    const ordre = STATUTS_CANDIDATURE;
     return brut
       .slice()
       .sort((a, b) => ordre.indexOf(a.label) - ordre.indexOf(b.label))

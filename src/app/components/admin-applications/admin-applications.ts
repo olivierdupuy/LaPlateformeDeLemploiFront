@@ -9,6 +9,7 @@ import { FichiersService } from '../../utils/fichiers';
 import { pagedQuery } from '../../utils/paged-query';
 import { dayLabel } from '../../utils/day-filter';
 import { APPLICATION_STATUS, STATUS } from '../../viz/palette';
+import { estEnCours } from '../../utils/statut-candidature';
 
 /**
  * Explorateur de candidatures : le pendant de l'explorateur d'offres.
@@ -155,7 +156,7 @@ export class AdminApplications {
    */
   attente(a: ApplicationRow): { jours: number; ouvert: boolean; enRetard: boolean } {
     const jours = Math.max(0, Math.floor((Date.now() - new Date(a.appliedAt).getTime()) / 86_400_000));
-    const ouvert = a.status === 'Pending' || a.status === 'Reviewed';
+    const ouvert = estEnCours(a.status);
     return { jours, ouvert, enRetard: ouvert && jours > JOURS_AVANT_RELANCE };
   }
 

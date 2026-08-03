@@ -10,6 +10,7 @@ import { MessageService } from '../../services/message.service';
 import { SignalRService } from '../../services/signalr.service';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
+import { libelleStatut } from '../../utils/statut-candidature';
 
 @Component({
   selector: 'app-navbar',
@@ -83,8 +84,10 @@ export class Navbar implements OnInit, OnDestroy {
           this.toastr.info(`${data.candidateName} a postule a "${data.jobTitle}"`, 'Nouvelle candidature');
         }),
         this.signalR.applicationStatusChanged$.subscribe((data) => {
-          const labels: Record<string, string> = { Pending: 'en attente', Reviewed: 'examinée', Accepted: 'acceptée', Rejected: 'refusée' };
-          this.toastr.info(`Votre candidature pour "${data.jobTitle}" est ${labels[data.status] || data.status}`, 'Statut modifie');
+          this.toastr.info(
+            `Votre candidature pour "${data.jobTitle}" est ${libelleStatut(data.status).toLowerCase()}`,
+            'Statut modifié',
+          );
         })
       );
     }

@@ -198,9 +198,14 @@
                   </div>
                 }
                 <div class="ac-actions">
+                  <!-- Les six états viennent de la liste partagée : ce
+                       sélecteur en énumérait quatre en clair, et rien ne
+                       l'aurait signalé le jour où le serveur en a accepté
+                       deux de plus. -->
                   <select [value]="app.status" (change)="updateStatus(app, $any($event.target).value)" class="ac-select">
-                    <option value="Pending">En attente</option><option value="Reviewed">Examinée</option>
-                    <option value="Accepted">Acceptée</option><option value="Rejected">Refusée</option>
+                    @for (e of etats; track e.cle) {
+                      <option [value]="e.cle">{{ e.libelle }}</option>
+                    }
                   </select>
                   <button class="ac-btn ac-btn-interview" (click)="openSchedule(app.id)" title="Planifier un entretien">
                     <i class="bi bi-calendar-plus"></i>
@@ -254,7 +259,7 @@
       <!-- ═══ KANBAN VIEW ═══ -->
       @if (viewMode() === 'kanban') {
         <div class="kanban animate-in" style="animation-delay:.1s">
-          @for (col of [{status:'Pending',label:'En attente',items:kanbanPending(),cls:'kb-amber'},{status:'Reviewed',label:'Examinées',items:kanbanReviewed(),cls:'kb-blue'},{status:'Accepted',label:'Acceptées',items:kanbanAccepted(),cls:'kb-green'},{status:'Rejected',label:'Refusées',items:kanbanRejected(),cls:'kb-red'}]; track col.status) {
+          @for (col of colonnes(); track col.status) {
             <div class="kb-col" [class]="col.cls" (dragover)="onDragOver($event)" (drop)="onDrop($event, col.status)">
               <div class="kb-header">
                 <span class="kb-title">{{ col.label }}</span>

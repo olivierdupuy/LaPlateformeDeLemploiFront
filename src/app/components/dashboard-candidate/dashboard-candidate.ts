@@ -9,6 +9,7 @@ import Chart from 'chart.js/auto';
 import { ConsoleShell } from '../console-shell/console-shell';
 import { columns } from '../../viz/chart-presets';
 import { APPLICATION_STATUS, STATUS } from '../../viz/palette';
+import { pastilleStatut } from '../../utils/statut-candidature';
 
 /** Une chose a faire, posee en haut du tableau de bord. */
 interface Todo {
@@ -202,6 +203,6 @@ export class DashboardCandidate implements OnInit {
   }
 
   statusClass(status: string): string {
-    return { Pending: 'st-amber', Reviewed: 'st-blue', Accepted: 'st-green', Rejected: 'st-red' }[status] || '';
+    return pastilleStatut(status);
   }
 }

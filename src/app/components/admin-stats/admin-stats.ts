@@ -18,6 +18,7 @@ import { StatTile } from '../../viz/stat-tile/stat-tile';
 import { VizCard, VizRow } from '../../viz/viz-card/viz-card';
 import { barsH, columns, donut, lines, nf, stacked } from '../../viz/chart-presets';
 import { APPLICATION_STATUS, ORDINAL, SEQUENTIAL, SERIES, STATUS } from '../../viz/palette';
+import { STATUTS_CANDIDATURE } from '../../utils/statut-candidature';
 
 interface Onglet {
   cle: string;
@@ -375,7 +376,7 @@ export class AdminStats implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════
 
   private statuts = computed(() => {
-    const ordre = ['Pending', 'Reviewed', 'Accepted', 'Rejected'];
+    const ordre = STATUTS_CANDIDATURE;
     return this.pts('appsByStatus')
       .slice()
       .sort((a, b) => ordre.indexOf(a.label) - ordre.indexOf(b.label))

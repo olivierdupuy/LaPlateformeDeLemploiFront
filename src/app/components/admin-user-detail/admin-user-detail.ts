@@ -74,12 +74,14 @@ const GROUPES: { cle: 'identite' | 'activite' | 'gestion'; titre: string }[] = [
 ];
 
 const STATUS_LABELS: Record<string, string> = {
-  Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée',
+  Pending: 'En attente', Reviewed: 'Examinée', Contacted: 'Contactée',
+  Accepted: 'Acceptée', Hired: 'Embauchée', Rejected: 'Refusée',
   Proposed: 'Proposé', Completed: 'Terminé', Cancelled: 'Annulé',
 };
 
 const STATUS_BADGE: Record<string, string> = {
-  Pending: 'badge-yellow', Reviewed: 'badge-blue', Accepted: 'badge-green', Rejected: 'badge-red',
+  Pending: 'badge-yellow', Reviewed: 'badge-blue', Contacted: 'badge-blue',
+  Accepted: 'badge-green', Hired: 'badge-green', Rejected: 'badge-red',
   Proposed: 'badge-yellow', Completed: 'badge-blue', Cancelled: 'badge-red',
 };
 

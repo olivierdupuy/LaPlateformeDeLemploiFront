@@ -11,6 +11,7 @@ import { FichiersService } from '../../utils/fichiers';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { ETATS_CANDIDATURE, ORDRE_CANDIDATURE, pastilleStatut, libelleStatut, iconeStatut } from '../../utils/statut-candidature';
 
 @Component({
   selector: 'app-applications',
@@ -96,7 +97,10 @@ export class Applications implements OnInit {
   }
 
   /** Ordre des statuts dans le parcours, pour le tri « par avancement ». */
-  private readonly ORDRE: Record<string, number> = { Pending: 0, Reviewed: 1, Accepted: 2, Rejected: 3 };
+  private readonly ORDRE = ORDRE_CANDIDATURE;
+
+  /** Les six états, pour le sélecteur de chaque ligne et le tableau. */
+  readonly etats = ETATS_CANDIDATURE;
 
   filtered = computed(() => {
     const f = this.filterStatus;
@@ -167,10 +171,24 @@ export class Applications implements OnInit {
     });
   });
 
-  kanbanPending = computed(() => this.forBoard().filter(a => a.status === 'Pending'));
-  kanbanReviewed = computed(() => this.forBoard().filter(a => a.status === 'Reviewed'));
-  kanbanAccepted = computed(() => this.forBoard().filter(a => a.status === 'Accepted'));
-  kanbanRejected = computed(() => this.forBoard().filter(a => a.status === 'Rejected'));
+  /**
+   * Une colonne par etat, derivee de la liste partagee.
+   *
+   * Elles etaient quatre, ecrites en clair dans le gabarit avec leur
+   * libelle et leur couleur. Le serveur en accepte six depuis
+   * l'elargissement du parcours : les deux nouvelles n'auraient eu
+   * aucune colonne, et les candidatures qui s'y trouvent auraient
+   * simplement disparu du tableau — sans erreur, sans compteur qui
+   * bouge, sans rien pour le signaler.
+   */
+  colonnes = computed(() =>
+    ETATS_CANDIDATURE.map((e) => ({
+      status: e.cle as string,
+      label: e.libelle,
+      cls: e.pastille,
+      items: this.forBoard().filter((a) => a.status === e.cle),
+    })),
+  );
 
   /** Nombre de candidatures visibles sur le tableau, filtres compris. */
   boardCount = computed(() => this.forBoard().length);
@@ -201,9 +219,9 @@ export class Applications implements OnInit {
     this.appService.getAll().subscribe((apps) => { this.applications.set(apps); this.loading.set(false); });
   }
 
-  getStatusBadgeClass(s: string): string { return { Pending: 'st-amber', Reviewed: 'st-blue', Accepted: 'st-green', Rejected: 'st-red' }[s] || ''; }
-  getStatusLabel(s: string): string { return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[s] || s; }
-  getStatusIcon(s: string): string { return { Pending: 'bi-clock', Reviewed: 'bi-eye-fill', Accepted: 'bi-check-circle-fill', Rejected: 'bi-x-circle-fill' }[s] || 'bi-circle'; }
+  getStatusBadgeClass(s: string): string { return pastilleStatut(s); }
+  getStatusLabel(s: string): string { return libelleStatut(s); }
+  getStatusIcon(s: string): string { return iconeStatut(s); }
 
   updateStatus(app: Application, status: string) {
     this.appService.updateStatus(app.id, status).subscribe({

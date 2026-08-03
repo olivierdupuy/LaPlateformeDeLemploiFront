@@ -10,6 +10,7 @@ import { JobOffer } from '../../models/job-offer.model';
 import { companyColor, getContractBadgeClass } from '../../utils/job.utils';
 import { ToastrService } from 'ngx-toastr';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { libelleStatut } from '../../utils/statut-candidature';
 
 @Component({
   selector: 'app-my-offers',
@@ -231,7 +232,7 @@ export class MyOffers implements OnInit {
   }
 
   statusLabel(status: string): string {
-    return { Pending: 'En attente', Reviewed: 'Examinée', Accepted: 'Acceptée', Rejected: 'Refusée' }[status] || status;
+    return libelleStatut(status);
   }
 
   // ══════════════════════════════════════

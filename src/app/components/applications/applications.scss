@@ -655,3 +655,16 @@
 .kanban { min-height: 0; align-items: start; }
 .kb-cards { min-height: 60px; }
 .kb-empty { padding: 1.25rem 1rem; }
+
+/* Les colonnes du tableau prennent desormais la classe de pastille de
+   leur etat, et non plus une couleur nommee a part. Une seule echelle
+   pour toute l'application : le liseré de colonne dit la meme chose que
+   la pastille de la ligne, et les deux ne peuvent plus diverger. */
+.kb-col {
+  &.st-pending   { border-top-color: var(--line-strong); }
+  &.st-reviewed  { border-top-color: var(--bleu-300); }
+  &.st-contacted { border-top-color: var(--bleu-500); }
+  &.st-accepted  { border-top-color: var(--bleu-700); }
+  &.st-hired     { border-top-color: var(--bleu-950); }
+  &.st-rejected  { border-top-color: var(--danger); }
+}
