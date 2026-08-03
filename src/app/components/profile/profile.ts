@@ -151,6 +151,21 @@ export class Profile implements OnInit {
     rayonKm: number | null;
   } = { salaireAnnuelMinimum: null, contrat: '', distanciel: '', rayonKm: null };
 
+  /**
+   * Les familles de métiers écartées.
+   *
+   * Un filtre négatif persistant vaut mieux qu'une recherche qu'on affine
+   * à chaque visite : quelqu'un qui ne fera jamais de vente le sait une
+   * fois pour toutes, et le lui redemander à chaque session est une façon
+   * de le faire renoncer.
+   */
+  metiersExclus = signal<string[]>([]);
+  metiersConnus = signal<string[]>([]);
+
+  basculerMetierExclu(m: string) {
+    this.metiersExclus.update((l) => (l.includes(m) ? l.filter((x) => x !== m) : [...l, m]));
+  }
+
   ngOnInit() {
     this.hydrate();
     this.chargerPreferences();
@@ -170,6 +185,8 @@ export class Profile implements OnInit {
           distanciel: p.distanciel === null ? '' : p.distanciel ? 'oui' : 'non',
           rayonKm: p.rayonKm,
         };
+        this.metiersExclus.set(p.metiersExclus ?? []);
+        this.metiersConnus.set(p.metiersConnus ?? []);
       },
       error: () => {},
     });
@@ -186,10 +203,12 @@ export class Profile implements OnInit {
         contrat: this.prefForm.contrat || null,
         distanciel: this.prefForm.distanciel === '' ? null : this.prefForm.distanciel === 'oui',
         rayonKm: this.prefForm.rayonKm || null,
+        metiersExclus: this.metiersExclus(),
       })
       .subscribe({
         next: (p) => {
           this.preferences.set(p);
+          this.metiersExclus.set(p.metiersExclus ?? []);
           this.savingPrefs.set(false);
           this.toastr.success('Vos préférences sont enregistrées');
         },

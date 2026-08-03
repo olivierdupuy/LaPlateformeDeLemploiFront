@@ -873,3 +873,14 @@
   .adv-panel { grid-template-columns: 1fr; }
   .dp-actions > * { flex: 1 1 auto; }
 }
+
+/* Une offre écartée reste visible le temps de la session, en retrait :
+   la faire disparaître d'un coup ne laisse aucun moyen de revenir sur un
+   clic malheureux, et le catalogue se recharge de toute façon sans elle
+   à la visite suivante. */
+.jcard:has(.jcard-reprendre) {
+  opacity: 0.5;
+  .jcard-title { text-decoration: line-through; }
+}
+
+.jcard-reprendre { color: var(--brand); }

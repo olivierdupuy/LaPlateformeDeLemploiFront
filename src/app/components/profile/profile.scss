@@ -1015,3 +1015,50 @@
   padding-top: 1.2rem;
   border-top: 1px solid var(--line);
 }
+
+/* Les métiers écartés. Un mot barré dit « non » mieux qu'une couleur :
+   la liste se lit d'un coup d'œil, et rien n'y ressemble à une alerte —
+   écarter un métier n'est pas une erreur. */
+.rech-exclus {
+  margin-top: 1.6rem;
+  padding-top: 1.3rem;
+  border-top: 1px solid var(--line);
+
+  &__t {
+    display: block;
+    margin-bottom: 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink);
+
+    small {
+      margin-left: 0.4rem;
+      font-size: 0.76rem;
+      font-weight: 400;
+      color: var(--muted);
+    }
+  }
+
+  &__l { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+}
+
+.rech-metier {
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  background: var(--canvas);
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+
+  &:hover { border-color: var(--brand-300); }
+
+  &.est-exclu {
+    border-color: var(--line);
+    background: var(--nuage-2);
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+}

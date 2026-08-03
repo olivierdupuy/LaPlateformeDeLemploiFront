@@ -9,6 +9,7 @@ import { BookmarkService } from '../../services/bookmark.service';
 import { SearchHistoryService } from '../../services/search-history.service';
 import { ApplicationService } from '../../services/application';
 import { AuthService } from '../../services/auth.service';
+import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { SavedSearchService } from '../../services/saved-search.service';
 import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor, salaryLabel } from '../../utils/job.utils';
@@ -29,6 +30,7 @@ export class JobList implements OnInit {
   bookmarkService = inject(BookmarkService);
   searchHistory = inject(SearchHistoryService);
   private appService = inject(ApplicationService);
+  private candidat = inject(CandidateFeaturesService);
   private savedSearchSvc = inject(SavedSearchService);
   auth = inject(AuthService);
   alertSaving = signal(false);
@@ -314,6 +316,46 @@ export class JobList implements OnInit {
     this.radius = undefined;
     this.sort = '';
     this.loadJobs();
+  }
+
+  /* ── Écarter une offre ──
+     Le catalogue ramène les mêmes annonces à chaque visite. Sans ce
+     geste, la seule façon de ne plus croiser une offre était de changer
+     de recherche — c'est-à-dire de renoncer aussi à tout ce qu'elle
+     ramenait de bon.
+
+     Rien n'en remonte au recruteur : c'est un confort, pas un avis. La
+     tentation d'en faire un signal de qualité transformerait un bouton
+     anodin en jugement porté sur une annonce. */
+  ecartees = signal<Set<number>>(new Set());
+
+  estEcartee = (id: number) => this.ecartees().has(id);
+
+  ecarter(job: JobOffer, e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    // On retire de la vue tout de suite : attendre le serveur pour faire
+    // disparaître une ligne qu'on vient de refuser donne l'impression
+    // que le clic n'a pas pris.
+    this.ecartees.update((s) => new Set(s).add(job.id));
+    this.candidat.ecarterOffre(job.id).subscribe({
+      next: () => this.toastr.info(`« ${job.title} » n'apparaîtra plus`, 'Offre écartée', {
+        // Le retour en arrière tient dans le message : chercher où
+        // annuler dans un écran de préférences ferait renoncer.
+        closeButton: true,
+      }),
+      error: () => {
+        this.ecartees.update((s) => { const n = new Set(s); n.delete(job.id); return n; });
+        this.toastr.error("L'offre n'a pas pu être écartée");
+      },
+    });
+  }
+
+  reprendre(job: JobOffer, e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.ecartees.update((s) => { const n = new Set(s); n.delete(job.id); return n; });
+    this.candidat.reprendreOffre(job.id).subscribe({ error: () => {} });
   }
 
   // ── Candidature simplifiée (1 clic) ──

@@ -67,6 +67,9 @@ export interface PreferencesEmploi extends SouhaitsEmploi {
   origine: 'declarees' | 'deduites';
   misAJourLe: string | null;
   effectifs: SouhaitsEmploi;
+  /** Les familles de métiers écartées, et le vocabulaire pour en choisir. */
+  metiersExclus: string[];
+  metiersConnus: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -74,13 +77,30 @@ export class CandidateFeaturesService {
   private http = inject(HttpClient);
   private api = `${environment.apiUrl}/candidate`;
 
+  // ── Offres écartées ──
+  //
+  // Un geste de confort, pas un avis : rien n'en remonte au recruteur.
+  // L'offre disparaît des résultats de celui qui l'écarte, et de personne
+  // d'autre.
+  offresEcartees(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.api}/offres-ecartees`);
+  }
+
+  ecarterOffre(jobId: number): Observable<void> {
+    return this.http.post<void>(`${this.api}/offres-ecartees/${jobId}`, {});
+  }
+
+  reprendreOffre(jobId: number): Observable<void> {
+    return this.http.delete<void>(`${this.api}/offres-ecartees/${jobId}`);
+  }
+
   // ── Préférences d'emploi ──
   preferences(): Observable<PreferencesEmploi> {
     return this.http.get<PreferencesEmploi>(`${this.api}/preferences`);
   }
 
   /** Un champ nul veut dire « indifférent », et non « zéro ». */
-  enregistrerPreferences(p: SouhaitsEmploi): Observable<PreferencesEmploi> {
+  enregistrerPreferences(p: SouhaitsEmploi & { metiersExclus?: string[] }): Observable<PreferencesEmploi> {
     return this.http.put<PreferencesEmploi>(`${this.api}/preferences`, p);
   }
 

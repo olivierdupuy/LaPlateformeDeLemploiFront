@@ -302,6 +302,22 @@
                           [attr.aria-label]="bookmarkService.isBookmarked(job.id) ? 'Retirer des favoris' : 'Enregistrer dans les favoris'">
                     <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)" aria-hidden="true"></i>
                   </button>
+                  <!-- Écarter l'offre. Réservé au candidat connecté : un
+                       anonyme n'a nulle part où l'enregistrer, et un
+                       recruteur n'a pas à amputer son propre catalogue. -->
+                  @if (isCandidate()) {
+                    @if (estEcartee(job.id)) {
+                      <button class="jcard-bk jcard-reprendre" (click)="reprendre(job, $event)"
+                              aria-label="Réafficher cette offre" title="Réafficher">
+                        <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                      </button>
+                    } @else {
+                      <button class="jcard-bk" (click)="ecarter(job, $event)"
+                              aria-label="Cette offre ne m’intéresse pas" title="Ne m’intéresse pas">
+                        <i class="bi bi-slash-circle" aria-hidden="true"></i>
+                      </button>
+                    }
+                  }
                 </div>
 
                 <div class="jcard-company">
