@@ -681,3 +681,80 @@
   padding-top: 0.7rem;
   border-top: 1px solid var(--line);
 }
+
+/* Le fil d'équipe, sous le brouillon personnel. Deux choses différentes
+   dans la même boîte : le trait les sépare, et le titre nomme celle qui
+   se partage. */
+.ac-fil {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+
+  &__t {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink);
+    i { color: var(--muted); }
+  }
+
+  &__vide {
+    margin: 0.5rem 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  &__l {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.6rem 0 0;
+    padding: 0;
+
+    li {
+      position: relative;
+      padding: 0.5rem 1.6rem 0.5rem 0.7rem;
+      border-radius: var(--r-sm);
+      background: var(--nuage);
+
+      p { margin: 0.15rem 0 0; font-size: 0.84rem; line-height: 1.5; color: var(--ink-soft); }
+
+      button {
+        position: absolute;
+        top: 0.35rem;
+        right: 0.35rem;
+        border: 0;
+        background: none;
+        padding: 0;
+        color: var(--muted);
+        cursor: pointer;
+        &:hover { color: var(--danger); }
+      }
+    }
+  }
+
+  &__qui { font-size: 0.76rem; font-weight: 600; color: var(--ink); }
+  &__quand { margin-left: 0.4rem; font-size: 0.72rem; color: var(--muted); }
+
+  &__saisie {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+
+    input {
+      flex: 1;
+      min-width: 0;
+      padding: 0.45rem 0.6rem;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-sm);
+      background: var(--canvas);
+      font: inherit;
+      font-size: 0.83rem;
+      color: var(--ink);
+      &:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-ring); }
+    }
+  }
+}

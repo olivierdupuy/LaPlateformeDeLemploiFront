@@ -306,7 +306,39 @@ export class Applications implements OnInit {
     try { return JSON.parse(app.screeningAnswers) || []; } catch { return []; }
   }
 
-  openNotes(app: Application) { this.editingNotesId.set(app.id); this.notesText = app.recruiterNotes || ''; }
+  /* ── Notes d'équipe ──
+     « recruiterNotes » reste le brouillon personnel attaché au dossier.
+     Ce fil-ci est la conversation d'équipe qui manquait : elle s'empile,
+     porte ses auteurs, et personne n'y efface le mot d'un autre. */
+  notesEquipe = signal<{ id: number; auteurNom: string; contenu: string; creeLe: string; aMoi: boolean }[]>([]);
+  nouvelleNote = '';
+
+  openNotes(app: Application) {
+    this.editingNotesId.set(app.id);
+    this.notesText = app.recruiterNotes || '';
+    this.nouvelleNote = '';
+    this.notesEquipe.set([]);
+    this.recruiterService.notesEquipe(app.id).subscribe({
+      next: (l) => this.notesEquipe.set(l),
+      error: () => {},
+    });
+  }
+
+  ajouterNote(app: Application) {
+    const mot = this.nouvelleNote.trim();
+    if (!mot) return;
+    this.recruiterService.ajouterNoteEquipe(app.id, mot).subscribe({
+      next: (n) => { this.notesEquipe.update((l) => [...l, n]); this.nouvelleNote = ''; },
+      error: (e) => this.toastr.error(e?.error?.message ?? "La note n'a pas pu être ajoutée"),
+    });
+  }
+
+  retirerNote(app: Application, id: number) {
+    this.recruiterService.retirerNoteEquipe(app.id, id).subscribe({
+      next: () => this.notesEquipe.update((l) => l.filter((n) => n.id !== id)),
+      error: () => this.toastr.error("La note n'a pas pu être retirée"),
+    });
+  }
   saveNotes(app: Application) {
     this.appService.updateNotes(app.id, this.notesText).subscribe({
       next: () => { app.recruiterNotes = this.notesText; this.editingNotesId.set(null); this.toastr.success('Notes enregistrées'); },

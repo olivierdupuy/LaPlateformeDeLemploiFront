@@ -301,6 +301,47 @@
                       <button class="btn-ghost" (click)="cancelNotes()">Annuler</button>
                       <button class="btn-primary" (click)="saveNotes(app)"><i class="bi bi-check-lg"></i> Sauvegarder</button>
                     </div>
+
+                    <!-- ── Le fil d'équipe ──
+                         Le champ ci-dessus est un brouillon personnel : le
+                         second qui y écrivait effaçait le premier. Ce fil
+                         s'empile et porte ses auteurs. Ni l'un ni l'autre
+                         ne sort côté candidat. -->
+                    <div class="ac-fil">
+                      <span class="ac-fil__t">
+                        <i class="bi bi-people-fill" aria-hidden="true"></i>
+                        Notes de l'équipe
+                      </span>
+
+                      @if (notesEquipe().length === 0) {
+                        <p class="ac-fil__vide">Personne n'a encore écrit sur ce dossier.</p>
+                      } @else {
+                        <ul class="ac-fil__l">
+                          @for (n of notesEquipe(); track n.id) {
+                            <li>
+                              <span class="ac-fil__qui">{{ n.auteurNom }}</span>
+                              <span class="ac-fil__quand">{{ n.creeLe | date: 'd MMM, HH:mm' }}</span>
+                              <p>{{ n.contenu }}</p>
+                              @if (n.aMoi) {
+                                <button type="button" (click)="retirerNote(app, n.id)"
+                                        aria-label="Retirer ma note">
+                                  <i class="bi bi-x" aria-hidden="true"></i>
+                                </button>
+                              }
+                            </li>
+                          }
+                        </ul>
+                      }
+
+                      <div class="ac-fil__saisie">
+                        <label class="sr-only" [attr.for]="'note-eq-' + app.id">Ajouter une note d'équipe</label>
+                        <input [id]="'note-eq-' + app.id" type="text" maxlength="2000"
+                               placeholder="Un mot pour l'équipe…"
+                               [(ngModel)]="nouvelleNote" [ngModelOptions]="{ standalone: true }"
+                               (keydown.enter)="ajouterNote(app)" />
+                        <button type="button" class="btn-secondary btn-sm" (click)="ajouterNote(app)">Ajouter</button>
+                      </div>
+                    </div>
                   </div>
                 }
               </div>

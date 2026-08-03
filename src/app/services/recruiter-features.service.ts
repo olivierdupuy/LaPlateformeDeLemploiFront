@@ -12,6 +12,28 @@ export class RecruiterFeaturesService {
     return this.http.post(`${this.api}/offers/${id}/duplicate`, {});
   }
 
+  /**
+   * Les notes d'équipe sur une candidature.
+   *
+   * Distinctes de « recruiterNotes », qui est un champ unique : le second
+   * qui y écrivait effaçait le premier sans que personne ne le voie.
+   * Celles-ci s'empilent et portent leur auteur. Elles ne sortent jamais
+   * côté candidat.
+   */
+  notesEquipe(applicationId: number) {
+    return this.http.get<{ id: number; auteurNom: string; contenu: string; creeLe: string; aMoi: boolean }[]>(
+      `${this.api}/applications/${applicationId}/notes`);
+  }
+
+  ajouterNoteEquipe(applicationId: number, contenu: string) {
+    return this.http.post<{ id: number; auteurNom: string; contenu: string; creeLe: string; aMoi: boolean }>(
+      `${this.api}/applications/${applicationId}/notes`, { contenu });
+  }
+
+  retirerNoteEquipe(applicationId: number, noteId: number) {
+    return this.http.delete<void>(`${this.api}/applications/${applicationId}/notes/${noteId}`);
+  }
+
   /** Inviter un profil du vivier à postuler sur une offre. */
   inviter(jobOfferId: number, candidatId: string, message?: string) {
     return this.http.post<{ id: number; envoyeeLe: string }>(
