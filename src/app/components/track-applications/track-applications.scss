@@ -286,6 +286,18 @@ a.trk-title:hover { color: var(--bleu-700); }
 .trk-seen { color: var(--bleu-600); }
 .trk-gone { color: var(--muted); }
 
+/* Une consultation de moins de trois jours est la seule qui appelle une
+   action : c'est le moment où relancer a du sens. Elle se lit au
+   remplissage, pas à la couleur — la teinte reste celle du pétrole, et
+   c'est le point qui la distingue. */
+.trk-seen.est-fraiche::after {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: var(--r-full);
+  background: currentColor;
+}
+
 .trk-side {
   display: flex;
   align-items: center;

@@ -4,6 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { UploadService } from '../../services/upload.service';
 import { CvService } from '../../services/cv.service';
+import {
+  CandidateFeaturesService,
+  PreferencesEmploi,
+} from '../../services/candidate-features.service';
 import { ToastrService } from 'ngx-toastr';
 import { companyColor } from '../../utils/job.utils';
 import { environment } from '../../../environments/environment';
@@ -34,7 +38,7 @@ import { ConsoleShell } from '../console-shell/console-shell';
  *    champs saisis disparaissaient sans un mot.
  */
 
-type SectionKey = 'identite' | 'cv' | 'visibilite' | 'securite' | 'donnees';
+type SectionKey = 'identite' | 'cv' | 'recherche' | 'visibilite' | 'securite' | 'donnees';
 
 interface Section {
   key: SectionKey;
@@ -47,6 +51,7 @@ interface Section {
 const SECTIONS: Section[] = [
   { key: 'identite', label: 'Identité', icon: 'bi-person-vcard' },
   { key: 'cv', label: 'CV', icon: 'bi-file-earmark-person', candidateOnly: true },
+  { key: 'recherche', label: 'Ce que je cherche', icon: 'bi-compass', candidateOnly: true },
   { key: 'visibilite', label: 'Visibilité', icon: 'bi-eye', candidateOnly: true },
   { key: 'securite', label: 'Sécurité', icon: 'bi-shield-lock' },
   { key: 'donnees', label: 'Mes données', icon: 'bi-database' },
@@ -113,11 +118,97 @@ export class Profile implements OnInit {
   /** Un fichier survole la zone de depot. */
   dragging = signal(false);
 
+  // ══════════════════════════════════════
+  //  Ce que je cherche
+  // ══════════════════════════════════════
+  //
+  // Ces quatre critères ne sont pas un questionnaire de plus : ce sont
+  // exactement ceux que le moteur de correspondance sait peser. Un champ
+  // de plus serait un champ que rien ne lit, et des préférences que rien
+  // ne lit sont pires que pas de préférences du tout.
+  //
+  // Tant qu'ils ne sont pas renseignés, le serveur retombe sur la
+  // dernière recherche enregistrée. L'écran le dit — un score qui repose
+  // sur une recherche faite un soir par curiosité doit pouvoir être
+  // compris, et corrigé.
+
+  private candidat = inject(CandidateFeaturesService);
+
+  readonly contratsPossibles = ['CDI', 'CDD', 'Alternance', 'Stage', 'Freelance', 'Intérim'];
+
+  preferences = signal<PreferencesEmploi | null>(null);
+  savingPrefs = signal(false);
+
+  /**
+   * Le télétravail est à trois états et le formulaire doit les tenir :
+   * recherché, non souhaité, indifférent. « Indifférent » n'est pas
+   * « non » — il ne doit pénaliser aucune offre à distance.
+   */
+  prefForm: {
+    salaireAnnuelMinimum: number | null;
+    contrat: string;
+    distanciel: '' | 'oui' | 'non';
+    rayonKm: number | null;
+  } = { salaireAnnuelMinimum: null, contrat: '', distanciel: '', rayonKm: null };
+
   ngOnInit() {
     this.hydrate();
+    this.chargerPreferences();
 
     const s = this.route.snapshot.queryParamMap.get('section') as SectionKey | null;
     if (s && this.sections.some((x) => x.key === s)) this.activeSection.set(s);
+  }
+
+  private chargerPreferences() {
+    if (!this.isCandidate) return;
+    this.candidat.preferences().subscribe({
+      next: (p) => {
+        this.preferences.set(p);
+        this.prefForm = {
+          salaireAnnuelMinimum: p.salaireAnnuelMinimum,
+          contrat: p.contrat ?? '',
+          distanciel: p.distanciel === null ? '' : p.distanciel ? 'oui' : 'non',
+          rayonKm: p.rayonKm,
+        };
+      },
+      error: () => {},
+    });
+  }
+
+  enregistrerPreferences() {
+    this.savingPrefs.set(true);
+    this.candidat
+      .enregistrerPreferences({
+        // « 0 » veut dire « pas de plancher », pas « un salaire de zéro » :
+        // le laisser passer ferait échouer tous les rapprochements sur un
+        // critère que le candidat croyait avoir laissé vide.
+        salaireAnnuelMinimum: this.prefForm.salaireAnnuelMinimum || null,
+        contrat: this.prefForm.contrat || null,
+        distanciel: this.prefForm.distanciel === '' ? null : this.prefForm.distanciel === 'oui',
+        rayonKm: this.prefForm.rayonKm || null,
+      })
+      .subscribe({
+        next: (p) => {
+          this.preferences.set(p);
+          this.savingPrefs.set(false);
+          this.toastr.success('Vos préférences sont enregistrées');
+        },
+        error: (e) => {
+          this.savingPrefs.set(false);
+          this.toastr.error(e?.error?.message ?? "Les préférences n'ont pas pu être enregistrées");
+        },
+      });
+  }
+
+  /** Une phrase, pour que le candidat sache sur quoi repose son score. */
+  origineDite(): string {
+    const p = this.preferences();
+    if (!p) return '';
+    if (p.declarees) return 'Vos correspondances reposent sur ces choix.';
+    const e = p.effectifs;
+    if (e.contrat || e.distanciel !== null)
+      return 'Rien n’est déclaré : vos correspondances reposent aujourd’hui sur votre dernière recherche enregistrée.';
+    return 'Rien n’est déclaré, et aucune recherche enregistrée ne permet de le deviner : trois critères sur sept ne pèsent rien dans vos correspondances.';
   }
 
   private hydrate() {

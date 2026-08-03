@@ -11,6 +11,7 @@ import { AuthModal } from './components/auth-modal/auth-modal';
 import { PlatformService } from './services/platform.service';
 import { AuthService } from './services/auth.service';
 import { SignalRService } from './services/signalr.service';
+import { BookmarkService } from './services/bookmark.service';
 import { SeoService } from './services/seo.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
@@ -101,6 +102,7 @@ export class App implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
   private signalR = inject(SignalRService);
+  private bookmarks = inject(BookmarkService);
   private seo = inject(SeoService);
   private mesure = inject(MesureAudience);
 
@@ -231,6 +233,11 @@ export class App implements OnInit {
     // panneau d'administration ne rend pas — l'administration se trouvait
     // donc privée de temps réel. Le service ignore les appels répétés.
     const token = this.auth.token;
-    if (token) this.signalR.start(token);
+    if (token) {
+      this.signalR.start(token);
+      // Les favoris viennent du serveur : on les charge des l'ouverture de
+      // session, en versant au passage ceux restes dans le stockage local.
+      this.bookmarks.synchroniser().subscribe();
+    }
   }
 }

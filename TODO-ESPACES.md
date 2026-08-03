@@ -80,23 +80,44 @@ sans réponse depuis plus de deux semaines, et relance.
 
 ### P1 — signaux au candidat
 
-- [ ] **« Votre candidature a été consultée »** — *à moitié fait.* L'étape
-      « Consultée » du chemin de progression s'allume bien à partir de
-      `reviewedAt`, mais **sans la date**. Or c'est la date qui informe :
-      « consultée il y a deux jours » et « consultée il y a six semaines »
-      ne se vivent pas de la même façon, et l'API renvoie déjà le champ.
-- [ ] **« Cette offre n'est plus disponible »** sur une candidature dont
-      l'offre a été fermée ou a expiré.
+- [x] ✅ **« Votre candidature a été consultée »** — « Consultée il y a
+      trois jours · le 9 avr. », le temps écoulé devant la date comme sur
+      la ligne « Postulé ». Une date seule oblige à compter, et six
+      semaines ne se vivent pas comme deux jours. Une consultation de
+      moins de trois jours se distingue : c'est le moment où relancer a
+      du sens.
+- [x] ✅ **« Cette offre n'est plus disponible »** — affiché dès que
+      `isActive` est faux, ce que `/track` renvoyait déjà. *Existait
+      avant ce lot ; vérifié le 2026-08-03.*
 - [ ] **Invitations reçues** : quand un recruteur invite un profil du vivier à
       postuler, le candidat doit le voir (voir P2 recruteur).
 
 ### P1 — profil et pertinence
 
-- [ ] **Préférences d'emploi** : salaire minimum, type de contrat, horaires,
-      télétravail, mobilité. Rien de tel aujourd'hui.
-- [ ] **Correspondance offre ↔ préférences** sur la fiche offre : Indeed
-      marque chaque critère « préférence correspondante » ou « préférence
-      manquante ». C'est ce qui rend les préférences utiles.
+- [x] ✅ **Préférences d'emploi** — salaire annuel minimum, type de
+      contrat, télétravail, rayon de déplacement. Section « Ce que je
+      cherche » du profil. Jusqu'ici ces souhaits étaient **devinés** en
+      lisant la dernière recherche enregistrée : muet pour qui n'en a
+      jamais gardé, et faux pour qui en a fait une par curiosité. Les
+      préférences déclarées font foi ; le repli sur la recherche
+      subsiste, mais seulement quand rien n'est renseigné.
+
+      *Quatre critères et non cinq : « horaires » est écarté à dessein.
+      Le moteur note sept critères dont aucun ne regarde le rythme de
+      travail, et l'ajouter obligerait à redistribuer des poids qui
+      totalisent cent et que des tests figent. Un champ que rien ne lit
+      serait exactement le reproche fait aux préférences inutiles.*
+- [x] ✅ **Correspondance offre ↔ préférences** — les listes « Ce qui
+      correspond » et « À savoir » portaient déjà ce rôle ; il leur
+      manquait de vraies préférences en entrée, et de dire d'où elles
+      venaient. Le panneau se termine désormais par « Calculé avec vos
+      préférences · Les modifier », ou par l'aveu que rien n'est déclaré.
+
+      Mesuré sur une offre réelle : souhaits déduits, score 76 % pour une
+      **fiabilité de 63 %** ; préférences déclarées, score 62 % pour
+      **93 %**. Le score baisse et devient honnête — la réserve « poste
+      sur site, alors que vous cherchez du télétravail » n'apparaissait
+      pas du tout auparavant.
 - [ ] **Exclure des types d'emplois** (filtres négatifs persistants).
 - [ ] **« Disponible immédiatement »** : badge visible des recruteurs, alimente
       le tri du vivier.

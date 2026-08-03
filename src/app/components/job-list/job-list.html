@@ -296,7 +296,7 @@
                      d'une société qu'on ne connaît pas encore. -->
                 <div class="jcard-head">
                   <h3 class="jcard-title">{{ job.title }}</h3>
-                  <button class="jcard-bk" (click)="$event.stopPropagation(); bookmarkService.toggle(job.id)"
+                  <button class="jcard-bk" (click)="$event.stopPropagation(); bookmarkService.toggle(job.id).subscribe()"
                           [class.active]="bookmarkService.isBookmarked(job.id)"
                           [attr.aria-pressed]="bookmarkService.isBookmarked(job.id)"
                           [attr.aria-label]="bookmarkService.isBookmarked(job.id) ? 'Retirer des favoris' : 'Enregistrer dans les favoris'">
@@ -387,7 +387,7 @@
                     </span>
                   </div>
                 </div>
-                <button class="dp-bk" (click)="bookmarkService.toggle(job.id)"
+                <button class="dp-bk" (click)="bookmarkService.toggle(job.id).subscribe()"
                         [class.active]="bookmarkService.isBookmarked(job.id)"
                         [attr.aria-pressed]="bookmarkService.isBookmarked(job.id)"
                         [attr.aria-label]="bookmarkService.isBookmarked(job.id) ? 'Retirer des favoris' : 'Enregistrer dans les favoris'">

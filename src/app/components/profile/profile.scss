@@ -953,3 +953,65 @@
     small { font-size: 0.8rem; line-height: 1.5; color: var(--muted); }
   }
 }
+
+/* ── Ce que je cherche ──
+   Quatre champs, et une phrase qui dit d'où viennent les correspondances.
+   Rien d'autre : la section n'a pas de mise en page à elle, elle emprunte
+   `.form-group` à la feuille partagée comme le fait « Identité ». */
+
+.rech-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.1rem 1.4rem;
+}
+
+/* L'unité colle au champ : « 38000 € / an » se lit d'un bloc, alors
+   qu'une légende sous le champ oblige à revenir en arrière. */
+.rech-unite {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  input { flex: 1; min-width: 0; }
+
+  span {
+    flex-shrink: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* La provenance des souhaits. Déclarée, elle se dit sobrement ; déduite,
+   elle appelle une action — sans passer par le crimson, qui est réservé
+   à ce qui est cassé, et ceci ne l'est pas. */
+.rech-origine {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 1.3rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--r-sm);
+  background: var(--bleu-tint);
+  border: 1px solid color-mix(in oklab, var(--brand) 16%, transparent);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+
+  i { flex-shrink: 0; color: var(--brand); }
+
+  &.est-deduite {
+    background: var(--nuage);
+    border-color: var(--line-strong);
+    i { color: var(--muted); }
+  }
+}
+
+.rech-pied {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}

@@ -174,10 +174,15 @@
                   <i class="bi bi-clock" aria-hidden="true"></i>
                   Postulé {{ sinceLabel(a.appliedAt) }} · le {{ a.appliedAt | date: 'd MMM y' }}
                 </span>
+                <!-- Le temps écoulé d'abord, la date ensuite — comme sur la
+                     ligne « Postulé » juste au-dessus. Une date seule oblige
+                     à compter : « consultée le 9 avr. » ne dit pas si c'était
+                     hier ou il y a six semaines, et c'est pourtant toute la
+                     différence pour qui attend une réponse. -->
                 @if (a.reviewedAt) {
-                  <span class="trk-seen">
+                  <span class="trk-seen" [class.est-fraiche]="daysSince(a.reviewedAt) <= 3">
                     <i class="bi bi-eye-fill" aria-hidden="true"></i>
-                    Consultée le {{ a.reviewedAt | date: 'd MMM' }}
+                    Consultée {{ sinceLabel(a.reviewedAt) }} · le {{ a.reviewedAt | date: 'd MMM' }}
                   </span>
                 }
                 @if (isStale(a)) {

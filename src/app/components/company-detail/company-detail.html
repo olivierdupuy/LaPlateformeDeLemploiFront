@@ -176,7 +176,7 @@
               <div class="jc-top">
                 <span class="badge" [class]="getContractBadgeClass(job.contractType)">{{ job.contractType }}</span>
                 @if (job.isRemote) { <span class="remote-pill">Télétravail</span> }
-                <button class="bk-btn" (click)="$event.preventDefault(); bookmarkService.toggle(job.id)" [class.active]="bookmarkService.isBookmarked(job.id)" aria-label="Enregistrer l'offre">
+                <button class="bk-btn" (click)="$event.preventDefault(); bookmarkService.toggle(job.id).subscribe()" [class.active]="bookmarkService.isBookmarked(job.id)" aria-label="Enregistrer l'offre">
                   <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(job.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(job.id)"></i>
                 </button>
               </div>

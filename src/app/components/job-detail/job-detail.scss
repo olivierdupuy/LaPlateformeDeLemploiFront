@@ -497,3 +497,29 @@
     font-weight: 500;
   }
 }
+
+/* Sur quoi le score repose, et le moyen de le corriger. Discret : c'est
+   une note de bas de panneau, pas un avertissement. Elle ne prend une
+   bordure que pour se détacher des deux listes au-dessus. */
+.corr-source {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1.2rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--muted);
+
+  i { flex-shrink: 0; }
+
+  a {
+    font-weight: 600;
+    color: var(--brand);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    &:hover { color: var(--brand-700); }
+  }
+}

@@ -38,7 +38,7 @@
           </div>
           <div class="jd-tools">
             @if (auth.isLoggedIn()) {
-              <button class="jd-tool" [class.active]="bookmarkService.isBookmarked(j.id)" (click)="bookmarkService.toggle(j.id)" title="Enregistrer">
+              <button class="jd-tool" [class.active]="bookmarkService.isBookmarked(j.id)" (click)="bookmarkService.toggle(j.id).subscribe()" title="Enregistrer">
                 <i class="bi" [class.bi-bookmark]="!bookmarkService.isBookmarked(j.id)" [class.bi-bookmark-fill]="bookmarkService.isBookmarked(j.id)"></i>
               </button>
             }
@@ -130,6 +130,25 @@
                   </div>
                 }
               </div>
+
+              <!-- Sur quoi ce score repose, et comment le corriger.
+                   Un score qu'on ne reconnaît pas et qu'on ne peut pas
+                   discuter ne vaut rien : trois des sept critères
+                   dépendent de ce que le candidat cherche, et jusqu'ici
+                   rien ne lui disait que c'était devinable — ni devinné. -->
+              <p class="corr-source">
+                @if (c.origineSouhaits === 'declarees') {
+                  <i class="bi bi-sliders" aria-hidden="true"></i>
+                  Calculé avec vos préférences.
+                } @else {
+                  <i class="bi bi-info-circle" aria-hidden="true"></i>
+                  Vos préférences ne sont pas renseignées : le contrat, le télétravail et le
+                  salaire attendus sont déduits de votre dernière recherche.
+                }
+                <a routerLink="/profil" [queryParams]="{ section: 'recherche' }">
+                  {{ c.origineSouhaits === 'declarees' ? 'Les modifier' : 'Les renseigner' }}
+                </a>
+              </p>
             </section>
           }
 

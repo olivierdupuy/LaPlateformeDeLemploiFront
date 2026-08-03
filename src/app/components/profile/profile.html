@@ -237,6 +237,88 @@
           </div>
         }
 
+        <!-- ── Ce que je cherche ── -->
+        @if (activeSection() === 'recherche') {
+          <div class="pf-card animate-in">
+            <div class="pf-card__head">
+              <div>
+                <h2>Ce que je cherche</h2>
+                <p>
+                  Ces quatre critères sont exactement ceux que nous savons comparer à une
+                  offre. Tout laisser vide reste un choix : « indifférent » ne pénalise rien.
+                </p>
+              </div>
+            </div>
+
+            @if (preferences(); as p) {
+              <p class="rech-origine" [class.est-deduite]="!p.declarees">
+                <i class="bi" [class.bi-check-circle]="p.declarees"
+                   [class.bi-info-circle]="!p.declarees" aria-hidden="true"></i>
+                {{ origineDite() }}
+              </p>
+            }
+
+            <div class="rech-grille">
+              <div class="form-group">
+                <label for="pref-salaire">Salaire annuel brut minimum</label>
+                <div class="rech-unite">
+                  <input id="pref-salaire" type="number" min="0" max="1000000" step="1000"
+                         [(ngModel)]="prefForm.salaireAnnuelMinimum" name="prefSalaire"
+                         placeholder="Indifférent" />
+                  <span aria-hidden="true">€ / an</span>
+                </div>
+                <small>Une offre au mois ou à l’heure est ramenée à l’année avant comparaison.</small>
+              </div>
+
+              <div class="form-group">
+                <label for="pref-contrat">Type de contrat</label>
+                <select id="pref-contrat" [(ngModel)]="prefForm.contrat" name="prefContrat">
+                  <option value="">Indifférent</option>
+                  @for (c of contratsPossibles; track c) {
+                    <option [value]="c">{{ c }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="pref-distanciel">Télétravail</label>
+                <select id="pref-distanciel" [(ngModel)]="prefForm.distanciel" name="prefDistanciel">
+                  <option value="">Indifférent</option>
+                  <option value="oui">Je le recherche</option>
+                  <option value="non">Je préfère sur site</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="pref-rayon">Jusqu’où je peux me déplacer</label>
+                <div class="rech-unite">
+                  <input id="pref-rayon" type="number" min="1" max="300" step="5"
+                         [(ngModel)]="prefForm.rayonKm" name="prefRayon"
+                         placeholder="Sans limite" />
+                  <span aria-hidden="true">km</span>
+                </div>
+                <small>
+                  Depuis {{ profileForm.city || 'la ville de votre profil' }}.
+                  @if (!profileForm.city) {
+                    <strong>Renseignez-la dans « Identité » pour que ce critère compte.</strong>
+                  }
+                </small>
+              </div>
+            </div>
+
+            <div class="rech-pied">
+              <button type="button" class="btn-primary" (click)="enregistrerPreferences()"
+                      [disabled]="savingPrefs()">
+                @if (savingPrefs()) {
+                  <span class="sp" aria-hidden="true"></span> Enregistrement…
+                } @else {
+                  <i class="bi bi-check-lg" aria-hidden="true"></i> Enregistrer mes préférences
+                }
+              </button>
+            </div>
+          </div>
+        }
+
         <!-- ── Visibilité ── -->
         @if (activeSection() === 'visibilite') {
           <div class="pf-card animate-in">

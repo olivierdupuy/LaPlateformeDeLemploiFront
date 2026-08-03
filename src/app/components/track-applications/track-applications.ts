@@ -200,7 +200,7 @@ export class TrackApplications implements OnInit {
 
   removeSaved(jobId: number, event?: Event) {
     event?.stopPropagation();
-    this.bookmarkService.toggle(jobId);
+    this.bookmarkService.toggle(jobId).subscribe();
     this.savedJobs.update((list) => list.filter((j) => j.id !== jobId));
   }
 

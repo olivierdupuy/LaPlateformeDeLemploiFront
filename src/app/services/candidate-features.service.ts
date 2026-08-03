@@ -20,6 +20,12 @@ export interface CorrespondanceEtablie {
   reserves: string[];
   resume: string | null;
   assiste: boolean;
+  /**
+   * D'où viennent les souhaits qui ont pesé dans ce score : de choix
+   * déclarés, ou de la dernière recherche enregistrée. Un candidat qui ne
+   * reconnaît pas son résultat doit pouvoir remonter à ce qui l'a produit.
+   */
+  origineSouhaits: 'declarees' | 'deduites';
 }
 
 /**
@@ -35,10 +41,48 @@ export type Correspondance =
   | { applicable: false }
   | ({ applicable: true } & CorrespondanceEtablie);
 
+/** Les quatre critères que le moteur sait peser. */
+export interface SouhaitsEmploi {
+  salaireAnnuelMinimum: number | null;
+  contrat: string | null;
+  distanciel: boolean | null;
+  rayonKm: number | null;
+}
+
+/**
+ * Ce que le candidat cherche, et d'où cela vient.
+ *
+ * `origine` n'est pas décoratif. Tant que rien n'est déclaré, la
+ * correspondance repose sur la dernière recherche enregistrée — ce qui
+ * peut être une intention réelle comme une curiosité d'un soir. L'écran
+ * doit pouvoir le dire : c'est la différence entre un score qu'on
+ * comprend et un score qu'on subit.
+ *
+ * `effectifs` porte ce qui sert réellement au calcul, déclaré ou déduit.
+ * Sans lui, une page ne peut pas expliquer un score à quelqu'un qui n'a
+ * jamais rien renseigné.
+ */
+export interface PreferencesEmploi extends SouhaitsEmploi {
+  declarees: boolean;
+  origine: 'declarees' | 'deduites';
+  misAJourLe: string | null;
+  effectifs: SouhaitsEmploi;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CandidateFeaturesService {
   private http = inject(HttpClient);
   private api = `${environment.apiUrl}/candidate`;
+
+  // ── Préférences d'emploi ──
+  preferences(): Observable<PreferencesEmploi> {
+    return this.http.get<PreferencesEmploi>(`${this.api}/preferences`);
+  }
+
+  /** Un champ nul veut dire « indifférent », et non « zéro ». */
+  enregistrerPreferences(p: SouhaitsEmploi): Observable<PreferencesEmploi> {
+    return this.http.put<PreferencesEmploi>(`${this.api}/preferences`, p);
+  }
 
   // Withdraw application
   withdrawApplication(id: number): Observable<void> {
