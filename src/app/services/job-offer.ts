@@ -191,6 +191,24 @@ export class JobOfferService {
     return this.http.get<any>(`${this.apiUrl}/team-members`);
   }
 
+  /**
+   * Les étiquettes des offres que l'appelant peut gérer.
+   *
+   * Rendues à part et non dans la charge utile des offres : le catalogue
+   * public rend l'entité entière, et « priorité direction » n'a rien à
+   * faire chez un visiteur.
+   */
+  etiquettes(): Observable<{ parOffre: Record<string, string[]>; vocabulaire: string[] }> {
+    return this.http.get<{ parOffre: Record<string, string[]>; vocabulaire: string[] }>(
+      `${environment.apiUrl}/recruiter/offers/etiquettes`);
+  }
+
+  /** La liste envoyée fait foi : elle remplace, elle n'ajoute pas. */
+  poserEtiquettes(id: number, etiquettes: string[]): Observable<{ id: number; etiquettes: string[] }> {
+    return this.http.put<{ id: number; etiquettes: string[] }>(
+      `${environment.apiUrl}/recruiter/offers/${id}/etiquettes`, { etiquettes });
+  }
+
   /** Le même geste sur plusieurs offres : une campagne se suspend rarement une par une. */
   changerEtatEnMasse(ids: number[], etat: 'ouverte' | 'suspendue' | 'fermee') {
     return this.http.patch<{ updated: number; ignorees: number; demandees: number }>(

@@ -55,6 +55,17 @@ export class MyOffers implements OnInit {
      c'est là qu'on en a le plus besoin : une campagne se suspend en une
      fois, pas annonce par annonce. */
   selection = signal<Set<number>>(new Set());
+
+  /* ── Étiquettes ──
+     Du vocabulaire interne, pour s'y retrouver à quarante offres. Elles
+     viennent d'un appel séparé : le catalogue public rend l'offre
+     entière, et une étiquette n'a rien à y faire. */
+  etiquettes = signal<Record<string, string[]>>({});
+  vocabulaire = signal<string[]>([]);
+  etiquetteFiltre = signal('');
+  /** L'offre dont on modifie les étiquettes, et la saisie en cours. */
+  etiquetteOuverte = signal<number | null>(null);
+  saisieEtiquette = '';
   enMasse = signal(false);
 
   private byStatus(f: string): JobOffer[] {
@@ -71,7 +82,10 @@ export class MyOffers implements OnInit {
     const q = this.query().trim().toLowerCase();
     const s = this.sort();
 
+    const etq = this.etiquetteFiltre().toLowerCase();
+
     const list = this.byStatus(this.filter()).filter((o) => {
+      if (etq && !this.etiquettesDe(o.id).some((m) => m.toLowerCase() === etq)) return false;
       if (!q) return true;
       return `${o.title} ${o.location ?? ''} ${o.contractType ?? ''}`.toLowerCase().includes(q);
     });
@@ -123,6 +137,7 @@ export class MyOffers implements OnInit {
 
   ngOnInit() {
     this.loadOffers();
+    this.chargerEtiquettes();
     this.jobService.getTeamMembers().subscribe((t) => this.team.set(t));
   }
 
@@ -151,7 +166,7 @@ export class MyOffers implements OnInit {
    */
   auClicCarte(evenement: Event) {
     const cible = evenement.target as HTMLElement | null;
-    if (cible?.closest('.oc-actions, .oc-stats-panel, .oc-diff')) {
+    if (cible?.closest('.oc-actions, .oc-stats-panel, .oc-diff, .oc-etq, .oc-etq-saisie')) {
       evenement.preventDefault();
       evenement.stopPropagation();
     }
@@ -169,6 +184,50 @@ export class MyOffers implements OnInit {
   }
 
   estChoisie = (id: number) => this.selection().has(id);
+
+  etiquettesDe = (id: number): string[] => this.etiquettes()[String(id)] ?? [];
+
+  chargerEtiquettes() {
+    this.jobService.etiquettes().subscribe({
+      next: (r) => { this.etiquettes.set(r.parOffre); this.vocabulaire.set(r.vocabulaire); },
+      error: () => {},
+    });
+  }
+
+  ouvrirEtiquettes(id: number, e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.saisieEtiquette = '';
+    this.etiquetteOuverte.update((v) => (v === id ? null : id));
+  }
+
+  /** Poser un mot de plus, ou en retirer un : la liste entière repart. */
+  private enregistrerEtiquettes(id: number, mots: string[]) {
+    this.jobService.poserEtiquettes(id, mots).subscribe({
+      next: (r) => {
+        this.etiquettes.update((m) => ({ ...m, [String(id)]: r.etiquettes }));
+        this.chargerEtiquettes();
+      },
+      error: (e) => this.toastr.error(e?.error?.message ?? "L'étiquette n'a pas pu être posée"),
+    });
+  }
+
+  ajouterEtiquette(id: number) {
+    const mot = this.saisieEtiquette.trim();
+    if (!mot) return;
+    const deja = this.etiquettesDe(id);
+    // Le serveur replie la casse, mais refuser ici évite un aller-retour
+    // pour rien et un clignotement de la liste.
+    if (deja.some((m) => m.toLowerCase() === mot.toLowerCase())) { this.saisieEtiquette = ''; return; }
+    this.saisieEtiquette = '';
+    this.enregistrerEtiquettes(id, [...deja, mot]);
+  }
+
+  retirerEtiquette(id: number, mot: string, e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    this.enregistrerEtiquettes(id, this.etiquettesDe(id).filter((m) => m !== mot));
+  }
   toutChoisir() { this.selection.set(new Set(this.filtered().map((o) => o.id))); }
   toutDeselectionner() { this.selection.set(new Set()); }
 

@@ -106,6 +106,24 @@
         </label>
       </div>
 
+      <!-- Le vocabulaire de l'équipe, quand il y en a un. Un filtre de
+           plus n'a de sens que s'il a de quoi filtrer. -->
+      @if (vocabulaire().length) {
+        <div class="mo-etq-filtre animate-in" style="animation-delay:.055s">
+          <span class="mo-etq-filtre__lbl">Étiquettes</span>
+          @for (m of vocabulaire(); track m) {
+            <button type="button" class="mo-etq" [class.est-active]="etiquetteFiltre() === m"
+                    (click)="etiquetteFiltre.set(etiquetteFiltre() === m ? '' : m)"
+                    [attr.aria-pressed]="etiquetteFiltre() === m">{{ m }}</button>
+          }
+          @if (etiquetteFiltre()) {
+            <button type="button" class="mo-etq-filtre__off" (click)="etiquetteFiltre.set('')">
+              <i class="bi bi-x-lg" aria-hidden="true"></i> Tout voir
+            </button>
+          }
+        </div>
+      }
+
       <div class="mo-info animate-in" style="animation-delay:.06s">
         <span class="u-mono">{{ filtered().length }} offre{{ filtered().length > 1 ? 's' : '' }}</span>
         <button type="button" class="mo-masse__on" (click)="enMasse.set(!enMasse()); toutDeselectionner()">
@@ -253,6 +271,35 @@
                   }
                 </div>
               </div>
+
+              <!-- Les étiquettes de l'offre, et de quoi les changer. Elles
+                   ne partent jamais au catalogue public : elles arrivent
+                   par un appel séparé et repartent par un autre. -->
+              <div class="oc-etq">
+                @for (m of etiquettesDe(o.id); track m) {
+                  <span class="oc-etq__m">
+                    {{ m }}
+                    <button type="button" (click)="retirerEtiquette(o.id, m, $event)"
+                            [attr.aria-label]="'Retirer l’étiquette ' + m">
+                      <i class="bi bi-x" aria-hidden="true"></i>
+                    </button>
+                  </span>
+                }
+                <button type="button" class="oc-etq__plus" (click)="ouvrirEtiquettes(o.id, $event)">
+                  <i class="bi bi-tag" aria-hidden="true"></i>
+                  {{ etiquettesDe(o.id).length ? '' : 'Étiqueter' }}
+                </button>
+              </div>
+
+              @if (etiquetteOuverte() === o.id) {
+                <div class="oc-etq-saisie">
+                  <label class="sr-only" [attr.for]="'etq-' + o.id">Nouvelle étiquette</label>
+                  <input [id]="'etq-' + o.id" type="text" maxlength="40" placeholder="campagne printemps…"
+                         [(ngModel)]="saisieEtiquette" [ngModelOptions]="{ standalone: true }"
+                         (keydown.enter)="ajouterEtiquette(o.id)" />
+                  <button type="button" class="oc-btn" (click)="ajouterEtiquette(o.id)">Ajouter</button>
+                </div>
+              }
 
               @if (statsOpenId() === o.id) {
                 <div class="oc-stats-panel">
