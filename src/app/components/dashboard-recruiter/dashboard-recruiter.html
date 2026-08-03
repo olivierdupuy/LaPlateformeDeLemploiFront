@@ -104,72 +104,23 @@
 <section class="dr-content">
   <div class="container dr-layout">
     <div class="dr-main">
-      <!-- Le parcours plutôt que l'anneau : quatre états peints en vert,
-           orange, rouge et bleu clair — des couleurs écrites en dur, hors
-           palette — et, pour deux candidatures, un camembert à deux parts. -->
+      <!-- ── Les analyses vivent ailleurs ──
+           Cet écran répond à « où j'en suis aujourd'hui » ; l'entonnoir
+           et la performance par offre répondent à « qu'est-ce qui
+           marche ». Les mêmes yeux ne cherchent pas les deux en même
+           temps, et les mélanger faisait que le second n'était jamais lu :
+           on ouvrait le tableau de bord pour traiter, on repartait après
+           avoir traité. -->
       @if (d.totalCandidatures > 0) {
-        <div class="dr-card card animate-in" style="animation-delay:.25s">
-          <div class="drc-head">
-            <h2 class="section-title">Le parcours de vos candidatures</h2>
-            <a routerLink="/recruteur/candidatures" class="arrow-link">Le détail <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
-          </div>
-          <div class="drc-body">
-            <ol class="fn">
-              @for (s of funnel(); track s.key) {
-                <li class="fn-step">
-                  <div class="fn-top">
-                    <span class="fn-ic"><i class="bi" [class]="s.icon" aria-hidden="true"></i></span>
-                    <span class="fn-val u-mono">{{ s.value }}</span>
-                  </div>
-                  <span class="fn-lbl">{{ s.label }}</span>
-                  <div class="fn-bar"><span [style.width.%]="s.pct"></span></div>
-                  <span class="fn-pct u-mono">{{ s.pct }} %</span>
-                </li>
-              }
-            </ol>
-
-            @if (d.refusees > 0) {
-              <p class="fn-note">
-                <i class="bi bi-info-circle" aria-hidden="true"></i>
-                {{ d.refusees }} candidature{{ d.refusees > 1 ? 's' : '' }} refusée{{ d.refusees > 1 ? 's' : '' }}.
-              </p>
-            }
-          </div>
-        </div>
+        <a routerLink="/recruteur/analyses" class="dr-vers-analyses card animate-in" style="animation-delay:.25s">
+          <span class="dva-ic"><i class="bi bi-graph-up" aria-hidden="true"></i></span>
+          <span class="dva-txt">
+            <strong>Vos analyses</strong>
+            <span>Le parcours de vos candidatures, et vos offres comparées.</span>
+          </span>
+          <i class="bi bi-arrow-right dva-fleche" aria-hidden="true"></i>
+        </a>
       }
-
-      <!-- Une liste, pas un graphique : sur des barres horizontales, une
-           offre sans candidature n'avait pas de barre — elle disparaissait,
-           alors que c'est celle dont il faut s'occuper. -->
-      <div class="dr-card card animate-in" style="animation-delay:.3s">
-        <div class="drc-head">
-          <h2 class="section-title">Vos offres, par candidatures reçues</h2>
-          <a routerLink="/recruteur/offres" class="arrow-link">Mes offres <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
-        </div>
-        <div class="drc-body">
-          @if (offerRows().length) {
-            <ul class="orank">
-              @for (o of offerRows(); track o.label) {
-                <li class="orank-row" [class.is-zero]="o.value === 0">
-                  <span class="orank-lbl">{{ o.label }}</span>
-                  <span class="orank-bar"><span [style.width.%]="o.pct"></span></span>
-                  <span class="orank-val u-mono">{{ o.value }}</span>
-                </li>
-              }
-            </ul>
-            <p class="orank-note">
-              <i class="bi bi-info-circle" aria-hidden="true"></i>
-              Une offre à zéro n'est pas forcément mauvaise : vérifiez d'abord l'intitulé, le salaire et le lieu.
-            </p>
-          } @else {
-            <div class="drc-empty">
-              <i class="bi bi-inbox" aria-hidden="true"></i>
-              <p>Aucune offre publiée pour l'instant</p>
-              <a routerLink="/recruteur/offres/nouvelle" class="btn-primary"><i class="bi bi-plus-lg"></i> Publier une offre</a>
-            </div>
-          }
-        </div>
-      </div>
     </div>
 
     <!-- Raccourcis vers ce que la sous-navigation ne porte pas -->

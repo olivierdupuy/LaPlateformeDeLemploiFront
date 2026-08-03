@@ -608,22 +608,20 @@ pourquoi l'apex se comporte ainsi ne la trouvera pas.*
 en production, sécurité, performance, conformité — et pour ce périmètre
 la phrase reste vraie.
 
-Les fonctionnalités, elles, vivent dans `TODO-ESPACES.md`, qui compte
-**dix-huit points ouverts** au 2026-08-02 : sept dans l'espace candidat,
-neuf dans l'espace recruteur, deux transverses. Jusqu'à cette date ce
-document annonçait « Rien » sans renvoyer nulle part, ce qui laissait
-croire qu'il ne restait plus rien à écrire dans toute l'application.
+Les fonctionnalités vivaient dans `TODO-ESPACES.md`. **Il est clos depuis
+le 2026-08-03** : ses vingt-trois points sont livrés, espace candidat et
+espace recruteur compris. Jusqu'au 2026-08-02 ce document annonçait
+« Rien » sans renvoyer nulle part, ce qui laissait croire qu'il ne restait
+plus rien à écrire dans toute l'application — c'était faux à l'époque, et
+c'est devenu vrai depuis.
 
 Les trois points **P0 de l'espace candidat sont clos** : « Mes
 candidatures » à onglets comptés, archivage, compteurs. Vérifiés de bout
 en bout le 2026-08-02.
 
-Le prochain lot fonctionnel, par ordre de ce qu'il rapporte au candidat :
-la **date de consultation** (l'étape existe, la date manque, l'API la
-renvoie déjà), « **cette offre n'est plus disponible** », puis les
-**préférences d'emploi** et leur restitution sur la fiche offre — c'est
-la paire qui rend les préférences utiles, l'une sans l'autre ne sert à
-rien.
+Le seul point fonctionnel qui reste est donc **le rendu serveur** (§1),
+qui n'est pas une fonctionnalité mais une décision d'architecture — et
+c'est la vôtre.
 
 *Deux points d'accessibilité restent hors de portée d'un outil, et le
 resteront : la **vérification manuelle au clavier** des trois tunnels

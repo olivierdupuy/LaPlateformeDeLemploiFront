@@ -33,6 +33,7 @@ const RECRUITER: ConsoleSpace = {
     { path: '/espace-recruteur', label: 'Tableau de bord', icon: 'bi-grid-1x2', exact: true },
     { path: '/recruteur/offres', label: 'Mes offres', icon: 'bi-collection' },
     { path: '/recruteur/candidatures', label: 'Candidatures', icon: 'bi-people' },
+    { path: '/recruteur/analyses', label: 'Analyses', icon: 'bi-graph-up' },
     { path: '/candidats', label: 'Vivier', icon: 'bi-person-lines-fill' },
     { path: '/entretiens', label: 'Entretiens', icon: 'bi-calendar-event' },
     { path: '/messagerie', label: 'Messagerie', icon: 'bi-chat-dots' },

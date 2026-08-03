@@ -4,6 +4,10 @@ Audit mené le **2026-07-27** sur Indeed en direct (compte connecté) :
 `myjobs.indeed.com`, `profile.indeed.com`, `fr.indeed.com/recrutement`,
 plus la documentation employeur.
 
+**Clos le 2026-08-03** : les vingt-trois points sont livrés. Ce qui reste
+d'ouvert pour l'application vit dans `TODO-PROFESSIONNALISATION.md`, et
+ne concerne plus les fonctionnalités.
+
 Complète `TODO-INDEED.md`, qui couvrait la **parité fonctionnelle** (atteinte).
 Ce document-ci porte sur **l'architecture des deux espaces** : ce qui existe
 chez nous est souvent bon pris isolément, mais éparpillé.
@@ -89,8 +93,10 @@ sans réponse depuis plus de deux semaines, et relance.
 - [x] ✅ **« Cette offre n'est plus disponible »** — affiché dès que
       `isActive` est faux, ce que `/track` renvoyait déjà. *Existait
       avant ce lot ; vérifié le 2026-08-03.*
-- [ ] **Invitations reçues** : quand un recruteur invite un profil du vivier à
-      postuler, le candidat doit le voir (voir P2 recruteur).
+- [x] ✅ **Invitations reçues** — cinquième onglet de « Mes candidatures ».
+      Sans lui, la proposition n'arrivait que par une notification, qui se
+      perd dans la liste des autres. Le compteur ne porte que les
+      invitations sans réponse.
 
 ### P1 — profil et pertinence
 
@@ -118,10 +124,18 @@ sans réponse depuis plus de deux semaines, et relance.
       **93 %**. Le score baisse et devient honnête — la réserve « poste
       sur site, alors que vous cherchez du télétravail » n'apparaissait
       pas du tout auparavant.
-- [ ] **Exclure des types d'emplois** (filtres négatifs persistants).
-- [ ] **« Disponible immédiatement »** : badge visible des recruteurs, alimente
-      le tri du vivier.
-- [ ] **« Cette offre ne m'intéresse pas »** : masquer une offre des résultats.
+- [x] ✅ **Exclure des types d'emplois** — seules les familles que le
+      lexique connaît sont retenues : un mot libre ne filtrerait rien, et
+      le candidat croirait avoir écarté quelque chose. Le rapprochement se
+      fait sur la catégorie, pas sur le titre.
+- [x] ✅ **« Disponible immédiatement »** — une **date**, pas une case.
+      « Disponible immédiatement » se périme tout seul ; une case cochée il
+      y a huit mois ment sans que personne ne s'en aperçoive. Qui n'a rien
+      déclaré n'est pas indisponible : le filtre l'écarte sans le juger.
+- [x] ✅ **« Cette offre ne m'intéresse pas »** — le filtre s'applique dans
+      la requête de catalogue elle-même. Un bouton qui enregistre bien mais
+      ne filtre pas est pire que pas de bouton : le candidat croit avoir
+      agi, l'offre revient, et il en conclut que le site ne l'écoute pas.
 
 ### Déjà en place — ne pas refaire
 
@@ -140,40 +154,79 @@ Entretiens). Restent des écarts de **profondeur**, pas de navigation.
 
 - [x] ✅ **Messagerie dans la sous-navigation** du recruteur — onglet de
       premier rang, comme chez Indeed.
-- [ ] **Pipeline à six statuts**. Nous en avons cinq — `Pending`, `Reviewed`,
-      `Interview`, `Accepted`, `Rejected` — et non quatre comme l'annonçait
-      ce document jusqu'au 2026-08-02. Manquent :
-      - **Contactée** — entre « examinée » et « acceptée », l'état réel de la
-        plupart des candidatures ;
-      - **Embauchée** — ferme la boucle et alimente le délai d'embauche.
-- [ ] **Statuts d'offre Ouverte / Suspendue / Fermée**. Nous n'avons que
-      `isActive` : impossible de suspendre une offre le temps d'un arbitrage,
-      il faut la supprimer ou la laisser tourner.
+- [x] ✅ **Pipeline à six statuts** — `Pending`, `Reviewed`, **`Contacted`**,
+      `Accepted`, **`Hired`**, `Rejected`. *Ce document a annoncé quatre
+      états, puis cinq le 2026-08-02 en prenant « Interview » pour un
+      statut — c'est le nom d'une entité du journal d'audit. Il y en avait
+      bien quatre ; un test fige désormais le compte à six.*
+
+      La liste des valeurs admises était recopiée dans quatre contrôleurs
+      et deux attributs de validation, et huit tables de libellés au front.
+      Elle est dite une fois de chaque côté.
+- [x] ✅ **États d'offre Ouverte / Suspendue / Fermée** — le seul geste
+      disponible était la suppression, qui emporte les candidatures reçues :
+      un arbitrage d'une semaine coûtait les dossiers du mois. `IsActive`
+      reste la seule condition des requêtes publiques et vaut vrai si et
+      seulement si l'état est « ouverte » ; l'invariant s'écrit à un seul
+      endroit, et les neuf sites qui posaient `IsActive` à la main y passent.
 
 ### P1 — volume et tri
 
-- [ ] **Tri des offres** par date, titre, lieu.
-- [ ] **Étiquettes personnalisées** sur les offres + filtrage par étiquette.
-- [ ] **Changement de statut en masse** sur les offres (existe déjà sur les
-      candidatures).
-- [ ] **Filtres candidats** : lieu, qualifications, et surtout **réponses aux
-      questions de présélection** — les questions existent déjà, on ne peut
-      simplement pas filtrer dessus.
+- [x] ✅ **Tri des offres** par date, titre, lieu — `localeCompare` en
+      français, sans quoi « Épinal » se range après « Zurich ».
+- [x] ✅ **Étiquettes personnalisées** — dans une **table à part** et non
+      une colonne : le point d'entrée public rend l'entité `JobOffer`
+      entière, et « priorité direction » serait parti chez chaque visiteur
+      du catalogue. Un test vérifie qu'elles ne fuient pas.
+- [x] ✅ **Changement d'état en masse** sur les offres. Deux défauts de
+      l'action groupée existante corrigés au passage : elle ignorait le
+      partage d'équipe, et son compte rendu portait le nombre de
+      candidatures **lues**, pas modifiées.
+- [x] ✅ **Filtres candidats** : ville, qualification, et **réponses aux
+      questions de présélection**. Tout était déjà dans la charge utile du
+      recruteur — aucun appel de plus. La lecture du JSON écarte une
+      question sans réponse et une réponse orpheline : mieux vaut ne rien
+      montrer que de prêter à un candidat une réponse qu'il n'a pas donnée.
 
 ### P1 — équipe
 
-- [ ] **Niveaux de permission**. Aujourd'hui le partage est binaire (bascule
-      « Mes offres / Toute l'équipe » par entreprise). Indeed distingue les
-      droits par membre.
-- [ ] **Notes partagées** visibles de toute l'équipe sur une candidature.
+- [x] ✅ **Niveaux de permission** — **par rôle**, décidé le 2026-08-03 :
+      un *propriétaire* par entreprise, des *membres* qui gèrent leurs
+      propres offres et **lisent** celles des autres. Un modèle par
+      capacité se défend sur le papier et se paie à l'usage : il faut
+      l'administrer, et personne ne le fait.
+
+      La lecture ne change pas — c'est elle qui fait l'intérêt du travail
+      à plusieurs. Trente appelants passent par `PeutGerer` : ce point
+      unique a changé, et lui seul. Un test tombé a révélé une erreur au
+      passage — les notes d'équipe passaient par le droit d'écriture, alors
+      qu'une note partagée est de la collaboration : seul le propriétaire
+      aurait pu en écrire.
+
+      La reprise désigne, par entreprise, le compte le plus ancien. Sans
+      elle, plus aucune équipe n'aurait eu de propriétaire et ses offres
+      seraient devenues ingérables.
+- [x] ✅ **Notes partagées** — `RecruiterNotes` est un champ unique : le
+      second qui écrit efface le premier, et ni l'un ni l'autre ne s'en
+      aperçoit. Le fil s'empile, porte ses auteurs, et le nom est figé à
+      l'écriture — un départ d'équipe ne doit pas rendre anonymes des mois
+      de notes. On retire sa note, jamais celle d'un collègue.
 
 ### P2 — sourcing
 
-- [ ] **Inviter un profil du vivier à postuler** (équivalent Smart Sourcing) :
-      notification au candidat, suivi de l'invitation côté recruteur.
-- [ ] **Analyses séparées du tableau de bord** : le tableau de bord répond à
-      « où j'en suis aujourd'hui », les analyses à « qu'est-ce qui marche ».
-      Tout est mélangé chez nous.
+- [x] ✅ **Inviter un profil du vivier à postuler** — une **proposition**,
+      pas une convocation : il n'existe pas d'état « ignorée », compter les
+      silences reviendrait à noter les gens sur leur réactivité à des
+      sollicitations qu'ils n'ont pas demandées. Quatre refus d'envoi : pas
+      deux fois sur la même offre, pas un profil masqué, pas une annonce
+      hors ligne, pas l'offre d'une autre maison. Postuler solde
+      l'invitation automatiquement.
+- [x] ✅ **Analyses séparées du tableau de bord** — `/recruteur/analyses`.
+      Les mêmes yeux ne cherchent pas les deux en même temps, et les
+      mélanger faisait que le second n'était jamais lu : on ouvrait le
+      tableau de bord pour traiter, on repartait après avoir traité. Ce qui
+      est là se regarde une fois par semaine ; ce qui reste se regarde tous
+      les matins.
 
 ### Déjà en place — ne pas refaire
 

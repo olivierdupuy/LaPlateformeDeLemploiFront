@@ -144,27 +144,6 @@ export class DashboardRecruiter implements OnInit {
   });
 
   /**
-   * Le parcours d'une candidature vu du recruteur.
-   *
-   * Remplace l'anneau des statuts, qui peignait quatre etats en vert,
-   * orange, rouge et bleu clair — des couleurs ecrites en dur, hors de
-   * toute palette du produit — et qui, pour deux candidatures, dessinait
-   * un camembert a deux parts.
-   */
-  funnel = computed(() => {
-    const d = this.data();
-    if (!d) return [];
-    const total = d.totalCandidatures || 0;
-    const steps = [
-      { key: 'in', label: 'Reçues', value: total, icon: 'bi-inbox' },
-      { key: 'seen', label: 'Examinées', value: (d.examinees || 0) + (d.acceptees || 0) + (d.refusees || 0), icon: 'bi-eye' },
-      { key: 'itw', label: 'Entretiens', value: d.entretiensPlanifies || 0, icon: 'bi-calendar-event' },
-      { key: 'ok', label: 'Acceptées', value: d.acceptees || 0, icon: 'bi-check-circle' },
-    ];
-    return steps.map((s) => ({ ...s, pct: total ? Math.round((s.value / total) * 100) : 0 }));
-  });
-
-  /**
    * Les offres classees par nombre de candidatures.
    *
    * Un graphique a barres horizontales dessinait la meme chose — sauf

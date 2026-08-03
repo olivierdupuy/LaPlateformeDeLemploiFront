@@ -253,3 +253,41 @@
   color: var(--rouge-700);
   white-space: nowrap;
 }
+
+/* Le renvoi vers les analyses. Une carte et non un lien discret : ce qui
+   part de cet écran doit se retrouver, sinon la séparation revient à
+   cacher. */
+.dr-vers-analyses {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem 1.3rem;
+  text-decoration: none;
+  transition: border-color var(--t), box-shadow var(--t);
+
+  &:hover { border-color: var(--bleu-300); box-shadow: var(--shadow-sm); }
+}
+
+.dva-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: var(--bleu-tint);
+  color: var(--bleu-700);
+}
+
+.dva-txt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+
+  strong { font-size: 0.94rem; color: var(--ink); }
+  span { font-size: 0.83rem; color: var(--muted); }
+}
+
+.dva-fleche { color: var(--muted); }

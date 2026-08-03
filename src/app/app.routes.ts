@@ -311,6 +311,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/job-form/job-form').then((m) => m.JobForm),
   },
   {
+    path: 'recruteur/analyses',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/analyses-recruteur/analyses-recruteur').then((m) => m.AnalysesRecruteur),
+  },
+  {
     path: 'recruteur/candidatures',
     canActivate: [recruiterGuard],
     loadComponent: () => import('./components/applications/applications').then((m) => m.Applications),
