@@ -135,6 +135,21 @@ jobs:
                 <mimeMap fileExtension=".json" mimeType="application/json" />
                 <remove fileExtension=".webmanifest" />
                 <mimeMap fileExtension=".webmanifest" mimeType="application/manifest+json" />
+                <!-- Le verrou de marque est en WebP. La table MIME d'IIS ne
+                     connait pas cette extension : le fichier etait bien
+                     deployee, et le serveur rendait 404 dessus — le site est
+                     parti en production sans logo. C'est la meme panne que
+                     pour les jetons ACME plus bas : IIS refuse de servir ce
+                     qu'il ne sait pas nommer.
+
+                     La regle de reecriture Angular masque le symptome et
+                     rend le diagnostic contre-intuitif : un chemin qui
+                     n'existe pas rend « index.html » en 200, un chemin qui
+                     existe mais dont le type est inconnu rend 404. Un 404
+                     sur un fichier statique veut donc dire l'inverse de ce
+                     qu'on croit — le fichier est la. -->
+                <remove fileExtension=".webp" />
+                <mimeMap fileExtension=".webp" mimeType="image/webp" />
 
                 <!-- ── Duree de vie des fichiers ──
                      Aucune politique n'etait declaree : IIS improvisait,
@@ -307,6 +322,28 @@ jobs:
           }
 
           Verifier "Sante de l'API" $api 200 | Out-Null
+
+          # ── Le verrou de marque ──
+          #
+          # Cette verification existe parce que la panne a eu lieu : le
+          # logo est passe en WebP, la table MIME d'IIS ignore cette
+          # extension, et le site est reste en ligne sans logo. Rien ne
+          # l'a signale — la construction etait verte, msdeploy avait
+          # transfere le fichier, et aucun test ne demandait au serveur
+          # de le rendre.
+          #
+          # Le type de reponse est verifie autant que le code : c'est lui
+          # qui manquait. Un 200 seul ne prouve rien ici, la reecriture
+          # Angular rendant « index.html » en 200 pour tout chemin absent.
+          $logo = Verifier "Verrou de marque" "$site/images/logo-lpde.webp" 200
+          if ($logo.Headers['Content-Type'] -notmatch 'image/webp') {
+            Write-Host "Le fichier repond, mais pas comme une image."
+            Write-Host "Type recu : $($logo.Headers['Content-Type'])"
+            Write-Host "Si c'est du HTML, le fichier est absent et la reecriture a repris la main."
+            Write-Host "Si c'est autre chose, la correspondance de type a disparu du web.config."
+            Write-Error "ECHEC Verrou de marque — le logo n'est pas servi comme une image."
+            exit 1
+          }
 
           # Une adresse inconnue doit rendre la coquille (l'application
           # affiche alors sa page 404), pas une erreur d'IIS : c'est la
