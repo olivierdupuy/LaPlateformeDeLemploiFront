@@ -839,7 +839,7 @@
   z-index: 40;
   background: var(--bleu-950);
   border-top: 1px solid var(--line-dark);
-  box-shadow: 0 -8px 28px -12px rgba(0, 21, 36, 0.45);
+  box-shadow: 0 -8px 28px -12px rgba(0, 28, 81, 0.45);
   animation: pf-rise 0.22s var(--ease);
 
   &__in {
@@ -866,7 +866,7 @@
   .btn-ghost {
     color: var(--on-dark-muted);
     border-color: transparent;
-    &:hover { color: #fff; background: rgba(255, 236, 209, 0.1); }
+    &:hover { color: #fff; background: rgba(235, 240, 248, 0.1); }
   }
 }
 

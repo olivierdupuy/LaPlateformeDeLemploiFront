@@ -312,7 +312,7 @@ export class AdminSettings implements OnInit {
           '</ul>',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#15616d',
+        confirmButtonColor: '#01489C',
         cancelButtonColor: '#577177',
         confirmButtonText: 'Enregistrer',
         cancelButtonText: 'Revenir',

@@ -13,7 +13,7 @@
   top: var(--nav-now);
   z-index: 45;
   background: var(--plum-900);
-  border-bottom: 1px solid rgba(255, 236, 209, 0.12);
+  border-bottom: 1px solid rgba(235, 240, 248, 0.12);
   transition: top 0.22s var(--ease);
 
   :focus-visible { outline-color: var(--bleu-300); }
@@ -44,7 +44,7 @@
   width: 1px;
   height: 18px;
   margin: 0 0.6rem 0 0.2rem;
-  background: rgba(255, 236, 209, 0.18);
+  background: rgba(235, 240, 248, 0.18);
 }
 
 .console-nav a {
@@ -112,18 +112,21 @@
   flex-shrink: 0;
 }
 
-// Styles des elements projetes
+// Styles des elements projetes.
+// L'espace recruteur et l'espace candidat sont du produit, pas de
+// l'administration : leurs en-tetes suivent l'echelle editoriale du site
+// et non la densite du panneau. Meme cran que `.page-head` du kit.
 .console-head__text ::ng-deep {
   h1 {
-    font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+    font-size: clamp(1.95rem, 3.9vw, 2.85rem);
     line-height: 1.12;
     letter-spacing: -0.012em;
   }
 
   .console-head__sub,
   p {
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 1.05rem;
+    line-height: 1.55;
     color: var(--muted);
     max-width: 70ch;
   }

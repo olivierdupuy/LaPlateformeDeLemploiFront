@@ -62,10 +62,10 @@ graph TD
     Profil["/profil → Mes données"] --> Pref
     RFac --> Doc
 
-    style RFac fill:#15616d,color:#fff
-    style AExp fill:#15616d,color:#fff
-    style MDsa fill:#15616d,color:#fff
-    style MRet fill:#15616d,color:#fff
+    style RFac fill:#01489C,color:#fff
+    style AExp fill:#01489C,color:#fff
+    style MDsa fill:#01489C,color:#fff
+    style MRet fill:#01489C,color:#fff
 ```
 
 ★ **Ce que le tracé a corrigé, en deux passes.**

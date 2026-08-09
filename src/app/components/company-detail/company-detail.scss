@@ -21,10 +21,10 @@
   .cd-count { color: var(--on-dark-muted); }
 
   .cd-follow {
-    background: rgba(255, 236, 209, 0.1);
-    border-color: rgba(255, 236, 209, 0.2);
+    background: rgba(235, 240, 248, 0.1);
+    border-color: rgba(235, 240, 248, 0.2);
     color: #fff;
-    &:hover { background: rgba(255, 236, 209, 0.18); }
+    &:hover { background: rgba(235, 240, 248, 0.18); }
     &.following { background: var(--bleu-500); border-color: var(--bleu-500); color: #fff; }
   }
 

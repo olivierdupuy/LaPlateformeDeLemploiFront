@@ -2,7 +2,7 @@
   <div head>
     @if (auth.currentUser(); as u) {
       <h1>Bonjour, <span class="em">{{ u.firstName }}</span></h1>
-      <p class="console-head__sub">{{ u.company ? u.company : 'Pilotez vos recrutements en un coup d’œil' }}</p>
+      <p class="console-head__sub">{{ u.company ? u.company : 'Ce qui a bougé sur vos offres depuis votre dernière visite' }}</p>
     }
   </div>
   <div actions>

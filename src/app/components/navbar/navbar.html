@@ -1,11 +1,14 @@
 <nav [class.scrolled]="scrolled()" aria-label="Navigation principale">
   <div class="nav-inner container">
     <!-- Marque -->
+    <!-- Sous 430 px, le verrou entier ne laisse plus la place au bouton du
+         menu : la loupe seule prend le relais. `<picture>` fait la bascule
+         sans charger les deux fichiers. -->
     <a routerLink="/" class="logo brand-lockup" aria-label="La Plateforme de l'Emploi — accueil">
-      <img src="/images/logo-lpde.svg" alt="" width="64" height="64" />
-      <span class="brand-lockup__word" aria-hidden="true">
-          <b>La plateforme</b><span>de l'emploi</span>
-        </span>
+      <picture>
+        <source srcset="/images/logo-lpde-mark.webp" media="(max-width: 430px)" width="195" height="192" />
+        <img src="/images/logo-lpde.webp" alt="" width="845" height="192" fetchpriority="high" />
+      </picture>
     </a>
 
     <!-- Recherche de barre — apparait au defilement.

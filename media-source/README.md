@@ -26,12 +26,34 @@ ffmpeg -i public/videos/recherche-emploi.mp4 -frames:v 1 \
 
 4,0 Mo → 716 Ko sans perte visible.
 
+## logo_lpde.png
+
+Le logo, fourni empilé : le symbole (trois silhouettes, une loupe)
+au-dessus du mot-symbole sur deux lignes, 1378×913, fond transparent.
+C'est la source de toute l'identité — les trois teintes de la palette y
+sont relevées au compte-gouttes (`#001C51` marine, `#01489C` bleu roi,
+`#FD7A02` orange) et le lettrage est du **Fredoka SemiBold**, vérifié en
+superposant « Plateforme » rendu dans cette fonte sur le fichier.
+
+Empilé, le verrou ne tient pas dans une barre de 96 px. Les dérivés
+recomposent les mêmes pièces à l'horizontale et déclinent les variantes
+pour fond sombre :
+
+```bash
+python outils/logo-derives.py
+```
+
+Produit `public/images/logo-lpde{,-dark,-mark,-mark-dark}.webp`, les trois
+icônes PWA et le favicon. Toutes les mesures (boîtes du symbole et du
+texte, centre et rayon de la loupe) sont en tête du script : si le logo
+change, ce sont elles qu'il faut reprendre.
+
 ## logo_lpde_mascotte.png
 
-Ancienne mascotte, remplacee par le symbole `public/images/logo-lpde.svg`.
-Conservee ici comme source : elle reste l'origine de la palette
-(bleu roi de la casquette, rouge de l'epingle, ambre du dossier) et de
-la forme d'epingle reprise dans le nouveau symbole.
+Toute premiere identite, remplacee par le symbole d'epingle
+`logo-lpde.svg`, lui-meme remplace par `logo_lpde.png` ci-dessus.
+Conservee comme source, mais elle n'alimente plus rien : ni la palette
+(desormais relevee dans le logo) ni aucune forme du symbole actuel.
 
 ## mascotte-bureau.png
 

@@ -29,8 +29,8 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #2f7d4f;
-  box-shadow: 0 0 0 3px rgba(47, 125, 79, 0.16);
+  background: var(--bleu-700);
+  box-shadow: 0 0 0 3px rgba(1, 62, 144, 0.16);
   animation: dash-pulse 2.4s var(--ease) infinite;
 }
 
@@ -41,8 +41,8 @@
 }
 
 @keyframes dash-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(47, 125, 79, 0.16); }
-  50% { box-shadow: 0 0 0 6px rgba(47, 125, 79, 0.04); }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(1, 62, 144, 0.16); }
+  50% { box-shadow: 0 0 0 6px rgba(1, 62, 144, 0.04); }
 }
 
 // ── Grilles ──
@@ -65,7 +65,16 @@
   .ad-kpis { grid-template-columns: repeat(3, 1fr); }
 }
 
-.dash-todo { margin-top: 0.85rem; }
+// « Ce qui attend une decision » est remonte au-dessus des graphiques.
+//
+// Le sous-titre de la page promet « ce qui a bouge sur trente jours, ET
+// ce qui attend une decision » ; la seconde moitie se trouvait apres six
+// tuiles et six graphiques, soit deux ecrans et demi de defilement. Un
+// panneau d'exploitation se lit dans l'ordre de l'urgence : ce qui exige
+// une action passe avant ce qui se contemple. Les graphiques restent —
+// ils ne sont simplement plus ce qu'on voit en premier.
+.dash-todo { margin-top: 1.4rem; }
+.dash-main { margin-top: 1.4rem; }
 
 // ── Entonnoir ──
 .dash-funnel { display: flex; flex-direction: column; }
@@ -224,7 +233,7 @@
   font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 500;
-  color: #3d2c00;
+  color: var(--rouge-800);
 }
 
 .dash-log__ico {

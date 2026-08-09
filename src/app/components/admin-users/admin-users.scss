@@ -312,9 +312,9 @@ a.user-cell {
 }
 
 @keyframes rt-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(18, 133, 94, 0.5); }
-  70%  { box-shadow: 0 0 0 6px rgba(18, 133, 94, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(18, 133, 94, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(1, 62, 144, 0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(1, 62, 144, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(1, 62, 144, 0); }
 }
 
 @keyframes rt-blink { to { opacity: 0.35; } }

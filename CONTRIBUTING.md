@@ -42,7 +42,7 @@ commentaire qui dit « on a essayé l'inverse, voici ce qui est arrivé »
 évite qu'on le réessaie.
 
 **Pas de valeur en dur pour les couleurs.** Les jetons sont dans
-`src/styles.scss`. Un `#15616d` écrit dans un composant survivra au
+`src/styles.scss`. Un `#01489C` écrit dans un composant survivra au
 prochain changement d'identité, et jurera.
 
 **Les nouveaux écrans sont chargés à la demande.** `loadComponent` dans

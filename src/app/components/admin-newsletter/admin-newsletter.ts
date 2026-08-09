@@ -655,7 +655,7 @@ export class AdminNewsletter implements OnInit, OnDestroy {
              </p>`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#15616d',
+      confirmButtonColor: '#01489C',
       cancelButtonColor: '#577177',
       confirmButtonText: 'Passer aux blocs',
       cancelButtonText: 'Garder le HTML',
@@ -772,7 +772,7 @@ export class AdminNewsletter implements OnInit, OnDestroy {
       inputLabel: 'Laissez vide pour recevoir sur votre propre adresse',
       inputPlaceholder: 'vous@exemple.fr',
       showCancelButton: true,
-      confirmButtonColor: '#15616d',
+      confirmButtonColor: '#01489C',
       cancelButtonColor: '#577177',
       confirmButtonText: 'Envoyer',
       cancelButtonText: 'Annuler',
@@ -813,7 +813,7 @@ export class AdminNewsletter implements OnInit, OnDestroy {
              </p>`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#15616d',
+      confirmButtonColor: '#01489C',
       cancelButtonColor: '#577177',
       confirmButtonText: `Envoyer aux ${n}`,
       cancelButtonText: 'Pas encore',
@@ -902,7 +902,7 @@ export class AdminNewsletter implements OnInit, OnDestroy {
                      Ciblage : ${AdminNewsletter.echapper(this.decrireSegment(x)) || 'tous les abonnés'}
                    </div>
                  </div>${liste}`,
-          confirmButtonColor: '#15616d',
+          confirmButtonColor: '#01489C',
           confirmButtonText: 'Fermer',
           width: 560,
         });

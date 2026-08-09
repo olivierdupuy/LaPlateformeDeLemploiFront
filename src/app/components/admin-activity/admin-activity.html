@@ -54,8 +54,9 @@
     } @else if (failed()) {
       <div class="empty-box card animate-in">
         <i class="bi bi-exclamation-triangle"></i>
-        <h3>Chargement impossible</h3>
-        <p>Le journal n'a pas pu être récupéré. Réessayez dans un instant.</p>
+        <h3>Le journal n'est pas arrivé</h3>
+        <p>L'API n'a pas répondu. Réessayez ; si rien ne change, l'état des services est sur la page Exploitation.</p>
+        <button class="btn-secondary btn-sm" (click)="loadLogs()"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Réessayer</button>
       </div>
     } @else if (!filtres().length) {
       <div class="empty-box card animate-in">

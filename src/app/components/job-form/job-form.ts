@@ -373,7 +373,7 @@ export class JobForm implements OnInit {
               icon: 'info',
               title: 'Offre soumise a moderation',
               text: 'Votre offre a ete renvoyee en moderation. Elle sera visible apres validation par un administrateur.',
-              confirmButtonColor: '#15616d',
+              confirmButtonColor: '#01489C',
             }).then(() => this.router.navigate(['/recruteur/offres']));
           } else {
             this.toastr.success(this.wasDraft() ? 'Offre publiée' : 'Offre mise à jour');
@@ -391,7 +391,7 @@ export class JobForm implements OnInit {
               icon: 'info',
               title: 'Offre soumise a moderation',
               html: '<p>Votre offre a bien ete envoyee.</p><p>Elle sera <strong>visible par les candidats</strong> une fois validee par un administrateur.</p><p style="margin-top:8px;font-size:13px;color:#577177">Vous serez notifie lorsque votre offre sera approuvee.</p>',
-              confirmButtonColor: '#15616d',
+              confirmButtonColor: '#01489C',
               confirmButtonText: 'Compris',
             }).then(() => this.router.navigate(['/recruteur/offres']));
           } else {
@@ -399,7 +399,7 @@ export class JobForm implements OnInit {
               icon: 'success',
               title: 'Offre publiée !',
               text: 'Votre offre est maintenant visible par les candidats.',
-              confirmButtonColor: '#15616d',
+              confirmButtonColor: '#01489C',
             }).then(() => this.router.navigate(['/offres', job.id]));
           }
         },
@@ -425,7 +425,7 @@ export class JobForm implements OnInit {
                 ?? 'Fermez une offre en ligne ou changez de formule pour en publier une nouvelle.',
               footer: 'Votre saisie est conservée en brouillon.',
               confirmButtonText: 'Voir les formules',
-              confirmButtonColor: '#15616d',
+              confirmButtonColor: '#01489C',
               showCancelButton: true,
               cancelButtonText: 'Revenir à mes offres',
             }).then((choix) => {

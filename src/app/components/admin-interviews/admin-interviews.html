@@ -82,8 +82,9 @@
     @if (q.failed()) {
       <div class="empty-box animate-in">
         <i class="bi bi-exclamation-triangle"></i>
-        <h3>Chargement impossible</h3>
-        <p>La liste des entretiens n'a pas pu etre recuperee. Reessayez dans un instant.</p>
+        <h3>La liste des entretiens n'est pas arrivée</h3>
+        <p>L'API n'a pas répondu. Réessayez ; si rien ne change, l'état des services est sur la page Exploitation.</p>
+        <button class="btn-secondary btn-sm" (click)="q.refresh()"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Réessayer</button>
       </div>
     } @else if (q.loading() && !q.items().length) {
       <div class="empty-box"><div class="spinner"></div></div>

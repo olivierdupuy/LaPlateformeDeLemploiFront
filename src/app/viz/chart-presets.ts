@@ -42,9 +42,11 @@ import { CHROME, ORDINAL, SERIES, SURFACE, seriesColors, wash } from './palette'
 
 // ── Fontes ──
 // IBM Plex Mono chiffre les axes : les graduations s'alignent verticalement.
-// Inter porte les legendes et les infobulles, qui sont du texte.
+// Nunito Sans porte les legendes et les infobulles, qui sont du texte — la
+// meme fonte que l'interface autour de la carte. Fredoka n'entre pas ici :
+// c'est une fonte d'affichage, illisible a 11 px sur une graduation.
 const MONO = "'IBM Plex Mono', ui-monospace, 'SF Mono', monospace";
-const SANS = "'Inter', -apple-system, 'Segoe UI', sans-serif";
+const SANS = "'Nunito Sans', -apple-system, 'Segoe UI', sans-serif";
 
 /** Abrege les grands nombres sans les rendre faux : 1 284 · 12,9 k · 3,1 M. */
 export function compact(n: number): string {
@@ -149,9 +151,9 @@ if (!reglagesPoses) {
 function tooltip(format?: (item: TooltipItem<any>) => string): ChartOptions['plugins'] {
   return {
     tooltip: {
-      backgroundColor: '#002830',
+      backgroundColor: '#002765',
       titleColor: '#ffffff',
-      bodyColor: '#c1dfe5',
+      bodyColor: '#B9D1F6',
       titleFont: { family: SANS, size: 12.5, weight: 700 },
       bodyFont: { family: MONO, size: 12 },
       padding: { x: 11, y: 9 },

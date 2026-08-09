@@ -255,7 +255,7 @@ export class JobDetail implements OnInit {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18, attribution: '&copy; OpenStreetMap',
     }).addTo(map);
-    L.circleMarker([lat, lng], { radius: 11, color: '#15616d', weight: 3, fillColor: '#3a808c', fillOpacity: 0.5 }).addTo(map);
+    L.circleMarker([lat, lng], { radius: 11, color: '#01489C', weight: 3, fillColor: '#2D66BD', fillOpacity: 0.5 }).addTo(map);
     setTimeout(() => map.invalidateSize(), 200);
   }
 

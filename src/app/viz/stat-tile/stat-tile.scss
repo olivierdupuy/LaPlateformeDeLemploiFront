@@ -13,7 +13,7 @@
   align-items: center;
   gap: 0.7rem;
   height: 100%;
-  padding: 0.9rem 1rem;
+  padding: 1rem 1.1rem;
   // La tuile se mesure elle-même : c'est sa largeur, pas celle de la
   // fenêtre, qui décide si l'étincelle a la place de tenir.
   container-type: inline-size;
@@ -32,15 +32,18 @@
   .st-go { opacity: 1; transform: translateX(0); }
 }
 
-// Filet de rubrique : il identifie la tuile, il ne juge pas sa valeur.
-.st-stripe {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--st-accent);
-}
+// Le filet de rubrique a ete retire.
+//
+// La tuile portait DEUX marqueurs de la meme couleur pour la meme
+// information : un filet vertical a gauche et la pastille d'icone. Le
+// filet ne disait rien que la pastille ne disait deja, en mieux — elle,
+// au moins, porte une icone. Six tuiles alignees, c'etaient douze taches
+// de couleur pour six rubriques.
+//
+// `.st-stripe` reste dans le gabarit et ne peint plus rien : le jour ou
+// une tuile devra signaler un etat (et non une rubrique), c'est ce filet
+// qu'il faudra rallumer — un etat se lit au bord, pas au centre.
+.st-stripe { display: none; }
 
 .st-ico {
   width: 34px;
@@ -65,7 +68,7 @@
 
 .st-label {
   font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-size: 0.64rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -78,7 +81,7 @@
 .st-value-row {
   display: flex;
   align-items: baseline;
-  gap: 0.45rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
@@ -86,7 +89,7 @@
 // un « 121 ». La chasse fixe est reservee aux colonnes qui s'alignent.
 .st-value {
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: 1.95rem;
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.02em;
@@ -97,11 +100,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.15rem;
-  font-size: 0.72rem;
+  font-size: 0.79rem;
   font-weight: 700;
   white-space: nowrap;
 
-  i { font-size: 0.66rem; }
+  i { font-size: 0.72rem; }
 }
 
 .st-delta__per {
@@ -112,7 +115,7 @@
 }
 
 .st-note {
-  font-size: 0.72rem;
+  font-size: 0.79rem;
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;

@@ -117,7 +117,7 @@ export class AdminCatalogue implements OnInit {
              </p>`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#15616d',
+      confirmButtonColor: '#01489C',
       cancelButtonColor: '#577177',
       confirmButtonText: 'Lancer',
       cancelButtonText: 'Annuler',

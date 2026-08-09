@@ -337,7 +337,7 @@ adresse des services publics ou de l'emploi.
 - [ ] **Page « Déclaration d'accessibilité »** avec le taux de conformité
       et les points connus non conformes.
 - [ ] **Contrastes** revérifiés après le changement d'identité visuelle
-      (pétrole sur crème notamment).
+      (bleu marine et orange du logo, sol blanc froid).
 
 ### 10. Qualité des données d'offres
 

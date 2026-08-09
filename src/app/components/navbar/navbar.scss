@@ -31,16 +31,14 @@ nav {
 }
 
 // ── Marque ──
-// Le verrou (symbole + mot-symbole) est defini dans styles.scss ;
-// ici on ne fixe que sa taille dans la barre.
+// Le verrou est defini dans styles.scss ; ici on ne fixe que sa taille
+// dans la barre. --lock donne la hauteur de l'image entiere, symbole
+// compris : il faut donc plus que les 46 px de l'ancien symbole seul
+// pour que le mot-symbole garde la meme hauteur d'oeil qu'avant.
 // Resserree, la barre reprend quatre-vingt-seize pixels a soixante-huit :
 // le verrou suit, sans quoi il toucherait les bords.
-.logo { --lock: 46px; }
-nav.scrolled .logo { --lock: 38px; }
-// Une variable personnalisee ne s'interpole pas : c'est l'image et le mot
-// qui portent la transition, chacun dans son unite.
-.brand-lockup img { transition: width 0.22s var(--ease), height 0.22s var(--ease), transform var(--t) var(--ease-spring); }
-.brand-lockup__word b, .brand-lockup__word span { transition: font-size 0.22s var(--ease); }
+.logo { --lock: 54px; }
+nav.scrolled .logo { --lock: 44px; }
 
 // ── Recherche de barre ──
 // Cachee en haut de page (le hero porte deja son champ), elle se deplie
@@ -404,7 +402,7 @@ nav.scrolled .logo { --lock: 38px; }
 .nav-veil {
   position: fixed;
   inset: var(--nav-now) 0 0;
-  background: rgba(0, 21, 36, 0.42);
+  background: rgba(0, 28, 81, 0.42);
   backdrop-filter: blur(2px);
   z-index: -1;
   animation: fadeIn 0.18s ease both;
@@ -457,14 +455,11 @@ nav.scrolled .logo { --lock: 38px; }
 // Sur un telephone, le verrou de marque, « Connexion », « Inscription » et
 // le bouton du menu ne tiennent pas ensemble : le dernier passait hors de
 // l'ecran et le site n'etait plus navigable. Le mot-symbole cede la place
-// au symbole seul, et les deux boutons descendent dans le menu.
+// au symbole seul (bascule faite par le <picture> du gabarit), et les deux
+// boutons descendent dans le menu.
 @media (max-width: 700px) {
   .nav-auth-mobile { display: flex; }
   .btn-login, .btn-register { display: none; }
-}
-
-@media (max-width: 430px) {
-  .brand-lockup__word { display: none; }
 }
 
 @media (max-width: 480px) {

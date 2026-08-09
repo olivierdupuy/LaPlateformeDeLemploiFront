@@ -97,22 +97,29 @@
 
 .hero-left { min-width: 0; animation: fadeUp 0.6s var(--ease-out) both; }
 
-// Inter Tight a des chasses plus etroites que la Fredoka qu'elle
-// remplace : le titre peut reprendre sa taille pleine et se resserrer,
-// il tient toujours sur deux lignes.
+// Fredoka est revenue avec le logo, et elle a des chasses plus larges
+// qu'Inter Tight. Le titre passe donc sur TROIS lignes sur un grand
+// ecran, la ou il en tenait deux : la colonne de gauche fait environ
+// 640 px et « Votre prochain poste » n'y entre plus au-dessus de 72 px.
+// C'est assume — a 800 px de hauteur de fenetre le champ de recherche
+// reste a 630 px, et a 720 px il est encore au-dessus de la ligne de
+// flottaison. Si on voulait deux lignes, il faudrait redescendre le
+// plafond a 4.5rem : c'est la valeur exacte ou la bascule se produit.
+// `max-width` a 15ch fixe la coupure plutot que de la laisser au hasard
+// des largeurs de fenetre.
 .hero h1 {
-  margin-top: 1.1rem;
-  font-size: clamp(2.5rem, 5.6vw, 4.5rem);
+  margin-top: 1.15rem;
+  font-size: clamp(2.9rem, 6.2vw, 5.3rem);
   line-height: 1.05;
   letter-spacing: -0.025em;
   color: #fff;
-  max-width: 17ch;
+  max-width: 15ch;
 }
 
 .hero-sub {
-  margin-top: 1.15rem;
-  font-size: clamp(0.98rem, 1.3vw, 1.1rem);
-  line-height: 1.62;
+  margin-top: 1.25rem;
+  font-size: clamp(1.13rem, 1.5vw, 1.28rem);
+  line-height: 1.58;
   color: var(--on-plum-muted);
   max-width: 54ch;
 }
@@ -124,7 +131,7 @@
   margin-top: 1.15rem;
   padding: 0.7rem 0.95rem;
   border-left: 2px solid var(--bleu-400);
-  background: rgba(255, 236, 209, 0.09);
+  background: rgba(235, 240, 248, 0.09);
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
   font-size: 0.88rem;
   color: var(--on-plum);
@@ -215,8 +222,8 @@
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--on-plum);
-  background: rgba(255, 236, 209, 0.08);
-  border: 1px solid rgba(255, 236, 209, 0.15);
+  background: rgba(235, 240, 248, 0.08);
+  border: 1px solid rgba(235, 240, 248, 0.15);
   border-radius: var(--r-full);
   transition: color var(--t), background var(--t), border-color var(--t);
   &:hover {
@@ -238,7 +245,7 @@
   flex-shrink: 0;
   padding: 0.05rem 0.4rem;
   border-radius: var(--r-full);
-  background: rgba(255, 236, 209, 0.12);
+  background: rgba(235, 240, 248, 0.12);
   font-family: var(--font-mono);
   font-size: 0.6rem;
   font-weight: 500;
@@ -255,7 +262,7 @@
   gap: clamp(1.5rem, 3.5vw, 3rem);
   margin-top: clamp(2.25rem, 4vw, 3rem);
   padding-top: 1.6rem;
-  border-top: 1px solid rgba(255, 236, 209, 0.12);
+  border-top: 1px solid rgba(235, 240, 248, 0.12);
 }
 
 .hstat {
@@ -286,8 +293,8 @@
 .hero-panel {
   min-width: 0;
   padding: 1.15rem 1.2rem 1.2rem;
-  background: rgba(0, 21, 36, 0.42);
-  border: 1px solid rgba(255, 236, 209, 0.14);
+  background: rgba(0, 28, 81, 0.42);
+  border: 1px solid rgba(235, 240, 248, 0.14);
   border-radius: var(--r-lg);
   backdrop-filter: blur(14px) saturate(1.3);
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
@@ -302,7 +309,7 @@
   gap: 1rem;
   padding-bottom: 0.8rem;
   margin-bottom: 0.35rem;
-  border-bottom: 1px solid rgba(255, 236, 209, 0.13);
+  border-bottom: 1px solid rgba(235, 240, 248, 0.13);
 }
 
 .hp-live {
@@ -351,7 +358,7 @@
   margin: 0 -0.5rem;
   border-radius: var(--r-sm);
   transition: background var(--t);
-  &:hover { background: rgba(255, 236, 209, 0.08); }
+  &:hover { background: rgba(235, 240, 248, 0.08); }
 }
 
 .hp-av {
@@ -405,8 +412,8 @@
   gap: 0.5rem;
   margin-top: 0.9rem;
   padding: 0.7rem 1rem;
-  background: rgba(255, 236, 209, 0.1);
-  border: 1px solid rgba(255, 236, 209, 0.18);
+  background: rgba(235, 240, 248, 0.1);
+  border: 1px solid rgba(235, 240, 248, 0.18);
   border-radius: var(--r-sm);
   font-size: 0.83rem;
   font-weight: 600;

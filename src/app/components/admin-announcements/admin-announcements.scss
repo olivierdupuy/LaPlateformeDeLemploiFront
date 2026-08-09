@@ -170,10 +170,10 @@
 
 // Les quatre natures, sur l'échelle d'état de la palette. Les fonds
 // restent des aplats de la gamme ; seule l'encre porte la gravité.
-.pv-info    { background: var(--bleu-100);   color: #123c44; }
-.pv-warning { background: var(--rouge-100);  color: #6b4a00; }
-.pv-success { background: var(--nuage-2);    color: #1d5c3a; }
-.pv-danger  { background: var(--danger-100); color: #8a2a22; }
+.pv-info    { background: var(--bleu-100);   color: var(--bleu-800); }
+.pv-warning { background: var(--rouge-100);  color: var(--rouge-800); }
+.pv-success { background: var(--nuage-2);    color: var(--ink-soft); }
+.pv-danger  { background: var(--danger-100); color: var(--danger-700); }
 
 .pv-notif {
   display: flex;

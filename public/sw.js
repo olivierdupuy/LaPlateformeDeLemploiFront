@@ -30,7 +30,10 @@
 // Le numero change avec la strategie : « activate » supprime tout cache
 // dont le nom differe, ce qui purge la coquille figee chez les visiteurs
 // qui la portent encore.
-const CACHE = 'lpde-v2';
+// v3 : le logo a change sans que « favicon.ico » ni « icon-192.png »
+// changent de nom. Sans ce numero, un visiteur deja passe garderait
+// l'ancienne identite en cache indefiniment.
+const CACHE = 'lpde-v3';
 
 // De quoi afficher quelque chose sans reseau. « index.html » y figure
 // comme secours, jamais comme reponse preferee.

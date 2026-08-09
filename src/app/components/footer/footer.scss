@@ -27,7 +27,7 @@
     position: absolute;
     top: -60%; right: -4%;
     width: 46%; height: 220%;
-    background: radial-gradient(circle, rgba(58, 128, 140, 0.32), transparent 62%);
+    background: radial-gradient(circle, rgba(45, 102, 189, 0.32), transparent 62%);
     pointer-events: none;
   }
 
@@ -54,18 +54,22 @@
   }
 
   h2 {
-    margin-top: 0.7rem;
-    font-size: clamp(1.6rem, 3vw, 2.5rem);
+    margin-top: 0.8rem;
+    font-size: clamp(1.95rem, 3.6vw, 3.1rem);
     line-height: 1.1;
     color: #fff;
-    max-width: 30ch;
+    max-width: 26ch;
   }
 
-  .em-plum { color: var(--bleu-400); }
+  // Le bandeau est bleu : le mot en evidence y prend l'orange clair du
+  // logo, comme partout ailleurs sur fond sombre. Un bleu clair sur bleu
+  // profond ne se detachait pas assez (4.07:1 contre 6.95:1).
+  .em-plum { color: var(--rouge-400); }
 
   p {
-    margin-top: 0.7rem;
-    font-size: 0.95rem;
+    margin-top: 0.8rem;
+    font-size: 1.08rem;
+    line-height: 1.55;
     color: var(--on-dark-muted);
     max-width: 46ch;
   }
@@ -90,7 +94,7 @@
   &:hover {
     background: var(--bleu-100);
     transform: translateY(-2px);
-    box-shadow: 0 14px 30px -12px rgba(0, 21, 36, 0.6);
+    box-shadow: 0 14px 30px -12px rgba(0, 28, 81, 0.6);
     i { transform: translateX(3px); }
   }
   &:active { transform: translateY(0); }
@@ -116,12 +120,13 @@ footer {
 .ft-brand { max-width: 380px; }
 
 .ft-logo {
-  --lock: 48px;
+  --lock: 56px;
   margin-bottom: 1.15rem;
 }
 
 .ft-tagline {
-  line-height: 1.65;
+  font-size: 1.03rem;
+  line-height: 1.6;
   color: var(--on-plum-muted);
   margin-bottom: 1.6rem;
 }
@@ -146,8 +151,8 @@ footer {
     flex: 1;
     min-width: 0;
     padding: 0.66rem 0.85rem;
-    background: rgba(255, 236, 209, 0.08);
-    border: 1px solid rgba(255, 236, 209, 0.18);
+    background: rgba(235, 240, 248, 0.08);
+    border: 1px solid rgba(235, 240, 248, 0.18);
     border-radius: var(--r-sm);
     color: #fff;
     font-size: 0.85rem;
@@ -155,7 +160,7 @@ footer {
     transition: border-color var(--t), background var(--t);
 
     &::placeholder { color: var(--on-dark-muted); }
-    &:focus { border-color: var(--ambre); background: rgba(255, 236, 209, 0.12); }
+    &:focus { border-color: var(--ambre); background: rgba(235, 240, 248, 0.12); }
   }
 
   button {
@@ -185,8 +190,8 @@ footer {
   width: 36px; height: 36px;
   border-radius: var(--r-sm);
   display: flex; align-items: center; justify-content: center;
-  background: rgba(255, 236, 209, 0.07);
-  border: 1px solid rgba(255, 236, 209, 0.12);
+  background: rgba(235, 240, 248, 0.07);
+  border: 1px solid rgba(235, 240, 248, 0.12);
   color: var(--on-plum-muted);
   font-size: 0.95rem;
   transition: color var(--t), background var(--t), border-color var(--t), transform var(--t);
@@ -225,7 +230,7 @@ footer {
 // ── Bas de page ──
 .ft-divider {
   height: 1px;
-  background: rgba(255, 236, 209, 0.12);
+  background: rgba(235, 240, 248, 0.12);
   margin: clamp(2.25rem, 5vw, 3.25rem) 0 1.5rem;
 }
 
@@ -287,8 +292,8 @@ footer {
   gap: 0.5rem;
   padding: 0.7rem 0.85rem;
   border-radius: var(--r-sm);
-  background: rgba(255, 236, 209, 0.08);
-  border: 1px solid rgba(255, 236, 209, 0.18);
+  background: rgba(235, 240, 248, 0.08);
+  border: 1px solid rgba(235, 240, 248, 0.18);
   font-size: 0.82rem;
   line-height: 1.55;
 

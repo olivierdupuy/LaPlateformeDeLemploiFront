@@ -34,7 +34,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 21% 50%, rgba(58, 128, 140, 0.3), transparent 62%);
+    background: radial-gradient(circle at 21% 50%, rgba(45, 102, 189, 0.3), transparent 62%);
     pointer-events: none;
   }
 }
@@ -114,8 +114,8 @@
   font-size: 0.79rem;
   font-weight: 500;
   color: var(--on-plum);
-  background: rgba(255, 236, 209, 0.08);
-  border: 1px solid rgba(255, 236, 209, 0.16);
+  background: rgba(235, 240, 248, 0.08);
+  border: 1px solid rgba(235, 240, 248, 0.16);
   border-radius: var(--r-full);
   transition: color var(--t), background var(--t), border-color var(--t);
   i { font-size: 0.68rem; opacity: 0.6; }

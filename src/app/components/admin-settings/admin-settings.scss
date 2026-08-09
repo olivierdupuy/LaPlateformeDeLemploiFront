@@ -31,8 +31,8 @@
     align-items: center;
     gap: 0.45rem;
     font-family: var(--font-display);
-    font-size: 1.02rem;
-    font-weight: 700;
+    font-size: 1.32rem;
+    font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--ink);
     i { color: var(--bleu-600); font-size: 0.95em; }
@@ -103,8 +103,8 @@
     align-items: center;
     gap: 0.45rem;
     flex-wrap: wrap;
-    font-size: 0.92rem;
-    font-weight: 600;
+    font-size: 1.02rem;
+    font-weight: 700;
     color: var(--ink);
   }
 
@@ -122,8 +122,8 @@
   // La conséquence occupe plus de place que le libellé : c'est elle qu'on
   // vient lire avant de décider.
   &__effet {
-    margin-top: 0.2rem;
-    font-size: 0.83rem;
+    margin-top: 0.25rem;
+    font-size: 0.94rem;
     line-height: 1.55;
     color: var(--ink-soft);
     max-width: 68ch;
@@ -237,7 +237,7 @@
   z-index: 40;
   background: var(--bleu-950);
   border-top: 1px solid var(--line-dark);
-  box-shadow: 0 -8px 28px -12px rgba(0, 21, 36, 0.45);
+  box-shadow: 0 -8px 28px -12px rgba(0, 28, 81, 0.45);
   animation: set-rise 0.22s var(--ease);
 
   &__in {
@@ -264,7 +264,7 @@
   .btn-ghost {
     color: var(--on-dark-muted);
     border-color: transparent;
-    &:hover { color: #fff; background: rgba(255, 236, 209, 0.1); }
+    &:hover { color: #fff; background: rgba(235, 240, 248, 0.1); }
   }
 }
 
@@ -301,15 +301,15 @@
    Les trois états se lisent à la couleur avant de se lire au mot : on
    ouvre cette page pour savoir si quelque chose cloche, pas pour lire. */
 .sante {
-  border: 1px solid var(--bordure, #e4e7e9);
+  border: 1px solid var(--bordure, #DCE2ED);
   border-radius: 12px;
   padding: 1rem 1.15rem;
   margin-bottom: 1.5rem;
   background: var(--surface, #fff);
 
-  --teinte: #1c7a4a;
-  &[data-etat='dégradé']  { --teinte: #b5651d; }
-  &[data-etat='en panne'] { --teinte: #a3052f; }
+  --teinte: var(--bleu-700);
+  &[data-etat='dégradé']  { --teinte: var(--rouge-700); }
+  &[data-etat='en panne'] { --teinte: var(--danger-600); }
 
   &__head {
     display: flex;
@@ -348,17 +348,17 @@
       gap: 0.15rem 0.9rem;
       font-size: 0.86rem;
       padding-left: 0.7rem;
-      border-left: 2px solid #1c7a4a;
+      border-left: 2px solid var(--bleu-700);
 
-      &[data-etat='dégradé']  { border-left-color: #b5651d; }
-      &[data-etat='en panne'] { border-left-color: #a3052f; }
+      &[data-etat='dégradé']  { border-left-color: var(--rouge-700); }
+      &[data-etat='en panne'] { border-left-color: var(--danger-600); }
     }
   }
 
   &__quoi { font-weight: 600; }
 
   &__detail {
-    color: var(--texte-attenue, #5c757b);
+    color: var(--texte-attenue, #657183);
     word-break: break-word;
   }
 
@@ -456,7 +456,7 @@
   display: grid;
   place-items: center;
   padding: 1.2rem;
-  background: rgba(0, 21, 36, 0.55);
+  background: rgba(0, 28, 81, 0.55);
 
   &__in {
     display: flex;

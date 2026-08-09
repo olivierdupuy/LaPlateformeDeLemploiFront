@@ -76,158 +76,6 @@
       [loading]="chargeApercu()" />
   </div>
 
-  <p class="ad-hint">
-    <i class="bi bi-hand-index-thumb" aria-hidden="true"></i>
-    Cliquez un point ou un segment pour ouvrir la liste correspondante. Le bouton
-    <i class="bi bi-table" aria-hidden="true"></i> de chaque carte affiche les valeurs en toutes lettres.
-  </p>
-
-  <!-- ═══ ACTIVITÉ ═══ -->
-  <div class="ad-grid dash-main">
-    <!-- Deux graphiques et non un : les offres arrivent par imports de
-         masse (119 000 en une journée) quand les candidatures se comptent
-         par unités. Sur une échelle commune, la courbe des offres montait
-         au plafond et les deux autres se couchaient sur le zéro. -->
-    <app-viz-card
-      title="Offres publiées"
-      sub="Les imports de masse se lisent ici, à leur propre échelle."
-      icon="bi-briefcase"
-      height="clamp(230px, 30vh, 320px)"
-      [config]="offresConfig()"
-      [rows]="offresRows()"
-      rowsLabel="Jour" rowsValue="Offres"
-      drillLabel="Les offres" drillRoute="/admin/offres"
-      [loading]="chargeSuite()"
-      empty="Aucune offre publiée sur la période." />
-
-    <app-viz-card
-      title="Candidatures et inscriptions"
-      sub="L'activité des personnes, sur trente jours."
-      icon="bi-activity"
-      height="clamp(230px, 30vh, 320px)"
-      [config]="activiteConfig()"
-      [rows]="activiteRows()"
-      rowsLabel="Jour" rowsNote="Détail" rowsValue="Total"
-      drillLabel="Journal" drillRoute="/admin/activite"
-      [loading]="chargeSuite()"
-      empty="Aucune activité enregistrée sur la période." />
-
-    <!-- ═══ ENTONNOIR ═══ -->
-    <!-- Ni histogramme ni Chart.js : entre les vues et les acceptations il y a
-         quatre ordres de grandeur, la barre encoderait un trait d'un pixel.
-         Elle porte donc le taux de passage, le chiffre absolu se lit à côté. -->
-    <section class="ad-panel dash-funnel">
-      <header class="ad-panel__head">
-        <span class="ad-panel__ico"><i class="bi bi-funnel" aria-hidden="true"></i></span>
-        <h3>Parcours de candidature</h3>
-        @if (tauxGlobal() !== null) {
-          <span class="dash-funnel__rate" title="Part des vues qui aboutissent à une acceptation">
-            {{ tauxGlobal()! < 0.1 ? '< 0,1' : (tauxGlobal()! | number: '1.0-2') }} %
-            <span>bout en bout</span>
-          </span>
-        }
-      </header>
-
-      <div class="ad-panel__body">
-        @if (!entonnoir().length) {
-          <div class="ad-void">
-            <i class="bi bi-funnel" aria-hidden="true"></i>
-            <p>Les chiffres du parcours arrivent avec l'aperçu.</p>
-          </div>
-        } @else {
-          <ol class="fun">
-            @for (e of entonnoir(); track e.label; let i = $index) {
-              <li class="fun-step">
-                <a class="fun-link" [routerLink]="e.route" [queryParams]="e.params ?? null">
-                  <span class="fun-ico" [style.background]="e.color" aria-hidden="true">
-                    <i class="bi" [class]="e.icon"></i>
-                  </span>
-
-                  <span class="fun-txt">
-                    <span class="fun-label">{{ e.label }}</span>
-                    <span class="fun-value">{{ nf(e.value) }}</span>
-                  </span>
-
-                  <span class="fun-meter">
-                    <!-- La jauge mesure le passage depuis l'étape d'avant, pas la
-                         part du total : c'est la seule lecture honnête ici. -->
-                    <span class="fun-meter__track">
-                      @if (e.rate !== null) {
-                        <!-- Bornée à 100 : une jauge de passage ne peut pas
-                             déborder de son propre socle. -->
-                        <span class="fun-meter__fill"
-                              [class.is-overflow]="e.overflow"
-                              [style.width.%]="Math.min(Math.max(e.rate, 1.2), 100)"
-                              [style.background]="e.color"></span>
-                      }
-                    </span>
-                    <span class="fun-meter__lbl">
-                      @if (i === 0) {
-                        point de départ
-                      } @else if (e.rate === null) {
-                        <!-- Étape précédente vide : le taux n'est pas nul, il
-                             n'existe pas. -->
-                        étape précédente non renseignée
-                      } @else if (e.overflow) {
-                        <!-- Plus nombreux que l'étape d'avant : les deux ne
-                             sont pas emboîtées. Un pourcentage mentirait — il
-                             affichait « 300 % de l'étape précédente ». -->
-                        <span class="fun-meter__warn"
-                              title="Une candidature peut être acceptée sans qu'un entretien ait été enregistré : les deux étapes ne s'emboîtent pas.">
-                          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
-                          plus que l'étape précédente
-                        </span>
-                      } @else {
-                        {{ e.rate < 0.1 && e.rate > 0 ? '< 0,1' : (e.rate | number: '1.0-1') }} %
-                        de l'étape précédente
-                      }
-                    </span>
-                  </span>
-                </a>
-              </li>
-            }
-          </ol>
-        }
-      </div>
-    </section>
-
-    <!-- ═══ STATUTS ═══ -->
-    <app-viz-card
-      title="Candidatures par statut"
-      sub="Où en sont les dossiers déposés."
-      icon="bi-pie-chart"
-      height="230px"
-      [config]="statutsConfig()"
-      [rows]="statutsRows()"
-      rowsLabel="Statut" rowsNote="Part" rowsValue="Nombre"
-      drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
-      [loading]="chargeSuite()" />
-
-    <!-- ═══ PROVENANCE ═══ -->
-    <app-viz-card
-      title="Provenance des candidatures"
-      sub="Par quel chemin la candidature est arrivée."
-      icon="bi-signpost-split"
-      height="230px"
-      [config]="sourcesConfig()"
-      [rows]="sourcesRows()"
-      rowsLabel="Source" rowsValue="Candidatures"
-      drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
-      [loading]="chargeSuite()" />
-
-    <!-- ═══ RÔLES ═══ -->
-    <app-viz-card
-      title="Comptes par rôle"
-      sub="Les rôles sont exclusifs."
-      icon="bi-person-badge"
-      height="230px"
-      [config]="rolesConfig()"
-      [rows]="rolesRows()"
-      rowsLabel="Rôle" rowsNote="Part" rowsValue="Comptes"
-      drillLabel="Tous les comptes" drillRoute="/admin/utilisateurs"
-      [loading]="chargeApercu()" />
-  </div>
-
   <!-- ═══ CE QUI ATTEND UNE DÉCISION ═══ -->
   <div class="ad-grid ad-grid--2 dash-todo">
 
@@ -313,4 +161,160 @@
       </div>
     </section>
   </div>
+
+  <p class="ad-hint">
+    <i class="bi bi-hand-index-thumb" aria-hidden="true"></i>
+    Cliquez un point ou un segment pour ouvrir la liste correspondante. Le bouton
+    <i class="bi bi-table" aria-hidden="true"></i> de chaque carte affiche les valeurs en toutes lettres.
+  </p>
+
+  <!-- ═══ ACTIVITÉ ═══ -->
+  <div class="ad-grid dash-main">
+    <!-- Deux graphiques et non un : les offres arrivent par imports de
+         masse (119 000 en une journée) quand les candidatures se comptent
+         par unités. Sur une échelle commune, la courbe des offres montait
+         au plafond et les deux autres se couchaient sur le zéro. -->
+    <app-viz-card
+      title="Offres publiées"
+      sub="Les imports de masse se lisent ici, à leur propre échelle."
+      icon="bi-briefcase"
+      height="clamp(230px, 30vh, 320px)"
+      [config]="offresConfig()"
+      [rows]="offresRows()"
+      rowsLabel="Jour" rowsValue="Offres"
+      drillLabel="Les offres" drillRoute="/admin/offres"
+      [loading]="chargeSuite()"
+      empty="Aucune offre publiée sur la période." />
+
+    <app-viz-card
+      title="Candidatures et inscriptions"
+      sub="L'activité des personnes, sur trente jours."
+      icon="bi-activity"
+      height="clamp(230px, 30vh, 320px)"
+      [config]="activiteConfig()"
+      [rows]="activiteRows()"
+      rowsLabel="Jour" rowsNote="Détail" rowsValue="Total"
+      drillLabel="Journal" drillRoute="/admin/activite"
+      [loading]="chargeSuite()"
+      empty="Aucune activité enregistrée sur la période." />
+
+    <!-- ═══ ENTONNOIR ═══ -->
+    <!-- Ni histogramme ni Chart.js : entre les vues et les acceptations il y a
+         quatre ordres de grandeur, la barre encoderait un trait d'un pixel.
+         Elle porte donc le taux de passage, le chiffre absolu se lit à côté. -->
+    <section class="ad-panel dash-funnel">
+      <header class="ad-panel__head">
+        <span class="ad-panel__ico"><i class="bi bi-funnel" aria-hidden="true"></i></span>
+        <h3>Parcours de candidature</h3>
+        @if (tauxGlobal() !== null) {
+          <span class="dash-funnel__rate" title="Part des vues qui aboutissent à une acceptation">
+            {{ tauxGlobal()! < 0.1 ? '< 0,1' : (tauxGlobal()! | number: '1.0-2') }} %
+            <span>bout en bout</span>
+          </span>
+        }
+      </header>
+
+      <div class="ad-panel__body">
+        @if (!entonnoir().length) {
+          <div class="ad-void">
+            <i class="bi bi-funnel" aria-hidden="true"></i>
+            <p>L'entonnoir se remplit dès la première candidature déposée.</p>
+          </div>
+        } @else {
+          <ol class="fun">
+            @for (e of entonnoir(); track e.label; let i = $index) {
+              <li class="fun-step">
+                <a class="fun-link" [routerLink]="e.route" [queryParams]="e.params ?? null">
+                  <span class="fun-ico" [style.background]="e.color" aria-hidden="true">
+                    <i class="bi" [class]="e.icon"></i>
+                  </span>
+
+                  <span class="fun-txt">
+                    <span class="fun-label">{{ e.label }}</span>
+                    <span class="fun-value">{{ nf(e.value) }}</span>
+                  </span>
+
+                  <span class="fun-meter">
+                    <!-- La jauge mesure le passage depuis l'étape d'avant, pas la
+                         part du total : c'est la seule lecture honnête ici. -->
+                    <span class="fun-meter__track">
+                      @if (e.rate !== null) {
+                        <!-- Bornée à 100 : une jauge de passage ne peut pas
+                             déborder de son propre socle. -->
+                        <span class="fun-meter__fill"
+                              [class.is-overflow]="e.overflow"
+                              [style.width.%]="Math.min(Math.max(e.rate, 1.2), 100)"
+                              [style.background]="e.color"></span>
+                      }
+                    </span>
+                    <span class="fun-meter__lbl">
+                      @if (i === 0) {
+                        point de départ
+                      } @else if (e.rate === null) {
+                        <!-- Étape précédente vide : le taux n'est pas nul, il
+                             n'existe pas. -->
+                        étape précédente non renseignée
+                      } @else if (e.overflow) {
+                        <!-- Plus nombreux que l'étape d'avant : les deux ne
+                             sont pas emboîtées. Un pourcentage mentirait — il
+                             affichait « 300 % de l'étape précédente ». -->
+                        <span class="fun-meter__warn"
+                              title="Une candidature peut être acceptée sans qu'un entretien ait été enregistré : les deux étapes ne s'emboîtent pas.">
+                          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+                          plus que l'étape précédente
+                        </span>
+                      } @else {
+                        {{ e.rate < 0.1 && e.rate > 0 ? '< 0,1' : (e.rate | number: '1.0-1') }} %
+                        de l'étape précédente
+                      }
+                    </span>
+                  </span>
+                </a>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    </section>
+
+    <!-- ═══ STATUTS ═══ -->
+    <app-viz-card
+      title="Candidatures par statut"
+      sub="Où en sont les dossiers déposés."
+      icon="bi-pie-chart"
+      height="230px"
+      [config]="statutsConfig()"
+      [rows]="statutsRows()"
+      rowsLabel="Statut" rowsNote="Part" rowsValue="Nombre"
+      empty="Aucune candidature déposée sur la période."
+      drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
+      [loading]="chargeSuite()" />
+
+    <!-- ═══ PROVENANCE ═══ -->
+    <app-viz-card
+      title="Provenance des candidatures"
+      sub="Par quel chemin la candidature est arrivée."
+      icon="bi-signpost-split"
+      height="230px"
+      [config]="sourcesConfig()"
+      [rows]="sourcesRows()"
+      rowsLabel="Source" rowsValue="Candidatures"
+      empty="Aucune candidature déposée sur la période."
+      drillLabel="Toutes les candidatures" drillRoute="/admin/candidatures"
+      [loading]="chargeSuite()" />
+
+    <!-- ═══ RÔLES ═══ -->
+    <app-viz-card
+      title="Comptes par rôle"
+      sub="Les rôles sont exclusifs."
+      icon="bi-person-badge"
+      height="230px"
+      [config]="rolesConfig()"
+      [rows]="rolesRows()"
+      rowsLabel="Rôle" rowsNote="Part" rowsValue="Comptes"
+      empty="Aucun compte créé pour l'instant."
+      drillLabel="Tous les comptes" drillRoute="/admin/utilisateurs"
+      [loading]="chargeApercu()" />
+  </div>
+
 </div>

@@ -44,7 +44,7 @@ describe('applyChartDefaults', () => {
   it('laisse l’animation des couleurs déclarer son type', () => {
     // La reconstitution exacte de ce que fait « Animations.configure » :
     // sans « type », l'interpolateur retenu serait « interpolators[typeof
-    // '#15616d'] », c'est-à-dire « interpolators['string'] », qui
+    // '#01489C'] », c'est-à-dire « interpolators['string'] », qui
     // n'existe pas — Chart.js n'en connaît que trois : boolean, color
     // et number.
     const options = Object.keys(animation());
@@ -66,7 +66,7 @@ describe('applyChartDefaults', () => {
   it('pose la typographie et les couleurs du site', () => {
     applyChartDefaults();
 
-    expect(Chart.defaults.font.family).toContain('Inter');
+    expect(Chart.defaults.font.family).toContain('Nunito Sans');
     expect(Chart.defaults.maintainAspectRatio).toBe(false);
     expect(Chart.defaults.responsive).toBe(true);
   });

@@ -389,7 +389,7 @@
   small { width: 100%; margin-top: 0.2rem; font-size: 0.75rem; }
 
   &.est-faible { i:nth-child(1) { background: var(--danger); } small { color: var(--danger); } }
-  &.est-moyen  { i:nth-child(-n+2) { background: var(--amber, #b8860b); } small { color: var(--muted); } }
+  &.est-moyen  { i:nth-child(-n+2) { background: var(--amber, #9C4E00); } small { color: var(--muted); } }
   &.est-bon    { i:nth-child(-n+3) { background: var(--bleu-500); } small { color: var(--muted); } }
   &.est-solide { i { background: var(--green); } small { color: var(--green); } }
 }

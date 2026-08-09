@@ -40,7 +40,10 @@ export interface SeoPage {
 
 const SITE = 'La plateforme de l’emploi';
 const HOST = 'https://www.laplateformedelemploi.com';
-const IMAGE_DEFAUT = `${HOST}/images/logo-lpde.svg`;
+// Les reseaux sociaux et les moteurs ne lisent pas tous le SVG ni le WebP :
+// l'image de partage par defaut est le PNG de l'icone, comme celle que
+// index.html declare avant le demarrage de l'application.
+const IMAGE_DEFAUT = `${HOST}/icon-512.png`;
 
 /** Attribut posé sur les balises que ce service gère, pour les retirer ensuite. */
 const MARQUEUR = 'data-seo';

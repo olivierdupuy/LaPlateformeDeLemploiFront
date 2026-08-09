@@ -1,6 +1,6 @@
 /**
  * ═══════════════════════════════════════════════════════════
- *  PALETTE DES GRAPHIQUES — petrole, creme, et huit pentes a part
+ *  PALETTE DES GRAPHIQUES — bleu du logo, et huit pentes a part
  * ═══════════════════════════════════════════════════════════
  *
  * Les couleurs d'un graphique ne sont pas choisies a l'oeil : chacune fait
@@ -12,23 +12,24 @@
  * encode la grandeur, pas l'identite. Les dix-sept graphiques du panneau
  * peignaient « Informatique », « Sante » et « Commerce » en trois teintes
  * voisines : la couleur ne disait plus laquelle est laquelle, elle
- * ne faisait que repeter la longueur de la barre. Le petrole reste donc
- * la rampe de grandeur, et les series recoivent huit teintes distinctes —
- * les seules couleurs du produit a sortir de la palette de marque, et
- * c'est deliberé : identifier n'est pas signer.
+ * ne faisait que repeter la longueur de la barre. L'axe bleu du logo
+ * reste donc la rampe de grandeur, et les series recoivent huit teintes
+ * distinctes — les seules couleurs du produit a sortir de la palette de
+ * marque, et c'est deliberé : identifier n'est pas signer.
  *
- * Le passage du bleu au petrole ne touche pas les huit pentes : elles ne
- * sont pas des teintes de marque, et les revalider couterait une nouvelle
- * enumeration pour aucun gain. Seules les rampes tirees de l'axe de la
- * marque — ordre, grandeur, chrome — ont ete rebaties.
+ * Le passage au bleu-orange du logo ne touche pas les huit pentes : elles
+ * ne sont pas des teintes de marque, et les revalider couterait une
+ * nouvelle enumeration pour aucun gain. Seules les rampes tirees de l'axe
+ * de la marque — ordre, grandeur, chrome — ont ete rebaties, sur la teinte
+ * 259° relevee dans le logo.
  *
  * ── Verification, pas intuition ──
  * L'ordre des huit pentes est le mecanisme de securite : il est mesure,
  * jamais ajuste au jugé. Cet ordre est sorti d'une enumeration des
  * 5 040 permutations, notee par le validateur de la methode. Le passage
  * a la palette bleue a change la surface des cartes (#fffdf7 → #ffffff)
- * et donc les seuls contrastes au fond ; le passage au petrole ne l'a pas
- * retouchee. Les ecarts entre pentes ne dependent pas du fond et restent
+ * et donc les seuls contrastes au fond ; ni le petrole ni le bleu du logo
+ * ne l'ont retouchee. Les ecarts entre pentes ne dependent pas du fond et restent
  * ceux qui ont ete valides :
  *
  *   Bande de clarte      OK   les huit dans L 0.43–0.77
@@ -81,11 +82,11 @@ export const SERIES_RELIEF = new Set<string>(['#e0a419', '#e58a63']);
 /**
  * Ordre : la position dans une suite — etapes d'un entonnoir, paliers,
  * tranches. Une seule teinte, clarte decroissante, pour que l'oeil lise la
- * progression dans la couleur elle-meme. Rebatie sur l'axe petrole de la
- * palette et revalidee : clarte monotone, ecart voisin minimal 0.074
- * (cible 0.06), extremite claire a 2.39:1 du fond (cible 2.35).
+ * progression dans la couleur elle-meme. Rebatie sur l'axe bleu du logo et
+ * revalidee : clarte monotone, ecart voisin minimal 0.074 (cible 0.06),
+ * extremite claire a 2.43:1 du fond (cible 2.35).
  */
-export const ORDINAL = ['#7eb0b9', '#629aa5', '#43848f', '#246c78', '#03515c'] as const;
+export const ORDINAL = ['#8AA8D6', '#6E91C7', '#5279B6', '#3560A3', '#1A4587'] as const;
 
 /**
  * Grandeur : combien. Rampe continue pour la carte et les grilles de
@@ -94,7 +95,7 @@ export const ORDINAL = ['#7eb0b9', '#629aa5', '#43848f', '#246c78', '#03515c'] a
  * ordinale ci-dessus.
  */
 export const SEQUENTIAL = [
-  '#e3f2f5', '#c1dfe5', '#9ecbd3', '#7bb1bb', '#5595a0', '#2f7581', '#0c5561',
+  '#E6F0FE', '#C7DAF8', '#A8C4EE', '#86A8DC', '#648AC6', '#3E69AD', '#1C498E',
 ] as const;
 
 /**
@@ -103,31 +104,37 @@ export const SEQUENTIAL = [
  * `warning` passe sous 3:1 sur le blanc, et c'est ce couplage qui le
  * rattrape.
  *
- * L'echelle reste chaude de bout en bout (vert → ambre → orange → rouge)
- * alors que la structure du produit est petrole : c'est voulu. Un
- * jugement « serieux » peint en teinte de marque se confondrait avec une
- * simple categorie.
+ * L'echelle reste chaude de bout en bout (vert → ambre → orange → rouge).
+ * Elle l'etait deja quand la structure du produit etait petrole ; c'est
+ * moins confortable maintenant que l'accent de marque est lui-meme orange,
+ * mais l'alternative — une echelle froide — se confondrait avec la
+ * structure, ce qui est pire : un jugement doit se lire comme un jugement.
+ * L'ambre et l'orange restent nettement plus rabattus que le #FD7A02 du
+ * logo, et le couplage icone + libelle, deja obligatoire, porte le reste.
+ *
+ * `info` prend le bleu de la marque : c'est le seul etat qui ne juge rien,
+ * il peut donc signer.
  */
 export const STATUS = {
   good: '#2f7d4f',     // 5.04:1
   warning: '#d99a00',  // 2.45:1 — icone + libelle obligatoires
   serious: '#d1603b',  // 3.86:1
   critical: '#b3271f', // 6.51:1
-  neutral: '#81999e',  // 3.01:1 — gris de la gamme, pas un bleu
-  info: '#35509c',     // 7.56:1
+  neutral: '#8893A4',  // 3.11:1 — gris de la gamme, pas un bleu
+  info: '#01489C',     // 8.72:1 — la teinte de l'anneau du logo
 } as const;
 
 /** Chrome du graphique : encres, grille, ligne de base. Jamais une teinte de serie. */
 export const CHROME = {
   surface: SURFACE,
-  ink: '#10272b',      // 15.59:1
-  inkSoft: '#39545a',  //  8.11:1
-  muted: '#577177',    //  5.21:1 — etiquettes d'axe
-  faint: '#81999e',    //  3.01:1
-  grid: '#daecef',     // filet, volontairement en retrait
-  axis: '#c3dde2',
+  ink: '#1B283C',      // 14.84:1
+  inkSoft: '#4C596E',  //  7.09:1
+  muted: '#657183',    //  4.95:1 — etiquettes d'axe
+  faint: '#909BAA',    //  2.82:1
+  grid: '#DDE9FB',     // filet, volontairement en retrait
+  axis: '#C8D9F3',
   /** Gris de mise en retrait : la forme « emphase », une serie en couleur et le reste ici. */
-  mute: '#bdd0d4',
+  mute: '#B4C8E8',
 } as const;
 
 /** Fond translucide d'une aire ou d'une pastille, tire de la teinte de la serie. */

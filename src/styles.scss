@@ -1,125 +1,129 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400..700&family=Inter:wght@300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400..600&family=IBM+Plex+Mono:wght@400;500&family=Nunito+Sans:wght@300..800&display=swap');
 
 /* ═══════════════════════════════════════════════════════════
    LA PLATEFORME DE L'EMPLOI
-   Palette : petrole profond, petrole moyen, papier creme.
+   Palette : bleu marine, bleu roi, orange. Tout vient du logo.
 
-     #001524  noir petrole — le chrome sombre : barre laterale, pied de
-                             page, panneaux d'authentification
-     #15616d  petrole      — la marque : boutons primaires, liens, tuile
-                             du logo, mot en evidence
-     #ffecd1  creme        — le sol, la couleur qu'on voit le plus
+     #001C51  marine  — l'encre du mot « La Plateforme », et le chrome
+                        sombre : barre laterale, pied de page, panneaux
+                        d'authentification
+     #01489C  bleu roi — l'anneau de la loupe : la marque, boutons
+                        primaires, liens, etats actifs
+     #FD7A02  orange  — le mot « Emploi » : l'accent, l'action decisive,
+                        le mot en evidence
 
-   Pourquoi quitter le bleu ? Parce qu'un site d'emploi est un site de
-   documents — un CV, une offre, une lettre, un formulaire. Le sol bleu
-   pale traitait chaque page comme un tableau de bord ; le creme la
-   traite comme du papier, ce que ces pages sont. Le petrole garde le
-   serieux institutionnel que le metier demande sans etre le enieme bleu
-   corporate, et il tient 7.09:1 sur blanc la ou l'ancien accent moyen
-   plafonnait a 4.64:1.
+   Ces trois valeurs sont relevees au compte-gouttes dans
+   media-source/logo_lpde.png ; rien d'autre n'a ete invente. Le logo ne
+   contient que deux familles — un axe bleu (teinte 259°) et un axe
+   orange (52°) — et c'est exactement ce que la palette porte : la
+   structure en bleu, l'accent en orange, complementaires a 207° d'ecart.
 
-   La structure est froide (teinte 188°), le sol est chaud (35°) : c'est
-   une complementaire, et c'est elle qui fait tenir l'ensemble. Les
-   encres suivent le froid mais sont verifiees sur le CREME, pas sur le
-   blanc — le sol est plus sombre que le blanc, et une encre calee sur
-   blanc y perdait le contraste (l'ancien --muted y tombait a 4.37:1).
+   Le sol quitte le creme pour un blanc froid (#F5F7FB, meme teinte 259°
+   que la structure). Un sol creme aurait mis l'orange du logo en
+   concurrence avec le fond : deux chaleurs voisines, l'accent ne
+   ressortait plus. Le logo est dessine sur blanc, la page l'est aussi.
 
    Les deux teintes donnees occupent les crans 950 et 600 ; les autres
    sont interpolees en OKLab sur l'axe de la marque, clarte strictement
-   croissante, ecart voisin verifie.
+   croissante, ecart voisin verifie. Les encres suivent la teinte de la
+   structure et sont verifiees sur les DEUX fonds, blanc et sol.
 
    Une seule couleur hors palette subsiste, le rouge de danger : une
    suppression et une erreur ne peuvent pas porter la couleur de la
-   marque. Elle ne sert qu'a ca, et elle a ete retenue d'un cran pour
-   tenir 4.51:1 sur le creme.
+   marque — et surtout pas celle de l'accent, qui est desormais chaud.
+   Le crimson est pousse vers le magenta (teinte 17°) pour qu'aucun
+   ecran ne le confonde avec l'orange (52°).
 
-   Les noms --bleu-* et --rouge-* sont conserves : une centaine de
-   composants s'y referent, et ce sont des roles (structure, accent) que
-   les nouvelles teintes reprennent telles quelles. --bleu-* n'est donc
-   plus bleu et --rouge-* plus rouge : ce sont les noms des deux roles.
+   Les noms --bleu-* et --rouge-* redeviennent litteraux : --bleu-* est
+   du bleu, --rouge-* est la famille chaude. Une centaine de composants
+   s'y referent, aucun n'a eu a changer.
 
-   Typographie : une seule superfamille pour le texte. Inter Tight, plus
-   resserre, porte les titres ; Inter porte l'interface. Les deux ont le
-   meme squelette, donc aucun raccord visible entre un titre et le
-   paragraphe qui le suit. IBM Plex Mono chiffre les donnees : ses
-   chiffres sont de chasse fixe, les colonnes s'alignent seules.
+   Typographie : Fredoka EST la fonte du logo — verifiee en superposant
+   « Plateforme » rendu en Fredoka SemiBold sur le lettrage du fichier,
+   contour pour contour. Elle porte donc les titres, ou la voix de la
+   marque doit s'entendre. Elle ne porte pas le texte courant : c'est
+   une fonte d'affichage, ses formes rondes fatiguent en petit corps et
+   sur des tableaux. Nunito Sans prend l'interface — meme squelette
+   humaniste ouvert, terminaisons a peine adoucies, dessinee pour le
+   texte. IBM Plex Mono chiffre les donnees : ses chiffres sont de
+   chasse fixe, les colonnes s'alignent seules.
 
-   Fredoka, la fonte ronde du logo, a ete deposee avec la mascotte : le
-   lettrage arrondi tirait vers le produit grand public la ou le bleu
-   institutionnel tire vers l'inverse.
-
-   Display Inter Tight · UI Inter · Data IBM Plex Mono
+   Display Fredoka · UI Nunito Sans · Data IBM Plex Mono
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Petrole (structure) — marque, chrome sombre, appuis ──
-     #001524 et #15616d sont poses tels quels aux crans 950 et 600 ; les
-     autres sont interpoles en OKLab sur l'axe de la marque (188°). Les
-     ratios notes sont sur blanc / sur le sol creme. */
-  --bleu-950: #001524;   /* teinte donnee — 18.54:1 / 16.04:1 */
-  --bleu-900: #002830;   /* chrome sombre : barre laterale, pied de page */
-  --bleu-800: #003d46;
-  --bleu-700: #03515c;   /* cran sombre : survol du primaire, statuts pleins */
-  --bleu-600: #15616d;   /* teinte donnee — la marque, 7.09:1 / 6.13:1 */
-  --bleu-500: #3a808c;   /* accent — 4.52:1, tient le texte blanc */
-  --bleu-400: #66a4af;
-  --bleu-300: #96c4cd;
-  --bleu-200: #c1dfe5;
-  --bleu-100: #e3f2f5;   /* aplat clair — le SOL est le creme, plus bas */
-  --bleu-tint: rgba(21, 97, 109, 0.07);
-  --bleu-ring: rgba(21, 97, 109, 0.26);
+  /* ── Bleu (structure) — marque, chrome sombre, appuis ──
+     #001C51 et #01489C sont poses tels quels aux crans 950 et 600 ; les
+     autres sont interpoles en OKLab sur l'axe de la marque (259°). Les
+     ratios notes sont sur blanc / sur le sol. */
+  --bleu-950: #001C51;   /* teinte donnee (mot-symbole) — 16.34:1 / 15.25:1 */
+  --bleu-900: #002765;   /* chrome sombre : barre laterale, pied de page */
+  --bleu-800: #00337F;
+  --bleu-700: #013E90;   /* cran sombre : survol du primaire, statuts pleins */
+  --bleu-600: #01489C;   /* teinte donnee (anneau de la loupe) — 8.72:1 / 8.14:1 */
+  --bleu-500: #2D66BD;   /* accent — 5.60:1, tient le texte blanc */
+  --bleu-400: #588AD6;
+  --bleu-300: #88AEE9;
+  --bleu-200: #B9D1F6;
+  --bleu-100: #E3EEFF;   /* aplat clair — le SOL est plus neutre, plus bas */
+  --bleu-tint: rgba(1, 72, 156, 0.07);
+  --bleu-ring: rgba(1, 72, 156, 0.26);
 
-  /* ── Accent ──
-     Anciennement le terracotta, puis le bleu moyen. Le nom reste, la
-     teinte est le petrole moyen : etat actif, survol, mot en evidence
-     sur fond sombre. */
-  --rouge: #3a808c;
-  --rouge-600: #2f7581;
-  --rouge-700: #246c78;
-  --rouge-100: #dbeef2;
+  /* ── Orange (accent) — le mot « Emploi » ──
+     Le nom --rouge est celui du role, tenu par le second axe du logo.
+     Trois crans sont releves dans le fichier : #FD7A02 au corps du
+     degrade, #FD5A01 en bas, #FDA108 sur la silhouette de droite. Les
+     deux crans sombres sont calcules : un orange vif ne fait pas une
+     encre lisible (2.6:1 sur blanc), il faut descendre a 5.99:1. */
+  --rouge: #FD7A02;      /* teinte donnee — aplat, jamais du petit texte */
+  --rouge-600: #FD5A01;  /* teinte donnee — survol de l'aplat */
+  --rouge-700: #9C4E00;  /* encre orange sur fond clair — 5.99:1 / 5.59:1 */
+  --rouge-800: #7A3D00;
+  --rouge-400: #FDA108;  /* teinte donnee — l'accent sur fond bleu profond */
+  --rouge-100: #FFEBDC;
 
   /* ── Ambre ──
-     Le sol est desormais chaud : un aplat d'avertissement peut enfin
-     l'etre aussi. Il ne se confond pas avec le sol — il en est un cran
-     plus dense — et porte une encre brune lisible. */
+     Meme famille que l'accent, un cran plus dense pour l'aplat
+     d'avertissement : il se detache du sol froid sans lui emprunter sa
+     teinte, et porte l'encre orange sombre a 4.65:1. */
   --ambre: var(--rouge);
   --ambre-600: var(--rouge-600);
-  --ambre-100: #f8e6c4;
+  --ambre-100: #FFDCC6;
 
   /* ── Danger — la seule couleur hors palette ──
      Une suppression, une erreur : leur couleur doit se distinguer de
      celle de la marque, sans quoi le bouton qui detruit ressemble au
-     bouton qui valide. Le crimson est retenu d'un cran par rapport a
-     l'ancienne valeur (#c8384c) pour tenir 4.51:1 sur le creme, qui est
-     plus sombre que le blanc sur lequel il etait cale. */
-  --danger: #c6364b;     /* 5.21:1 / 4.51:1 */
-  --danger-600: #a3052f;
-  --danger-700: #87001a;
-  --danger-100: #ffddde;
+     bouton qui valide. L'accent etant desormais chaud, le crimson est
+     pousse vers le magenta — 17° contre 52° pour l'orange — pour que
+     les deux ne se confondent a aucune taille. */
+  --danger: #C62B44;     /* 5.48:1 / 5.11:1 */
+  --danger-600: #A81232;
+  --danger-700: #8B0724;
+  --danger-100: #FFE8EB;
 
-  --ciel: #c1dfe5;
+  --ciel: #B9D1F6;
 
-  /* ── Neutres chauds — le creme et ses degres ──
-     Le sol est le creme donne ; ses degres et les filets en descendent,
-     sur la meme teinte. Des filets gris-bleu sur un sol chaud le
-     terniraient. */
+  /* ── Neutres froids — le sol et ses degres ──
+     Le sol est un blanc bleute pris sur la teinte de la structure ; ses
+     degres et les filets en descendent, sur la meme teinte. C'est ce
+     qui laisse l'orange etre la seule chose chaude de l'ecran. */
   --canvas: #ffffff;     /* surfaces posees sur le sol */
-  --nuage: #ffecd1;      /* teinte donnee : le sol */
-  --nuage-2: #f5e1c3;
-  --nuage-3: #ead3b3;
+  --nuage: #F5F7FB;      /* le sol */
+  --nuage-2: #ECF0F7;
+  --nuage-3: #E2E8F1;
 
-  /* Encres froides posees sur un sol chaud, verifiees sur les DEUX
-     fonds : c'est le creme qui contraint, pas le blanc. */
-  --ink: #10272b;        /* 15.59:1 blanc · 13.49:1 sol */
-  --ink-soft: #39545a;   /*  8.11:1 ·  7.02:1 */
-  --muted: #577177;      /*  5.21:1 ·  4.50:1 */
-  --faint: #81999e;      /*  3.01:1 ·  2.60:1 — decor, jamais du texte a lire */
-  --on-dark: #ffecd1;
-  --on-dark-muted: #96c4cd;
+  /* Encres froides, verifiees sur les DEUX fonds : c'est le sol qui
+     contraint, pas le blanc. */
+  --ink: #1B283C;        /* 14.84:1 blanc · 13.83:1 sol */
+  --ink-soft: #4C596E;   /*  7.09:1 ·  6.61:1 */
+  --muted: #657183;      /*  4.95:1 ·  4.61:1 */
+  --faint: #909BAA;      /*  2.82:1 ·  2.63:1 — decor, jamais du texte a lire */
+  --on-dark: #EBF0F8;
+  --on-dark-muted: #ADBFDB;
 
-  --line: #ebdac1;
-  --line-strong: #dbc7a9;
-  --line-dark: rgba(255, 236, 209, 0.17);
+  --line: #DCE2ED;
+  --line-strong: #C9D2E0;
+  --line-dark: rgba(235, 240, 248, 0.17);
 
   /* ── Statuts ──
      Trois teintes seulement : l'echelle se lit au remplissage. Contour
@@ -127,10 +131,10 @@
      pour l'aboutissement, rouge de danger pour le refus. */
   --green: var(--bleu-700);   --green-bg: var(--bleu-100);
   --red: var(--danger);       --red-bg: var(--danger-100);
-  --amber: var(--rouge-700);  --amber-bg: var(--rouge-100);
+  --amber: var(--rouge-700);  --amber-bg: var(--ambre-100);
   --blue: var(--bleu-500);    --blue-bg: var(--bleu-100);
   --purple: var(--bleu-700);  --purple-bg: var(--bleu-100);
-  --orange: var(--rouge-600); --orange-light: var(--rouge-100);
+  --orange: var(--rouge-700); --orange-light: var(--rouge-100);
 
   /* ── Alias de compatibilite (anciens noms → nouvelles valeurs) ── */
   --brand: var(--bleu-600);
@@ -160,13 +164,14 @@
   --teal-glow: var(--bleu-tint);
   --teal-ring: var(--bleu-ring);
 
-  /* L'accent vif n'est plus le citron mais le petrole moyen de la
-     palette. Le texte pose dessus reste en blanc (4.52:1). */
+  /* L'accent vif est l'orange du logo. Le texte pose dessus passe du
+     blanc (2.62:1, illisible) au marine du mot-symbole : 6.20:1, et
+     c'est exactement le couple que le logo montre deja. */
   --citron: var(--rouge);
   --citron-600: var(--rouge-600);
   --citron-700: var(--rouge-700);
   --citron-soft: var(--rouge-100);
-  --citron-ink: #ffffff;
+  --citron-ink: var(--bleu-950);
   --spring: var(--rouge);
   --spring-600: var(--rouge-600);
   --spring-soft: var(--rouge-100);
@@ -211,22 +216,22 @@
   --border: var(--line);
   --border-hover: var(--line-strong);
 
-  /* ── Ombres (teintees petrole) ──
-     Une ombre grise sur un sol creme le ternit ; une ombre chaude le
-     salit. Elles portent donc la teinte de la structure, profonde et
-     peu saturee : c'est ce qui creuse le creme sans le griser. */
-  --shadow-xs: 0 1px 2px rgba(0, 40, 48, 0.07);
-  --shadow-sm: 0 1px 2px rgba(0, 40, 48, 0.07), 0 2px 6px rgba(0, 40, 48, 0.06);
-  --shadow-md: 0 2px 4px rgba(0, 40, 48, 0.07), 0 8px 20px -6px rgba(0, 40, 48, 0.13);
-  --shadow-lg: 0 4px 8px rgba(0, 40, 48, 0.07), 0 18px 36px -12px rgba(0, 40, 48, 0.17);
-  --shadow-xl: 0 8px 16px rgba(0, 40, 48, 0.09), 0 32px 60px -16px rgba(0, 40, 48, 0.25);
-  --shadow-brand: 0 8px 22px -6px rgba(21, 97, 109, 0.38);
-  --shadow-citron: 0 8px 22px -8px rgba(58, 128, 140, 0.5);
+  /* ── Ombres (teintees marine) ──
+     Une ombre grise sur un sol bleute le ternit. Elles portent donc la
+     teinte de la structure, profonde et peu saturee : c'est ce qui
+     creuse le sol sans le griser. */
+  --shadow-xs: 0 1px 2px rgba(0, 28, 81, 0.07);
+  --shadow-sm: 0 1px 2px rgba(0, 28, 81, 0.07), 0 2px 6px rgba(0, 28, 81, 0.06);
+  --shadow-md: 0 2px 4px rgba(0, 28, 81, 0.07), 0 8px 20px -6px rgba(0, 28, 81, 0.13);
+  --shadow-lg: 0 4px 8px rgba(0, 28, 81, 0.07), 0 18px 36px -12px rgba(0, 28, 81, 0.17);
+  --shadow-xl: 0 8px 16px rgba(0, 28, 81, 0.09), 0 32px 60px -16px rgba(0, 28, 81, 0.25);
+  --shadow-brand: 0 8px 22px -6px rgba(1, 72, 156, 0.38);
+  --shadow-citron: 0 8px 22px -8px rgba(253, 122, 2, 0.5);
 
-  /* ── Rayons — herites de l'identite ronde precedente ──
-     Ils n'ont pas suivi le passage au bleu institutionnel : les
-     resserrer (8/12/16 au lieu de 14/18/24) durcirait encore le ton si
-     on le souhaite. */
+  /* ── Rayons ──
+     Genereux, et c'est desormais coherent : le logo est entierement
+     bati sur des cercles et des terminaisons arrondies, la fonte du
+     mot-symbole aussi. Les resserrer durcirait le ton contre lui. */
   --r-xs: 6px;
   /* ── Ce que le chrome fixe occupe déjà ──
      Une barre d'enregistrement, un bandeau de consentement, tout ce qui
@@ -249,9 +254,11 @@
   --r-2xl: 32px;
   --r-full: 9999px;
 
-  /* ── Typographie ── */
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Inter Tight', 'Inter', sans-serif;
+  /* ── Typographie ──
+     Fredoka est la fonte du logo ; elle ne sert qu'aux titres. Nunito
+     Sans porte tout le reste. */
+  --font: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Fredoka', 'Nunito Sans', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
 
   /* ── Gabarit ── */
@@ -326,8 +333,9 @@ img { max-width: 100%; display: block; }
 .band-plum :focus-visible { outline-color: var(--citron); }
 
 /* ═══════════════ Typographie ═══════════════
-   Instrument Serif = grands titres uniquement (h1/h2).
-   Instrument Sans  = tout le reste de l'interface.        */
+   Fredoka = grands titres uniquement (h1/h2, .display-*, .section-title).
+   Nunito Sans = tout le reste de l'interface.
+   Fredoka monte a 600 : c'est la graisse du mot « Plateforme » du logo. */
 
 h1, h2 {
   font-family: var(--font-display);
@@ -345,29 +353,57 @@ h3, h4, h5, h6 {
   color: var(--ink);
 }
 
-/* Le logo pose « La plateforme » en bleu et « de l'emploi » en rouge.
-   L'accentuation d'un titre reprend exactement ce couple. */
+/* Le logo pose « La Plateforme » en marine et « Emploi » en orange.
+   L'accentuation d'un titre reprend exactement ce couple, teinte pour
+   teinte : c'est l'orange donne du fichier, pas une version rabattue.
+
+   Ce que ca coute : 2.62:1 sur blanc, 2.45:1 sur le sol. C'est sous le
+   3:1 des grands textes, donc sous WCAG AA, et c'est assume — le mot
+   accentue ne porte jamais d'information seul. Il tombe toujours dans un
+   titre dont le reste est en --ink a 14.84:1, et retirer la couleur ne
+   retire aucun sens a la phrase : « Votre prochain poste est deja en
+   ligne » se lit entier sans voir que « deja » est orange.
+
+   La regle a respecter est donc celle-ci : `.em` accentue, il n'informe
+   pas. Le jour ou un libelle, un statut ou un chiffre en dependrait, il
+   faut --rouge-700 (5.99:1) et non celui-ci. */
 .em {
   font-family: inherit;
   font-weight: inherit;
   color: var(--rouge);
 }
-/* Sur le bleu profond, le rouge ne passe pas : l'ambre du dossier prend le relais. */
-/* Sur fond sombre, l'accent ne tient que 3.34:1 : on monte d'un cran
-   dans la rampe (5.34:1) pour que le mot en evidence le soit vraiment. */
-.em-plum, .em-dark { color: var(--bleu-400); }
+/* Sur le bleu profond, c'est l'inverse : l'orange clair du logo y brille
+   a 6.95:1, la ou l'encre orange sombre disparaitrait. */
+.em-plum, .em-dark { color: var(--rouge-400); }
 
-.display-xl { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.5rem, 6vw, 4.6rem); line-height: 1.02; letter-spacing: -0.02em; }
-.display-lg { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.06; letter-spacing: -0.015em; }
-.display-md { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.65rem, 3.2vw, 2.3rem); line-height: 1.1; letter-spacing: -0.012em; }
+/* ── Echelle editoriale ──
+   Un cran au-dessus de ce qu'elle etait, partout de la meme quantite :
+   les titres et ce qui les accompagne prennent environ +25 %, les chapos
+   et sous-titres +17 %. Les deux mouvements vont ensemble et c'est le
+   point : grossir les titres seuls aurait creuse l'ecart avec la ligne
+   qui les suit, et un titre imposant suivi d'un sous-titre minuscule se
+   lit comme un titre qui crie tout seul.
 
-/* Étiquette utilitaire (Martian Mono, toujours petite et espacée) */
+   Le corps de texte, les tableaux et l'administration ne bougent pas :
+   ils ne portent pas la voix, ils portent de la donnee, et leur densite
+   est ce qui les rend utilisables.
+
+   Fredoka est large : au-dela de ces valeurs un titre de section passait
+   sur deux lignes dans une colonne d'entete, ce qui casse l'alignement
+   avec le lien qui lui fait face. */
+.display-xl { font-family: var(--font-display); font-weight: 600; font-size: clamp(3rem, 6.8vw, 5.5rem); line-height: 1.02; letter-spacing: -0.02em; }
+.display-lg { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.4rem, 5vw, 3.9rem); line-height: 1.06; letter-spacing: -0.015em; }
+.display-md { font-family: var(--font-display); font-weight: 600; font-size: clamp(2rem, 3.8vw, 2.85rem); line-height: 1.1; letter-spacing: -0.012em; }
+
+/* Étiquette utilitaire (IBM Plex Mono, toujours petite et espacée).
+   Elle monte moins que le reste : c'est un reperage, pas une phrase.
+   A 12 px elle reste ce qu'on lit en second, apres le titre. */
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.6rem;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -413,13 +449,14 @@ h3, h4, h5, h6 {
 }
 .page-head__text { min-width: 0; }
 .page-head h1 {
-  font-size: clamp(1.9rem, 4vw, 2.9rem);
+  font-size: clamp(2.3rem, 4.8vw, 3.5rem);
   margin-top: 0.5rem;
 }
 .page-head__sub {
   color: var(--muted);
-  font-size: 0.95rem;
-  margin-top: 0.6rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-top: 0.7rem;
   max-width: 62ch;
 }
 .page-head__actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
@@ -437,7 +474,7 @@ h3, h4, h5, h6 {
     position: absolute;
     top: -40%; left: -6%;
     width: 55%; height: 180%;
-    background: radial-gradient(circle, rgba(58, 128, 140, 0.34), transparent 62%);
+    background: radial-gradient(circle, rgba(45, 102, 189, 0.38), transparent 62%);
     pointer-events: none;
   }
 
@@ -449,8 +486,8 @@ h3, h4, h5, h6 {
   }
 
   h1 {
-    margin: 0.7rem 0 0;
-    font-size: clamp(1.9rem, 4vw, 3rem);
+    margin: 0.8rem 0 0;
+    font-size: clamp(2.35rem, 4.9vw, 3.6rem);
     line-height: 1.04;
     letter-spacing: -0.025em;
     color: #fff;
@@ -459,15 +496,15 @@ h3, h4, h5, h6 {
   .crumbs {
     color: var(--on-plum-muted);
     a { color: var(--on-plum-muted); &:hover { color: var(--citron); } }
-    .sep { color: rgba(255, 236, 209, 0.3); }
+    .sep { color: rgba(235, 240, 248, 0.3); }
     span[aria-current] { color: #fff; }
   }
 }
 
 .page-hero__sub {
-  margin-top: 0.8rem;
-  font-size: 1rem;
-  line-height: 1.6;
+  margin-top: 0.9rem;
+  font-size: 1.15rem;
+  line-height: 1.58;
   color: var(--on-plum-muted);
   max-width: 58ch;
 }
@@ -502,8 +539,8 @@ h3, h4, h5, h6 {
     background: linear-gradient(
       100deg,
       var(--bleu-900) 8%,
-      rgba(0, 40, 48, 0.9) 42%,
-      rgba(0, 40, 48, 0.6) 100%
+      rgba(0, 28, 81, 0.9) 42%,
+      rgba(0, 28, 81, 0.6) 100%
     );
     z-index: 1;
   }
@@ -520,53 +557,36 @@ h3, h4, h5, h6 {
 }
 
 /* ═══ Verrou de marque ═══
-   Symbole + mot-symbole, une seule definition pour la navbar, le pied
-   de page et les pages d'authentification. La taille se pilote par
-   --lock ; le mot-symbole suit. */
+   Le verrou est desormais UNE image, pas un symbole plus du texte
+   compose : le mot-symbole du logo est dessine en Fredoka avec un
+   interlettrage resserre et un degrade sur « Emploi » que du HTML ne
+   reproduit pas. Le recomposer donnait un a-peu-pres qui vieillissait
+   des que le fichier bougeait.
+
+   Une seule definition pour la navbar, le pied de page et les panneaux
+   d'authentification. La taille se pilote par --lock, qui donne la
+   HAUTEUR ; la largeur suit le rapport de l'image. Le nom accessible est
+   porte par le lien parent (aria-label), l'image reste decorative.
+
+   Trois fichiers, produits par outils/logo-derives.py :
+     logo-lpde.webp        fonds clairs
+     logo-lpde-dark.webp   fonds bleu profond (mot-symbole eclairci)
+     logo-lpde-mark.webp   la loupe seule, quand la largeur manque */
 .brand-lockup {
   --lock: 44px;
   display: inline-flex;
   align-items: center;
-  gap: 0.62rem;
   flex-shrink: 0;
 }
 
 .brand-lockup img {
-  width: var(--lock);
   height: var(--lock);
+  width: auto;
   display: block;
   flex-shrink: 0;
-  transition: transform var(--t) var(--ease-spring);
+  transition: height 0.22s var(--ease), transform var(--t) var(--ease-spring);
 }
-.brand-lockup:hover img { transform: rotate(-5deg) scale(1.06); }
-
-.brand-lockup__word {
-  display: flex;
-  flex-direction: column;
-  line-height: 0.98;
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-
-  b {
-    font-weight: 600;
-    font-size: calc(var(--lock) * 0.42);
-    color: var(--bleu-600);
-  }
-  span {
-    font-weight: 600;
-    font-size: calc(var(--lock) * 0.33);
-    color: var(--rouge);
-  }
-}
-
-/* Sur fond bleu profond, le bleu de marque du mot-symbole disparait et
-   l'accent ne tient que 3.34:1 : blanc + accent eclairci (5.34:1). */
-.brand-lockup--dark .brand-lockup__word {
-  b { color: #fff; }
-  span { color: var(--bleu-400); }
-}
+.brand-lockup:hover img { transform: scale(1.03); }
 
 /* Lien de retour (pages de détail) */
 .back-link, .cd-back {
@@ -783,7 +803,7 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   select {
     appearance: none;
     cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e6478' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23657183' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.8rem center;
     padding-right: 2.3rem;
@@ -793,7 +813,7 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   .error { font-size: 0.78rem; color: var(--red); font-weight: 500; }
   &.has-error input, &.has-error select, &.has-error textarea {
     border-color: var(--red);
-    &:focus { box-shadow: 0 0 0 3px rgba(200, 56, 76, 0.18); }
+    &:focus { box-shadow: 0 0 0 3px rgba(198, 43, 68, 0.18); }
   }
 }
 
@@ -990,12 +1010,12 @@ button:disabled, .btn-primary:disabled, .btn-secondary:disabled {
   margin-bottom: 1.75rem;
 }
 .section-title {
-  display: flex; align-items: center; gap: 0.6rem;
+  display: flex; align-items: center; gap: 0.7rem;
   font-family: var(--font-display); font-weight: 600;
-  font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  font-size: clamp(1.75rem, 3.4vw, 2.4rem);
   letter-spacing: -0.012em; line-height: 1.15;
 }
-.section-sub { font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; max-width: 60ch; }
+.section-sub { font-size: 1.05rem; line-height: 1.55; color: var(--muted); margin-top: 0.5rem; max-width: 60ch; }
 
 /* ═══════════════ Tableaux ═══════════════ */
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--canvas); }
@@ -1035,9 +1055,14 @@ table.data {
 .empty-box {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: clamp(3rem, 8vw, 5rem) 1.5rem; gap: 0.6rem; text-align: center;
-  i { font-size: 1.9rem; color: var(--violet-300); margin-bottom: 0.4rem; }
-  h3 { font-size: 1.15rem; }
-  p { color: var(--muted); max-width: 46ch; margin-bottom: 0.6rem; }
+  /* `> i` et non `i` : le selecteur descendant attrapait aussi l'icone
+     posee DANS un bouton d'action de l'etat vide, qui se retrouvait a
+     2.3rem, empilee au-dessus de son libelle. Un etat vide qui propose
+     une action est la regle, pas l'exception — le selecteur doit donc
+     ne viser que la grande icone de l'etat lui-meme. */
+  > i { font-size: 2.3rem; color: var(--violet-300); margin-bottom: 0.5rem; }
+  h3 { font-size: 1.4rem; }
+  p { font-size: 1.05rem; line-height: 1.55; color: var(--muted); max-width: 46ch; margin-bottom: 0.7rem; }
 }
 
 .spinner {
@@ -1068,7 +1093,7 @@ table.data {
 /* ═══════════════ Modales ═══════════════ */
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(0, 21, 36, 0.5);
+  background: rgba(0, 28, 81, 0.5);
   backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex; align-items: center; justify-content: center;
@@ -1106,7 +1131,7 @@ body.a-modale-ouverte { overflow: hidden; }
 
 /* Tiroir latéral */
 .drawer-overlay {
-  position: fixed; inset: 0; background: rgba(0, 21, 36, 0.4);
+  position: fixed; inset: 0; background: rgba(0, 28, 81, 0.4);
   backdrop-filter: blur(3px); z-index: 900; animation: fadeIn 0.2s ease both;
 }
 .drawer {
@@ -1293,7 +1318,7 @@ body.a-modale-ouverte { overflow: hidden; }
   font-weight: 600;
   color: var(--ink);
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2356718f' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23657183' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.45rem center;
   &:disabled { cursor: not-allowed; }
@@ -1752,7 +1777,15 @@ body:has(app-impersonation-banner .imp) {
 /* ── En-tete de page ──
    Le panneau a deja sa barre superieure avec le fil d'Ariane : l'en-tete
    de page ne repete pas la navigation, il annonce la page et porte ses
-   actions. */
+   actions.
+
+   L'echelle du panneau est plus RAIDE que celle du site, pas simplement
+   plus grosse. Un outil se lit en diagonale : il lui faut une ancre haute
+   qui dit ou l'on est, et des donnees fines qui tiennent en nombre. C'est
+   le milieu plat — tout entre 13 et 15 px, comme c'etait le cas ici — qui
+   fait qu'un panneau ressemble a un tableur et qu'on ne sait plus par ou
+   l'attaquer. Le titre monte donc de 29 a 43 px pendant que les cellules
+   de tableau ne bougent presque pas. */
 .ad-head {
   display: flex;
   align-items: flex-end;
@@ -1766,17 +1799,17 @@ body:has(app-impersonation-banner .imp) {
 
 .ad-head h1 {
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.6vw, 1.8rem);
+  font-size: clamp(1.95rem, 3.4vw, 2.7rem);
   font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.015em;
+  line-height: 1.12;
+  letter-spacing: -0.018em;
   color: var(--ink);
 }
 
 .ad-head__sub {
-  margin-top: 0.3rem;
-  font-size: 0.87rem;
-  line-height: 1.45;
+  margin-top: 0.45rem;
+  font-size: 1.02rem;
+  line-height: 1.55;
   color: var(--muted);
   max-width: 68ch;
 }
@@ -1791,7 +1824,7 @@ body:has(app-impersonation-banner .imp) {
 /* Compte total d'une liste, pose a cote du titre. */
 .ad-count {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -1873,7 +1906,7 @@ body:has(app-impersonation-banner .imp) {
 
 .ad-facet__val {
   font-family: var(--font-mono);
-  font-size: 1.22rem;
+  font-size: 1.7rem;
   font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 1.15;
@@ -1886,7 +1919,7 @@ body:has(app-impersonation-banner .imp) {
   align-items: center;
   gap: 0.3rem;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.63rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1931,8 +1964,8 @@ body:has(app-impersonation-banner .imp) {
 
   input {
     width: 100%;
-    padding: 0.58rem 2.2rem 0.58rem 2.25rem;
-    font-size: 0.87rem;
+    padding: 0.62rem 2.2rem 0.62rem 2.25rem;
+    font-size: 0.95rem;
     background: var(--canvas);
     border: 1px solid var(--line-strong);
     border-radius: var(--r-sm);
@@ -1968,7 +2001,7 @@ body:has(app-impersonation-banner .imp) {
 
   > span {
     font-family: var(--font-mono);
-    font-size: 0.55rem;
+    font-size: 0.62rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.12em;
@@ -1978,8 +2011,8 @@ body:has(app-impersonation-banner .imp) {
 
   select,
   input {
-    padding: 0.52rem 0.75rem;
-    font-size: 0.85rem;
+    padding: 0.56rem 0.78rem;
+    font-size: 0.92rem;
     font-weight: 600;
     color: var(--ink);
     background: var(--canvas);
@@ -2028,7 +2061,7 @@ body:has(app-impersonation-banner .imp) {
     flex: 1;
     min-width: 0;
     font-family: var(--font-display);
-    font-size: 0.92rem;
+    font-size: 1.08rem;
     font-weight: 600;
     color: var(--ink);
   }
@@ -2073,7 +2106,7 @@ body:has(app-impersonation-banner .imp) {
   line-height: 1.32;
 
   strong {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--ink);
     overflow: hidden;
@@ -2082,7 +2115,7 @@ body:has(app-impersonation-banner .imp) {
   }
 
   span {
-    font-size: 0.75rem;
+    font-size: 0.84rem;
     color: var(--muted);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2093,7 +2126,7 @@ body:has(app-impersonation-banner .imp) {
 .ad-item__when {
   flex-shrink: 0;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--faint);
   white-space: nowrap;
 }
@@ -2139,12 +2172,12 @@ body:has(app-impersonation-banner .imp) {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   font-weight: 600;
   color: var(--ink-soft);
   white-space: nowrap;
 
-  i { font-size: 0.78rem; }
+  i { font-size: 0.86rem; }
 }
 
 /* ── Le tableau qui se rafraichit ──
@@ -2162,10 +2195,10 @@ body:has(app-impersonation-banner .imp) {
   align-items: center;
   gap: 0.45rem;
   margin: 0 0 0.85rem;
-  font-size: 0.76rem;
+  font-size: 0.85rem;
   color: var(--muted);
 
-  i { font-size: 0.82rem; color: var(--faint); }
+  i { font-size: 0.9rem; color: var(--faint); }
 }
 
 /* ── Onglets de section ── */
@@ -2185,14 +2218,14 @@ body:has(app-impersonation-banner .imp) {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.6rem 0.85rem;
-  font-size: 0.85rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--muted);
   white-space: nowrap;
   transition: color var(--t);
 
-  i { font-size: 0.9rem; }
+  i { font-size: 1rem; }
 
   &::after {
     content: '';
@@ -2218,11 +2251,14 @@ body:has(app-impersonation-banner .imp) {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  padding: 2.2rem 1.2rem;
+  padding: 2.6rem 1.2rem;
   text-align: center;
 
-  i { font-size: 1.4rem; color: var(--bleu-300); }
-  p { font-size: 0.83rem; color: var(--muted); max-width: 40ch; }
+  /* Direct, pour la meme raison que `.empty-box` : une icone dans un
+     bouton pose sous le message ne doit pas prendre la taille du
+     symbole de l'etat vide. */
+  > i { font-size: 1.8rem; color: var(--bleu-300); }
+  p { font-size: 1rem; line-height: 1.5; color: var(--muted); max-width: 40ch; }
 }
 
 /* ── Legende de rampe, pour la carte et les grilles de chaleur ── */
@@ -2231,7 +2267,7 @@ body:has(app-impersonation-banner .imp) {
   align-items: center;
   gap: 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.64rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -2246,6 +2282,34 @@ body:has(app-impersonation-banner .imp) {
   overflow: hidden;
 
   span { flex: 1; }
+}
+
+/* ── Tableaux du panneau ──
+   Le tableau du site est cale a 14 px ; dans le panneau, c'est la surface
+   qu'on regarde le plus longtemps de la journee. Il monte d'un cran — pas
+   davantage : une ligne de tableau qui grossit, c'est une ligne de moins
+   a l'ecran, et la densite est ce qui rend un catalogue utilisable. */
+.adm table.data {
+  font-size: 0.94rem;
+
+  th { font-size: 0.65rem; padding: 0.85rem 1rem; }
+  td { padding: 0.9rem 1rem; }
+}
+
+/* ── Colonne de lecture ──
+   Le panneau se lit en pleine largeur, et c'est juste pour un tableau :
+   douze colonnes ont besoin des mille six cents pixels. Ca ne l'est pas
+   pour une page de reglages, ou chaque rangee est un libelle a gauche et
+   un interrupteur a droite : entre les deux s'ouvraient treize cents
+   pixels de vide, et l'oeil devait traverser l'ecran pour relier une
+   question a sa reponse.
+
+   Les pages qui sont des FORMULAIRES portent donc cette classe et
+   s'arretent a une largeur de lecture. Les pages qui sont des LISTES ne
+   la portent pas. C'est la seule question a se poser en ajoutant une
+   page : est-ce que je lis, ou est-ce que je compare ? */
+.ad-page--forme {
+  max-width: 78rem;
 }
 
 /* ═══════════════ Champ-piège ═══════════════

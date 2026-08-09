@@ -119,23 +119,23 @@ export function getContractBadgeClass(type: string): string {
  * tire désormais dans une palette fermée.
  *
  * Avec une palette monochrome, la variété vient entièrement de
- * l'intensité : sept degrés du même pétrole, de clair à plein, suffisent
- * à distinguer deux cartes voisines sans jamais sortir de la gamme.
+ * l'intensité : sept degrés du même bleu — celui de l'anneau du logo —
+ * suffisent à distinguer deux cartes voisines sans sortir de la gamme.
  *
- * Les fonds descendent régulièrement en clarté (écart OKLab ≥ 0,052
- * entre voisins) et aucun ne se confond avec le sol crème #ffecd1 — ils
- * en sont même l'exact opposé en température, ce qui les détache mieux
- * qu'à l'époque du sol bleu. Chaque paire dépasse 4,5:1, la plus faible
+ * Les fonds descendent régulièrement en clarté (écart OKLab ≥ 0,053
+ * entre voisins). Ils ne se confondent pas avec le sol #F5F7FB : le sol
+ * est presque blanc et à peine teinté, la pastille la plus pâle est
+ * déjà six crans plus dense. Chaque paire dépasse 4,5:1, la plus faible
  * étant l'aplat d'accent.
  */
 const AVATAR_PALETTE: ReadonlyArray<{ bg: string; fg: string }> = [
-  { bg: '#d2eef3', fg: '#2f5057' }, // pétrole très pâle   7.18:1
-  { bg: '#b8dfe7', fg: '#14444c' }, // pétrole pâle        7.52:1
-  { bg: '#9eced8', fg: '#003640' }, // pétrole clair       7.66:1
-  { bg: '#85bdc7', fg: '#002732' }, // pétrole doux        7.56:1
-  { bg: '#6caab6', fg: '#001823' }, // pétrole moyen clair 6.98:1
-  { bg: '#3a808c', fg: '#ffffff' }, // aplat d'accent      4.52:1
-  { bg: '#15616d', fg: '#ffecd1' }, // aplat de marque     6.13:1
+  { bg: '#DBE9FF', fg: '#384B68' }, // bleu très pâle    7.21:1
+  { bg: '#C0D8FF', fg: '#253D61' }, // bleu pâle         7.56:1
+  { bg: '#A6C6F7', fg: '#162F54' }, // bleu clair        7.68:1
+  { bg: '#8FB4ED', fg: '#0D2241' }, // bleu doux         7.50:1
+  { bg: '#769FE0', fg: '#05142D' }, // bleu moyen clair  6.82:1
+  { bg: '#4373C0', fg: '#ffffff' }, // aplat d'accent    4.72:1
+  { bg: '#25549D', fg: '#EBF0F8' }, // aplat de marque   6.48:1
 ];
 
 export function companyColor(name: string): { bg: string; fg: string } {

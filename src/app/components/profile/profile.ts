@@ -561,7 +561,7 @@ export class Profile implements OnInit {
       text: 'Voulez-vous analyser ce PDF pour remplir automatiquement les sections de votre CV en ligne ?',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: '#15616d',
+      confirmButtonColor: '#01489C',
       cancelButtonColor: '#577177',
       confirmButtonText: 'Analyser',
       cancelButtonText: 'Non merci',
