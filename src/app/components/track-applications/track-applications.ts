@@ -13,6 +13,8 @@ import { Application, JobOffer, InterviewItem } from '../../models/job-offer.mod
 import { companyColor } from '../../utils/job.utils';
 import { ConsoleShell } from '../console-shell/console-shell';
 import { pastilleStatut, libelleStatut, iconeStatut } from '../../utils/statut-candidature';
+import { Explication } from '../explication/explication';
+import { confirmer } from '../../utils/confirmation';
 
 type Tab = 'saved' | 'sent' | 'interviews' | 'invitations' | 'archived';
 
@@ -30,7 +32,7 @@ type Tab = 'saved' | 'sent' | 'interviews' | 'invitations' | 'archived';
  */
 @Component({
   selector: 'app-track-applications',
-  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell],
+  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell, Explication],
   templateUrl: './track-applications.html',
   styleUrl: './track-applications.scss',
 })
@@ -278,9 +280,15 @@ export class TrackApplications implements OnInit {
     });
   }
 
-  withdraw(app: Application, event?: Event) {
+  async withdraw(app: Application, event?: Event) {
     event?.stopPropagation();
-    if (!confirm(`Retirer votre candidature pour « ${app.jobOffer?.title} » ? Cette action est irréversible.`)) return;
+    const ok = await confirmer({
+      titre: 'Retirer cette candidature ?',
+      texte: `Votre dossier pour « ${app.jobOffer?.title} » sera retiré du suivi du recruteur. Vous pourrez postuler de nouveau à cette offre, mais l'historique de cette candidature ne sera pas rétabli.`,
+      confirmer: 'Retirer ma candidature',
+      danger: true,
+    });
+    if (!ok) return;
     this.candidateService.withdrawApplication(app.id).subscribe({
       next: () => {
         this.toastr.success('Candidature retirée');

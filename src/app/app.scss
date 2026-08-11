@@ -1,8 +1,13 @@
 // La navbar est fixe : <main> porte le decalage une seule fois,
 // pour toutes les pages. Chaque page ne gere plus que sa respiration.
+//
+// `--pile-h` s'y ajoute : c'est la hauteur reellement occupee par les
+// bandeaux du haut, mesuree a l'execution. Une valeur en dur ne tiendrait
+// pas — deux bandeaux peuvent coexister, et chacun passe sur deux lignes
+// des que la fenetre se resserre.
 main {
   display: block;
-  padding-top: var(--nav-h);
+  padding-top: calc(var(--nav-h) + var(--pile-h));
   min-height: calc(100vh - 220px);
   outline: none;
 }

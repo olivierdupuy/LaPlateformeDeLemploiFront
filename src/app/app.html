@@ -8,16 +8,35 @@
     </div>
   </div>
 } @else {
-  <!-- Le bandeau d'emprunt precede tout : il doit rester visible quel que
-       soit le gabarit, public ou administration. -->
-  <app-impersonation-banner />
+  <!-- ═══ LA PILE DU HAUT ═══
+       Les trois bandeaux du site vivent ici, dans un bloc fixe posé
+       au-dessus de la navbar. Chacun était rendu à un endroit différent
+       et aucun ne se voyait : les deux premiers passaient sous une navbar
+       fixe de 96 px, le troisième était rendu après le pied de page.
+
+       L'ordre est celui de l'urgence. L'emprunt de compte d'abord — il dit
+       qu'on n'agit pas en son propre nom, et rien ne prime là-dessus. Le
+       rappel d'adresse en dernier : il concerne une seule personne, et il
+       se referme.
+
+       `pile` est mesurée par le composant, qui en publie la hauteur dans
+       `--pile-h` : la navbar, la barre latérale de l'administration et
+       <main> s'en décalent d'autant. -->
+  <div class="pile-haut" #pile>
+    <app-impersonation-banner />
+    @if (!isAdminArea()) {
+      <app-site-banner />
+    }
+    <!-- Le rappel de confirmer son adresse. Il ne se montre qu'aux comptes
+         concernés, et se referme d'un clic. -->
+    <app-adresse-a-confirmer />
+  </div>
 
   @if (isAdminArea()) {
     <!-- Le panneau d'administration porte sa propre coquille. -->
     <router-outlet />
   } @else {
     <a class="skip-link" href="#contenu">Aller au contenu</a>
-    <app-site-banner />
     <app-navbar />
     <main id="contenu" tabindex="-1">
       <router-outlet />
@@ -37,6 +56,3 @@
 @if (!isAdminArea()) {
   <app-cookie-consent />
 }
-<!-- Le rappel de confirmer son adresse. Il ne se montre qu'aux comptes
-     concernés, et se referme d'un clic. -->
-<app-adresse-a-confirmer />

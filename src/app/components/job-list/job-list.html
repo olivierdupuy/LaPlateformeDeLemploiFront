@@ -504,6 +504,66 @@
   </div>
 </section>
 
+<!-- ═══ COMPRENDRE LES RÉSULTATS ═══
+     Une liste de résultats ne se discute pas : on la croit ou on part.
+     Ce qui la précède — d'où viennent les annonces, ce que valent les
+     filtres, ce qui est fait des doublons — décide de laquelle des deux
+     réactions on obtient. -->
+<section class="bande-expli">
+  <div class="container">
+    <app-explication
+      surtitre="La recherche"
+      titre="Ce que cette liste contient"
+      chapeau="Les annonces déposées sur la plateforme et celles importées de France Travail, dans le même flux, dédoublonnées.">
+
+      <h3>Les filtres, et ce qu'ils font vraiment</h3>
+      <p>
+        Le filtre de rémunération travaille sur les fourchettes annoncées. Une offre qui ne dit
+        rien de son salaire sort donc des résultats dès que vous posez un minimum, même si le
+        poste paie bien : ce n'est pas un jugement sur l'annonce, c'est l'absence d'information.
+        Sur les métiers où l'usage est de ne pas afficher les rémunérations, mieux vaut chercher
+        sans ce filtre et vérifier fiche par fiche.
+      </p>
+      <p>
+        La distance s'appuie sur les coordonnées de la ville indiquée dans l'annonce, pas sur
+        l'adresse exacte du poste. Un rayon de dix kilomètres autour d'une grande ville est donc
+        une approximation confortable, jamais un temps de trajet. Le filtre de télétravail suit ce
+        que l'employeur a déclaré comme type de lieu de travail, et regroupe le distanciel complet
+        et l'hybride.
+      </p>
+
+      <h3>Les doublons et les annonces mortes</h3>
+      <p>
+        Une même offre publiée ici et diffusée ailleurs n'apparaît qu'une fois : chaque annonce
+        porte une empreinte calculée sur son intitulé, son employeur et sa ville, et deux
+        empreintes identiques se rejoignent. Les annonces importées qui ont disparu de leur source
+        depuis trente jours sont retirées automatiquement. Il en reste : une offre pourvue le matin
+        peut rester en ligne l'après-midi, chez nous comme partout ailleurs. Le bouton de
+        signalement, sur chaque fiche, sert exactement à ça.
+      </p>
+
+      <h3>Postuler ici ou ailleurs</h3>
+      <p>
+        Les offres marquées « candidature simplifiée » se traitent sans quitter le site : votre
+        profil et votre CV partent en un clic, l'employeur répond dans la messagerie, et le statut
+        de la candidature avance dans votre suivi. Les autres renvoient vers le site de leur
+        source, qui a ses propres formulaires et ses propres délais.
+      </p>
+      <p>
+        Dans les deux cas, enregistrez la recherche qui vous a menée jusqu'ici. C'est ce qui
+        transforme une séance de recherche en veille : votre espace compte ensuite les annonces
+        arrivées depuis votre dernier passage, au lieu de vous faire reparcourir la même liste.
+      </p>
+      <p class="editorial__note">
+        Un résultat hors sujet ? Les pouces sous la liste servent à le dire, et ce retour est lu.
+        Une annonce trompeuse, frauduleuse ou discriminatoire relève, elle, du
+        <a routerLink="/signalement">signalement formel</a>, qui ouvre un dossier et donne lieu à
+        une décision motivée.
+      </p>
+    </app-explication>
+  </div>
+</section>
+
 <!-- ═══ MODALE SIGNALEMENT ═══ -->
 @if (reportOpen()) {
     <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :

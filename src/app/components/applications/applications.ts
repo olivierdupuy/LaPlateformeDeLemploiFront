@@ -11,12 +11,13 @@ import { FichiersService } from '../../utils/fichiers';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { Explication } from '../explication/explication';
 import { ETATS_CANDIDATURE, ORDRE_CANDIDATURE, pastilleStatut, libelleStatut, iconeStatut } from '../../utils/statut-candidature';
 import { reponsesDe, vocabulairePreselection, Reponse } from '../../utils/preselection';
 
 @Component({
   selector: 'app-applications',
-  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell],
+  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell, Explication],
   templateUrl: './applications.html',
   styleUrl: './applications.scss',
 })

@@ -7,10 +7,11 @@ import { EventService, JobEvent } from '../../services/event.service';
 import { FtEvents } from '../ft-events/ft-events';
 import { AuthService } from '../../services/auth.service';
 import { Modale } from '../../utils/modale.directive';
+import { Explication } from '../explication/explication';
 
 @Component({
   selector: 'app-events',
-  imports: [FormsModule, DatePipe, RouterLink, FtEvents, Modale],
+  imports: [FormsModule, DatePipe, RouterLink, FtEvents, Modale, Explication],
   templateUrl: './events.html',
   styleUrl: './events.scss',
 })

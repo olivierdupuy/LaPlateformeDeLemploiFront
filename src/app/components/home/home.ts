@@ -8,10 +8,11 @@ import { JobOffer, JobStats, CompanyInfo } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
 import { EmployerNamePipe } from '../../pipes/employer-name.pipe';
 import { AuthModalService } from '../../services/auth-modal.service';
+import { Explication } from '../explication/explication';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, FormsModule, DecimalPipe, EmployerNamePipe],
+  imports: [RouterLink, FormsModule, DecimalPipe, EmployerNamePipe, Explication],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

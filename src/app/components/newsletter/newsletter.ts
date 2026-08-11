@@ -6,6 +6,7 @@ import { NewsletterService } from '../../services/newsletter.service';
 import { AuthService } from '../../services/auth.service';
 import { Regles, erreursDuServeur } from '../../utils/validation';
 import { CATEGORIES } from '../../utils/categories';
+import { Explication } from '../explication/explication';
 
 /**
  * La lettre d'information, côté visiteur.
@@ -24,7 +25,7 @@ type Mode = 'inscription' | 'confirmation' | 'desinscription';
 
 @Component({
   selector: 'app-newsletter',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Explication],
   templateUrl: './newsletter.html',
   styleUrl: './newsletter.scss',
 })

@@ -11,6 +11,8 @@ import {
   WebhookAbonne,
 } from '../../services/plateforme-pro.service';
 import { SeoService } from '../../services/seo.service';
+import { Explication } from '../explication/explication';
+import { confirmer, demanderTexte } from '../../utils/confirmation';
 
 /**
  * Facturation et intégrations, côté recruteur.
@@ -32,7 +34,7 @@ import { SeoService } from '../../services/seo.service';
 @Component({
   selector: 'app-billing',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, Explication],
   templateUrl: './billing.html',
   styleUrl: './billing.scss',
 })
@@ -108,12 +110,16 @@ export class Billing implements OnInit {
     });
   }
 
-  creerCle(): void {
-    const nom = prompt('Nom de cette clé (« Teamtailor », « script interne »…)');
-    if (!nom?.trim()) return;
+  async creerCle(): Promise<void> {
+    const nom = await demanderTexte({
+      titre: "Nouvelle clé d'API",
+      texte: "Donnez-lui le nom de l'outil qui s'en servira : c'est ce nom qui vous dira laquelle révoquer, le jour où il le faudra.",
+      exemple: 'Teamtailor, script interne…',
+    });
+    if (!nom) return;
 
     this.service
-      .creerCleApi(nom.trim(), ['offres:lire', 'offres:ecrire', 'candidatures:lire'])
+      .creerCleApi(nom, ['offres:lire', 'offres:ecrire', 'candidatures:lire'])
       .subscribe({
         next: (r) => {
           this.secretAffiche.set({ titre: 'Votre clé d’API', valeur: r.cle, note: r.message });
@@ -123,8 +129,15 @@ export class Billing implements OnInit {
       });
   }
 
-  revoquerCle(id: number): void {
-    if (!confirm('Révoquer cette clé ? Les appels qui l’utilisent cesseront immédiatement.')) return;
+  async revoquerCle(id: number): Promise<void> {
+    const ok = await confirmer({
+      titre: 'Révoquer cette clé ?',
+      texte:
+        "Les appels qui l'utilisent cesseront de fonctionner immédiatement, et la clé ne peut pas être rétablie. Vérifiez qu'aucun outil en production ne s'en sert encore.",
+      confirmer: 'Révoquer',
+      danger: true,
+    });
+    if (!ok) return;
 
     this.service.revoquerCleApi(id).subscribe({
       next: () => {
@@ -134,12 +147,20 @@ export class Billing implements OnInit {
     });
   }
 
-  creerWebhook(): void {
-    const url = prompt('Adresse HTTPS qui recevra les notifications');
-    if (!url?.trim()) return;
+  async creerWebhook(): Promise<void> {
+    const url = await demanderTexte({
+      titre: 'Nouvel abonnement',
+      texte:
+        'Adresse qui recevra les notifications. Chaque envoi est signé : le secret de signature vous sera montré une seule fois.',
+      exemple: 'https://votre-outil.fr/lpde/notifications',
+      type: 'url',
+      verifier: (v) =>
+        v.startsWith('https://') ? null : "L'adresse doit commencer par « https:// ».",
+    });
+    if (!url) return;
 
     this.service
-      .creerWebhook(url.trim(), ['candidature.creee', 'candidature.statut'])
+      .creerWebhook(url, ['candidature.creee', 'candidature.statut'])
       .subscribe({
         next: (r) => {
           this.secretAffiche.set({
@@ -153,9 +174,23 @@ export class Billing implements OnInit {
       });
   }
 
-  supprimerWebhook(id: number): void {
-    if (!confirm('Supprimer cet abonnement ?')) return;
-    this.service.supprimerWebhook(id).subscribe({ next: () => this.chargerIntegrations() });
+  async supprimerWebhook(id: number): Promise<void> {
+    const ok = await confirmer({
+      titre: 'Supprimer cet abonnement ?',
+      texte:
+        "Votre outil cessera d'être prévenu des nouvelles candidatures. Rien d'autre ne change.",
+      confirmer: 'Supprimer',
+      danger: true,
+    });
+    if (!ok) return;
+
+    this.service.supprimerWebhook(id).subscribe({
+      next: () => {
+        this.toast.success('Abonnement supprimé.');
+        this.chargerIntegrations();
+      },
+      error: (e) => this.toast.error(e?.error?.message ?? 'Suppression impossible.'),
+    });
   }
 
   copier(valeur: string): void {

@@ -1746,18 +1746,41 @@ body.a-modale-ouverte { overflow: hidden; }
 /* Un taux sans definition se lit de travers : la ligne dit ce qu'il compte. */
 .kpi-hint { font-size: 0.74rem; line-height: 1.4; color: var(--muted); }
 
-/* ═══════════════ Prise en main de compte ═══════════════ */
-/* Le bandeau d'emprunt occupe le haut de la page. La navbar et la barre
-   laterale de l'administration sont en position fixe : sans decalage,
-   elles passeraient dessous et le bandeau les recouvrirait. */
-:root { --imp-h: 44px; }
+/* ═══════════════ La pile du haut ═══════════════
+   Trois bandeaux se disputaient le haut de l'ecran : l'emprunt de compte,
+   les annonces du site, et le rappel de confirmer son adresse. Aucun
+   n'etait visible.
 
-body:has(app-impersonation-banner .imp) {
-  app-navbar nav { top: var(--imp-h); }
-  main { padding-top: calc(var(--nav-h) + var(--imp-h)); }
+   Les deux premiers etaient poses dans le flux, AVANT une navbar en
+   position fixe qui occupe 96 px : ils passaient dessous, integralement
+   recouverts, et ne laissaient qu'une bande vide sous l'en-tete. Le
+   troisieme etait rendu en fin de gabarit, donc apres le pied de page —
+   un rappel qui bloque la publication d'une offre, affiche a l'endroit
+   ou personne ne descend.
 
-  .adm-side,
-  .adm-topbar { top: var(--imp-h); }
+   Le decalage tente jusqu'ici — `app-navbar nav { top: … }` depuis cette
+   feuille — ne pouvait pas fonctionner : la regle de la navbar est
+   `nav { top: 0 }` dans son propre fichier, et l'encapsulation lui donne
+   un selecteur d'attribut, donc une specificite superieure. C'est la
+   navbar elle-meme qui doit lire la variable, et c'est ce qu'elle fait
+   desormais.
+
+   `--pile-h` porte la hauteur reellement occupee. Elle est mesuree a
+   l'execution par `App` (un ResizeObserver sur la pile) plutot que posee
+   en dur : deux bandeaux peuvent coexister, et chacun passe sur deux
+   lignes des que la fenetre se resserre. Elle vaut zero quand il n'y a
+   rien — le cas de l'immense majorite des visites. */
+:root { --pile-h: 0px; }
+
+.pile-haut {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Au-dessus de la navbar (100), de ses menus deroulants (200) et de la
+     barre laterale de l'administration (60). Sous les modales (1000) :
+     une boite de dialogue qui attend une reponse prime sur une annonce. */
+  z-index: 300;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2330,3 +2353,107 @@ body:has(app-impersonation-banner .imp) {
   opacity: 0;
   pointer-events: none;
 }
+
+
+/* ═══════════════ Texte éditorial ═══════════════
+   Ce que le site sait de lui-même et ne disait nulle part : d'où
+   viennent les offres, comment sont calculés les salaires affichés, ce
+   qu'il advient d'un CV déposé. C'était écrit dans les commentaires du
+   code, lisible par une personne sur mille.
+
+   Ces textes font trois cents à six cents mots. Posés à plat en bas de
+   page, ils doublaient la hauteur d'écrans qu'on parcourt déjà au
+   kilomètre. Ils vivent donc dans une modale, ouverte par le composant
+   `app-explication` ; ce qui reste ici est la typographie de leur
+   contenu, définie une fois parce qu'elle sert aussi ailleurs.
+
+   La colonne de lecture s'arrête à `--max-text`. Au-delà, l'œil rate la
+   ligne suivante en revenant à la marge : le gabarit du site fait 1650
+   pixels, ce qui est bon pour un tableau et mauvais pour un paragraphe. */
+.editorial__body {
+  max-width: var(--max-text);
+
+  p {
+    font-size: 1.02rem;
+    line-height: 1.75;
+    color: var(--ink-soft);
+  }
+
+  p + p { margin-top: 1.05rem; }
+
+  strong { color: var(--ink); font-weight: 700; }
+
+  a {
+    color: var(--bleu-600);
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+    text-decoration-thickness: 1px;
+
+    &:hover { color: var(--bleu-700); }
+  }
+
+  /* Les intertitres restent en Nunito : Fredoka est une fonte
+     d'affichage, et six titres dans une colonne de texte n'en sont pas. */
+  h3 {
+    margin: 2.2rem 0 0.75rem;
+    font-family: var(--font);
+    font-size: 1.06rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+
+    &:first-child { margin-top: 0; }
+  }
+
+  ul {
+    margin-top: 1rem;
+    list-style: none;
+  }
+
+  li {
+    position: relative;
+    padding-left: 1.05rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+
+    + li { margin-top: 0.55rem; }
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.75em;
+      width: 5px;
+      height: 5px;
+      border-radius: var(--r-full);
+      background: var(--bleu-300);
+    }
+  }
+}
+
+/* La réserve : ce qu'il faut savoir avant de se fier au paragraphe
+   d'au-dessus. Elle porte l'accent orange parce qu'elle interrompt. */
+.editorial__note {
+  margin-top: 1.6rem;
+  padding: 0.95rem 1.15rem;
+  border-left: 3px solid var(--rouge);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: var(--nuage-2);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+/* La bande qui accueille le bandeau d'explication sur les pages
+   publiques. Le fond alterne avec la section précédente, sans quoi la
+   carte blanche posée sur du blanc n'a plus de bord. */
+.bande-expli {
+  padding: clamp(2rem, 4.5vw, 3.25rem) 0;
+  background: var(--nuage);
+  border-top: 1px solid var(--line);
+}
+.bande-expli--canvas { background: var(--canvas); }
+
+/* Le bandeau posé dans une page qui a déjà sa colonne : la page
+   d'atterrissage et le formulaire de signalement n'ont pas besoin d'une
+   bande pleine largeur, seulement d'un peu d'air autour. */
+.expli-solo { margin: clamp(1.75rem, 4vw, 2.75rem) 0; }

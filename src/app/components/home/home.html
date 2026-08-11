@@ -345,3 +345,80 @@
     </ol>
   </div>
 </section>
+
+<!-- ═══ CE QUE FAIT CE SITE ═══
+     Les trois étapes ci-dessus disent quoi faire, jamais à quoi on a
+     affaire. Un catalogue d'offres se juge sur son origine et sur ce
+     qu'on en retire : sans cette page, la seule réponse était de tester
+     et de voir. C'est aussi le seul texte du site qu'un moteur peut
+     indexer sans passer par des données chargées après coup. -->
+<section class="bande-expli">
+  <div class="container">
+    <app-explication
+      surtitre="La plateforme"
+      titre="D'où viennent ces offres"
+      chapeau="Un site d'emploi ne vaut que ce que vaut son catalogue. Voici comment le nôtre se remplit, ce qui en sort, et ce que la recherche vous coûte."
+      libelle="Lire la présentation">
+      <h3>Deux origines, une seule liste</h3>
+      <p>
+        Les annonces que vous lisez ici viennent de deux endroits. Les premières sont déposées
+        directement par des employeurs qui tiennent un compte recruteur sur la plateforme : ils
+        rédigent l'offre, reçoivent les candidatures ici et y répondent ici. Les secondes sont
+        importées de France Travail, toutes les six heures. Elles renvoient vers leur site
+        d'origine pour la candidature, et leur fiche le dit avant que vous cliquiez.
+      </p>
+      <p>
+        Un même poste peut exister des deux côtés. Pour qu'il n'occupe qu'une ligne, chaque
+        annonce reçoit une empreinte calculée sur son intitulé normalisé, le nom de l'employeur
+        et la ville : deux empreintes identiques ne donnent qu'un résultat. Le confort n'est pas
+        la seule raison. Un doublon fait postuler deux fois au même recruteur sans le savoir,
+        et donne du catalogue une idée fausse de sa taille.
+      </p>
+
+      <h3>Une offre qui disparaît de sa source disparaît d'ici</h3>
+      <p>
+        Une annonce importée qui n'a pas été revue chez son émetteur depuis trente jours est
+        retirée. Le délai n'a rien d'arbitraire : les sources republient l'intégralité de leurs
+        offres actives à chaque cycle, donc une annonce absente pendant un mois entier a été
+        pourvue ou retirée. Une offre morte coûte plus cher qu'une offre absente. Elle prend une
+        candidature, puis la confiance.
+      </p>
+      <p>
+        Les offres déposées sur la plateforme expirent, elles aussi, au bout de trente jours par
+        défaut. Leur auteur peut les renouveler, les suspendre le temps d'un tri, ou les fermer
+        avant terme quand le poste est pourvu.
+      </p>
+
+      <h3>Ce qui est examiné avant publication</h3>
+      <p>
+        Toutes les annonces passent par la même analyse, qu'elles soient importées ou déposées
+        ici : rémunération sans rapport avec le poste, coordonnées qui invitent à poursuivre
+        hors du site, demande d'argent au candidat. Au-delà d'un certain nombre de signaux,
+        l'annonce n'est pas refusée : elle entre en file de modération et attend une lecture
+        humaine. Un rejet automatique sur un signal statistique écarterait aussi des offres
+        légitimes, et personne ne s'en apercevrait.
+      </p>
+      <p>
+        Chaque fiche porte un bouton de signalement. Pour un contenu que vous estimez illicite,
+        le <a routerLink="/signalement">formulaire prévu par le règlement européen sur les
+        services numériques</a> ouvre un dossier suivi : référence, accusé de réception,
+        décision motivée, voies de recours.
+      </p>
+
+      <h3>Ce que ça coûte</h3>
+      <p>
+        Chercher, postuler, suivre ses candidatures, construire son CV, enregistrer ses
+        recherches et discuter avec un recruteur : rien de tout cela n'est payant côté candidat,
+        et aucune de ces fonctions n'est réservée à un abonnement. Le site se finance sur les
+        employeurs, qui publient trois offres gratuitement et souscrivent au-delà.
+      </p>
+      <p class="editorial__note">
+        Votre CV n'est lisible que par vous, par les recruteurs à qui vous l'avez adressé, et par
+        l'administration du site. Toute autre demande reçoit une page introuvable, y compris avec
+        l'adresse exacte du fichier. Votre profil, lui, est visible des recruteurs dans le vivier
+        tant que vous ne l'avez pas masqué depuis <em>Profil &rsaquo; Visibilité</em>. Le reste est
+        détaillé dans la <a routerLink="/confidentialite">politique de confidentialité</a>.
+      </p>
+    </app-explication>
+  </div>
+</section>

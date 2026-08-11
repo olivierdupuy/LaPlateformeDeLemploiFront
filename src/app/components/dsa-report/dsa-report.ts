@@ -8,6 +8,7 @@ import {
   SuiviSignalement,
 } from '../../services/plateforme-pro.service';
 import { SeoService } from '../../services/seo.service';
+import { Explication } from '../explication/explication';
 
 /**
  * Signaler un contenu illicite.
@@ -26,7 +27,7 @@ import { SeoService } from '../../services/seo.service';
 @Component({
   selector: 'app-dsa-report',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, Explication],
   templateUrl: './dsa-report.html',
   styleUrl: './dsa-report.scss',
 })

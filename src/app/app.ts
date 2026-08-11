@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, effect, inject, viewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
@@ -107,6 +107,49 @@ export class App implements OnInit {
   private mesure = inject(MesureAudience);
 
   get isAdmin(): boolean { return this.auth.isAdmin(); }
+
+  /**
+   * La hauteur qu'occupent les bandeaux du haut, publiée en variable CSS.
+   *
+   * Elle ne peut pas être écrite en dur : il y a zéro, un, deux ou trois
+   * bandeaux selon le compte et le moment, et chacun passe sur deux
+   * lignes dès que la fenêtre se resserre. Une valeur fausse laisse soit
+   * une bande vide sous l'en-tête, soit du contenu recouvert — les deux
+   * défauts que cette pile corrige.
+   *
+   * La navbar, la barre latérale de l'administration et `<main>` lisent
+   * `--pile-h`. Elle vaut `0px` tant que rien n'est affiché, ce qui est
+   * le cas de l'immense majorité des visites.
+   */
+  private readonly pile = viewChild<ElementRef<HTMLElement>>('pile');
+  private observateurPile?: ResizeObserver;
+
+  private suivreLaPile = effect(() => {
+    const element = this.pile()?.nativeElement;
+
+    this.observateurPile?.disconnect();
+    this.observateurPile = undefined;
+
+    if (!element) {
+      this.poserHauteurPile(0);
+      return;
+    }
+
+    this.poserHauteurPile(element.offsetHeight);
+
+    // Absent de l'environnement de test, où la mesure n'a de toute façon
+    // pas de sens : la hauteur initiale suffit alors.
+    if (typeof ResizeObserver === 'undefined') return;
+
+    this.observateurPile = new ResizeObserver(() =>
+      this.poserHauteurPile(element.offsetHeight),
+    );
+    this.observateurPile.observe(element);
+  });
+
+  private poserHauteurPile(hauteur: number): void {
+    document.documentElement.style.setProperty('--pile-h', `${Math.round(hauteur)}px`);
+  }
 
   /**
    * Le panneau d'administration a son propre gabarit : ni navbar de

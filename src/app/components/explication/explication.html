@@ -1,0 +1,68 @@
+@if (forme() === 'bande') {
+  <div class="expli">
+    <div class="expli__texte">
+      @if (surtitre()) { <span class="eyebrow">{{ surtitre() }}</span> }
+      <h2>{{ titre() }}</h2>
+      @if (chapeau()) { <p>{{ chapeau() }}</p> }
+    </div>
+    <button type="button" class="btn-secondary expli__on" (click)="ouvert.set(true)">
+      <i class="bi bi-journal-text" aria-hidden="true"></i> {{ libelle() }}
+    </button>
+  </div>
+} @else {
+  <button type="button" class="expli-ligne" (click)="ouvert.set(true)">
+    <i class="bi bi-question-circle expli-ligne__ic" aria-hidden="true"></i>
+    <span class="expli-ligne__t">
+      {{ titre() }}
+      @if (chapeau()) { <small>{{ chapeau() }}</small> }
+    </span>
+    <span class="expli-ligne__on">{{ libelle() }}</span>
+    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+  </button>
+}
+
+@if (ouvert()) {
+  <!-- Échap, piège de focus, retour du focus au bouton d'ouverture et
+       fermeture au clic sur le fond : tout vient de la directive. -->
+  <div class="modal-overlay" appModale (fermeture)="ouvert.set(false)">
+    <div class="modal-content expli-modal">
+      <header class="expli-modal__head">
+        <div>
+          @if (surtitre()) { <span class="eyebrow">{{ surtitre() }}</span> }
+          <h2>{{ titre() }}</h2>
+        </div>
+        <button
+          type="button"
+          class="expli-modal__x"
+          (click)="ouvert.set(false)"
+          aria-label="Fermer l'explication">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      </header>
+
+      <!-- `editorial__body` porte la typographie du texte long : colonne
+           de lecture, intertitres, listes. Elle est définie une fois pour
+           toutes dans la feuille globale.
+
+           `tabindex="0"` n'est pas décoratif. La modale s'ouvrait au
+           milieu du texte : le piège de focus cherche le premier élément
+           utile, écarte le bouton de fermeture, et tombait donc sur le
+           premier lien du corps — que le navigateur amenait à l'écran en
+           faisant défiler la zone. Rendre la zone elle-même focalisable
+           la place avant ses liens, et lui donne au passage le
+           défilement aux flèches, qu'une zone défilante non focalisable
+           n'a jamais. -->
+      <div
+        class="expli-modal__corps editorial__body"
+        tabindex="0"
+        role="region"
+        aria-label="Texte de l'explication">
+        <ng-content />
+      </div>
+
+      <footer class="expli-modal__pied">
+        <button type="button" class="btn-secondary" (click)="ouvert.set(false)">Fermer</button>
+      </footer>
+    </div>
+  </div>
+}

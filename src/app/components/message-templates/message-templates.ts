@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, output, signal } from '@angular/co
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { RecruiterFeaturesService } from '../../services/recruiter-features.service';
+import { confirmer } from '../../utils/confirmation';
 
 export interface MessageTemplate {
   id: number;
@@ -131,9 +132,15 @@ export class MessageTemplates implements OnInit {
     }
   }
 
-  remove(t: MessageTemplate, event?: Event) {
+  async remove(t: MessageTemplate, event?: Event) {
     event?.stopPropagation();
-    if (!confirm(`Supprimer le modèle « ${t.name} » ?`)) return;
+    const ok = await confirmer({
+      titre: `Supprimer le modèle « ${t.name} » ?`,
+      texte: "Les messages déjà envoyés depuis ce modèle ne bougent pas ; c'est le modèle lui-même qui disparaît.",
+      confirmer: 'Supprimer',
+      danger: true,
+    });
+    if (!ok) return;
     this.svc.deleteTemplate(t.id).subscribe({
       next: () => {
         this.templates.update((list) => list.filter((x) => x.id !== t.id));

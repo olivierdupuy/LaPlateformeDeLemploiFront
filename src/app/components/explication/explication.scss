@@ -1,0 +1,162 @@
+/* ═══ Le bandeau des pages publiques ═══
+   Compact par construction : deux colonnes, le texte à gauche, le geste
+   à droite. Ce qui est ici tient en six lignes ; ce qui n'y tient pas
+   est dans la modale. */
+.expli {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  flex-wrap: wrap;
+  padding: clamp(1.4rem, 3vw, 2rem) clamp(1.4rem, 3vw, 2.2rem);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--canvas);
+  box-shadow: var(--shadow-xs);
+}
+
+.expli__texte {
+  min-width: 0;
+  max-width: 62ch;
+
+  h2 {
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+    line-height: 1.18;
+    letter-spacing: -0.012em;
+  }
+
+  p {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+}
+
+.expli__on {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* ═══ La rangée des espaces de travail ═══
+   Une ligne, la largeur du contenu, rien qui attire l'œil tant qu'on ne
+   la cherche pas. */
+.expli-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 1.75rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--canvas);
+  text-align: left;
+  color: var(--ink);
+  transition: border-color var(--t), background var(--t);
+
+  &:hover {
+    border-color: var(--bleu-300);
+    background: var(--bleu-tint);
+  }
+
+  > i:last-child { color: var(--muted); }
+}
+
+.expli-ligne__ic { color: var(--bleu-600); font-size: 1.05rem; }
+
+.expli-ligne__t {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-weight: 600;
+
+  small {
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+}
+
+.expli-ligne__on {
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--bleu-600);
+}
+
+/* ═══ La modale ═══
+   Le panneau global défile d'un bloc ; ici l'en-tête et le pied restent
+   en place et seul le texte bouge. Sur six cents mots, savoir de quoi
+   l'on parle et comment sortir ne doit pas demander de remonter. */
+.expli-modal {
+  max-width: 44rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.expli-modal__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem 1.6rem 1.15rem;
+  border-bottom: 1px solid var(--line);
+
+  h2 {
+    margin-top: 0.3rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.3rem, 2.6vw, 1.6rem);
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+  }
+}
+
+.expli-modal__x {
+  flex: none;
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-full);
+  color: var(--muted);
+  transition: background var(--t), color var(--t);
+
+  &:hover { background: var(--nuage-2); color: var(--ink); }
+}
+
+.expli-modal__corps {
+  padding: 1.5rem 1.6rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-width: none;
+
+  /* La zone reçoit le focus à l'ouverture (voir le gabarit). Un liseré
+     de 2 px tout autour du texte n'apprend rien à personne : le contour
+     ne se montre qu'à qui navigue au clavier, et discrètement. */
+  &:focus { outline: none; }
+  &:focus-visible {
+    outline: 2px solid var(--bleu-400);
+    outline-offset: -2px;
+  }
+}
+
+.expli-modal__pied {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.9rem 1.6rem;
+  border-top: 1px solid var(--line);
+  background: var(--nuage);
+}
+
+@media (max-width: 640px) {
+  .expli { flex-direction: column; align-items: flex-start; }
+  .expli__on { width: 100%; justify-content: center; }
+  .expli-ligne__on { display: none; }
+}

@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { SeoService } from '../../services/seo.service';
+import { Explication } from '../explication/explication';
 
 interface Article {
   slug: string;
@@ -18,7 +19,7 @@ interface Article {
 
 @Component({
   selector: 'app-careers-guide',
-  imports: [RouterLink],
+  imports: [RouterLink, Explication],
   templateUrl: './careers-guide.html',
   styleUrl: './careers-guide.scss',
 })

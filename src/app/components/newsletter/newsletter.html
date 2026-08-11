@@ -182,3 +182,56 @@
     }
   </div>
 </section>
+
+<!-- ═══ CE QU'ON ENVOIE ═══
+     Trois promesses en pastilles suffisent à décider, pas à rassurer
+     quelqu'un qui a déjà donné son adresse ailleurs et l'a regretté.
+     Réservé au mode inscription : sur la page de désinscription, un
+     argumentaire serait déplacé. -->
+@if (mode === 'inscription' && !fait()) {
+  <section class="bande-expli">
+    <div class="container">
+      <app-explication
+        surtitre="La lettre"
+        titre="Ce que vous recevrez, et rien d'autre"
+        chapeau="Des offres réelles, choisies dans le catalogue du mois, avec le texte qui explique pourquoi elles se retrouvent dans la même lettre.">
+
+        <h3>Le contenu</h3>
+        <p>
+          Chaque lettre est bâtie sur les annonces effectivement parues depuis la précédente, dans
+          les domaines que vous avez cochés. Elle donne l'intitulé, l'employeur, la ville et le
+          lien direct vers la fiche. Quand un domaine n'a pas assez d'offres pour valoir un envoi,
+          la lettre ne part pas : nous préférons un mois de silence à un message qui remplit.
+        </p>
+        <p>
+          Le texte de liaison est rédigé avec l'aide d'un modèle de langage, et le montage
+          l'empêche d'inventer quoi que ce soit : les offres sont assemblées à partir de la base,
+          l'assistant n'écrit que ce qui les relie, et une annonce qui n'existe pas n'a nulle part
+          où s'afficher. Aucune lettre ne part sans qu'une personne l'ait lue et validée.
+        </p>
+
+        <h3>Votre adresse</h3>
+        <p>
+          Vous recevez d'abord un message de confirmation, et rien tant que vous n'avez pas cliqué
+          le lien qu'il contient. Cette étape peut sembler de trop ; c'est elle qui garantit que
+          personne ne peut vous abonner à votre place, avec votre adresse.
+        </p>
+        <p>
+          Le retrait tient en un clic depuis n'importe quel envoi, sans mot de passe et sans
+          compte. Se retirer de la lettre ne touche ni vos candidatures, ni vos alertes, ni les
+          messages liés à la sécurité de votre compte, qui relèvent d'un autre réglage : celui des
+          <a routerLink="/preferences-courriel">préférences d'envoi</a>, où chaque famille de
+          message se coupe séparément.
+        </p>
+
+        <h3>Ce que nous ne faisons pas</h3>
+        <p>
+          Votre adresse ne part chez aucun partenaire, ne sert à aucune publicité pour un tiers, et
+          n'est recoupée avec rien. Le prénom et la ville restent facultatifs et ne servent qu'à
+          l'envoi lui-même. Les détails, y compris les durées de conservation, sont dans la
+          <a routerLink="/confidentialite">politique de confidentialité</a>.
+        </p>
+      </app-explication>
+    </div>
+  </section>
+}

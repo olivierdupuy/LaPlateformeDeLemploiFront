@@ -7,6 +7,7 @@ import { PlatformService } from '../../services/platform.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { Explication } from '../explication/explication';
 import { MarkdownPipe } from '../../utils/markdown.pipe';
 import {
   SCREENING_TYPE_LABELS,
@@ -34,7 +35,7 @@ interface Step {
  */
 @Component({
   selector: 'app-job-form',
-  imports: [FormsModule, RouterLink, ConsoleShell, MarkdownPipe],
+  imports: [FormsModule, RouterLink, ConsoleShell, MarkdownPipe, Explication],
   templateUrl: './job-form.html',
   styleUrl: './job-form.scss',
 })

@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { ApplicationService } from '../../services/application';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { Explication } from '../explication/explication';
 
 /**
  * Analyses — « qu'est-ce qui marche ».
@@ -22,7 +23,7 @@ import { ConsoleShell } from '../console-shell/console-shell';
  */
 @Component({
   selector: 'app-analyses-recruteur',
-  imports: [RouterLink, DecimalPipe, ConsoleShell],
+  imports: [RouterLink, DecimalPipe, ConsoleShell, Explication],
   templateUrl: './analyses-recruteur.html',
   styleUrl: './analyses-recruteur.scss',
 })

@@ -19,7 +19,7 @@
       <div class="rs-empty animate-in">
         <div class="rse-circle"><i class="bi bi-bookmark-star"></i></div>
         <h3>Aucune recherche enregistrée</h3>
-        <p>Lorsque vous effectuez une recherche d'offres, sauvegardez vos critères pour les retrouver ici et être averti des nouvelles offres correspondantes.</p>
+        <p>Lorsque vous effectuez une recherche d'offres, sauvegardez vos critères : vous les retrouverez ici, avec le nombre d'offres parues depuis votre dernier passage.</p>
         <a routerLink="/offres" class="btn-primary"><i class="bi bi-search-heart"></i> Explorer les offres</a>
       </div>
     } @else {
@@ -83,5 +83,45 @@
         }
       </div>
     }
+
+    <!-- La cloche est le seul réglage de la page, et le seul dont on
+         puisse se faire une idée fausse : elle compte, elle n'expédie
+         rien. Le dire ici évite d'attendre un courriel qui ne part pas. -->
+    <app-explication
+      forme="ligne"
+      titre="À quoi servent les recherches enregistrées"
+      libelle="Ouvrir">
+
+        <h3>Un jeu de critères, gardé tel quel</h3>
+        <p>
+          Une recherche enregistrée retient tout ce que vous aviez réglé au moment de la
+          sauvegarde : les mots-clés, la ville, le secteur, le type de contrat et le télétravail.
+          La rouvrir replace la liste des offres exactement dans cet état. C'est fait pour les
+          combinaisons qu'on retape sinon trois fois par semaine, et pour comparer plusieurs
+          pistes sans les mélanger : une recherche large pour voir le marché, une étroite pour ce
+          qu'on vise vraiment.
+        </p>
+
+        <h3>Ce que compte la cloche</h3>
+        <p>
+          Quand l'alerte est active, la carte affiche le nombre d'offres correspondantes parues
+          depuis votre dernier passage sur cette recherche. Le compteur se remet à zéro lorsque
+          vous la consultez. C'est un relevé à l'ouverture de la page, pas un envoi : rien ne part
+          par courriel, et vous ne recevrez pas de message à chaque nouvelle annonce.
+        </p>
+        <p>
+          Une recherche dont l'alerte est coupée reste utilisable ; elle cesse simplement de
+          compter. Sur des critères très larges, couper l'alerte évite un compteur à trois
+          chiffres qui ne veut plus rien dire.
+        </p>
+
+        <h3>Ce qui les rend utiles</h3>
+        <p>
+          Des critères assez précis pour que le compteur reste lisible, et un intitulé qui dit à
+          quoi ils servent. « Comptable Lyon CDI » se comprend six semaines plus tard ;
+          « Recherche 3 » non. Une recherche supprimée ne se récupère pas, mais rien n'empêche de
+          la refaire : ce sont des critères, pas des données.
+        </p>
+    </app-explication>
   </div>
 </section>

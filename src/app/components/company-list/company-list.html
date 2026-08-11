@@ -85,3 +85,59 @@
     }
   </div>
 </section>
+
+<!-- ═══ CE QU'EST CET ANNUAIRE ═══
+     Une grille d'entreprises classée par nombre d'offres se lit comme un
+     palmarès. Ce n'en est pas un, et l'absence d'un employeur connu n'a
+     rien d'un jugement : il n'a simplement rien en ligne aujourd'hui. -->
+<section class="bande-expli">
+  <div class="container">
+    <app-explication
+      surtitre="L'annuaire"
+      titre="Ce que contient cette liste"
+      chapeau="Elle se construit toute seule, à partir des offres en ligne. Personne n'y inscrit son entreprise, et personne n'achète sa place.">
+
+      <h3>Une entreprise entre par ses offres</h3>
+      <p>
+        Chaque employeur qui a au moins une annonce publiée et validée apparaît ici, avec le
+        nombre d'offres qu'il porte et le nombre de villes où il recrute. Quand ses annonces
+        expirent, il quitte l'annuaire jusqu'à la publication suivante. Un employeur absent n'a
+        donc pas été écarté : il n'a rien en ligne au moment où vous lisez cette page.
+      </p>
+      <p>
+        Le classement suit le nombre d'offres actives, ce qui met en tête les gros volumes
+        d'intérim et de distribution. Ce n'est pas une mesure de qualité, seulement de quantité :
+        une entreprise de dix personnes qui recrute son premier salarié figure dans la même liste,
+        plus bas.
+      </p>
+
+      <h3>Les libellés qui ne nomment personne</h3>
+      <p>
+        Certaines annonces arrivent sous « Entreprise », « Confidentiel » ou « Recruteur » : la
+        source n'a pas communiqué l'employeur. D'autres portent un nom institutionnel que des
+        centaines d'organismes se partagent, « Mairie » ou « CCAS » par exemple. Ces libellés sont
+        exclus de l'annuaire, faute de quoi ils occuperaient les premières places en empilant des
+        offres qui n'ont que ce mot en commun. Les offres concernées restent consultables dans la
+        recherche ; c'est la fiche entreprise qui n'aurait aucun sens. Un nom complet comme
+        « Mairie d'Annecy », lui, désigne bien un employeur et garde sa fiche.
+      </p>
+
+      <h3>Ce que vous trouvez sur une fiche</h3>
+      <p>
+        Les offres en cours de l'employeur, ses implantations, et les avis déposés par des
+        personnes qui y travaillent ou y ont travaillé. Un avis exige un compte et paraît sous le
+        prénom de son auteur suivi de l'initiale de son nom. L'entreprise, elle, rédige sa
+        présentation et rien d'autre : elle ne peut ni retirer un avis ni en commander. Les avis
+        sont publiés sans attendre et retirés après coup s'ils le méritent, ce qui suppose qu'on
+        nous les signale : un avis faux ou diffamatoire se
+        <a routerLink="/signalement">signale</a> comme n'importe quel autre contenu, avec une
+        décision motivée à la clé.
+      </p>
+      <p class="editorial__note">
+        Vous recrutez et votre entreprise n'apparaît pas ? Il n'y a pas d'inscription à demander :
+        <a routerLink="/recruteur/offres/nouvelle">publiez une offre</a> et la fiche se crée avec
+        elle. Les trois premières annonces en ligne sont gratuites.
+      </p>
+    </app-explication>
+  </div>
+</section>

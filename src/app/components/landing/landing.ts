@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { SeoService } from '../../services/seo.service';
 import { JobOffer } from '../../models/job-offer.model';
+import { Explication } from '../explication/explication';
 
 interface PageAtterrissage {
   metier: string;
@@ -43,7 +44,7 @@ interface PageAtterrissage {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, Explication],
   templateUrl: './landing.html',
   styleUrl: './landing.scss',
 })

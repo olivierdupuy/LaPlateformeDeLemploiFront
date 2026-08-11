@@ -6,10 +6,11 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { JobOfferService } from '../../services/job-offer';
 import { CompanyInfo } from '../../models/job-offer.model';
 import { companyColor } from '../../utils/job.utils';
+import { Explication } from '../explication/explication';
 
 @Component({
   selector: 'app-company-list',
-  imports: [RouterLink, FormsModule, DecimalPipe],
+  imports: [RouterLink, FormsModule, DecimalPipe, Explication],
   templateUrl: './company-list.html',
   styleUrl: './company-list.scss',
 })

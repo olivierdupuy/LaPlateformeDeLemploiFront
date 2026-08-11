@@ -84,3 +84,65 @@
     }
   </div>
 </section>
+
+<!-- ═══ MÉTHODE ═══
+     Une page de salaires sans sa méthode demande qu'on la croie sur
+     parole. Celle-ci a des partis pris qui changent le classement — le
+     plancher exigé, le milieu de fourchette, le regroupement sur
+     l'intitulé exact — et les taire reviendrait à présenter une moyenne
+     comme un fait de marché. -->
+<section class="bande-expli bande-expli--canvas">
+  <div class="container">
+    <app-explication
+      surtitre="Méthode"
+      titre="Comment ces montants sont obtenus"
+      chapeau="Ce sont des salaires annoncés dans des offres réelles, pas une enquête déclarative. Cela décide de ce qu'ils valent, et de ce qu'ils ne disent pas.">
+
+      <h3>Ce qui entre dans le calcul</h3>
+      <p>
+        Chaque fourchette est bâtie sur les offres en ligne, validées, qui annoncent une
+        rémunération. Quand l'employeur donne un minimum et un maximum, nous retenons le milieu
+        de la fourchette ; quand il ne donne que le minimum, nous retenons ce minimum.
+      </p>
+      <p>
+        Une offre qui n'annonce qu'un plafond est écartée du classement. « Jusqu'à 200 000 € par
+        an » ne décrit pas ce que le poste paie, mais ce qu'il pourrait payer dans le meilleur
+        des cas ; comptée telle quelle, cette borne plaçait un poseur de panneaux
+        photovoltaïques en tête du classement, devant les anesthésistes. Sur la fiche d'un
+        métier en particulier, les montants partagés par les visiteurs viennent s'ajouter aux
+        offres, et le compte affiché sous le titre dit sur combien de données repose l'estimation.
+      </p>
+
+      <h3>Lire un classement, pas un barème</h3>
+      <p>
+        Les métiers sont regroupés sur leur intitulé exact, celui que l'employeur a écrit. Deux
+        annonces pour le même poste rédigées différemment comptent donc pour deux métiers, et un
+        intitulé rare peut se retrouver haut placé sur une poignée d'offres. Le nombre d'offres
+        est affiché sur chaque carte : c'est lui qui dit si la moyenne pèse quelque chose. Une
+        fourchette calculée sur trois annonces se lit comme trois annonces.
+      </p>
+      <p>
+        Les montants sont des bruts annuels tels qu'ils figurent dans les annonces. Le variable,
+        les primes, l'intéressement, les avantages en nature et le treizième mois n'y sont donc
+        présents que si l'employeur les a intégrés à la fourchette qu'il affiche. À poste égal,
+        l'écart entre deux villes tient autant à la composition des offres qu'au niveau réel des
+        rémunérations locales : quelques postes de direction publiés dans une ville déplacent sa
+        moyenne.
+      </p>
+
+      <h3>Ce que ces chiffres servent à faire</h3>
+      <p>
+        Situer une proposition avant de répondre, préparer un entretien où la question du salaire
+        tombera, et repérer les métiers voisins mieux payés que celui qu'on exerce. Pour la
+        conversation elle-même, le guide consacre un article à
+        <a routerLink="/guide/negocier-salaire">la négociation salariale</a>.
+      </p>
+      <p class="editorial__note">
+        Les salaires partagés sont anonymes et personne ne peut remonter à leur auteur, mais
+        chacun déplace une moyenne publique. C'est pourquoi les montants aberrants sont refusés à
+        la saisie, et pourquoi il vaut mieux déclarer un brut annuel complet qu'un net mensuel
+        arrondi.
+      </p>
+    </app-explication>
+  </div>
+</section>

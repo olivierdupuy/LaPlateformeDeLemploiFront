@@ -127,6 +127,67 @@
         }
         <a routerLink="/parcourir">Parcourir tous les métiers et toutes les villes</a>
       </nav>
+
+      <!-- ═══ CE QUE DIT CETTE PAGE ═══
+           Une page d'atterrissage qui ne porte que des liens est une page
+           d'atterrissage vide, pour le visiteur comme pour le moteur qui
+           l'a amené ici. Le texte explique ce que les chiffres du haut
+           mesurent — d'autant qu'ils sont calculés sur les offres en
+           ligne, et non sur le marché de l'emploi en général. -->
+      <div class="expli-solo">
+        <app-explication
+          surtitre="Sur cette page"
+          [titre]="'Chercher un poste ' + p.libelleMetier + (p.libelleVille ? ' à ' + p.libelleVille : '')"
+          chapeau="Les chiffres ci-dessus décrivent les annonces publiées ici aujourd'hui. Voici comment les lire, et quoi faire ensuite."
+          libelle="Comment lire cette page">
+          <h3>Ce que mesurent ces chiffres</h3>
+            <p>
+              Le nombre d'offres est celui des annonces en ligne au moment où vous ouvrez la page,
+              après retrait des doublons entre nos deux sources et des annonces retirées chez leur
+              émetteur. Il change tous les jours. Le salaire médian, quand il apparaît, est celui
+              que les offres affichent : la moitié annonce moins, la moitié annonce plus. Les
+              annonces sans rémunération indiquée ne comptent pas, ce qui suffit à déplacer la
+              médiane d'un métier où l'usage est de ne rien afficher.
+            </p>
+            <p>
+              La part de télétravail se calcule de la même façon, sur ce que les employeurs
+              déclarent. Un poste annoncé « hybride » y figure au même titre qu'un poste
+              intégralement à distance : le détail du rythme se lit sur la fiche, rarement dans
+              l'intitulé.
+            </p>
+
+            <h3>Élargir sans tout recommencer</h3>
+            <p>
+              @if (p.libelleVille) {
+                Si le volume local est mince, les villes proposées plus haut portent le même métier
+                à distance raisonnable, et la page nationale rassemble tout. Regardez aussi les
+                autres métiers listés pour {{ p.libelleVille }} : les intitulés voisins recouvrent
+                souvent le même travail sous un autre nom, et une recherche sur le seul libellé
+                exact passe à côté.
+              } @else {
+                Les villes proposées plus haut disent où ce métier recrute réellement en ce moment.
+                C'est une information de départ plus fiable qu'une intuition sur le dynamisme d'une
+                région, et elle évite d'écarter un bassin d'emploi auquel on n'aurait pas pensé.
+              }
+            </p>
+            <p>
+              Le bouton « Affiner la recherche » ouvre la liste complète avec les filtres du site :
+              type de contrat, rémunération minimale, télétravail, distance autour d'une ville.
+              Une fois vos critères posés, enregistrez la recherche : votre espace comptera ensuite
+              les offres arrivées depuis votre dernier passage, au lieu de vous faire relire les
+              mêmes.
+            </p>
+
+            <h3>Avant de postuler</h3>
+            <p>
+              Sur les offres qui portent la mention « candidature simplifiée », votre profil et
+              votre CV partent en un clic, et la candidature apparaît aussitôt dans votre suivi
+              avec son statut. Les offres importées, elles, se traitent sur le site de leur source :
+              enregistrez-les avant de partir, elles vous attendront dans l'onglet des offres mises
+              de côté avec leur lien et la date où vous les avez vues.
+            </p>
+        </app-explication>
+      </div>
     }
   </div>
 </div>

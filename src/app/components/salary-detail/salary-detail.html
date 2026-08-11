@@ -97,6 +97,65 @@
   </div>
 </section>
 
+<!-- ═══ COMMENT LIRE CETTE FICHE ═══
+     Moyenne, médiane et deux classements sur le même écran : sans un mot
+     d'explication, on retient le plus gros chiffre. Or les deux panneaux
+     du bas ne portent pas sur les mêmes données que la carte du haut, et
+     c'est le genre d'écart qui se remarque après coup. -->
+<section class="bande-expli bande-expli--canvas">
+  <div class="container">
+    <app-explication
+      surtitre="Lire cette estimation"
+      titre="Ce que ces chiffres recouvrent"
+      chapeau="Une estimation de salaire n'est pas une grille : c'est le résumé de ce que des employeurs ont écrit, à un moment donné, pour un intitulé donné.">
+
+      <h3>Moyenne et médiane ne disent pas la même chose</h3>
+      <p>
+        La moyenne se laisse tirer par les extrêmes : trois postes de direction publiés le même
+        mois la déplacent, alors qu'ils ne décrivent pas le poste que vous visez. La médiane est
+        le montant du milieu, celui qui coupe les données en deux moitiés égales. Quand elle est
+        nettement plus basse que la moyenne, le métier compte quelques annonces très rémunératrices
+        au-dessus d'un socle plus large : c'est la médiane qu'il faut retenir pour se situer.
+      </p>
+      <p>
+        Le minimum et le maximum sont des observations, pas des bornes. Ils viennent d'une annonce
+        réelle chacun, et une seule suffit à les déplacer. Le nombre de données affiché sous le
+        titre de la page est donc à lire avant tout le reste.
+      </p>
+
+      <h3>D'où viennent les données</h3>
+      <p>
+        Deux sources se mélangent dans la carte du haut : les offres en ligne pour ce métier, dont
+        nous retenons le milieu de fourchette quand elle est complète et le plancher sinon, et les
+        salaires partagés anonymement par les visiteurs. Les deux classements du bas, par
+        entreprise et par lieu, ne reposent que sur les offres : un salaire partagé n'a pas
+        toujours d'employeur ni de ville, et ceux qui en portent un ne sont pas vérifiables.
+      </p>
+      <p>
+        Les montants sont des bruts annuels tels qu'annoncés. Ce qui n'apparaît pas dans la
+        fourchette de l'annonce n'apparaît pas ici : primes sur objectifs, treizième mois,
+        participation, avantages en nature. Sur beaucoup de postes commerciaux, c'est une part
+        substantielle de la rémunération réelle.
+      </p>
+
+      <h3>S'en servir dans une négociation</h3>
+      <p>
+        Un chiffre issu d'annonces publiques a un avantage sur une enquête : votre interlocuteur
+        peut le vérifier. Il a aussi une limite, qu'il vaut mieux poser soi-même que se voir
+        opposer : ces montants décrivent ce que le marché affiche, pas ce que cette entreprise
+        paie à ce niveau d'expérience. Le guide détaille comment amener la question sans se
+        fermer de porte, dans <a routerLink="/guide/negocier-salaire">l'article sur la
+        négociation</a>.
+      </p>
+      <p class="editorial__note">
+        Partager votre salaire prend trente secondes et reste anonyme : ni votre nom ni votre
+        compte n'apparaissent sur cette page. Plus il y a de montants pour un métier, moins une
+        annonce isolée pèse sur la fourchette que liront les suivants.
+      </p>
+    </app-explication>
+  </div>
+</section>
+
 <!-- Modale contribution -->
 @if (contribOpen()) {
     <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :

@@ -1,15 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { SavedSearchService } from '../../services/saved-search.service';
 import { CandidateFeaturesService } from '../../services/candidate-features.service';
 import { SavedSearch } from '../../models/job-offer.model';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { Explication } from '../explication/explication';
 
 @Component({
   selector: 'app-saved-searches',
-  imports: [DatePipe, ConsoleShell],
+  // RouterLink manquait : les deux boutons « Voir les offres » du gabarit
+  // portaient l'attribut sans que la directive soit là pour le lire. Angular
+  // ne s'en plaint pas — c'est un attribut valide sur une ancre — et le
+  // bouton ne faisait donc rien du tout.
+  imports: [DatePipe, ConsoleShell, RouterLink, Explication],
   templateUrl: './saved-searches.html',
   styleUrl: './saved-searches.scss',
 })

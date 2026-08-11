@@ -9,6 +9,7 @@ import {
   MarcheDuTravail,
   MetierPredit,
 } from '../../services/france-travail.service';
+import { Explication } from '../explication/explication';
 
 /**
  * Mon métier — fiche ROME 4.0 et marché du travail (France Travail).
@@ -23,7 +24,7 @@ import {
  */
 @Component({
   selector: 'app-job-market',
-  imports: [ConsoleShell, FormsModule, RouterLink],
+  imports: [ConsoleShell, FormsModule, RouterLink, Explication],
   templateUrl: './job-market.html',
   styleUrl: './job-market.scss',
 })

@@ -7,6 +7,7 @@ import { AdminService } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
 import { companyColor } from '../../utils/job.utils';
 import { FichiersService } from '../../utils/fichiers';
+import { confirmer } from '../../utils/confirmation';
 
 /**
  * Fiche d'un compte, ouverte depuis le tableau des utilisateurs.
@@ -493,9 +494,15 @@ export class AdminUserDetail implements OnInit {
                 a.isArchived ? 'Candidature réactivée' : 'Candidature archivée');
   }
 
-  supprimerCandidature(a: any) {
+  async supprimerCandidature(a: any) {
     // Une candidature effacée ne se retrouve pas : on demande confirmation.
-    if (!confirm(`Supprimer définitivement la candidature de ${a.fullName} ?`)) return;
+    const ok = await confirmer({
+      titre: 'Supprimer cette candidature ?',
+      texte: `La candidature de ${a.fullName}, ses réponses de présélection et les notes du recruteur seront effacées. Cette suppression ne se défait pas.`,
+      confirmer: 'Supprimer',
+      danger: true,
+    });
+    if (!ok) return;
     this.ecrire(`c${a.id}`, this.admin.supprimerCandidature(a.id), 'Candidature supprimée');
   }
 
@@ -504,8 +511,14 @@ export class AdminUserDetail implements OnInit {
                 s.alertEnabled ? 'Alerte désactivée' : 'Alerte activée');
   }
 
-  supprimerRecherche(s: any) {
-    if (!confirm('Supprimer cette recherche enregistrée ?')) return;
+  async supprimerRecherche(s: any) {
+    const ok = await confirmer({
+      titre: 'Supprimer cette recherche ?',
+      texte: "Les critères enregistrés sont perdus, ainsi que le compteur d'offres nouvelles qui les accompagne.",
+      confirmer: 'Supprimer',
+      danger: true,
+    });
+    if (!ok) return;
     this.ecrire(`r${s.id}`, this.admin.supprimerRecherche(s.id), 'Recherche supprimée');
   }
 
@@ -514,18 +527,36 @@ export class AdminUserDetail implements OnInit {
     this.ecrire(`e${i.id}`, this.admin.majEntretien(i.id, { statut }), 'Statut enregistré');
   }
 
-  supprimerEntretien(i: any) {
-    if (!confirm('Supprimer cet entretien ?')) return;
+  async supprimerEntretien(i: any) {
+    const ok = await confirmer({
+      titre: 'Supprimer cet entretien ?',
+      texte: 'Le créneau disparaît des deux côtés, candidat et recruteur. Personne ne sera prévenu automatiquement.',
+      confirmer: 'Supprimer',
+      danger: true,
+    });
+    if (!ok) return;
     this.ecrire(`e${i.id}`, this.admin.supprimerEntretien(i.id), 'Entretien supprimé');
   }
 
-  supprimerNote(n: any) {
-    if (!confirm('Supprimer cette note ?')) return;
+  async supprimerNote(n: any) {
+    const ok = await confirmer({
+      titre: 'Supprimer cette note ?',
+      texte: "La note disparaît du dossier. Son auteur n'en sera pas informé.",
+      confirmer: 'Supprimer',
+      danger: true,
+    });
+    if (!ok) return;
     this.ecrire(`n${n.id}`, this.admin.supprimerNote(n.id), 'Note supprimée');
   }
 
-  supprimerSectionCv(c: any) {
-    if (!confirm('Supprimer cet élément du CV ?')) return;
+  async supprimerSectionCv(c: any) {
+    const ok = await confirmer({
+      titre: 'Supprimer cet élément du CV ?',
+      texte: "Vous modifiez le CV de quelqu'un d'autre : l'élément disparaîtra de son espace comme des candidatures à venir.",
+      confirmer: 'Supprimer',
+      danger: true,
+    });
+    if (!ok) return;
     this.ecrire(`v${c.id}`, this.admin.supprimerSectionCv(c.id), 'Élément supprimé');
   }
 
@@ -550,22 +581,26 @@ export class AdminUserDetail implements OnInit {
    */
   async couper2fa() {
     const u = this.user();
-    const res = await confirm(
-      `Couper la double authentification de ${u.firstName} ${u.lastName} ?
-
-`
-      + `Son mot de passe suffira de nouveau pour entrer. Ne le faites que si `
-      + `cette personne a perdu son telephone et ses codes de secours, et que `
-      + `vous etes sur de lui parler. Elle en sera informee par courriel, et `
-      + `votre nom restera au journal.`,
-    );
+    const res = await confirmer({
+      titre: `Couper la double authentification de ${u.firstName} ${u.lastName} ?`,
+      texte:
+        "Son mot de passe suffira de nouveau pour entrer. Ne le faites que si cette personne a perdu son téléphone et ses codes de secours, et que vous êtes sûr de lui parler. Elle en sera informée par courriel, et votre nom restera au journal.",
+      confirmer: 'Couper la protection',
+      danger: true,
+    });
     if (!res) return;
     this.ecrire('sec', this.admin.desactiver2fa(this.userId), 'Double authentification coupée');
   }
 
   /** Ferme tous les appareils connectés de ce compte. */
   async fermerSessions() {
-    if (!confirm('Deconnecter tous les appareils de ce compte ?')) return;
+    const ok = await confirmer({
+      titre: 'Déconnecter tous les appareils ?',
+      texte: 'Toutes les sessions ouvertes sont fermées, y compris celle de la personne si elle est en train de travailler. Elle devra se reconnecter.',
+      confirmer: 'Déconnecter',
+      danger: true,
+    });
+    if (!ok) return;
     this.ecrire('sec', this.admin.fermerSessions(this.userId), 'Appareils déconnectés');
   }
 
@@ -576,15 +611,17 @@ export class AdminUserDetail implements OnInit {
    * ses messages privés et permet d'agir en son nom. Ce n'est pas un
    * geste qu'on fait par mégarde.
    */
-  prendreEnMain() {
+  async prendreEnMain() {
     const u = this.user();
     if (!u) return;
 
-    const ok = confirm(
-      `Prendre la main sur le compte de ${u.firstName} ${u.lastName} ?\n\n`
-      + `Vous agirez en son nom pendant 30 minutes. Vos actions seront `
-      + `enregistrées au journal sous votre propre identité.`,
-    );
+    const ok = await confirmer({
+      titre: `Prendre la main sur le compte de ${u.firstName} ${u.lastName} ?`,
+      texte:
+        'Vous agirez en son nom pendant 30 minutes, avec accès à ses messages privés. Chacune de vos actions sera enregistrée au journal sous votre propre identité.',
+      confirmer: 'Prendre la main',
+      danger: true,
+    });
     if (!ok) return;
 
     this.saving.set(true);

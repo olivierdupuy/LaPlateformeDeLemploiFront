@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SalaryService, SalaryRole } from '../../services/salary.service';
 import { JobOfferService, BrowseFacet } from '../../services/job-offer';
+import { Explication } from '../explication/explication';
 
 @Component({
   selector: 'app-salaries',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink, Explication],
   templateUrl: './salaries.html',
   styleUrl: './salaries.scss',
 })

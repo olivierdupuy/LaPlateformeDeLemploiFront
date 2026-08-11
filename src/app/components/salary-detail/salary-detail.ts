@@ -6,10 +6,11 @@ import { SalaryService, SalaryEstimate } from '../../services/salary.service';
 import { AuthService } from '../../services/auth.service';
 import { SeoService } from '../../services/seo.service';
 import { Modale } from '../../utils/modale.directive';
+import { Explication } from '../explication/explication';
 
 @Component({
   selector: 'app-salary-detail',
-  imports: [RouterLink, FormsModule, Modale],
+  imports: [RouterLink, FormsModule, Modale, Explication],
   templateUrl: './salary-detail.html',
   styleUrl: './salary-detail.scss',
 })

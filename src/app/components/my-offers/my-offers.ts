@@ -10,11 +10,12 @@ import { JobOffer } from '../../models/job-offer.model';
 import { companyColor, getContractBadgeClass } from '../../utils/job.utils';
 import { ToastrService } from 'ngx-toastr';
 import { ConsoleShell } from '../console-shell/console-shell';
+import { Explication } from '../explication/explication';
 import { libelleStatut } from '../../utils/statut-candidature';
 
 @Component({
   selector: 'app-my-offers',
-  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell],
+  imports: [RouterLink, DatePipe, FormsModule, ConsoleShell, Explication],
   templateUrl: './my-offers.html',
   styleUrl: './my-offers.scss',
 })

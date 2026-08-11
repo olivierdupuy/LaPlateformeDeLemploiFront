@@ -90,6 +90,62 @@
   </div>
 </section>
 
+<!-- ═══ POURQUOI DEUX ONGLETS ═══
+     Les deux sources n'ont ni la même taille ni le même usage, et rien
+     ne l'expliquait : un onglet à trois entrées voisinait avec un onglet
+     à plusieurs milliers, ce qui se lit comme une panne. -->
+<section class="bande-expli">
+  <div class="container">
+    <app-explication
+      surtitre="Se déplacer"
+      titre="Ce qu'on gagne à rencontrer un recruteur"
+      chapeau="Un salon vaut rarement pour l'offre affichée sur le stand. Il vaut pour la conversation de dix minutes qu'une candidature en ligne ne permet jamais.">
+
+      <h3>Deux sources, deux usages</h3>
+      <p>
+        L'onglet <strong>À venir</strong> rassemble les événements organisés par les employeurs de
+        la plateforme et par nous : job datings, sessions de recrutement, présentations de métier.
+        Ils sont peu nombreux et directement liés aux offres que vous voyez ici. L'onglet
+        <strong>France Travail</strong> interroge en direct l'agenda de l'opérateur public et de
+        son réseau, qui couvre le territoire entier avec plusieurs milliers de forums, ateliers et
+        salons en ligne. Vous y filtrez par département, par type d'événement, par secteur et par
+        format.
+      </p>
+      <p>
+        Les critères de cet onglet vivent dans l'adresse de la page. Un forum repéré se transmet
+        donc par un simple lien, à quelqu'un qui cherche dans le même département que vous.
+      </p>
+
+      <h3>Y aller sans y perdre sa journée</h3>
+      <p>
+        Un salon se prépare comme un entretien, en plus court. Repérez les employeurs annoncés,
+        gardez deux ou trois questions précises sur les postes ouverts, et venez avec un CV à jour :
+        les recruteurs présents sont là pour préqualifier, et la suite se joue souvent dans les
+        quarante-huit heures. Notre <a routerLink="/mon-cv">éditeur de CV</a> produit un PDF
+        imprimable en une manipulation.
+      </p>
+      <p>
+        Les événements en ligne demandent moins de logistique et ne rendent pas les mêmes services.
+        Un webinaire sectoriel renseigne sur un métier et sur ceux qui le pratiquent ; il ne
+        remplace pas la poignée de main qui fait qu'on se souvient de vous.
+      </p>
+
+      <h3>Après l'événement</h3>
+      <p>
+        Un contact pris sur un stand se perd si rien ne le fixe. Créez la candidature le soir même
+        sur l'offre concernée, et notez dans <a routerLink="/suivi">votre suivi</a> avec qui vous
+        avez parlé : c'est ce qui donne à la relance de la semaine suivante autre chose qu'un
+        « suite à notre rencontre ».
+      </p>
+      <p class="editorial__note">
+        L'inscription se fait toujours chez l'organisateur, jamais ici : le bouton ouvre son site
+        ou celui de France Travail. Nous ne transmettons aucune information vous concernant à ce
+        moment-là.
+      </p>
+    </app-explication>
+  </div>
+</section>
+
 <!-- Modale création -->
 @if (modalOpen()) {
     <!-- Fermeture au clic sur le fond, à Échap, et piège de focus :

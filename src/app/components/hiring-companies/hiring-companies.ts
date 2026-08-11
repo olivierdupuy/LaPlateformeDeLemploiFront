@@ -8,6 +8,7 @@ import {
   EntrepriseQuiRecrute,
   MetierPredit,
 } from '../../services/france-travail.service';
+import { Explication } from '../explication/explication';
 
 /**
  * Entreprises qui recrutent — données La Bonne Boite (France Travail).
@@ -23,7 +24,7 @@ import {
  */
 @Component({
   selector: 'app-hiring-companies',
-  imports: [ConsoleShell, FormsModule, RouterLink],
+  imports: [ConsoleShell, FormsModule, RouterLink, Explication],
   templateUrl: './hiring-companies.html',
   styleUrl: './hiring-companies.scss',
 })

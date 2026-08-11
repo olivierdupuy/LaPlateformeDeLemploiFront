@@ -6,7 +6,11 @@
 
 nav {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  // Le haut n'est pas toujours le haut : la pile de bandeaux (emprunt de
+  // compte, annonce du site, adresse a confirmer) occupe le dessus quand
+  // elle porte quelque chose, et vaut zero le reste du temps.
+  top: var(--pile-h);
+  left: 0; right: 0;
   z-index: 100;
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(18px) saturate(1.6);

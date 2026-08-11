@@ -12,6 +12,7 @@ import {
   RetourCourriel,
 } from '../../services/plateforme-pro.service';
 import { ToastrService } from 'ngx-toastr';
+import { confirmer } from '../../utils/confirmation';
 
 @Component({
   selector: 'app-admin-moderation',
@@ -131,8 +132,14 @@ export class AdminModeration implements OnInit {
    * passe, qui est justement ce qu'on utilise quand on n'arrive plus à
    * entrer. Le compte était perdu pour son titulaire.
    */
-  debloquer(r: RetourCourriel) {
-    if (!confirm(`Rouvrir ${r.email} ? Les envois reprendront au prochain message.`)) return;
+  async debloquer(r: RetourCourriel) {
+    const ok = await confirmer({
+      titre: `Rouvrir ${r.email} ?`,
+      texte:
+        "Les envois vers cette adresse reprendront au prochain message. Si le blocage venait d'un rejet dur légitime — boîte inexistante — le retour d'expédition la bloquera de nouveau, et notre réputation d'expéditeur en pâtira.",
+      confirmer: 'Rouvrir',
+    });
+    if (!ok) return;
 
     this.pro.debloquerAdresse(r.id).subscribe({
       next: (rep) => { this.toastr.success(rep.message); this.load(); },

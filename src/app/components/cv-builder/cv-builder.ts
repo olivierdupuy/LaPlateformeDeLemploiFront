@@ -10,10 +10,11 @@ import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { ConsoleShell } from '../console-shell/console-shell';
 import { Modale } from '../../utils/modale.directive';
+import { Explication } from '../explication/explication';
 
 @Component({
   selector: 'app-cv-builder',
-  imports: [FormsModule, DatePipe, LowerCasePipe, RouterLink, ConsoleShell, Modale],
+  imports: [FormsModule, DatePipe, LowerCasePipe, RouterLink, ConsoleShell, Modale, Explication],
   templateUrl: './cv-builder.html',
   styleUrl: './cv-builder.scss',
 })

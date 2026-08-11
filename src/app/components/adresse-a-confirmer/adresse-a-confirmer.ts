@@ -34,15 +34,21 @@ import { AuthService } from '../../services/auth.service';
     }
   `,
   styles: [`
+    /* Les couleurs sont celles de la charte, prises aux jetons : ce
+       bandeau n'avait jamais ete vu — rendu apres le pied de page — et
+       ses trois valeurs en dur dataient de l'identite precedente. Sa
+       hauteur et son rythme suivent ceux du bandeau d'annonce, avec
+       lequel il peut se retrouver empile. */
     .ac-bandeau {
       display: flex;
       align-items: center;
       gap: .75rem;
-      padding: .6rem 1rem;
-      background: #fff4e0;
-      border-bottom: 1px solid #e6d5bd;
-      color: #6b4a12;
-      font-size: .92rem;
+      padding: .62rem clamp(1.1rem, 4vw, 2.25rem);
+      background: var(--ambre-100);
+      border-bottom: 1px solid rgba(0, 28, 81, 0.08);
+      color: var(--rouge-700);
+      font-size: .83rem;
+      line-height: 1.45;
     }
     .ac-bandeau p { margin: 0; flex: 1; }
     .ac-bandeau button {

@@ -5,6 +5,40 @@ raconte le code ; celui-ci raconte le service.
 
 ---
 
+## 2026-08-11
+
+### Nouveau
+
+- **Le site explique ce qu'il fait** — vingt et un écrans portent
+  désormais un texte qui répond aux questions qu'on se pose sans oser les
+  poser : d'où viennent les offres, comment sont calculées les fourchettes
+  de salaire, qui peut lire un CV déposé, ce que déclenche un statut de
+  candidature, ce qui se passe après un signalement. Tout est vérifié
+  dans le code : les trente jours d'expiration, le dédoublonnage par
+  empreinte, le seuil de modération, les quotas des formules. Le texte
+  tient dans une fenêtre qu'on ouvre depuis un bandeau de trois lignes,
+  et la page reste courte pour qui n'a rien à y apprendre.
+
+### Amélioré
+
+- **Les bandeaux du haut se voient enfin** — annonce du site, emprunt de
+  compte et rappel de confirmer son adresse étaient rendus à trois
+  endroits différents, et aucun n'était visible : les deux premiers
+  passaient sous une barre de navigation fixe, le troisième s'affichait
+  après le pied de page. Ils forment maintenant une pile en haut de
+  l'écran, et le contenu se décale de leur hauteur réelle.
+- **Plus de boîtes de dialogue du navigateur** — les treize
+  confirmations et les deux saisies qui gelaient l'onglet passent par les
+  fenêtres du site. Un geste destructeur y porte un bouton rouge et le
+  focus sur « Annuler », et le résultat arrive en notification plutôt
+  qu'en silence.
+- **Recherches enregistrées** — les deux boutons « Voir les offres » ne
+  faisaient rien du tout. La page annonçait par ailleurs des alertes par
+  courriel qui ne partent pas : elle dit maintenant ce que la cloche fait
+  réellement, compter les offres parues depuis votre dernier passage.
+
+---
+
 ## 2026-08-02 (suite)
 
 ### Nouveau

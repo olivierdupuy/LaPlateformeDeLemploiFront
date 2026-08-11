@@ -26,7 +26,8 @@
 // ── Barre latérale ──
 .adm-side {
   position: fixed;
-  top: 0;
+  // Sous la pile de bandeaux, comme la navbar du site. Voir `--pile-h`.
+  top: var(--pile-h);
   left: 0;
   bottom: 0;
   width: var(--adm-side);
@@ -279,7 +280,7 @@
   background: var(--canvas);
   border-bottom: 1px solid var(--line);
   position: sticky;
-  top: 0;
+  top: var(--pile-h);
   z-index: 50;
 }
 

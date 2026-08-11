@@ -244,5 +244,56 @@
         <a routerLink="/espace-recruteur" class="btn-secondary">Retour au tableau de bord</a>
       </div>
     }
+
+    <!-- Un tableau de formules répond à « combien », jamais à « ce qui
+         se passe si ». Changer de formule en cours de mois, dépasser son
+         quota, révoquer une clé : trois questions qui arrivent toujours,
+         et dont la réponse n'était écrite nulle part. -->
+    <app-explication
+      forme="ligne"
+      titre="Comment fonctionnent les formules"
+      chapeau="Ce que compte le quota, ce qu'est une mise en avant, et ce que vaut une facture émise ici."
+      libelle="Ouvrir">
+      <h3>Le quota compte les offres en ligne, pas les offres publiées</h3>
+      <p>
+        Ce qui est décompté, ce sont les annonces actives à un instant donné. Fermer un poste
+        pourvu libère aussitôt une place, et rien ne limite le nombre d'offres publiées sur
+        l'année. Les brouillons ne comptent pas : ils ne sont visibles de personne, et facturer
+        une hésitation n'aurait pas de sens. Quand le quota est atteint, la publication est
+        refusée avec un message qui le dit, plutôt que d'échouer sans explication.
+      </p>
+
+      <h3>Les mises en avant</h3>
+      <p>
+        Une mise en avant remonte une annonce dans les résultats pendant quinze jours. Les
+        formules payantes en incluent un certain nombre par mois calendaire, et non par période
+        glissante : le compteur repart le premier du mois, ce qui est la seule lecture qui
+        corresponde à « cinq par mois ». Une fois ce nombre épuisé, une mise en avant
+        supplémentaire s'achète à l'unité, sans changer de formule. C'est fait pour un poste
+        difficile à pourvoir, pas pour un usage permanent : si toutes vos offres sont mises en
+        avant, aucune ne l'est.
+      </p>
+
+      <h3>Vos factures</h3>
+      <p>
+        Chaque paiement produit une facture numérotée, avec le détail de la TVA. Les numéros sont
+        séquentiels et sans trou : c'est une obligation comptable, et c'est pourquoi un numéro
+        attribué n'est jamais réutilisé, même si la facture est annulée ensuite. Les montants sont
+        figés à l'émission et jamais recalculés à l'affichage, faute de quoi un changement de taux
+        réécrirait vos justificatifs de l'an dernier.
+      </p>
+
+      <h3>API et webhooks</h3>
+      <p>
+        La formule Pro ouvre l'accès à l'API : votre logiciel de recrutement publie les offres et
+        relève les candidatures sans repasser par ces écrans. Une clé n'est montrée qu'une fois,
+        parce que nous n'en gardons qu'une empreinte, comme pour un mot de passe. Perdue, elle se
+        révoque et se remplace, ce qui est plus sûr que de pouvoir la relire. Les webhooks
+        préviennent votre outil à chaque nouvelle candidature ; chaque envoi est signé, et un
+        point de livraison qui échoue trop longtemps est désactivé plutôt que réessayé
+        indéfiniment. La marche à suivre complète est dans
+        <a routerLink="/guide/api">l'article dédié du guide</a>.
+      </p>
+    </app-explication>
   </div>
 </div>

@@ -15,10 +15,11 @@ import { JobOffer } from '../../models/job-offer.model';
 import { getTimeAgo, getTags, getContractBadgeClass, companyColor, salaryLabel } from '../../utils/job.utils';
 import { EmployerNamePipe, estEmployeurGenerique } from '../../pipes/employer-name.pipe';
 import { Modale } from '../../utils/modale.directive';
+import { Explication } from '../explication/explication';
 
 @Component({
   selector: 'app-job-list',
-  imports: [RouterLink, FormsModule, DecimalPipe, EmployerNamePipe, Modale],
+  imports: [RouterLink, FormsModule, DecimalPipe, EmployerNamePipe, Modale, Explication],
   templateUrl: './job-list.html',
   styleUrl: './job-list.scss',
 })
